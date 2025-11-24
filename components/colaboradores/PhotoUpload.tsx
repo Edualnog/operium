@@ -33,16 +33,6 @@ export function PhotoUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClientComponentClient()
 
-  // Se não tiver userId, não renderizar nada
-  if (!userId) {
-    return (
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Foto do Colaborador</Label>
-        <p className="text-xs text-zinc-500">Carregando...</p>
-      </div>
-    )
-  }
-
   // Verificar se o bucket existe ao montar o componente
   const verifyBucket = async () => {
     if (!userId) {
@@ -69,6 +59,16 @@ export function PhotoUpload({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
+
+  // Se não tiver userId, mostrar loading
+  if (!userId) {
+    return (
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Foto do Colaborador</Label>
+        <p className="text-xs text-zinc-500">Carregando...</p>
+      </div>
+    )
+  }
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
