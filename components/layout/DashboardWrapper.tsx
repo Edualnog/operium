@@ -111,26 +111,16 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
   }, [open, animate])
 
   return (
-    <>
-      {/* Desktop */}
-      <main
-        className="hidden md:block transition-all duration-300 bg-white min-h-screen"
-        style={{
-          marginLeft: `${width}px`,
-        }}
-      >
-        <div className="p-4 sm:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white">
-          {children}
-        </div>
-      </main>
-      
-      {/* Mobile */}
-      <main className="md:hidden bg-white min-h-screen">
-        <div className="p-4 sm:p-6 bg-white">
-          {children}
-        </div>
-      </main>
-    </>
+    <main
+      className="transition-all duration-300 bg-white min-h-screen"
+      style={{
+        marginLeft: `clamp(0px, ${width}px, 100%)`,
+      }}
+    >
+      <div className="p-4 sm:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white">
+        {children}
+      </div>
+    </main>
   )
 }
 
