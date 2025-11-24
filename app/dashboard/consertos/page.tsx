@@ -18,7 +18,7 @@ async function getConsertos(userId: string) {
       custo,
       data_envio,
       data_retorno,
-      ferramentas (
+      ferramentas!inner (
         id,
         nome,
         quantidade_disponivel
@@ -26,7 +26,14 @@ async function getConsertos(userId: string) {
     `)
     .eq("profile_id", userId)
     .order("data_envio", { ascending: false })
-  return data || []
+  
+  // Transformar ferramentas de array para objeto único
+  return (data || []).map((conserto: any) => ({
+    ...conserto,
+    ferramentas: Array.isArray(conserto.ferramentas) 
+      ? conserto.ferramentas[0] 
+      : conserto.ferramentas,
+  }))
 }
 
 export default async function ConsertosPage() {

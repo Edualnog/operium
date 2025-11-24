@@ -128,7 +128,10 @@ export function IndustrialDashboard({ userId }: IndustrialDashboardProps) {
           <KpiList
             title="Ranking de Responsabilidade"
             description="Score baseado em devoluções no prazo"
-            items={data.rankingResponsabilidade}
+            items={data.rankingResponsabilidade.map((item) => ({
+              ...item,
+              id: item.colaborador_id || item.nome,
+            }))}
             columns={[
               {
                 key: "score",

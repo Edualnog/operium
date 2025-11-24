@@ -63,6 +63,7 @@ function ColaboradoresList({
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) setUserId(user.id)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Estado dos filtros
