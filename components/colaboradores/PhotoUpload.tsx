@@ -208,11 +208,6 @@ export function PhotoUpload({
                     <>🔄 Verificar Bucket Novamente</>
                   )}
                 </Button>
-                {bucketExists === true && (
-                  <span className="text-sm text-green-600 font-semibold flex items-center gap-1">
-                    ✅ Bucket encontrado! Upload habilitado.
-                  </span>
-                )}
               </div>
               <p className="text-xs text-red-600 mt-3">
                 💡 Consulte o arquivo <code className="bg-red-100 px-1 rounded">SETUP_STORAGE.md</code> para configuração de políticas RLS
@@ -220,6 +215,13 @@ export function PhotoUpload({
             </div>
           </AlertDescription>
         </Alert>
+      )}
+
+      {/* Mensagem de sucesso quando bucket existe */}
+      {bucketExists === true && (
+        <div className="mb-2 text-xs text-green-600 font-medium flex items-center gap-1">
+          ✅ Bucket configurado! Upload de fotos habilitado.
+        </div>
       )}
 
       <div className="flex items-center gap-4">
@@ -242,8 +244,8 @@ export function PhotoUpload({
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading || bucketExists === false}
-              title={bucketExists === false ? "Configure o bucket no Supabase primeiro" : ""}
+              disabled={uploading || bucketExists === false || verifying}
+              title={bucketExists === false ? "Configure o bucket no Supabase primeiro" : verifying ? "Verificando bucket..." : ""}
             >
               <Upload className="h-4 w-4 mr-2" />
               {uploading ? "Enviando..." : preview ? "Alterar" : "Adicionar Foto"}
