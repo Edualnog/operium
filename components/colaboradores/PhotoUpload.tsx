@@ -165,21 +165,15 @@ export function PhotoUpload({
     <div className="space-y-2">
       <Label className="text-sm font-medium">Foto do Colaborador</Label>
       
-      {/* Alerta se o bucket não existir ou estiver verificando */}
-      {(bucketExists === false || (bucketExists === null && verifying)) && (
+      {/* Alerta se o bucket não existir */}
+      {bucketExists === false && (
         <Alert variant="destructive" className="mb-4 border-2 border-red-300">
           <AlertCircle className="h-5 w-5" />
           <AlertTitle className="text-base font-bold">⚠️ Bucket não encontrado</AlertTitle>
           <AlertDescription className="mt-3 space-y-3">
-            {verifying ? (
-              <p className="font-medium">
-                Verificando se o bucket <strong className="text-red-700">colaboradores-fotos</strong> existe...
-              </p>
-            ) : (
-              <p className="font-medium">
-                O bucket <strong className="text-red-700">colaboradores-fotos</strong> não foi encontrado no Supabase Storage.
-              </p>
-            )}
+            <p className="font-medium">
+              O bucket <strong className="text-red-700">colaboradores-fotos</strong> não foi encontrado no Supabase Storage.
+            </p>
             <div className="bg-red-50 border border-red-200 rounded-md p-3 space-y-2">
               <p className="text-sm font-semibold text-red-800">📋 Passos para resolver:</p>
               <ol className="text-sm text-red-700 space-y-2 list-decimal list-inside ml-2">
@@ -197,7 +191,7 @@ export function PhotoUpload({
                 </li>
                 <li>Após criar, clique no botão abaixo para verificar</li>
               </ol>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex gap-2 items-center">
                 <Button
                   type="button"
                   variant="outline"
@@ -214,6 +208,11 @@ export function PhotoUpload({
                     <>🔄 Verificar Bucket Novamente</>
                   )}
                 </Button>
+                {bucketExists === true && (
+                  <span className="text-sm text-green-600 font-semibold flex items-center gap-1">
+                    ✅ Bucket encontrado! Upload habilitado.
+                  </span>
+                )}
               </div>
               <p className="text-xs text-red-600 mt-3">
                 💡 Consulte o arquivo <code className="bg-red-100 px-1 rounded">SETUP_STORAGE.md</code> para configuração de políticas RLS
