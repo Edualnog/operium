@@ -33,19 +33,32 @@ export function PhotoUpload({
   const supabase = createClientComponentClient()
 
   // Verificar se o bucket existe ao montar o componente
-  useEffect(() => {
-    async function verifyBucket() {
-      if (userId) {
-        const exists = await checkBucketExists(supabase, "colaboradores-fotos")
-        setBucketExists(exists)
-      }
+  const verifyBucket = async () => {
+    if (userId) {
+      const exists = await checkBucketExists(supabase, "colaboradores-fotos")
+      setBucketExists(exists)
     }
+  }
+
+  useEffect(() => {
     verifyBucket()
   }, [userId, supabase])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Verificar se o bucket existe antes de continuar
+    if (bucketExists === false) {
+      alert(
+        "Bucket 'colaboradores-fotos' não encontrado no Supabase Storage.\n\n" +
+        "Por favor, crie o bucket primeiro seguindo as instruções exibidas acima."
+      )
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+      return
+    }
 
     // Validar tipo de arquivo
     if (!file.type.startsWith("image/")) {
@@ -90,25 +103,17 @@ export function PhotoUpload({
         })
 
       if (uploadError) {
-        // Se o bucket não existir, mostrar instruções detalhadas
+        // Se o bucket não existir, atualizar estado e mostrar erro
         if (
           uploadError.message.includes("Bucket not found") ||
           uploadError.message.includes("not found") ||
           uploadError.message.includes("does not exist")
         ) {
-          const message = `Bucket 'colaboradores-fotos' não encontrado no Supabase Storage.
-
-Para resolver:
-1. Acesse o Supabase Dashboard
-2. Vá em Storage → New bucket
-3. Nome: colaboradores-fotos
-4. Marque como "Public bucket"
-5. Limite: 5MB
-6. MIME types: image/jpeg, image/png, image/gif, image/webp
-
-Consulte o arquivo SETUP_STORAGE.md para mais detalhes.`
-          
-          alert(message)
+          setBucketExists(false)
+          setPreview(null)
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ""
+          }
           return
         }
         throw uploadError
@@ -143,28 +148,44 @@ Consulte o arquivo SETUP_STORAGE.md para mais detalhes.`
       
       {/* Alerta se o bucket não existir */}
       {bucketExists === false && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Bucket não encontrado</AlertTitle>
-          <AlertDescription className="mt-2 space-y-2">
-            <p>
-              O bucket <strong>colaboradores-fotos</strong> não foi encontrado no Supabase Storage.
+        <Alert variant="destructive" className="mb-4 border-2 border-red-300">
+          <AlertCircle className="h-5 w-5" />
+          <AlertTitle className="text-base font-bold">⚠️ Bucket não encontrado</AlertTitle>
+          <AlertDescription className="mt-3 space-y-3">
+            <p className="font-medium">
+              O bucket <strong className="text-red-700">colaboradores-fotos</strong> não foi encontrado no Supabase Storage.
             </p>
-            <div className="text-sm space-y-1">
-              <p className="font-semibold">Para resolver:</p>
-              <ol className="list-decimal list-inside space-y-1 ml-2">
-                <li>Acesse o Supabase Dashboard</li>
+            <div className="bg-red-50 border border-red-200 rounded-md p-3 space-y-2">
+              <p className="text-sm font-semibold text-red-800">📋 Passos para resolver:</p>
+              <ol className="text-sm text-red-700 space-y-2 list-decimal list-inside ml-2">
+                <li>
+                  Acesse o <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="underline font-semibold hover:text-red-900">Supabase Dashboard</a>
+                </li>
                 <li>Vá em <strong>Storage</strong> → <strong>New bucket</strong></li>
-                <li>Configure:
-                  <ul className="list-disc list-inside ml-4 mt-1 space-y-0.5">
-                    <li>Nome: <code className="bg-zinc-100 px-1 rounded">colaboradores-fotos</code></li>
-                    <li>Public bucket: ✅ Marcar como público</li>
-                    <li>File size limit: 5 MB</li>
-                    <li>Allowed MIME types: image/jpeg, image/png, image/gif, image/webp</li>
+                <li>Configure o bucket:
+                  <ul className="list-disc list-inside ml-4 mt-1 space-y-1 text-xs">
+                    <li><strong>Nome:</strong> <code className="bg-red-100 px-1.5 py-0.5 rounded font-mono">colaboradores-fotos</code></li>
+                    <li><strong>Public bucket:</strong> ✅ Marcar como público</li>
+                    <li><strong>File size limit:</strong> 5 MB</li>
+                    <li><strong>Allowed MIME types:</strong> image/jpeg, image/png, image/gif, image/webp</li>
                   </ul>
                 </li>
-                <li>Consulte o arquivo <code className="bg-zinc-100 px-1 rounded">SETUP_STORAGE.md</code> para mais detalhes</li>
+                <li>Após criar, clique no botão abaixo para verificar</li>
               </ol>
+              <div className="mt-3 flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={verifyBucket}
+                  className="text-xs"
+                >
+                  🔄 Verificar Bucket Novamente
+                </Button>
+              </div>
+              <p className="text-xs text-red-600 mt-3">
+                💡 Consulte o arquivo <code className="bg-red-100 px-1 rounded">SETUP_STORAGE.md</code> para configuração de políticas RLS
+              </p>
             </div>
           </AlertDescription>
         </Alert>
@@ -190,7 +211,8 @@ Consulte o arquivo SETUP_STORAGE.md para mais detalhes.`
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
+              disabled={uploading || bucketExists === false}
+              title={bucketExists === false ? "Configure o bucket no Supabase primeiro" : ""}
             >
               <Upload className="h-4 w-4 mr-2" />
               {uploading ? "Enviando..." : preview ? "Alterar" : "Adicionar Foto"}
