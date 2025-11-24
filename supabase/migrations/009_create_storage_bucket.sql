@@ -1,33 +1,34 @@
--- Migration para criar o bucket de fotos de colaboradores
--- Esta migration cria o bucket e configura as políticas RLS necessárias
+-- Migration para configurar políticas RLS do Storage para fotos de colaboradores
+-- IMPORTANTE: O bucket deve ser criado manualmente no Supabase Dashboard antes de executar esta migration
 
--- Nota: A criação de buckets via SQL não é suportada diretamente pelo Supabase
--- Este arquivo serve como documentação. O bucket deve ser criado manualmente via Dashboard
--- ou usando a API do Supabase Management.
-
--- Para criar o bucket via SQL, você precisaria usar a extensão storage_admin
--- Mas isso requer permissões de superuser, então é melhor criar manualmente.
-
--- INSTRUÇÕES PARA CRIAR O BUCKET:
--- 1. Acesse o Supabase Dashboard
--- 2. Vá em Storage → New bucket
+-- INSTRUÇÕES PARA CRIAR O BUCKET (FAÇA ISSO PRIMEIRO):
+-- 1. Acesse o Supabase Dashboard → Storage
+-- 2. Clique em "New bucket"
 -- 3. Configure:
 --    - Name: colaboradores-fotos
 --    - Public bucket: ✅ Marcar como público
---    - File size limit: 5242880 (5 MB em bytes)
+--    - File size limit: 5242880 (5 MB)
 --    - Allowed MIME types: image/jpeg, image/png, image/gif, image/webp
+-- 4. Clique em "Create bucket"
 
--- Após criar o bucket, execute as políticas RLS abaixo:
+-- Após criar o bucket, execute esta migration para configurar as políticas RLS:
 
--- Política 1: Permitir leitura pública (SELECT)
-CREATE POLICY IF NOT EXISTS "Public read access for colaboradores-fotos"
+-- Remover políticas antigas se existirem (para evitar duplicatas)
+DROP POLICY IF EXISTS "Public read access for colaboradores-fotos" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated users can upload to colaboradores-fotos" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own files in colaboradores-fotos" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own files in colaboradores-fotos" ON storage.objects;
+
+-- Política 1: Permitir leitura pública (SELECT) - necessário para exibir as fotos
+CREATE POLICY "Public read access for colaboradores-fotos"
 ON storage.objects
 FOR SELECT
 TO public
 USING (bucket_id = 'colaboradores-fotos');
 
 -- Política 2: Permitir upload para usuários autenticados (INSERT)
-CREATE POLICY IF NOT EXISTS "Authenticated users can upload to colaboradores-fotos"
+-- Os arquivos devem estar em uma pasta com o nome do user_id
+CREATE POLICY "Authenticated users can upload to colaboradores-fotos"
 ON storage.objects
 FOR INSERT
 TO authenticated
@@ -37,7 +38,7 @@ WITH CHECK (
 );
 
 -- Política 3: Permitir atualização para o dono do arquivo (UPDATE)
-CREATE POLICY IF NOT EXISTS "Users can update their own files in colaboradores-fotos"
+CREATE POLICY "Users can update their own files in colaboradores-fotos"
 ON storage.objects
 FOR UPDATE
 TO authenticated
@@ -51,7 +52,7 @@ WITH CHECK (
 );
 
 -- Política 4: Permitir exclusão para o dono do arquivo (DELETE)
-CREATE POLICY IF NOT EXISTS "Users can delete their own files in colaboradores-fotos"
+CREATE POLICY "Users can delete their own files in colaboradores-fotos"
 ON storage.objects
 FOR DELETE
 TO authenticated
@@ -59,4 +60,3 @@ USING (
   bucket_id = 'colaboradores-fotos' AND
   (storage.foldername(name))[1] = auth.uid()::text
 );
-
