@@ -41,16 +41,13 @@ export async function checkBucketExists(
     
     if (accessError) {
       const errorMessage = (accessError.message || "").toLowerCase()
-      const errorCode = accessError.statusCode || ""
       
       // Erros que indicam que o bucket não existe
       if (
         errorMessage.includes("bucket not found") ||
         errorMessage.includes("not found") ||
         errorMessage.includes("does not exist") ||
-        errorMessage.includes("bucket") && errorMessage.includes("not") ||
-        errorCode === "404" ||
-        errorCode === "400"
+        (errorMessage.includes("bucket") && errorMessage.includes("not"))
       ) {
         console.warn(`❌ Bucket "${bucketName}" não encontrado:`, accessError.message)
         return false

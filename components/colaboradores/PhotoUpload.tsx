@@ -119,6 +119,19 @@ export function PhotoUpload({
     try {
       setUploading(true)
 
+      // Verificar novamente se o bucket existe antes de fazer upload
+      if (bucketExists === false) {
+        alert(
+          "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
+          "Por favor, crie o bucket no Supabase Dashboard seguindo as instruções exibidas acima."
+        )
+        setPreview(null)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+        return
+      }
+
       // Criar nome único para o arquivo
       const fileExt = file.name.split(".").pop()
       const fileName = colaboradorId
@@ -126,40 +139,59 @@ export function PhotoUpload({
         : `temp_${userId}_${Date.now()}.${fileExt}`
       const filePath = `colaboradores/${userId}/${fileName}`
 
+      console.log("📤 Iniciando upload para:", filePath)
+
       // Upload
       const { error: uploadError, data } = await supabase.storage
         .from("colaboradores-fotos")
         .upload(filePath, file, {
           cacheControl: "3600",
-          upsert: false,
+          upsert: true, // Permite sobrescrever se já existir
         })
 
       if (uploadError) {
+        console.error("❌ Erro no upload:", uploadError)
+        
         // Se o bucket não existir, atualizar estado e mostrar erro
+        const errorMsg = uploadError.message?.toLowerCase() || ""
         if (
-          uploadError.message.includes("Bucket not found") ||
-          uploadError.message.includes("not found") ||
-          uploadError.message.includes("does not exist")
+          errorMsg.includes("bucket not found") ||
+          errorMsg.includes("not found") ||
+          errorMsg.includes("does not exist")
         ) {
           setBucketExists(false)
           setPreview(null)
           if (fileInputRef.current) {
             fileInputRef.current.value = ""
           }
+          alert(
+            "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
+            "Por favor, crie o bucket no Supabase Dashboard e execute a migration SQL."
+          )
           return
         }
+        
+        // Outros erros (permissão, etc)
         throw uploadError
       }
+
+      console.log("✅ Upload concluído:", data)
 
       // Obter URL pública
       const {
         data: { publicUrl },
       } = supabase.storage.from("colaboradores-fotos").getPublicUrl(filePath)
 
+      console.log("🔗 URL pública gerada:", publicUrl)
+
       onPhotoUploaded(publicUrl)
     } catch (error: any) {
-      console.error("Erro ao fazer upload:", error)
-      alert("Erro ao fazer upload da foto: " + error.message)
+      console.error("❌ Erro ao fazer upload:", error)
+      alert(
+        "Erro ao fazer upload da foto:\n\n" +
+        (error.message || "Erro desconhecido") +
+        "\n\nVerifique o console para mais detalhes."
+      )
       setPreview(null)
     } finally {
       setUploading(false)
