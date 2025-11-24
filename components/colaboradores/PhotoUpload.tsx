@@ -35,21 +35,34 @@ export function PhotoUpload({
 
   // Verificar se o bucket existe ao montar o componente
   const verifyBucket = async () => {
-    if (!userId) return
+    if (!userId) {
+      console.warn("userId não disponível para verificar bucket")
+      return
+    }
     
     setVerifying(true)
     setBucketExists(null) // Mostrar loading
+    
     try {
+      console.log("🔍 Verificando bucket 'colaboradores-fotos'...")
       const exists = await checkBucketExists(supabase, "colaboradores-fotos")
+      
+      console.log("📦 Resultado da verificação:", exists ? "✅ Encontrado" : "❌ Não encontrado")
       setBucketExists(exists)
+      
       if (exists) {
-        // Se o bucket existe, limpar qualquer preview de erro
-        console.log("✅ Bucket 'colaboradores-fotos' encontrado!")
+        console.log("✅ Bucket 'colaboradores-fotos' encontrado! Upload habilitado.")
       } else {
-        console.warn("⚠️ Bucket 'colaboradores-fotos' não encontrado")
+        console.warn("⚠️ Bucket 'colaboradores-fotos' não encontrado. Crie o bucket no Supabase Dashboard.")
       }
-    } catch (error) {
-      console.error("Erro ao verificar bucket:", error)
+    } catch (error: any) {
+      console.error("❌ Erro ao verificar bucket:", error)
+      console.error("Detalhes do erro:", {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint
+      })
       setBucketExists(false)
     } finally {
       setVerifying(false)
