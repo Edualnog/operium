@@ -24,7 +24,6 @@ export async function checkBucketExists(
     if (!listError && buckets && Array.isArray(buckets)) {
       const bucketExists = buckets.some(bucket => bucket.name === bucketName)
       if (bucketExists) {
-        console.log(`✅ Bucket "${bucketName}" encontrado via listBuckets()`)
         return true
       }
     }
@@ -49,21 +48,18 @@ export async function checkBucketExists(
         errorMessage.includes("does not exist") ||
         (errorMessage.includes("bucket") && errorMessage.includes("not"))
       ) {
-        console.warn(`❌ Bucket "${bucketName}" não encontrado:`, accessError.message)
         return false
       }
       
       // Outros erros podem ser de permissão, mas assumimos que não existe
-      console.warn(`⚠️ Erro ao acessar bucket "${bucketName}":`, accessError.message)
       return false
     }
     
     // Se não houve erro, o bucket existe (mesmo que vazio)
-    console.log(`✅ Bucket "${bucketName}" encontrado via acesso direto`)
     return true
     
   } catch (error: any) {
-    console.error(`❌ Erro inesperado ao verificar bucket "${bucketName}":`, error)
+    console.error("Erro ao verificar bucket:", error)
     return false
   }
 }
