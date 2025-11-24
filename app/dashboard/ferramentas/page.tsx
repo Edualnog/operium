@@ -43,10 +43,10 @@ export default async function FerramentasPage() {
   ])
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Ferramentas</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Ferramentas</h1>
+        <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
           Gerencie o estoque de ferramentas
         </p>
       </div>

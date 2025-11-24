@@ -14,6 +14,8 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  Area,
+  AreaChart,
   PieChart,
   Pie,
   Cell,
@@ -132,69 +134,133 @@ function DashboardCharts({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-1 lg:grid-cols-2">
       {/* Retiradas por Colaborador */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Retiradas por Colaborador (30 dias)</CardTitle>
+      <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100">
+          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900">Retiradas por Colaborador</CardTitle>
+          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2">Últimos 30 dias</p>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={retiradasPorColaborador}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="nome" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="quantidade" fill="#3b82f6" />
+        <CardContent className="pt-4 sm:pt-5">
+          <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={retiradasPorColaborador}
+              margin={{ top: 15, right: 25, left: 5, bottom: 50 }}
+            >
+              <defs>
+                <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.6} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+              <XAxis
+                dataKey="nome"
+                tick={{ fontSize: 12, fill: "#6b7280" }}
+                angle={-45}
+                textAnchor="end"
+                height={100}
+                stroke="#d1d5db"
+              />
+              <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(255, 255, 255, 0.98)",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+                cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
+              />
+              <Bar
+                dataKey="quantidade"
+                fill="url(#colorBar)"
+                radius={[8, 8, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
       {/* Movimentações por Dia */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Movimentações por Dia (7 dias)</CardTitle>
+      <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100">
+          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900">Movimentações por Dia</CardTitle>
+          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2">Últimos 7 dias</p>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={movimentacoesPorDia}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="data" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
+        <CardContent className="pt-4 sm:pt-5">
+          <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={movimentacoesPorDia}
+              margin={{ top: 15, right: 25, left: 5, bottom: 10 }}
+            >
+              <defs>
+                <linearGradient id="colorMovimentacoes" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+              <XAxis dataKey="data" tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
+              <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(255, 255, 255, 0.98)",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+                cursor={{ stroke: "#10b981", strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="quantidade"
+                stroke="#10b981"
+                fillOpacity={1}
+                fill="url(#colorMovimentacoes)"
+                strokeWidth={3}
+              />
               <Line
                 type="monotone"
                 dataKey="quantidade"
                 stroke="#10b981"
-                strokeWidth={2}
+                strokeWidth={3}
+                dot={{ fill: "#10b981", r: 5, strokeWidth: 2, stroke: "#fff" }}
+                activeDot={{ r: 7, strokeWidth: 2, stroke: "#fff" }}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
       {/* Distribuição de Estados */}
-      <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle>Distribuição do Estado das Ferramentas</CardTitle>
+      <Card className="lg:col-span-2 border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100">
+          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900">Distribuição do Estado das Ferramentas</CardTitle>
+          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2">Status atual do inventário</p>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+        <CardContent className="pt-4 sm:pt-5">
+          <div className="w-full h-[300px] sm:h-[320px] lg:h-[340px] xl:h-[360px]">
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={distribuicaoEstados}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
+                label={({ name, percent, value }) =>
+                  `${name}\n${value} (${(percent * 100).toFixed(1)}%)`
                 }
-                outerRadius={80}
+                outerRadius={140}
+                innerRadius={70}
                 fill="#8884d8"
                 dataKey="value"
+                strokeWidth={3}
+                stroke="#fff"
               >
                 {distribuicaoEstados.map((entry, index) => (
                   <Cell
@@ -203,9 +269,23 @@ function DashboardCharts({ userId }: { userId: string }) {
                   />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(255, 255, 255, 0.98)",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+              />
+              <Legend
+                verticalAlign="bottom"
+                height={60}
+                iconType="circle"
+                formatter={(value) => <span style={{ fontSize: "14px", color: "#374151" }}>{value}</span>}
+              />
             </PieChart>
           </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
     </div>
