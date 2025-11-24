@@ -11,6 +11,11 @@ import {
   Activity,
   Zap,
   ShoppingCart,
+  Clock,
+  Shield,
+  Calendar,
+  AlertCircle,
+  Target,
 } from "lucide-react"
 import { useMemo } from "react"
 import {
@@ -30,6 +35,11 @@ const iconMap = {
   Zap,
   ShoppingCart,
   TrendingUp,
+  Clock,
+  Shield,
+  Calendar,
+  AlertCircle,
+  Target,
 } as const
 
 type IconName = keyof typeof iconMap
