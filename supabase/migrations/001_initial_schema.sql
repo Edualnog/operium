@@ -2,14 +2,14 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Tabela: profiles
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Tabela: colaboradores
-CREATE TABLE colaboradores (
+CREATE TABLE IF NOT EXISTS colaboradores (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   nome TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE colaboradores (
 );
 
 -- Tabela: ferramentas
-CREATE TABLE ferramentas (
+CREATE TABLE IF NOT EXISTS ferramentas (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   nome TEXT NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE ferramentas (
 );
 
 -- Tabela: movimentacoes
-CREATE TABLE movimentacoes (
+CREATE TABLE IF NOT EXISTS movimentacoes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   ferramenta_id UUID NOT NULL REFERENCES ferramentas(id) ON DELETE CASCADE,
@@ -43,7 +43,7 @@ CREATE TABLE movimentacoes (
 );
 
 -- Tabela: consertos
-CREATE TABLE consertos (
+CREATE TABLE IF NOT EXISTS consertos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   ferramenta_id UUID NOT NULL REFERENCES ferramentas(id) ON DELETE CASCADE,
@@ -54,104 +54,136 @@ CREATE TABLE consertos (
   data_retorno TIMESTAMP WITH TIME ZONE
 );
 
--- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE colaboradores ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ferramentas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE movimentacoes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE consertos ENABLE ROW LEVEL SECURITY;
+-- Enable Row Level Security (idempotente)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'profiles' AND relrowsecurity = true) THEN
+    ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'colaboradores' AND relrowsecurity = true) THEN
+    ALTER TABLE colaboradores ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'ferramentas' AND relrowsecurity = true) THEN
+    ALTER TABLE ferramentas ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'movimentacoes' AND relrowsecurity = true) THEN
+    ALTER TABLE movimentacoes ENABLE ROW LEVEL SECURITY;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'consertos' AND relrowsecurity = true) THEN
+    ALTER TABLE consertos ENABLE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 
 -- Políticas RLS para profiles
+DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile"
   ON profiles FOR INSERT
   WITH CHECK (auth.uid() = id);
 
 -- Políticas RLS para colaboradores
+DROP POLICY IF EXISTS "Users can view own colaboradores" ON colaboradores;
 CREATE POLICY "Users can view own colaboradores"
   ON colaboradores FOR SELECT
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can insert own colaboradores" ON colaboradores;
 CREATE POLICY "Users can insert own colaboradores"
   ON colaboradores FOR INSERT
   WITH CHECK (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can update own colaboradores" ON colaboradores;
 CREATE POLICY "Users can update own colaboradores"
   ON colaboradores FOR UPDATE
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can delete own colaboradores" ON colaboradores;
 CREATE POLICY "Users can delete own colaboradores"
   ON colaboradores FOR DELETE
   USING (profile_id = auth.uid());
 
 -- Políticas RLS para ferramentas
+DROP POLICY IF EXISTS "Users can view own ferramentas" ON ferramentas;
 CREATE POLICY "Users can view own ferramentas"
   ON ferramentas FOR SELECT
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can insert own ferramentas" ON ferramentas;
 CREATE POLICY "Users can insert own ferramentas"
   ON ferramentas FOR INSERT
   WITH CHECK (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can update own ferramentas" ON ferramentas;
 CREATE POLICY "Users can update own ferramentas"
   ON ferramentas FOR UPDATE
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can delete own ferramentas" ON ferramentas;
 CREATE POLICY "Users can delete own ferramentas"
   ON ferramentas FOR DELETE
   USING (profile_id = auth.uid());
 
 -- Políticas RLS para movimentacoes
+DROP POLICY IF EXISTS "Users can view own movimentacoes" ON movimentacoes;
 CREATE POLICY "Users can view own movimentacoes"
   ON movimentacoes FOR SELECT
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can insert own movimentacoes" ON movimentacoes;
 CREATE POLICY "Users can insert own movimentacoes"
   ON movimentacoes FOR INSERT
   WITH CHECK (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can update own movimentacoes" ON movimentacoes;
 CREATE POLICY "Users can update own movimentacoes"
   ON movimentacoes FOR UPDATE
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can delete own movimentacoes" ON movimentacoes;
 CREATE POLICY "Users can delete own movimentacoes"
   ON movimentacoes FOR DELETE
   USING (profile_id = auth.uid());
 
 -- Políticas RLS para consertos
+DROP POLICY IF EXISTS "Users can view own consertos" ON consertos;
 CREATE POLICY "Users can view own consertos"
   ON consertos FOR SELECT
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can insert own consertos" ON consertos;
 CREATE POLICY "Users can insert own consertos"
   ON consertos FOR INSERT
   WITH CHECK (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can update own consertos" ON consertos;
 CREATE POLICY "Users can update own consertos"
   ON consertos FOR UPDATE
   USING (profile_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can delete own consertos" ON consertos;
 CREATE POLICY "Users can delete own consertos"
   ON consertos FOR DELETE
   USING (profile_id = auth.uid());
 
--- Índices para performance
-CREATE INDEX idx_colaboradores_profile_id ON colaboradores(profile_id);
-CREATE INDEX idx_ferramentas_profile_id ON ferramentas(profile_id);
-CREATE INDEX idx_ferramentas_estado ON ferramentas(estado);
-CREATE INDEX idx_movimentacoes_profile_id ON movimentacoes(profile_id);
-CREATE INDEX idx_movimentacoes_ferramenta_id ON movimentacoes(ferramenta_id);
-CREATE INDEX idx_movimentacoes_data ON movimentacoes(data);
-CREATE INDEX idx_consertos_profile_id ON consertos(profile_id);
-CREATE INDEX idx_consertos_ferramenta_id ON consertos(ferramenta_id);
-CREATE INDEX idx_consertos_status ON consertos(status);
+-- Índices para performance (idempotente - serão recriados na migration 002 se necessário)
+CREATE INDEX IF NOT EXISTS idx_colaboradores_profile_id ON colaboradores(profile_id);
+CREATE INDEX IF NOT EXISTS idx_ferramentas_profile_id ON ferramentas(profile_id);
+CREATE INDEX IF NOT EXISTS idx_ferramentas_estado ON ferramentas(estado);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_profile_id ON movimentacoes(profile_id);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_ferramenta_id ON movimentacoes(ferramenta_id);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_data ON movimentacoes(data);
+CREATE INDEX IF NOT EXISTS idx_consertos_profile_id ON consertos(profile_id);
+CREATE INDEX IF NOT EXISTS idx_consertos_ferramenta_id ON consertos(ferramenta_id);
+CREATE INDEX IF NOT EXISTS idx_consertos_status ON consertos(status);
 
 -- Função para criar profile automaticamente após signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -163,7 +195,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger para criar profile automaticamente
+-- Trigger para criar profile automaticamente (idempotente)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

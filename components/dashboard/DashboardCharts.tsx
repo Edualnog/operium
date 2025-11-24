@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, memo } from "react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -21,7 +21,7 @@ import {
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
-export default function DashboardCharts({ userId }: { userId: string }) {
+function DashboardCharts({ userId }: { userId: string }) {
   const [retiradasPorColaborador, setRetiradasPorColaborador] = useState<any[]>(
     []
   )
@@ -30,6 +30,8 @@ export default function DashboardCharts({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function fetchData() {
       const supabase = createClientComponentClient()
 
@@ -102,10 +104,16 @@ export default function DashboardCharts({ userId }: { userId: string }) {
         )
       }
 
-      setLoading(false)
+      if (!cancelled) {
+        setLoading(false)
+      }
     }
 
     fetchData()
+
+    return () => {
+      cancelled = true
+    }
   }, [userId])
 
   // Memoizar cores para evitar recriação
@@ -203,3 +211,5 @@ export default function DashboardCharts({ userId }: { userId: string }) {
     </div>
   )
 }
+
+export default memo(DashboardCharts)

@@ -11,6 +11,14 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
   },
+  // Otimizações de bundle
+  swcMinify: true,
+  // Otimização de compilação
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
 }
 
 module.exports = nextConfig

@@ -10,6 +10,10 @@ import {
 } from "lucide-react"
 import DashboardCharts from "@/components/dashboard/DashboardCharts"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
+import { PageSkeleton } from "@/components/loading/PageSkeleton"
+
+export const revalidate = 60 // Revalidar a cada 60 segundos
 
 export default async function DashboardPage() {
   const supabase = await createServerComponentClient()
@@ -148,7 +152,9 @@ export default async function DashboardPage() {
       </div>
 
       {/* Gráficos */}
-      <DashboardCharts userId={user.id} />
+      <Suspense fallback={<div className="h-[300px] animate-pulse bg-muted rounded-lg" />}>
+        <DashboardCharts userId={user.id} />
+      </Suspense>
     </div>
   )
 }

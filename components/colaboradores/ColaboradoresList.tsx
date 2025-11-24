@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -21,6 +21,7 @@ import {
 import { Plus, Search, Trash2, Edit } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
+import { useDebounce } from "@/lib/hooks/useDebounce"
 
 interface Colaborador {
   id: string
@@ -29,25 +30,26 @@ interface Colaborador {
   telefone?: string
 }
 
-export default function ColaboradoresList({
+function ColaboradoresList({
   colaboradores: initialColaboradores,
 }: {
   colaboradores: Colaborador[]
 }) {
   const [colaboradores, setColaboradores] = useState(initialColaboradores)
   const [search, setSearch] = useState("")
+  const debouncedSearch = useDebounce(search, 300)
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Colaborador | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const filteredColaboradores = useMemo(() => {
-    if (!search) return colaboradores
-    const searchLower = search.toLowerCase()
+    if (!debouncedSearch) return colaboradores
+    const searchLower = debouncedSearch.toLowerCase()
     return colaboradores.filter((c) =>
       c.nome.toLowerCase().includes(searchLower)
     )
-  }, [colaboradores, search])
+  }, [colaboradores, debouncedSearch])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -216,4 +218,6 @@ export default function ColaboradoresList({
     </div>
   )
 }
+
+export default memo(ColaboradoresList)
 

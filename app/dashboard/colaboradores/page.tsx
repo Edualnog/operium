@@ -1,6 +1,20 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 import ColaboradoresList from "@/components/colaboradores/ColaboradoresList"
+import { ListSkeleton } from "@/components/loading/PageSkeleton"
+
+export const revalidate = 60 // Revalidar a cada 60 segundos
+
+async function getColaboradores(userId: string) {
+  const supabase = await createServerComponentClient()
+  const { data } = await supabase
+    .from("colaboradores")
+    .select("id, nome, cargo, telefone, created_at")
+    .eq("profile_id", userId)
+    .order("nome", { ascending: true })
+  return data || []
+}
 
 export default async function ColaboradoresPage() {
   const supabase = await createServerComponentClient()
@@ -12,11 +26,7 @@ export default async function ColaboradoresPage() {
     redirect("/login")
   }
 
-  const { data: colaboradores } = await supabase
-    .from("colaboradores")
-    .select("*")
-    .eq("profile_id", user.id)
-    .order("nome", { ascending: true })
+  const colaboradores = await getColaboradores(user.id)
 
   return (
     <div className="space-y-8">
@@ -26,7 +36,9 @@ export default async function ColaboradoresPage() {
           Gerencie os colaboradores do seu almoxarifado
         </p>
       </div>
-      <ColaboradoresList colaboradores={colaboradores || []} />
+      <Suspense fallback={<ListSkeleton />}>
+        <ColaboradoresList colaboradores={colaboradores} />
+      </Suspense>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -42,6 +42,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
+import { useDebounce } from "@/lib/hooks/useDebounce"
 
 interface Ferramenta {
   id: string
@@ -57,7 +58,7 @@ interface Colaborador {
   nome: string
 }
 
-export default function FerramentasList({
+function FerramentasList({
   ferramentas: initialFerramentas,
   colaboradores,
 }: {
@@ -66,6 +67,7 @@ export default function FerramentasList({
 }) {
   const [ferramentas, setFerramentas] = useState(initialFerramentas)
   const [search, setSearch] = useState("")
+  const debouncedSearch = useDebounce(search, 300)
   const [open, setOpen] = useState(false)
   const [actionDialog, setActionDialog] = useState<{
     type: "entrada" | "retirada" | "devolucao" | "conserto"
@@ -76,14 +78,14 @@ export default function FerramentasList({
   const router = useRouter()
 
   const filteredFerramentas = useMemo(() => {
-    if (!search) return ferramentas
-    const searchLower = search.toLowerCase()
+    if (!debouncedSearch) return ferramentas
+    const searchLower = debouncedSearch.toLowerCase()
     return ferramentas.filter(
       (f) =>
         f.nome.toLowerCase().includes(searchLower) ||
         f.categoria?.toLowerCase().includes(searchLower)
     )
-  }, [ferramentas, search])
+  }, [ferramentas, debouncedSearch])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -501,4 +503,6 @@ export default function FerramentasList({
     </div>
   )
 }
+
+export default memo(FerramentasList)
 

@@ -166,10 +166,10 @@ export async function registrarEntrada(
 
   if (!user) throw new Error("Não autenticado")
 
-  // Buscar ferramenta atual
+  // Buscar ferramenta atual - otimizado: apenas campos necessários
   const { data: ferramenta, error: ferError } = await supabase
     .from("ferramentas")
-    .select("*")
+    .select("id, quantidade_total, quantidade_disponivel, estado")
     .eq("id", ferramentaId)
     .eq("profile_id", user.id)
     .single()
@@ -221,10 +221,10 @@ export async function registrarRetirada(
 
   if (!user) throw new Error("Não autenticado")
 
-  // Buscar ferramenta atual
+  // Buscar ferramenta atual - otimizado: apenas campos necessários
   const { data: ferramenta, error: ferError } = await supabase
     .from("ferramentas")
-    .select("*")
+    .select("id, quantidade_total, quantidade_disponivel, estado")
     .eq("id", ferramentaId)
     .eq("profile_id", user.id)
     .single()
@@ -274,10 +274,10 @@ export async function registrarDevolucao(
 
   if (!user) throw new Error("Não autenticado")
 
-  // Buscar ferramenta atual
+  // Buscar ferramenta atual - otimizado: apenas campos necessários
   const { data: ferramenta, error: ferError } = await supabase
     .from("ferramentas")
-    .select("*")
+    .select("id, quantidade_total, quantidade_disponivel, estado")
     .eq("id", ferramentaId)
     .eq("profile_id", user.id)
     .single()
@@ -329,10 +329,10 @@ export async function registrarEnvioConserto(
 
   if (!user) throw new Error("Não autenticado")
 
-  // Buscar ferramenta atual
+  // Buscar ferramenta atual - otimizado: apenas campos necessários
   const { data: ferramenta, error: ferError } = await supabase
     .from("ferramentas")
-    .select("*")
+    .select("id, quantidade_total, quantidade_disponivel, estado")
     .eq("id", ferramentaId)
     .eq("profile_id", user.id)
     .single()
@@ -392,10 +392,10 @@ export async function registrarRetornoConserto(
 
   if (!user) throw new Error("Não autenticado")
 
-  // Buscar conserto
+  // Buscar conserto - otimizado: apenas campos necessários
   const { data: conserto, error: consertoError } = await supabase
     .from("consertos")
-    .select("*, ferramentas(*)")
+    .select("id, ferramenta_id, ferramentas(id, quantidade_disponivel, estado)")
     .eq("id", consertoId)
     .eq("profile_id", user.id)
     .single()

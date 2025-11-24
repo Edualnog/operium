@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -35,7 +35,7 @@ interface Conserto {
   }
 }
 
-export default function ConsertosList({
+function ConsertosList({
   consertos: initialConsertos,
 }: {
   consertos: Conserto[]
@@ -45,10 +45,14 @@ export default function ConsertosList({
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const consertosAbertos = consertos.filter(
-    (c) => c.status !== "concluido"
+  const consertosAbertos = useMemo(
+    () => consertos.filter((c) => c.status !== "concluido"),
+    [consertos]
   )
-  const consertosConcluidos = consertos.filter((c) => c.status === "concluido")
+  const consertosConcluidos = useMemo(
+    () => consertos.filter((c) => c.status === "concluido"),
+    [consertos]
+  )
 
   const handleRetorno = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -280,4 +284,6 @@ export default function ConsertosList({
     </div>
   )
 }
+
+export default memo(ConsertosList)
 
