@@ -560,10 +560,12 @@ function ColaboradoresList({
 
       {/* Lista de colaboradores */}
       {filteredAndSortedColaboradores.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          {filters.search || filters.cargo || filters.dataAdmissaoInicio || filters.dataAdmissaoFim
-            ? "Nenhum colaborador encontrado com os filtros aplicados"
-            : "Nenhum colaborador cadastrado"}
+        <div className="text-center py-12">
+          <p className="text-zinc-500 text-sm">
+            {filters.search || filters.cargo || filters.dataAdmissaoInicio || filters.dataAdmissaoFim
+              ? "Nenhum colaborador encontrado com os filtros aplicados"
+              : "Nenhum colaborador cadastrado"}
+          </p>
         </div>
       ) : filters.visualizacao === "grid" ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

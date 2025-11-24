@@ -319,16 +319,14 @@ export function ColaboradoresFilters({
       )}
 
       {/* Contador de resultados */}
-      <div className="text-sm text-zinc-600">
-        {totalEncontrados === 0 ? (
-          <span>Nenhum colaborador encontrado</span>
-        ) : (
+      {totalEncontrados > 0 && (
+        <div className="text-sm text-zinc-600">
           <span>
             {totalEncontrados} colaborador{totalEncontrados !== 1 ? "es" : ""}{" "}
             encontrado{totalEncontrados !== 1 ? "s" : ""}
           </span>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
