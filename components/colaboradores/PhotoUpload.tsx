@@ -33,6 +33,16 @@ export function PhotoUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClientComponentClient()
 
+  // Se não tiver userId, não renderizar nada
+  if (!userId) {
+    return (
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Foto do Colaborador</Label>
+        <p className="text-xs text-zinc-500">Carregando...</p>
+      </div>
+    )
+  }
+
   // Verificar se o bucket existe ao montar o componente
   const verifyBucket = async () => {
     if (!userId) {
