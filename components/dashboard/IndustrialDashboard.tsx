@@ -26,7 +26,7 @@ interface IndustrialDashboardProps {
   userId: string
 }
 
-export function IndustrialDashboard({ userId }: IndustrialDashboardProps) {
+export default function IndustrialDashboard({ userId }: IndustrialDashboardProps) {
   const { data, loading, error } = useKPIs(userId)
 
   if (loading) {

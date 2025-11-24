@@ -5,9 +5,7 @@ import dynamic from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const IndustrialDashboard = dynamic(
-  () => import("@/components/dashboard/IndustrialDashboard").then((mod) => ({
-    default: mod.IndustrialDashboard,
-  })),
+  () => import("@/components/dashboard/IndustrialDashboard"),
   {
     ssr: false,
     loading: () => (
