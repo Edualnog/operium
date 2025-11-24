@@ -133,11 +133,13 @@ export function PhotoUpload({
       }
 
       // Criar nome único para o arquivo
+      // IMPORTANTE: A estrutura deve ser {userId}/{fileName} para que as políticas RLS funcionem
       const fileExt = file.name.split(".").pop()
       const fileName = colaboradorId
         ? `${colaboradorId}_${Date.now()}.${fileExt}`
-        : `temp_${userId}_${Date.now()}.${fileExt}`
-      const filePath = `colaboradores/${userId}/${fileName}`
+        : `temp_${Date.now()}.${fileExt}`
+      // A pasta deve ser o userId para que a política RLS funcione
+      const filePath = `${userId}/${fileName}`
 
       console.log("📤 Iniciando upload para:", filePath)
 
