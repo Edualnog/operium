@@ -29,20 +29,39 @@ export function PhotoUpload({
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
+  const [verifying, setVerifying] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClientComponentClient()
 
   // Verificar se o bucket existe ao montar o componente
   const verifyBucket = async () => {
-    if (userId) {
+    if (!userId) return
+    
+    setVerifying(true)
+    setBucketExists(null) // Mostrar loading
+    try {
       const exists = await checkBucketExists(supabase, "colaboradores-fotos")
       setBucketExists(exists)
+      if (exists) {
+        // Se o bucket existe, limpar qualquer preview de erro
+        console.log("✅ Bucket 'colaboradores-fotos' encontrado!")
+      } else {
+        console.warn("⚠️ Bucket 'colaboradores-fotos' não encontrado")
+      }
+    } catch (error) {
+      console.error("Erro ao verificar bucket:", error)
+      setBucketExists(false)
+    } finally {
+      setVerifying(false)
     }
   }
 
   useEffect(() => {
-    verifyBucket()
-  }, [userId, supabase])
+    if (userId) {
+      verifyBucket()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -146,15 +165,21 @@ export function PhotoUpload({
     <div className="space-y-2">
       <Label className="text-sm font-medium">Foto do Colaborador</Label>
       
-      {/* Alerta se o bucket não existir */}
-      {bucketExists === false && (
+      {/* Alerta se o bucket não existir ou estiver verificando */}
+      {(bucketExists === false || (bucketExists === null && verifying)) && (
         <Alert variant="destructive" className="mb-4 border-2 border-red-300">
           <AlertCircle className="h-5 w-5" />
           <AlertTitle className="text-base font-bold">⚠️ Bucket não encontrado</AlertTitle>
           <AlertDescription className="mt-3 space-y-3">
-            <p className="font-medium">
-              O bucket <strong className="text-red-700">colaboradores-fotos</strong> não foi encontrado no Supabase Storage.
-            </p>
+            {verifying ? (
+              <p className="font-medium">
+                Verificando se o bucket <strong className="text-red-700">colaboradores-fotos</strong> existe...
+              </p>
+            ) : (
+              <p className="font-medium">
+                O bucket <strong className="text-red-700">colaboradores-fotos</strong> não foi encontrado no Supabase Storage.
+              </p>
+            )}
             <div className="bg-red-50 border border-red-200 rounded-md p-3 space-y-2">
               <p className="text-sm font-semibold text-red-800">📋 Passos para resolver:</p>
               <ol className="text-sm text-red-700 space-y-2 list-decimal list-inside ml-2">
@@ -177,10 +202,17 @@ export function PhotoUpload({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={verifyBucket}
+                  onClick={() => {
+                    verifyBucket()
+                  }}
                   className="text-xs"
+                  disabled={verifying}
                 >
-                  🔄 Verificar Bucket Novamente
+                  {verifying ? (
+                    <>⏳ Verificando...</>
+                  ) : (
+                    <>🔄 Verificar Bucket Novamente</>
+                  )}
                 </Button>
               </div>
               <p className="text-xs text-red-600 mt-3">

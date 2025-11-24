@@ -12,14 +12,29 @@ export async function checkBucketExists(
   bucketName: string
 ): Promise<boolean> {
   try {
-    const { data, error } = await supabase.storage.from(bucketName).list("", {
-      limit: 1,
-    })
+    // Primeiro tenta listar os buckets disponíveis
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets()
     
-    // Se não houver erro, o bucket existe
-    return !error
+    if (listError) {
+      // Se não conseguir listar, tenta acessar diretamente
+      const { error: accessError } = await supabase.storage.from(bucketName).list("", {
+        limit: 1,
+      })
+      return !accessError
+    }
+    
+    // Verifica se o bucket está na lista
+    return buckets?.some(bucket => bucket.name === bucketName) ?? false
   } catch (error) {
-    return false
+    // Em caso de erro, tenta acesso direto como fallback
+    try {
+      const { error: accessError } = await supabase.storage.from(bucketName).list("", {
+        limit: 1,
+      })
+      return !accessError
+    } catch {
+      return false
+    }
   }
 }
 
