@@ -16,12 +16,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="pt-BR" suppressHydrationWarning className="light">
+      <body className={`${inter.className} bg-white`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}
