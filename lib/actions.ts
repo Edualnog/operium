@@ -9,6 +9,12 @@ const colaboradorSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   cargo: z.string().optional(),
   telefone: z.string().optional(),
+  foto_url: z.string().optional(),
+  data_admissao: z.string().optional(),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
+  cpf: z.string().optional(),
+  endereco: z.string().optional(),
+  observacoes: z.string().optional(),
 })
 
 const ferramentaSchema = z.object({
@@ -27,10 +33,17 @@ export async function criarColaborador(formData: FormData) {
 
   if (!user) throw new Error("Não autenticado")
 
+  const dataAdmissao = formData.get("data_admissao")
   const data = colaboradorSchema.parse({
     nome: formData.get("nome"),
     cargo: formData.get("cargo"),
     telefone: formData.get("telefone"),
+    foto_url: formData.get("foto_url") || undefined,
+    data_admissao: dataAdmissao && dataAdmissao !== "" ? dataAdmissao : undefined,
+    email: formData.get("email") || undefined,
+    cpf: formData.get("cpf") || undefined,
+    endereco: formData.get("endereco") || undefined,
+    observacoes: formData.get("observacoes") || undefined,
   })
 
   const { error } = await supabase.from("colaboradores").insert({
@@ -50,10 +63,17 @@ export async function atualizarColaborador(id: string, formData: FormData) {
 
   if (!user) throw new Error("Não autenticado")
 
+  const dataAdmissao = formData.get("data_admissao")
   const data = colaboradorSchema.parse({
     nome: formData.get("nome"),
     cargo: formData.get("cargo"),
     telefone: formData.get("telefone"),
+    foto_url: formData.get("foto_url") || undefined,
+    data_admissao: dataAdmissao && dataAdmissao !== "" ? dataAdmissao : undefined,
+    email: formData.get("email") || undefined,
+    cpf: formData.get("cpf") || undefined,
+    endereco: formData.get("endereco") || undefined,
+    observacoes: formData.get("observacoes") || undefined,
   })
 
   const { error } = await supabase
