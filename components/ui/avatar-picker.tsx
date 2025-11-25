@@ -559,7 +559,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
 
   return (
     <motion.div initial="initial" animate="animate" className="w-full">
-      <Card className="w-full max-w-md mx-auto overflow-hidden bg-gradient-to-b from-background to-muted/30">
+      <Card className="w-full max-w-md mx-auto overflow-hidden bg-gradient-to-b from-background to-muted/30 md:shadow-lg">
         <CardContent className="p-0">
           {/* Header com botão Editar */}
           <div className="relative">

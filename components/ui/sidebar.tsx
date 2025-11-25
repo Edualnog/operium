@@ -140,12 +140,12 @@ export const MobileSidebar = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-white p-10 z-[100] flex flex-col justify-between",
+                "fixed h-full w-full inset-0 bg-white p-4 md:p-10 z-[100] flex flex-col justify-between",
                 className
               )}
             >
               <div
-                className="absolute right-10 top-10 z-50 text-foreground cursor-pointer"
+                className="absolute right-4 top-4 md:right-10 md:top-10 z-50 text-foreground cursor-pointer"
                 onClick={() => setOpen(!open)}
               >
                 <X />
@@ -172,7 +172,14 @@ export const SidebarLink = ({
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   props?: LinkProps;
 }) => {
-  const { open, animate } = useSidebar();
+  const { open, animate, setOpen } = useSidebar();
+  
+  // Fechar menu mobile ao clicar em um link
+  const handleMobileClick = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setOpen(false)
+    }
+  }
   
   if (link.href === "#" && onClick) {
     return (
@@ -181,6 +188,7 @@ export const SidebarLink = ({
         onClick={(e) => {
           e.preventDefault()
           onClick(e)
+          handleMobileClick()
         }}
         className={cn(
           "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px]",
@@ -211,6 +219,7 @@ export const SidebarLink = ({
   return (
     <Link
       href={link.href}
+      onClick={handleMobileClick}
       className={cn(
         "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors min-h-[44px]",
         active

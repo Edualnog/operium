@@ -174,25 +174,25 @@ const AuthForm: React.FC = () => {
       </div>
       <footer className="border-t border-zinc-200 bg-white py-4 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
-            <p className="text-center sm:text-left">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
+            <p className="text-center md:text-left">
               © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
             </p>
-            <div className="flex items-center justify-center gap-6">
+            <div className="flex items-center justify-center gap-4 md:gap-6">
               <a 
                 href="mailto:suporte@almoxfacil.com.br"
                 className="flex items-center gap-2 hover:text-blue-600 transition-colors"
                 title="Enviar email para suporte"
               >
-                <Mail className="h-4 w-4" />
-                <span className="hidden sm:inline">suporte@almoxfacil.com.br</span>
-                <span className="sm:hidden">Suporte</span>
+                <Mail className="h-4 w-4 flex-shrink-0" />
+                <span className="hidden md:inline">suporte@almoxfacil.com.br</span>
+                <span className="md:hidden text-xs">Suporte</span>
               </a>
               <a 
                 href="https://www.linkedin.com/company/almoxfacil" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-blue-600 transition-colors"
+                className="hover:text-blue-600 transition-colors flex-shrink-0"
                 title="Visitar LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
@@ -204,9 +204,9 @@ const AuthForm: React.FC = () => {
                 className="flex items-center gap-2 hover:text-blue-600 transition-colors"
                 title="Visitar website"
               >
-                <Globe className="h-4 w-4" />
-                <span className="hidden sm:inline">www.almoxfacil.alnog.com.br</span>
-                <span className="sm:hidden">Website</span>
+                <Globe className="h-4 w-4 flex-shrink-0" />
+                <span className="hidden md:inline">www.almoxfacil.alnog.com.br</span>
+                <span className="md:hidden text-xs">Website</span>
               </a>
             </div>
           </div>

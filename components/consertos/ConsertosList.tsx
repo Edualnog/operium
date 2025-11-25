@@ -415,7 +415,7 @@ function ConsertosList({
           <DialogTrigger asChild>
             <Button variant="outline">Exportar PDF</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Filtros de Exportação</DialogTitle>
               <DialogDescription>
@@ -423,7 +423,7 @@ function ConsertosList({
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>Prioridade</Label>
                   <Select
@@ -500,7 +500,7 @@ function ConsertosList({
 
               <div className="grid gap-2">
                 <Label className="text-sm font-semibold">Período de Envio</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="grid gap-1">
                     <Label className="text-xs text-muted-foreground">Data Início</Label>
                     <Input
@@ -509,6 +509,7 @@ function ConsertosList({
                       onChange={(e) =>
                         setExportFilters((f) => ({ ...f, dataEnvioInicio: e.target.value }))
                       }
+                      className="text-sm md:text-base"
                     />
                   </div>
                   <div className="grid gap-1">
@@ -519,6 +520,7 @@ function ConsertosList({
                       onChange={(e) =>
                         setExportFilters((f) => ({ ...f, dataEnvioFim: e.target.value }))
                       }
+                      className="text-sm md:text-base"
                     />
                   </div>
                 </div>
@@ -526,7 +528,7 @@ function ConsertosList({
 
               <div className="grid gap-2">
                 <Label className="text-sm font-semibold">Período de Retorno</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="grid gap-1">
                     <Label className="text-xs text-muted-foreground">Data Início</Label>
                     <Input
@@ -535,6 +537,7 @@ function ConsertosList({
                       onChange={(e) =>
                         setExportFilters((f) => ({ ...f, dataRetornoInicio: e.target.value }))
                       }
+                      className="text-sm md:text-base"
                     />
                   </div>
                   <div className="grid gap-1">
@@ -545,6 +548,7 @@ function ConsertosList({
                       onChange={(e) =>
                         setExportFilters((f) => ({ ...f, dataRetornoFim: e.target.value }))
                       }
+                      className="text-sm md:text-base"
                     />
                   </div>
                 </div>

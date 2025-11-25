@@ -435,7 +435,7 @@ export default function MovimentacoesList({
   return (
     <div className="space-y-4">
       {/* Filtros de Período Rápido */}
-      <div className="flex items-center gap-2 mb-4 pb-4 border-b border-zinc-200">
+      <div className="flex flex-col md:flex-row md:items-center gap-2 mb-4 pb-4 border-b border-zinc-200">
         <span className="text-sm font-medium text-zinc-700 whitespace-nowrap">Período:</span>
         <div className="flex items-center gap-2 flex-wrap">
           <Button
@@ -511,17 +511,17 @@ export default function MovimentacoesList({
         totalEncontrados={filtered.length}
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-sm">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="relative w-full md:max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
           <Input
             placeholder="Buscar por produto, colaborador ou tipo"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 text-sm md:text-base"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
             <DialogTrigger asChild>
               <Button variant="outline" disabled={exportingCsv || movimentacoes.length === 0}>
@@ -529,7 +529,7 @@ export default function MovimentacoesList({
                 Exportar CSV
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Filtros de Exportação</DialogTitle>
                 <DialogDescription>
@@ -602,7 +602,7 @@ export default function MovimentacoesList({
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="grid gap-2">
                     <Label>Data Início</Label>
                     <Input
@@ -611,6 +611,7 @@ export default function MovimentacoesList({
                       onChange={(e) =>
                         setExportFilters((f) => ({ ...f, dataInicio: e.target.value }))
                       }
+                      className="text-sm md:text-base"
                     />
                   </div>
                   <div className="grid gap-2">
@@ -621,6 +622,7 @@ export default function MovimentacoesList({
                       onChange={(e) =>
                         setExportFilters((f) => ({ ...f, dataFim: e.target.value }))
                       }
+                      className="text-sm md:text-base"
                     />
                   </div>
                 </div>
@@ -657,7 +659,7 @@ export default function MovimentacoesList({
                 Registrar Movimentação
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>Nova movimentação</DialogTitle>
@@ -687,6 +689,7 @@ export default function MovimentacoesList({
                     placeholder="Digite o nome do produto"
                     value={form.produto}
                     onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
+                    className="text-sm md:text-base"
                   />
                   {suggestions.length > 0 && (
                     <div className="border rounded-md divide-y bg-white shadow-sm max-h-48 overflow-auto">
@@ -694,7 +697,7 @@ export default function MovimentacoesList({
                         <button
                           type="button"
                           key={s.id}
-                          className="w-full text-left px-3 py-2 hover:bg-zinc-50"
+                          className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm"
                           onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
                         >
                           <div className="text-sm font-medium text-zinc-900">{s.nome}</div>
@@ -705,7 +708,7 @@ export default function MovimentacoesList({
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="grid gap-2">
                     <Label>Quantidade</Label>
                     <Input
@@ -789,7 +792,8 @@ export default function MovimentacoesList({
 
       <div className="border rounded-lg overflow-hidden bg-white">
         {/* Cabeçalho da tabela */}
-        <div className="grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 bg-zinc-50 border-b border-zinc-200 font-semibold text-xs text-zinc-700 uppercase tracking-wide">
+        {/* Cabeçalho - Desktop */}
+        <div className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 bg-zinc-50 border-b border-zinc-200 font-semibold text-xs text-zinc-700 uppercase tracking-wide">
           <div>Item</div>
           <div className="text-center">Quantidade</div>
           <div>Responsável</div>
@@ -800,10 +804,12 @@ export default function MovimentacoesList({
         {/* Corpo da tabela */}
         <div className="divide-y divide-zinc-200">
           {filtered.map((m) => (
-            <div
-              key={m.id}
-              className="grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-zinc-50/50 transition-colors"
-            >
+            <>
+              {/* Versão Desktop */}
+              <div
+                key={m.id}
+                className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-zinc-50/50 transition-colors"
+              >
               <div className="flex items-center gap-2 min-w-0">
                 <Badge 
                   variant={tipoBadge(m.tipo)} 
@@ -830,7 +836,43 @@ export default function MovimentacoesList({
               <div className="flex items-center text-sm text-zinc-600 truncate" title={m.observacoes || ""}>
                 {m.observacoes || "-"}
               </div>
-            </div>
+              </div>
+              
+              {/* Versão Mobile */}
+              <div
+                key={`${m.id}-mobile`}
+                className="md:hidden p-3 border-b border-zinc-200 space-y-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <Badge 
+                    variant={tipoBadge(m.tipo)} 
+                    className={cn(
+                      "capitalize shrink-0 text-xs px-2 py-0.5",
+                      tipoBadgeClassName(m.tipo)
+                    )}
+                  >
+                    {m.tipo}
+                  </Badge>
+                  <span className="text-xs text-zinc-500">
+                    {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
+                  </span>
+                </div>
+                <div>
+                  <p className="font-medium text-sm text-zinc-900">
+                    {m.ferramentas?.nome || "Produto"}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between text-xs text-zinc-600">
+                  <span>Qtd: <strong>{m.quantidade}</strong></span>
+                  <span>Resp: <strong>{m.colaboradores?.nome || "-"}</strong></span>
+                </div>
+                {m.observacoes && (
+                  <div className="text-xs text-zinc-500 pt-1 border-t border-zinc-100">
+                    {m.observacoes}
+                  </div>
+                )}
+              </div>
+            </>
           ))}
         </div>
       </div>

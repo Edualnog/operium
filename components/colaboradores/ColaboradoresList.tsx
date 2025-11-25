@@ -946,7 +946,7 @@ function ColaboradoresList({
               Novo Colaborador
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>
@@ -1007,7 +1007,7 @@ function ColaboradoresList({
                 </div>
 
                 {/* Email e Telefone em linha */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -1324,7 +1324,7 @@ function ColaboradoresList({
 
       {/* Dialog de Ficha do Colaborador */}
       <Dialog open={fichaDialogOpen} onOpenChange={setFichaDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-[95vw] md:max-w-4xl max-h-[90vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
