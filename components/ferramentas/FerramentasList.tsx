@@ -39,10 +39,14 @@ import {
   Wrench,
   FileDown,
   Package,
+  Grid3x3,
+  Square,
+  LayoutGrid,
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
 import { createClientComponentClient } from "@/lib/supabase-client"
@@ -98,6 +102,21 @@ function FerramentasList({
   } | null>(null)
   const [editing, setEditing] = useState<Ferramenta | null>(null)
   const [loading, setLoading] = useState(false)
+  
+  // Tamanho dos cards (pequeno, medio, grande)
+  const [cardSize, setCardSize] = useState<"pequeno" | "medio" | "grande">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("productCardSize")
+      return (saved as "pequeno" | "medio" | "grande") || "medio"
+    }
+    return "medio"
+  })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("productCardSize", cardSize)
+    }
+  }, [cardSize])
   const [productCode, setProductCode] = useState("")
   const [productPhoto, setProductPhoto] = useState("")
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
@@ -408,7 +427,7 @@ function FerramentasList({
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Button
             variant="outline"
             onClick={handleExportCSV}
@@ -417,6 +436,43 @@ function FerramentasList({
             <FileDown className="mr-2 h-4 w-4" />
             {exportingCsv ? "Gerando CSV..." : "Exportar CSV"}
           </Button>
+          
+          {/* Seletor de tamanho dos cards */}
+          <div className="flex items-center gap-1 border rounded-md p-1 bg-background">
+            <button
+              type="button"
+              onClick={() => setCardSize("pequeno")}
+              className={cn(
+                "p-1.5 rounded hover:bg-accent transition-colors",
+                cardSize === "pequeno" && "bg-primary text-primary-foreground"
+              )}
+              title="Pequeno"
+            >
+              <Grid3x3 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardSize("medio")}
+              className={cn(
+                "p-1.5 rounded hover:bg-accent transition-colors",
+                cardSize === "medio" && "bg-primary text-primary-foreground"
+              )}
+              title="Médio"
+            >
+              <Square className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardSize("grande")}
+              className={cn(
+                "p-1.5 rounded hover:bg-accent transition-colors",
+                cardSize === "grande" && "bg-primary text-primary-foreground"
+              )}
+              title="Grande"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -629,15 +685,47 @@ function FerramentasList({
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className={cn(
+        "grid gap-4",
+        cardSize === "pequeno" && "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+        cardSize === "medio" && "md:grid-cols-2 lg:grid-cols-3",
+        cardSize === "grande" && "md:grid-cols-2"
+      )}>
         {filteredFerramentas.map((ferramenta) => (
-          <Card key={ferramenta.id}>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-lg">{ferramenta.nome}</h3>
-                    <div className="flex flex-col text-sm text-muted-foreground">
+          <Card key={ferramenta.id} className={cn(
+            cardSize === "pequeno" && "hover:shadow-md transition-shadow",
+            cardSize === "medio" && "hover:shadow-lg transition-shadow",
+            cardSize === "grande" && "hover:shadow-xl transition-shadow"
+          )}>
+            <CardContent className={cn(
+              cardSize === "pequeno" && "p-3",
+              cardSize === "medio" && "p-6",
+              cardSize === "grande" && "p-8"
+            )}>
+              <div className={cn(
+                "space-y-4",
+                cardSize === "pequeno" && "space-y-2"
+              )}>
+                <div className={cn(
+                  "flex items-start justify-between",
+                  cardSize === "pequeno" && "flex-col gap-1"
+                )}>
+                  <div className={cn(
+                    "space-y-1",
+                    cardSize === "pequeno" && "space-y-0.5 w-full"
+                  )}>
+                    <h3 className={cn(
+                      "font-semibold",
+                      cardSize === "pequeno" && "text-sm",
+                      cardSize === "medio" && "text-lg",
+                      cardSize === "grande" && "text-xl"
+                    )}>{ferramenta.nome}</h3>
+                    <div className={cn(
+                      "flex flex-col text-muted-foreground",
+                      cardSize === "pequeno" && "text-xs",
+                      cardSize === "medio" && "text-sm",
+                      cardSize === "grande" && "text-sm"
+                    )}>
                       {ferramenta.codigo && <span>Código: {ferramenta.codigo}</span>}
                       {ferramenta.tipo_item && (
                         <span>
@@ -652,13 +740,25 @@ function FerramentasList({
                       {ferramenta.categoria && <span>Categoria: {ferramenta.categoria}</span>}
                     </div>
                   </div>
-                  <Badge variant={getEstadoBadge(ferramenta.estado)}>
+                  <Badge 
+                    variant={getEstadoBadge(ferramenta.estado)}
+                    className={cn(
+                      cardSize === "pequeno" && "text-xs",
+                      cardSize === "medio" && "text-xs",
+                      cardSize === "grande" && "text-sm"
+                    )}
+                  >
                     {getEstadoLabel(ferramenta.estado)}
                   </Badge>
                 </div>
 
                 {ferramenta.foto_url ? (
-                  <div className="relative w-full h-40 rounded-lg overflow-hidden border bg-zinc-50">
+                  <div className={cn(
+                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50",
+                    cardSize === "pequeno" && "h-24",
+                    cardSize === "medio" && "h-40",
+                    cardSize === "grande" && "h-56"
+                  )}>
                     <Image 
                       src={ferramenta.foto_url} 
                       alt={ferramenta.nome} 
@@ -668,12 +768,27 @@ function FerramentasList({
                     />
                   </div>
                 ) : (
-                  <div className="relative w-full h-40 rounded-lg overflow-hidden border bg-zinc-50 flex items-center justify-center">
-                    <Package className="h-12 w-12 text-zinc-400" />
+                  <div className={cn(
+                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50 flex items-center justify-center",
+                    cardSize === "pequeno" && "h-24",
+                    cardSize === "medio" && "h-40",
+                    cardSize === "grande" && "h-56"
+                  )}>
+                    <Package className={cn(
+                      "text-zinc-400",
+                      cardSize === "pequeno" && "h-6 w-6",
+                      cardSize === "medio" && "h-12 w-12",
+                      cardSize === "grande" && "h-16 w-16"
+                    )} />
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className={cn(
+                  "grid grid-cols-2 gap-2",
+                  cardSize === "pequeno" && "text-xs",
+                  cardSize === "medio" && "text-sm",
+                  cardSize === "grande" && "text-sm"
+                )}>
                   <div>
                     <p className="text-muted-foreground">Total</p>
                     <p className="font-semibold">
@@ -688,19 +803,28 @@ function FerramentasList({
                   </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className={cn(
+                "flex flex-wrap gap-2",
+                cardSize === "pequeno" && "gap-1"
+              )}>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size={cardSize === "pequeno" ? "sm" : "sm"}
                     onClick={() =>
                       setActionDialog({
                         type: "entrada",
                         ferramenta,
                       })
                     }
+                    className={cn(
+                      cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
+                    )}
                   >
-                    <PackagePlus className="h-4 w-4 mr-1" />
-                    Entrada
+                    <PackagePlus className={cn(
+                      cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
+                      cardSize !== "pequeno" && "mr-1"
+                    )} />
+                    {cardSize !== "pequeno" && "Entrada"}
                   </Button>
                   {ferramenta.quantidade_disponivel > 0 && (
                     <>
@@ -713,9 +837,15 @@ function FerramentasList({
                             ferramenta,
                           })
                         }
+                        className={cn(
+                          cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
+                        )}
                       >
-                        <PackageMinus className="h-4 w-4 mr-1" />
-                        Retirar
+                        <PackageMinus className={cn(
+                          cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
+                          cardSize !== "pequeno" && "mr-1"
+                        )} />
+                        {cardSize !== "pequeno" && "Retirar"}
                       </Button>
                       <Button
                         variant="outline"
@@ -726,9 +856,15 @@ function FerramentasList({
                             ferramenta,
                           })
                         }
+                        className={cn(
+                          cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
+                        )}
                       >
-                        <RotateCcw className="h-4 w-4 mr-1" />
-                        Devolver
+                        <RotateCcw className={cn(
+                          cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
+                          cardSize !== "pequeno" && "mr-1"
+                        )} />
+                        {cardSize !== "pequeno" && "Devolver"}
                       </Button>
                     </>
                   )}
@@ -742,9 +878,15 @@ function FerramentasList({
                           ferramenta,
                         })
                       }
+                      className={cn(
+                        cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
+                      )}
                     >
-                      <Wrench className="h-4 w-4 mr-1" />
-                      Conserto
+                      <Wrench className={cn(
+                        cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
+                        cardSize !== "pequeno" && "mr-1"
+                      )} />
+                      {cardSize !== "pequeno" && "Conserto"}
                     </Button>
                   )}
                   <Button
@@ -754,15 +896,26 @@ function FerramentasList({
                       setEditing(ferramenta)
                       setOpen(true)
                     }}
+                    className={cn(
+                      cardSize === "pequeno" && "h-6 w-6 p-0"
+                    )}
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className={cn(
+                      cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4"
+                    )} />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(ferramenta.id)}
+                    className={cn(
+                      cardSize === "pequeno" && "h-6 w-6 p-0"
+                    )}
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className={cn(
+                      cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
+                      "text-destructive"
+                    )} />
                   </Button>
                 </div>
               </div>
