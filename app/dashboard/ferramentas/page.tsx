@@ -10,7 +10,7 @@ async function getFerramentas(userId: string) {
   const supabase = await createServerComponentClient()
   const { data } = await supabase
     .from("ferramentas")
-    .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at")
+    .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at, tipo_item, codigo, foto_url, tamanho, cor")
     .eq("profile_id", userId)
     .order("nome", { ascending: true })
   return data || []
@@ -45,9 +45,9 @@ export default async function FerramentasPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Ferramentas</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Produtos</h1>
         <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
-          Gerencie o estoque de ferramentas
+          Cadastre e controle ferramentas, EPIs e consumíveis
         </p>
       </div>
       <Suspense fallback={<ListSkeleton />}>
@@ -59,4 +59,3 @@ export default async function FerramentasPage() {
     </div>
   )
 }
-

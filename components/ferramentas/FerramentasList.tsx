@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, memo } from "react"
+import { useState, useMemo, memo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -43,6 +43,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { useDebounce } from "@/lib/hooks/useDebounce"
+import { ProductPhotoUpload } from "./ProductPhotoUpload"
+import { createClientComponentClient } from "@/lib/supabase-client"
+import Image from "next/image"
 
 interface Ferramenta {
   id: string
@@ -51,6 +54,11 @@ interface Ferramenta {
   quantidade_total: number
   quantidade_disponivel: number
   estado: "ok" | "danificada" | "em_conserto"
+  tipo_item?: "ferramenta" | "epi" | "consumivel"
+  codigo?: string | null
+  foto_url?: string | null
+  tamanho?: string | null
+  cor?: string | null
 }
 
 interface Colaborador {
@@ -75,7 +83,30 @@ function FerramentasList({
   } | null>(null)
   const [editing, setEditing] = useState<Ferramenta | null>(null)
   const [loading, setLoading] = useState(false)
+  const [productCode, setProductCode] = useState("")
+  const [productPhoto, setProductPhoto] = useState("")
+  const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
+  const supabase = createClientComponentClient()
+  const [userId, setUserId] = useState<string>("")
+  useEffect(() => {
+    if (editing) {
+      setProductCode(editing.codigo || "")
+      setProductPhoto(editing.foto_url || "")
+      setTipoItem(editing.tipo_item || "ferramenta")
+    } else {
+      setProductCode("")
+      setProductPhoto("")
+      setTipoItem("ferramenta")
+    }
+  }, [editing])
   const router = useRouter()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const filteredFerramentas = useMemo(() => {
     if (!debouncedSearch) return ferramentas
@@ -87,12 +118,45 @@ function FerramentasList({
     )
   }, [ferramentas, debouncedSearch])
 
+  const gerarCodigoLocal = (nome: string, tamanho?: string, cor?: string, tipo?: string) => {
+    const tipoMap: Record<string, string> = {
+      ferramenta: "FER",
+      epi: "EPI",
+      consumivel: "CON",
+    }
+    const siglaTipo = tipoMap[tipo || "ferramenta"] || "PRD"
+    const iniciais = nome
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((w) => w[0]?.toUpperCase() || "")
+      .join("")
+      .slice(0, 4)
+    const tam = (tamanho || "").replace(/\s+/g, "").toUpperCase()
+    const corSigla = (cor || "").replace(/\s+/g, "").toUpperCase().slice(0, 3)
+    const rand = Math.floor(Math.random() * 900 + 100)
+    return [siglaTipo, iniciais || "XX", tam || undefined, corSigla || undefined, rand]
+      .filter(Boolean)
+      .join("-")
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
 
     try {
       const formData = new FormData(e.currentTarget)
+      const nome = formData.get("nome")?.toString() || ""
+      const tamanho = formData.get("tamanho")?.toString() || ""
+      const cor = formData.get("cor")?.toString() || ""
+      const tipo = (formData.get("tipo_item")?.toString() as any) || "ferramenta"
+
+      if (!formData.get("codigo") || (formData.get("codigo") as string).trim() === "") {
+        formData.set("codigo", gerarCodigoLocal(nome, tamanho, cor, tipo))
+      }
+
+      if (productPhoto) {
+        formData.set("foto_url", productPhoto)
+      }
 
       if (editing) {
         await atualizarFerramenta(editing.id, formData)
@@ -102,6 +166,8 @@ function FerramentasList({
 
       setOpen(false)
       setEditing(null)
+      setProductPhoto("")
+      setProductCode("")
       router.refresh()
     } catch (error) {
       alert("Erro ao salvar ferramenta")
@@ -201,7 +267,7 @@ function FerramentasList({
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar ferramenta..."
+            placeholder="Buscar produto..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8"
@@ -211,38 +277,145 @@ function FerramentasList({
           <DialogTrigger asChild>
             <Button onClick={() => setEditing(null)}>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Ferramenta
+              Novo Produto
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>
-                  {editing ? "Editar Ferramenta" : "Nova Ferramenta"}
+                  {editing ? "Editar Produto" : "Novo Produto"}
                 </DialogTitle>
                 <DialogDescription>
                   {editing
-                    ? "Atualize as informações da ferramenta"
-                    : "Adicione uma nova ferramenta ao estoque"}
+                    ? "Atualize as informações do produto"
+                    : "Adicione um novo produto ao estoque"}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
+                {userId && (
+                  <ProductPhotoUpload
+                    currentPhotoUrl={editing?.foto_url || productPhoto}
+                    onPhotoUploaded={setProductPhoto}
+                    userId={userId}
+                    productId={editing?.id}
+                  />
+                )}
                 <div className="grid gap-2">
                   <Label htmlFor="nome">Nome *</Label>
                   <Input
                     id="nome"
                     name="nome"
                     defaultValue={editing?.nome || ""}
+                    onBlur={(e) =>
+                      setProductCode(
+                        gerarCodigoLocal(
+                          e.target.value,
+                          (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
+                          (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                          tipoItem
+                        )
+                      )
+                    }
                     required
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="categoria">Categoria</Label>
-                  <Input
-                    id="categoria"
-                    name="categoria"
-                    defaultValue={editing?.categoria || ""}
-                  />
+                  <Label htmlFor="tipo_item">Categoria</Label>
+                  <Select
+                    name="tipo_item"
+                    defaultValue={editing?.tipo_item || tipoItem}
+                    onValueChange={(val: any) => {
+                      setTipoItem(val)
+                      setProductCode(
+                        gerarCodigoLocal(
+                          (document.getElementById("nome") as HTMLInputElement)?.value || "",
+                          (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
+                          (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                          val
+                        )
+                      )
+                    }}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ferramenta">Ferramenta</SelectItem>
+                      <SelectItem value="epi">EPI</SelectItem>
+                      <SelectItem value="consumivel">Consumível</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="categoria">Linha/Grupo</Label>
+                    <Input
+                      id="categoria"
+                      name="categoria"
+                      placeholder="Ex: Corte, Segurança"
+                      defaultValue={editing?.categoria || ""}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="codigo">Código</Label>
+                    <Input
+                      id="codigo"
+                      name="codigo"
+                      value={
+                        productCode ||
+                        gerarCodigoLocal(
+                          (document.getElementById("nome") as HTMLInputElement)?.value || editing?.nome || "",
+                          (document.getElementById("tamanho") as HTMLInputElement)?.value || editing?.tamanho || "",
+                          (document.getElementById("cor") as HTMLInputElement)?.value || editing?.cor || "",
+                          tipoItem
+                        )
+                      }
+                      onChange={(e) => setProductCode(e.target.value)}
+                      placeholder="Gerado automaticamente"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="tamanho">Tamanho / Medida</Label>
+                    <Input
+                      id="tamanho"
+                      name="tamanho"
+                      placeholder="Ex: M, 500ml, 10mm"
+                      defaultValue={editing?.tamanho || ""}
+                      onBlur={(e) =>
+                        setProductCode(
+                          gerarCodigoLocal(
+                            (document.getElementById("nome") as HTMLInputElement)?.value || "",
+                            e.target.value,
+                            (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                            tipoItem
+                          )
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="cor">Cor</Label>
+                    <Input
+                      id="cor"
+                      name="cor"
+                      placeholder="Ex: Azul, Preto"
+                      defaultValue={editing?.cor || ""}
+                      onBlur={(e) =>
+                        setProductCode(
+                          gerarCodigoLocal(
+                            (document.getElementById("nome") as HTMLInputElement)?.value || "",
+                            (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
+                            e.target.value,
+                            tipoItem
+                          )
+                        )
+                      }
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
@@ -303,16 +476,31 @@ function FerramentasList({
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <h3 className="font-semibold text-lg">{ferramenta.nome}</h3>
-                    {ferramenta.categoria && (
-                      <p className="text-sm text-muted-foreground">
-                        {ferramenta.categoria}
-                      </p>
-                    )}
+                    <div className="flex flex-col text-sm text-muted-foreground">
+                      {ferramenta.codigo && <span>Código: {ferramenta.codigo}</span>}
+                      {ferramenta.tipo_item && (
+                        <span>
+                          Tipo:{" "}
+                          {ferramenta.tipo_item === "consumivel"
+                            ? "Consumível"
+                            : ferramenta.tipo_item === "epi"
+                              ? "EPI"
+                              : "Ferramenta"}
+                        </span>
+                      )}
+                      {ferramenta.categoria && <span>Categoria: {ferramenta.categoria}</span>}
+                    </div>
                   </div>
                   <Badge variant={getEstadoBadge(ferramenta.estado)}>
                     {getEstadoLabel(ferramenta.estado)}
                   </Badge>
                 </div>
+
+                {ferramenta.foto_url && (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden border bg-zinc-50">
+                    <Image src={ferramenta.foto_url} alt={ferramenta.nome} fill className="object-cover" />
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
@@ -327,9 +515,9 @@ function FerramentasList({
                       {ferramenta.quantidade_disponivel}
                     </p>
                   </div>
-                </div>
+              </div>
 
-                <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -505,4 +693,3 @@ function FerramentasList({
 }
 
 export default memo(FerramentasList)
-

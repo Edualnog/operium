@@ -22,7 +22,33 @@ const ferramentaSchema = z.object({
   categoria: z.string().optional(),
   quantidade_total: z.number().min(0),
   estado: z.enum(["ok", "danificada", "em_conserto"]),
+  tipo_item: z.enum(["ferramenta", "epi", "consumivel"]).default("ferramenta"),
+  codigo: z.string().optional(),
+  foto_url: z.string().optional(),
+  tamanho: z.string().optional(),
+  cor: z.string().optional(),
 })
+
+function gerarCodigoProduto(nome: string, tipo: string, tamanho?: string | null, cor?: string | null) {
+  const tipoMap: Record<string, string> = {
+    ferramenta: "FER",
+    epi: "EPI",
+    consumivel: "CON",
+  }
+  const siglaTipo = tipoMap[tipo] || "PRD"
+  const iniciais = nome
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0]?.toUpperCase() || "")
+    .join("")
+    .slice(0, 4)
+  const tam = (tamanho || "").replace(/\s+/g, "").toUpperCase()
+  const corSigla = (cor || "").replace(/\s+/g, "").toUpperCase().slice(0, 3)
+  const rand = Math.floor(Math.random() * 900 + 100) // 100-999
+  return [siglaTipo, iniciais || "XX", tam || undefined, corSigla || undefined, rand]
+    .filter(Boolean)
+    .join("-")
+}
 
 // Colaboradores
 export async function criarColaborador(formData: FormData) {
@@ -118,11 +144,22 @@ export async function criarFerramenta(formData: FormData) {
     categoria: formData.get("categoria"),
     quantidade_total: Number(formData.get("quantidade_total")),
     estado: formData.get("estado"),
+    tipo_item: (formData.get("tipo_item") as string) || "ferramenta",
+    codigo: (formData.get("codigo") as string) || undefined,
+    foto_url: (formData.get("foto_url") as string) || undefined,
+    tamanho: (formData.get("tamanho") as string) || undefined,
+    cor: (formData.get("cor") as string) || undefined,
   })
+
+  const codigoFinal =
+    data.codigo && data.codigo.trim().length > 0
+      ? data.codigo
+      : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
 
   const { error } = await supabase.from("ferramentas").insert({
     profile_id: user.id,
     ...data,
+    codigo: codigoFinal,
     quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
   })
 
@@ -143,11 +180,24 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
     categoria: formData.get("categoria"),
     quantidade_total: Number(formData.get("quantidade_total")),
     estado: formData.get("estado"),
+    tipo_item: (formData.get("tipo_item") as string) || "ferramenta",
+    codigo: (formData.get("codigo") as string) || undefined,
+    foto_url: (formData.get("foto_url") as string) || undefined,
+    tamanho: (formData.get("tamanho") as string) || undefined,
+    cor: (formData.get("cor") as string) || undefined,
   })
+
+  const codigoFinal =
+    data.codigo && data.codigo.trim().length > 0
+      ? data.codigo
+      : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
 
   const { error } = await supabase
     .from("ferramentas")
-    .update(data)
+    .update({
+      ...data,
+      codigo: codigoFinal,
+    })
     .eq("id", id)
     .eq("profile_id", user.id)
 
@@ -450,4 +500,3 @@ export async function registrarRetornoConserto(
   revalidatePath("/dashboard/ferramentas")
   revalidatePath("/dashboard")
 }
-

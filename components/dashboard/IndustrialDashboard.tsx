@@ -200,14 +200,16 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           </h2>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <KPICard
-            title="Consumo Médio Diário"
-            value={data.consumoMedioDiario.toFixed(1)}
-            description="Últimos 30 dias"
-            iconName="TrendingUp"
-          />
-        </div>
+        <KpiChart
+          title="Top consumíveis mais retirados"
+          description="Últimos 30 dias"
+          data={data.itensMaiorConsumo}
+          type="bar"
+          dataKey="consumo_30d"
+          xAxisKey="nome"
+          color="#3b82f6"
+          height={320}
+        />
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <KpiList
