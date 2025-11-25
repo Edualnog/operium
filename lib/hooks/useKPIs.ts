@@ -99,6 +99,7 @@ export function useKPIs(userId: string) {
 
         const retiradas = retiradasRes.data || []
         const devolucoes = devolucoesRes.data || []
+        const ferramentas = ferramentasRes.data || []
 
         // Ferramentas em uso (retiradas sem devolução posterior)
         const ferramentasEmUso = retiradas
