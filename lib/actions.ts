@@ -396,7 +396,11 @@ export async function registrarDevolucao(
 export async function registrarEnvioConserto(
   ferramentaId: string,
   quantidade: number,
-  descricao?: string
+  descricao?: string,
+  status?: "aguardando" | "em_andamento" | "concluido",
+  local_conserto?: string,
+  prazo?: string,
+  prioridade?: string
 ) {
   const supabase = await createServerComponentClient()
   const {
@@ -435,7 +439,10 @@ export async function registrarEnvioConserto(
     profile_id: user.id,
     ferramenta_id: ferramentaId,
     descricao,
-    status: "aguardando",
+    status: status || "aguardando",
+    local_conserto,
+    prazo: prazo ? new Date(prazo).toISOString() : null,
+    prioridade,
   })
 
   if (consertoError) throw consertoError

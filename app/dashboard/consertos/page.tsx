@@ -33,6 +33,9 @@ async function getConsertos(userId: string): Promise<ConsertoItem[]> {
       custo,
       data_envio,
       data_retorno,
+      local_conserto,
+      prazo,
+      prioridade,
       ferramentas!inner (
         id,
         nome,
@@ -56,6 +59,9 @@ async function getConsertos(userId: string): Promise<ConsertoItem[]> {
       custo: conserto.custo,
       data_envio: conserto.data_envio,
       data_retorno: conserto.data_retorno,
+      local_conserto: conserto.local_conserto,
+      prazo: conserto.prazo,
+      prioridade: conserto.prioridade,
       ferramentas: {
         id: ferramentaNormalizada?.id || conserto.ferramenta_id,
         nome: ferramentaNormalizada?.nome || "Sem nome",

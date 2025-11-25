@@ -331,8 +331,13 @@ function FerramentasList({
           await registrarEnvioConserto(
             actionDialog.ferramenta.id,
             quantidade,
-            observacoes
+            observacoes,
+            (formData.get("status_conserto") as any) || "aguardando",
+            formData.get("local_conserto")?.toString(),
+            formData.get("prazo_conserto")?.toString(),
+            formData.get("prioridade_conserto")?.toString()
           )
+          router.push("/dashboard/consertos")
           break
       }
 
@@ -773,6 +778,45 @@ function FerramentasList({
                     required
                   />
                 </div>
+
+                {actionDialog.type === "conserto" && (
+                  <>
+                    <div className="grid gap-2">
+                      <Label htmlFor="status_conserto">Status</Label>
+                      <Select name="status_conserto" defaultValue="aguardando">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Status do conserto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="aguardando">Aguardando</SelectItem>
+                          <SelectItem value="em_andamento">Em Andamento</SelectItem>
+                          <SelectItem value="concluido">Concluído</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="local_conserto">Local / Responsável</Label>
+                      <Input id="local_conserto" name="local_conserto" placeholder="Ex: Oficina interna, Fornecedor X" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="prazo_conserto">Prazo previsto</Label>
+                      <Input id="prazo_conserto" name="prazo_conserto" type="date" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="prioridade_conserto">Prioridade</Label>
+                      <Select name="prioridade_conserto" defaultValue="media">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Prioridade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="baixa">Baixa</SelectItem>
+                          <SelectItem value="media">Média</SelectItem>
+                          <SelectItem value="alta">Alta</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
                 <div className="grid gap-2">
                   <Label htmlFor="observacoes">Observações</Label>
                   <Input
