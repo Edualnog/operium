@@ -43,7 +43,7 @@ async function getConsertos(userId: string): Promise<ConsertoItem[]> {
     .order("data_envio", { ascending: false })
   
   // Transformar ferramentas de array para objeto único
-  return (data || []).map((conserto: any) => {
+  const normalizados: ConsertoItem[] = (data || []).map((conserto: any) => {
     const ferramentaNormalizada = Array.isArray(conserto.ferramentas)
       ? conserto.ferramentas[0]
       : conserto.ferramentas
@@ -63,6 +63,8 @@ async function getConsertos(userId: string): Promise<ConsertoItem[]> {
       },
     }
   })
+
+  return normalizados
 }
 
 export default async function ConsertosPage() {
