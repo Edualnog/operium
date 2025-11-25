@@ -132,14 +132,14 @@ export function ColaboradoresFilters({
                 <div className="space-y-2">
                   <Label className="text-xs">Cargo</Label>
                   <Select
-                    value={filters.cargo}
-                    onValueChange={(value) => updateFilter("cargo", value)}
+                    value={filters.cargo === "" ? "all" : filters.cargo}
+                    onValueChange={(value) => updateFilter("cargo", value === "all" ? "" : value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os cargos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os cargos</SelectItem>
+                      <SelectItem value="all">Todos os cargos</SelectItem>
                       {cargos.map((cargo) => (
                         <SelectItem key={cargo} value={cargo}>
                           {cargo}
@@ -330,4 +330,3 @@ export function ColaboradoresFilters({
     </div>
   )
 }
-

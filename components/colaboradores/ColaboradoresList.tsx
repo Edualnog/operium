@@ -18,7 +18,7 @@ import {
   atualizarColaborador,
   deletarColaborador,
 } from "@/lib/actions"
-import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin } from "lucide-react"
+import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
@@ -53,6 +53,7 @@ function ColaboradoresList({
   const [editing, setEditing] = useState<Colaborador | null>(null)
   const [loading, setLoading] = useState(false)
   const [photoUrl, setPhotoUrl] = useState<string>("")
+  const [exporting, setExporting] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
 
@@ -218,6 +219,55 @@ function ColaboradoresList({
     if (!isOpen) {
       setEditing(null)
       setPhotoUrl("")
+    }
+  }
+
+  const handleExportPDF = async () => {
+    if (filteredAndSortedColaboradores.length === 0) return
+    try {
+      setExporting(true)
+      const [{ jsPDF }, autoTable] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ])
+
+      const doc = new jsPDF()
+      const agora = new Date()
+
+      doc.setFontSize(14)
+      doc.text("Relatório de Colaboradores", 14, 16)
+      doc.setFontSize(10)
+      doc.text(`Gerado em ${format(agora, "dd/MM/yyyy HH:mm")}`, 14, 24)
+      doc.text(
+        `Total: ${filteredAndSortedColaboradores.length}`,
+        14,
+        30
+      )
+
+      const rows = filteredAndSortedColaboradores.map((c, idx) => [
+        idx + 1,
+        c.nome,
+        c.cargo || "-",
+        c.telefone || "-",
+        c.email || "-",
+        c.cpf || "-",
+        c.data_admissao ? format(new Date(c.data_admissao), "dd/MM/yyyy") : "-",
+      ])
+
+      autoTable.default(doc, {
+        startY: 36,
+        head: [["#", "Nome", "Cargo", "Telefone", "Email", "CPF", "Admissão"]],
+        body: rows,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [17, 24, 39] },
+      })
+
+      doc.save(`colaboradores_${format(agora, "yyyyMMdd_HHmm")}.pdf`)
+    } catch (error) {
+      console.error("Erro ao exportar PDF", error)
+      alert("Erro ao exportar PDF dos colaboradores")
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -413,8 +463,17 @@ function ColaboradoresList({
         totalEncontrados={filteredAndSortedColaboradores.length}
       />
 
-      {/* Botão de adicionar */}
-      <div className="flex justify-end">
+      {/* Ações */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Button
+          variant="outline"
+          onClick={handleExportPDF}
+          disabled={exporting || filteredAndSortedColaboradores.length === 0}
+        >
+          <FileDown className="mr-2 h-4 w-4" />
+          {exporting ? "Gerando PDF..." : "Exportar PDF"}
+        </Button>
+
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <Button onClick={() => setEditing(null)}>

@@ -18,36 +18,92 @@ export function useKPIs(userId: string) {
         const trintaDiasAtras = new Date()
         trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30)
 
-        // 1. FERRAMENTAS EM USO AGORA
-        // Verificar se os campos novos existem
-        const { data: retiradas, error: err1 } = await supabase
-          .from("movimentacoes")
-          .select(`
-            id,
-            ferramenta_id,
-            colaborador_id,
-            data,
-            ferramentas(nome),
-            colaboradores(nome)
-          `)
-          .eq("profile_id", userId)
-          .eq("tipo", "retirada")
+        const [
+          retiradasRes,
+          devolucoesRes,
+          tmrRes,
+          indiceRes,
+          movimentacoes30dRes,
+          colaboradoresRes,
+          consumiveisRes,
+          ferramentasRes,
+          episMovRes,
+          episRes,
+        ] = await Promise.all([
+          supabase
+            .from("movimentacoes")
+            .select(`
+              id,
+              ferramenta_id,
+              colaborador_id,
+              tipo,
+              data,
+              ferramentas(nome),
+              colaboradores(nome)
+            `)
+            .eq("profile_id", userId)
+            .eq("tipo", "retirada"),
+          supabase
+            .from("movimentacoes")
+            .select("ferramenta_id, colaborador_id, data, tipo")
+            .eq("profile_id", userId)
+            .eq("tipo", "devolucao"),
+          supabase.rpc("calcular_tmr", { p_profile_id: userId }),
+          supabase.rpc("calcular_indice_atraso", { p_profile_id: userId }),
+          supabase
+            .from("movimentacoes")
+            .select("ferramenta_id, quantidade, data, ferramentas(nome, categoria)")
+            .eq("profile_id", userId)
+            .eq("tipo", "retirada")
+            .gte("data", trintaDiasAtras.toISOString()),
+          supabase.from("colaboradores").select("id, nome").eq("profile_id", userId),
+          supabase
+            .from("movimentacoes")
+            .select("ferramenta_id, quantidade, data, ferramentas(tipo_item, nome, categoria)")
+            .eq("profile_id", userId)
+            .eq("tipo", "retirada")
+            .gte("data", trintaDiasAtras.toISOString()),
+          supabase
+            .from("ferramentas")
+            .select(
+              "id, nome, quantidade_disponivel, ponto_ressuprimento, categoria, tipo_item, lead_time_dias, validade"
+            )
+            .eq("profile_id", userId),
+          supabase
+            .from("movimentacoes")
+            .select(`
+              colaborador_id,
+              ferramenta_id,
+              tipo,
+              colaboradores(nome),
+              ferramentas(nome, tipo_item, validade)
+            `)
+            .eq("profile_id", userId)
+            .in("tipo", ["retirada", "devolucao"]),
+          supabase
+            .from("ferramentas")
+            .select("id, nome, validade")
+            .eq("profile_id", userId)
+            .eq("tipo_item", "epi")
+            .not("validade", "is", null),
+        ])
 
-        if (err1) throw err1
+        if (retiradasRes.error) throw retiradasRes.error
+        if (devolucoesRes.error) throw devolucoesRes.error
+        if (movimentacoes30dRes.error) throw movimentacoes30dRes.error
+        if (colaboradoresRes.error) throw colaboradoresRes.error
+        if (consumiveisRes.error) throw consumiveisRes.error
+        if (ferramentasRes.error) throw ferramentasRes.error
+        if (episMovRes.error) throw episMovRes.error
+        if (episRes.error) throw episRes.error
 
-        // Buscar devoluções para identificar quais ainda estão em uso
-        const { data: devolucoes, error: err2 } = await supabase
-          .from("movimentacoes")
-          .select("ferramenta_id, colaborador_id, data")
-          .eq("profile_id", userId)
-          .eq("tipo", "devolucao")
+        const retiradas = retiradasRes.data || []
+        const devolucoes = devolucoesRes.data || []
 
-        if (err2) throw err2
-
-        // Filtrar ferramentas ainda em uso (retiradas sem devolução correspondente)
-        const ferramentasEmUso = (retiradas || [])
+        // Ferramentas em uso (retiradas sem devolução posterior)
+        const ferramentasEmUso = retiradas
           .filter((ret) => {
-            const foiDevolvida = devolucoes?.some(
+            const foiDevolvida = devolucoes.some(
               (dev) =>
                 dev.ferramenta_id === ret.ferramenta_id &&
                 dev.colaborador_id === ret.colaborador_id &&
@@ -60,9 +116,7 @@ export function useKPIs(userId: string) {
           .map((ret) => {
             const saida = ret.data ? new Date(ret.data) : new Date()
             const agora = new Date()
-            const diasEmUso = Math.floor(
-              (agora.getTime() - saida.getTime()) / (1000 * 60 * 60 * 24)
-            )
+            const diasEmUso = Math.floor((agora.getTime() - saida.getTime()) / (1000 * 60 * 60 * 24))
 
             return {
               id: ret.id,
@@ -74,79 +128,42 @@ export function useKPIs(userId: string) {
             }
           })
 
-        // 2. TEMPO MÉDIO DE RETORNO (TMR)
-        // Tentar usar função SQL, se não existir, calcular manualmente
+        // Tempo médio de retorno (usa RPC; fallback manual com retiradas/devoluções em memória)
         let horasTMR = 0
-        const { data: tmrData, error: err3 } = await supabase.rpc(
-          "calcular_tmr",
-          { p_profile_id: userId }
-        )
+        if (tmrRes.error) {
+          const retiradasMap = new Map<string, string>()
+          const tempos: number[] = []
 
-        if (err3) {
-          // Calcular manualmente se função não existir
-          const { data: movimentacoesTMR } = await supabase
-            .from("movimentacoes")
-            .select("data, tipo, ferramenta_id, colaborador_id")
-            .eq("profile_id", userId)
-            .in("tipo", ["retirada", "devolucao"])
-            .order("data", { ascending: true })
-
-          if (movimentacoesTMR) {
-            const tempos: number[] = []
-            const retiradasMap = new Map<string, any>()
-
-            movimentacoesTMR.forEach((mov: any) => {
+          ;[...retiradas, ...devolucoes]
+            .sort((a: any, b: any) => new Date(a.data || 0).getTime() - new Date(b.data || 0).getTime())
+            .forEach((mov: any) => {
               const key = `${mov.ferramenta_id}-${mov.colaborador_id}`
               if (mov.tipo === "retirada") {
-                retiradasMap.set(key, mov.data)
+                retiradasMap.set(key, mov.data as string)
               } else if (mov.tipo === "devolucao" && retiradasMap.has(key)) {
-                const saida = new Date(retiradasMap.get(key))
-                const devolucao = new Date(mov.data)
+                const saida = new Date(retiradasMap.get(key) as string)
+                const devolucao = new Date(mov.data as string)
                 const horas = (devolucao.getTime() - saida.getTime()) / (1000 * 60 * 60)
-                if (horas > 0) {
-                  tempos.push(horas)
-                }
+                if (horas > 0) tempos.push(horas)
                 retiradasMap.delete(key)
               }
             })
 
-            horasTMR = tempos.length > 0
-              ? tempos.reduce((acc, t) => acc + t, 0) / tempos.length
-              : 0
-          }
+          horasTMR = tempos.length > 0 ? tempos.reduce((acc, t) => acc + t, 0) / tempos.length : 0
         } else {
-          horasTMR = Number(tmrData) || 0
+          horasTMR = Number(tmrRes.data) || 0
         }
+
         const tempoMedioRetorno = {
           horas: Math.round(horasTMR * 10) / 10,
           dias: Math.round((horasTMR / 24) * 10) / 10,
           minutos: Math.round(horasTMR * 60),
         }
 
-        // 3. ÍNDICE DE ATRASO DE DEVOLUÇÃO
-        // Tentar usar função SQL, se não existir, retornar 0
-        let indiceAtraso = 0
-        const { data: indiceAtrasoData, error: err4 } = await supabase.rpc(
-          "calcular_indice_atraso",
-          { p_profile_id: userId }
-        )
+        // Índice de atraso
+        const indiceAtraso = indiceRes.error ? 0 : Number(indiceRes.data) || 0
 
-        if (err4) {
-          // Se função não existir, retornar 0 (sem dados de prazo ainda)
-          indiceAtraso = 0
-        } else {
-          indiceAtraso = Number(indiceAtrasoData) || 0
-        }
-
-        // 4. TOP FERRAMENTAS MAIS UTILIZADAS (30 dias)
-        const { data: movimentacoes30d, error: err5 } = await supabase
-          .from("movimentacoes")
-          .select("ferramenta_id, quantidade, ferramentas(nome, categoria)")
-          .eq("profile_id", userId)
-          .eq("tipo", "retirada")
-          .gte("data", trintaDiasAtras.toISOString())
-
-        if (err5) throw err5
+        const movimentacoes30d = movimentacoes30dRes.data || []
 
         const rankingFerramentas: Record<string, any> = {}
         movimentacoes30d?.forEach((mov) => {
@@ -166,83 +183,40 @@ export function useKPIs(userId: string) {
           .sort((a: any, b: any) => b.total_saidas - a.total_saidas)
           .slice(0, 10)
 
-        // 5. RANKING DE RESPONSABILIDADE DOS COLABORADORES
-        const { data: colaboradores, error: err6 } = await supabase
-          .from("colaboradores")
-          .select("id, nome")
-          .eq("profile_id", userId)
+        // Ranking de responsabilidade (evita novas queries: usa retiradas/devoluções já carregadas)
+        const colaboradores = colaboradoresRes.data || []
+        const rankingCompleto = colaboradores.map((colab) => {
+          const retiradasColab = retiradas.filter((r) => r.colaborador_id === colab.id)
+          const devolucoesColab = devolucoes.filter((d) => d.colaborador_id === colab.id)
+          const totalRetiradas = retiradasColab.length
+          const totalDevolucoes = devolucoesColab.length
 
-        if (err6) throw err6
+          // Score começa em 100% e só cai quando há retiradas não devolvidas
+          let score = 100
+          if (totalRetiradas > 0 && totalDevolucoes < totalRetiradas) {
+            score = Math.max(0, (totalDevolucoes / totalRetiradas) * 100)
+          }
 
-        const rankingResponsabilidade = await Promise.all(
-          (colaboradores || []).map(async (colab) => {
-            // Tentar usar função SQL, se não existir, calcular manualmente
-            let score = 0
-            const { data: scoreData, error: err7 } = await supabase.rpc(
-              "calcular_score_responsabilidade",
-              {
-                p_profile_id: userId,
-                p_colaborador_id: colab.id,
-              }
-            )
+          return {
+            colaborador_id: colab.id,
+            nome: colab.nome,
+            score,
+            total_retiradas: totalRetiradas,
+            devolucoes_no_prazo: Math.min(totalDevolucoes, totalRetiradas),
+          }
+        })
 
-            if (err7) {
-              // Calcular manualmente: contar retiradas e devoluções
-              const { data: retiradasColab } = await supabase
-                .from("movimentacoes")
-                .select("id, data, ferramenta_id")
-                .eq("profile_id", userId)
-                .eq("colaborador_id", colab.id)
-                .eq("tipo", "retirada")
-
-              const { data: devolucoesColab } = await supabase
-                .from("movimentacoes")
-                .select("id, data, ferramenta_id")
-                .eq("profile_id", userId)
-                .eq("colaborador_id", colab.id)
-                .eq("tipo", "devolucao")
-
-              const totalRetiradas = retiradasColab?.length || 0
-              const totalDevolucoes = devolucoesColab?.length || 0
-              
-              // Score simples: devoluções / retiradas * 100
-              score = totalRetiradas > 0 ? (totalDevolucoes / totalRetiradas) * 100 : 0
-            } else {
-              score = Number(scoreData) || 0
-            }
-
-            const { data: retiradasColab } = await supabase
-              .from("movimentacoes")
-              .select("id")
-              .eq("profile_id", userId)
-              .eq("colaborador_id", colab.id)
-              .eq("tipo", "retirada")
-
-            return {
-              colaborador_id: colab.id,
-              nome: colab.nome,
-              score: score,
-              total_retiradas: retiradasColab?.length || 0,
-              devolucoes_no_prazo: Math.round(
-                (score / 100) * (retiradasColab?.length || 0)
-              ),
-            }
-          })
-        )
+        const rankingOrdenado = rankingCompleto.sort((a, b) => b.score - a.score)
+        const rankingResponsabilidade =
+          rankingOrdenado.length > 1
+            ? [rankingOrdenado[0], rankingOrdenado[rankingOrdenado.length - 1]]
+            : rankingOrdenado
 
         // 6. CONSUMO MÉDIO DIÁRIO (Consumíveis - últimos 30 dias)
-        const { data: consumiveisMov, error: err8 } = await supabase
-          .from("movimentacoes")
-          .select("ferramenta_id, quantidade, data, ferramentas(tipo_item, nome, categoria)")
-          .eq("profile_id", userId)
-          .eq("tipo", "retirada")
-          .gte("data", trintaDiasAtras.toISOString())
-
-        if (err8) throw err8
-
-        const consumiveis = consumiveisMov?.filter(
+        const consumiveisMov = consumiveisRes.data || []
+        const consumiveis = consumiveisMov.filter(
           (m) => (m.ferramentas as any)?.tipo_item === "consumivel"
-        ) || []
+        )
 
         const totalConsumo = consumiveis.reduce(
           (acc, m) => acc + (m.quantidade || 0),
@@ -250,13 +224,7 @@ export function useKPIs(userId: string) {
         )
         const consumoMedioDiario = totalConsumo / 30
 
-        // 7. ITENS COM ESTOQUE CRÍTICO
-        const { data: ferramentas, error: err9 } = await supabase
-          .from("ferramentas")
-          .select("id, nome, quantidade_disponivel, ponto_ressuprimento, categoria, tipo_item, lead_time_dias")
-          .eq("profile_id", userId)
-
-        if (err9) throw err9
+        const ferramentas = ferramentasRes.data || []
 
         const itensEstoqueCritico = (ferramentas || [])
           .filter(
@@ -297,20 +265,7 @@ export function useKPIs(userId: string) {
           .sort((a: any, b: any) => b.consumo_30d - a.consumo_30d)
           .slice(0, 10)
 
-        // 9. EPIs ATIVOS POR COLABORADOR
-        const { data: episMov, error: err10 } = await supabase
-          .from("movimentacoes")
-          .select(`
-            colaborador_id,
-            ferramenta_id,
-            tipo,
-            colaboradores(nome),
-            ferramentas(nome, tipo_item, validade)
-          `)
-          .eq("profile_id", userId)
-          .in("tipo", ["retirada", "devolucao"])
-
-        if (err10) throw err10
+        const episMov = episMovRes.data || []
 
         const episAtivos: Record<string, any> = {}
         const episDevolvidos = new Set<string>()
@@ -348,14 +303,7 @@ export function useKPIs(userId: string) {
         const episAtivosPorColaborador = Object.values(episAtivos)
 
         // 10. EPIs PRÓXIMOS DA VALIDADE (<=30 dias)
-        const { data: epis, error: err11 } = await supabase
-          .from("ferramentas")
-          .select("id, nome, validade")
-          .eq("profile_id", userId)
-          .eq("tipo_item", "epi")
-          .not("validade", "is", null)
-
-        if (err11) throw err11
+        const epis = episRes.data || []
 
         const agora = new Date()
         const trintaDiasFuturo = new Date()
@@ -513,4 +461,3 @@ export function useKPIs(userId: string) {
 
   return { data, loading, error }
 }
-
