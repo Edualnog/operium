@@ -350,6 +350,38 @@ function ConsertosList({
       },
     })
 
+    // Rodapé
+    const agora = new Date()
+    const pageCount = doc.getNumberOfPages()
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i)
+      const pageHeight = doc.internal.pageSize.height
+      const pageWidth = doc.internal.pageSize.width
+      
+      // Data e página
+      doc.setFontSize(8)
+      doc.text(
+        `Gerado em ${format(agora, "dd/MM/yyyy HH:mm", { locale: ptBR })} - Página ${i} de ${pageCount}`,
+        14,
+        pageHeight - 20
+      )
+      
+      // Rodapé padrão
+      doc.setFontSize(7)
+      doc.text(
+        "Gerado por Almox Fácil",
+        pageWidth / 2,
+        pageHeight - 15,
+        { align: "center" }
+      )
+      doc.text(
+        "www.almoxfacil.alnog.com.br",
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: "center" }
+      )
+    }
+
     const stamp = new Date().toISOString().replace(/[:.-]/g, "").slice(0, 15)
     const filterSuffix = filtersApplied.length > 0 ? "_filtrado" : ""
     doc.save(`consertos${filterSuffix}_${stamp}.pdf`)
