@@ -73,6 +73,7 @@ export default function MovimentacoesList({
     colaboradorId: "",
     colaboradorNome: "",
     observacoes: "",
+    dataMov: new Date().toISOString().slice(0, 16),
   })
   const [search, setSearch] = useState("")
 
@@ -93,6 +94,12 @@ export default function MovimentacoesList({
       .filter((f) => f.nome.toLowerCase().includes(s))
       .slice(0, 5)
   }, [form.produto, ferramentas])
+
+  const colabSuggestions = useMemo(() => {
+    const s = form.colaboradorNome.toLowerCase()
+    if (!s) return []
+    return colaboradores.filter((c) => c.nome.toLowerCase().includes(s)).slice(0, 5)
+  }, [form.colaboradorNome, colaboradores])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -116,6 +123,7 @@ export default function MovimentacoesList({
           quantidade: Number(form.quantidade),
           colaborador_id: form.colaboradorId || undefined,
           observacoes: form.observacoes || undefined,
+          data: form.dataMov ? new Date(form.dataMov).toISOString() : undefined,
         }),
       })
       const json = await res.json()
@@ -130,6 +138,7 @@ export default function MovimentacoesList({
         colaboradorId: "",
         colaboradorNome: "",
         observacoes: "",
+        dataMov: new Date().toISOString().slice(0, 16),
       })
       router.refresh()
     } catch (err: any) {
@@ -234,23 +243,45 @@ export default function MovimentacoesList({
                       <Input
                         placeholder="Digite o nome do colaborador"
                         value={form.colaboradorNome}
-                        onChange={(e) => setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))}
-                        list="colab-suggestions"
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))
+                        }
                       />
-                      <datalist id="colab-suggestions">
-                        {colaboradores.map((c) => (
-                          <option
-                            key={c.id}
-                            value={c.nome}
-                            onClick={() => setForm((f) => ({ ...f, colaboradorId: c.id, colaboradorNome: c.nome }))}
-                          >
-                            {c.nome}
-                          </option>
-                        ))}
-                      </datalist>
-                      <div className="text-xs text-zinc-500">Selecione um colaborador da lista para vincular.</div>
+                      {colabSuggestions.length > 0 && (
+                        <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
+                          {colabSuggestions.map((c) => (
+                            <button
+                              type="button"
+                              key={c.id}
+                              className="w-full text-left px-3 py-2 hover:bg-zinc-50"
+                              onClick={() =>
+                                setForm((f) => ({
+                                  ...f,
+                                  colaboradorId: c.id,
+                                  colaboradorNome: c.nome,
+                                }))
+                              }
+                            >
+                              <div className="text-sm font-medium text-zinc-900">{c.nome}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <div className="text-xs text-zinc-500">
+                        Escolha o colaborador responsável pela retirada/devolução.
+                      </div>
                     </div>
                   )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Data/Hora</Label>
+                  <Input
+                    type="datetime-local"
+                    value={form.dataMov}
+                    onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
+                  />
+                  <div className="text-xs text-zinc-500">Se preferir, ajuste a data/hora. Por padrão usamos agora.</div>
                 </div>
 
                 <div className="grid gap-2">

@@ -227,7 +227,8 @@ export async function deletarFerramenta(id: string) {
 export async function registrarEntrada(
   ferramentaId: string,
   quantidade: number,
-  observacoes?: string
+  observacoes?: string,
+  dataMovimentacao?: string
 ) {
   const supabase = await createServerComponentClient()
   const {
@@ -270,6 +271,7 @@ export async function registrarEntrada(
     tipo: "entrada",
     quantidade,
     observacoes,
+    data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
   })
 
   if (movError) throw movError
@@ -282,7 +284,8 @@ export async function registrarRetirada(
   ferramentaId: string,
   colaboradorId: string,
   quantidade: number,
-  observacoes?: string
+  observacoes?: string,
+  dataMovimentacao?: string
 ) {
   const supabase = await createServerComponentClient()
   const {
@@ -323,6 +326,7 @@ export async function registrarRetirada(
     tipo: "retirada",
     quantidade,
     observacoes,
+    data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
   })
 
   if (movError) throw movError
@@ -335,7 +339,8 @@ export async function registrarDevolucao(
   ferramentaId: string,
   colaboradorId: string,
   quantidade: number,
-  observacoes?: string
+  observacoes?: string,
+  dataMovimentacao?: string
 ) {
   const supabase = await createServerComponentClient()
   const {
@@ -379,6 +384,7 @@ export async function registrarDevolucao(
     tipo: "devolucao",
     quantidade,
     observacoes,
+    data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
   })
 
   if (movError) throw movError

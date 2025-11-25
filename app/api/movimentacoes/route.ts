@@ -4,7 +4,7 @@ import { registrarEntrada, registrarRetirada, registrarDevolucao } from "@/lib/a
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { tipo, ferramenta_id, quantidade, colaborador_id, observacoes } = body || {}
+    const { tipo, ferramenta_id, quantidade, colaborador_id, observacoes, data } = body || {}
 
     if (!ferramenta_id || !quantidade || !tipo) {
       return NextResponse.json({ error: "Dados inválidos" }, { status: 400 })
@@ -15,11 +15,11 @@ export async function POST(request: Request) {
     }
 
     if (tipo === "entrada") {
-      await registrarEntrada(ferramenta_id, Number(quantidade), observacoes)
+      await registrarEntrada(ferramenta_id, Number(quantidade), observacoes, data)
     } else if (tipo === "retirada") {
-      await registrarRetirada(ferramenta_id, colaborador_id, Number(quantidade), observacoes)
+      await registrarRetirada(ferramenta_id, colaborador_id, Number(quantidade), observacoes, data)
     } else if (tipo === "devolucao") {
-      await registrarDevolucao(ferramenta_id, colaborador_id, Number(quantidade), observacoes)
+      await registrarDevolucao(ferramenta_id, colaborador_id, Number(quantidade), observacoes, data)
     } else {
       return NextResponse.json({ error: "Tipo inválido" }, { status: 400 })
     }
