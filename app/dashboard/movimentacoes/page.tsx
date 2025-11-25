@@ -16,7 +16,22 @@ async function getMovimentacoes(userId: string) {
     .eq("profile_id", userId)
     .order("data", { ascending: false })
     .limit(50)
-  return data || []
+  return (data || []).map((mov: any) => {
+    const ferramenta = Array.isArray(mov.ferramentas) ? mov.ferramentas[0] : mov.ferramentas
+    const colaborador = Array.isArray(mov.colaboradores) ? mov.colaboradores[0] : mov.colaboradores
+    return {
+      id: mov.id,
+      tipo: mov.tipo,
+      quantidade: mov.quantidade,
+      observacoes: mov.observacoes,
+      data: mov.data,
+      created_at: mov.created_at,
+      ferramentas: ferramenta
+        ? { nome: ferramenta.nome, tipo_item: ferramenta.tipo_item }
+        : null,
+      colaboradores: colaborador ? { nome: colaborador.nome } : null,
+    }
+  })
 }
 
 async function getFerramentas(userId: string) {
