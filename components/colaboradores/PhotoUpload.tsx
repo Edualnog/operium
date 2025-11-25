@@ -113,6 +113,18 @@ export function PhotoUpload({
     try {
       setUploading(true)
 
+      // Verificar se o usuário está autenticado
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !currentUser) {
+        throw new Error("Você precisa estar autenticado para fazer upload de fotos. Por favor, faça login novamente.")
+      }
+
+      // Verificar se o userId do componente corresponde ao usuário autenticado
+      if (currentUser.id !== userId) {
+        throw new Error("Erro de autenticação: ID do usuário não corresponde.")
+      }
+
       // Verificar novamente se o bucket existe antes de fazer upload
       if (bucketExists === false) {
         alert(
@@ -135,47 +147,147 @@ export function PhotoUpload({
       // A pasta deve ser o userId para que a política RLS funcione
       const filePath = `${userId}/${fileName}`
 
-      // Upload
-      const { error: uploadError, data } = await supabase.storage
-        .from("colaboradores-fotos")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: true, // Permite sobrescrever se já existir
-        })
-
-      if (uploadError) {
-        // Se o bucket não existir, atualizar estado e mostrar erro
-        const errorMsg = uploadError.message?.toLowerCase() || ""
-        if (
-          errorMsg.includes("bucket not found") ||
-          errorMsg.includes("not found") ||
-          errorMsg.includes("does not exist")
-        ) {
-          setBucketExists(false)
-          setPreview(null)
-          if (fileInputRef.current) {
-            fileInputRef.current.value = ""
-          }
-          alert(
-            "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
-            "Por favor, crie o bucket no Supabase Dashboard e execute a migration SQL."
-          )
-          return
-        }
-        
-        // Outros erros (permissão, etc)
-        throw uploadError
+      // Verificar se as variáveis de ambiente estão configuradas
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error(
+          "Configuração do Supabase não encontrada. " +
+          "Verifique se NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY estão configuradas."
+        )
       }
 
-      // Obter URL pública
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("colaboradores-fotos").getPublicUrl(filePath)
+      // Tentar upload direto primeiro, se falhar por CORS, usar API route
+      let publicUrl: string | null = null
+
+      try {
+        // Tentativa 1: Upload direto para Supabase Storage
+        const { error: uploadError, data } = await supabase.storage
+          .from("colaboradores-fotos")
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: true, // Permite sobrescrever se já existir
+          })
+
+        if (uploadError) {
+          // Se o bucket não existir, atualizar estado e mostrar erro
+          const errorMsg = uploadError.message?.toLowerCase() || ""
+          if (
+            errorMsg.includes("bucket not found") ||
+            errorMsg.includes("not found") ||
+            errorMsg.includes("does not exist")
+          ) {
+            setBucketExists(false)
+            setPreview(null)
+            if (fileInputRef.current) {
+              fileInputRef.current.value = ""
+            }
+            alert(
+              "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
+              "Por favor, crie o bucket no Supabase Dashboard e execute a migration SQL."
+            )
+            return
+          }
+
+          // Erro de permissão
+          if (
+            errorMsg.includes("permission") ||
+            errorMsg.includes("policy") ||
+            errorMsg.includes("row-level security") ||
+            errorMsg.includes("rls")
+          ) {
+            throw new Error(
+              "Erro de permissão ao fazer upload. " +
+              "Verifique se as políticas RLS do Storage estão configuradas corretamente. " +
+              "Consulte SETUP_STORAGE.md para mais informações."
+            )
+          }
+
+          // Se for erro de CORS ou network, tentar via API route
+          if (
+            errorMsg.includes("cors") ||
+            errorMsg.includes("cross-origin") ||
+            errorMsg.includes("network") ||
+            errorMsg.includes("fetch") ||
+            uploadError.message?.includes("Failed to fetch")
+          ) {
+            console.log("Erro de CORS detectado, tentando upload via API route...")
+            throw new Error("CORS_ERROR") // Marca para tentar via API
+          }
+          
+          // Outros erros
+          throw uploadError
+        }
+
+        // Obter URL pública
+        const {
+          data: { publicUrl: url },
+        } = supabase.storage.from("colaboradores-fotos").getPublicUrl(filePath)
+        publicUrl = url
+      } catch (directUploadError: any) {
+        // Se falhou por CORS, tentar via API route
+        if (directUploadError.message === "CORS_ERROR" || directUploadError.message?.includes("Failed to fetch")) {
+          try {
+            console.log("Fazendo upload via API route...")
+            const formData = new FormData()
+            formData.append("file", file)
+            if (colaboradorId) {
+              formData.append("colaboradorId", colaboradorId)
+            }
+
+            const response = await fetch("/api/upload-photo", {
+              method: "POST",
+              body: formData,
+            })
+
+            if (!response.ok) {
+              const errorData = await response.json()
+              throw new Error(errorData.error || "Erro ao fazer upload via API")
+            }
+
+            const data = await response.json()
+            publicUrl = data.url
+          } catch (apiError: any) {
+            throw new Error(
+              "Erro ao fazer upload: " + (apiError.message || "Erro desconhecido") +
+              "\n\nVerifique:\n" +
+              "1. Se o bucket 'colaboradores-fotos' existe no Supabase\n" +
+              "2. Se as políticas RLS estão configuradas (execute a migration SQL)\n" +
+              "3. Se você está autenticado"
+            )
+          }
+        } else {
+          throw directUploadError
+        }
+      }
+
+      if (!publicUrl) {
+        throw new Error("Não foi possível obter a URL da imagem")
+      }
 
       onPhotoUploaded(publicUrl)
     } catch (error: any) {
       console.error("Erro ao fazer upload:", error)
-      alert("Erro ao fazer upload da foto: " + (error.message || "Erro desconhecido"))
+      
+      // Melhorar mensagem de erro baseado no tipo
+      let errorMessage = "Erro desconhecido ao fazer upload da foto."
+      
+      if (error.message) {
+        errorMessage = error.message
+      } else if (error.name === "TypeError" && error.message?.includes("fetch")) {
+        errorMessage = 
+          "Erro de conexão (Failed to fetch). " +
+          "Possíveis causas:\n" +
+          "1. CORS não configurado no Supabase (Settings > API > Allowed CORS origins)\n" +
+          "2. Bucket não existe ou não está público\n" +
+          "3. Problema de rede ou firewall\n" +
+          "4. Variáveis de ambiente não configuradas corretamente"
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      alert(`Erro ao fazer upload da foto: ${errorMessage}`)
       setPreview(null)
     } finally {
       setUploading(false)

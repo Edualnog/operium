@@ -52,6 +52,47 @@ Verifique se o Row Level Security (RLS) está ativo:
 3. Vá na aba **Policies**
 4. Verifique se as políticas estão criadas e ativas
 
+## Problema: Erro "Failed to fetch" ao fazer upload de foto
+
+Este é um erro comum relacionado a CORS ou configuração do Storage. Siga estes passos:
+
+### Solução 1: Configurar CORS no Supabase (MAIS COMUM)
+
+1. Acesse o **Supabase Dashboard**
+2. Vá em **Settings** (ícone de engrenagem)
+3. Clique em **API**
+4. Role até **"Additional Settings"**
+5. Em **"Allowed CORS origins"**, adicione:
+   - Para desenvolvimento: `http://localhost:3000`
+   - Para produção: seu domínio (ex: `https://seu-projeto.vercel.app`)
+6. Clique em **Save**
+7. Tente fazer upload novamente
+
+### Solução 2: Verificar se o bucket existe
+
+1. No Supabase Dashboard, vá em **Storage**
+2. Verifique se existe o bucket `colaboradores-fotos`
+3. Se não existir:
+   - Clique em **"New bucket"**
+   - Nome: `colaboradores-fotos`
+   - Marque como **público**
+   - Limite de tamanho: 5 MB
+   - Tipos permitidos: `image/jpeg, image/png, image/gif, image/webp`
+
+### Solução 3: Executar migration de Storage
+
+1. No Supabase Dashboard, vá em **SQL Editor**
+2. Execute o arquivo `supabase/migrations/009_create_storage_bucket.sql`
+3. Isso criará as políticas RLS necessárias
+
+### Solução 4: Verificar variáveis de ambiente
+
+Certifique-se de que as variáveis estão configuradas:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+**📖 Guia completo**: Consulte [SETUP_STORAGE.md](./SETUP_STORAGE.md) para instruções detalhadas.
+
 ## Verificar se está tudo funcionando
 
 1. Crie uma conta (ou faça login)

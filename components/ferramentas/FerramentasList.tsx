@@ -38,6 +38,7 @@ import {
   RotateCcw,
   Wrench,
   FileDown,
+  Package,
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
@@ -76,6 +77,11 @@ function FerramentasList({
   colaboradores: Colaborador[]
 }) {
   const [ferramentas, setFerramentas] = useState(initialFerramentas)
+  
+  // Atualizar estado quando initialFerramentas mudar (após router.refresh)
+  useEffect(() => {
+    setFerramentas(initialFerramentas)
+  }, [initialFerramentas])
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     tipo: "",
@@ -209,7 +215,13 @@ function FerramentasList({
       const nome = formData.get("nome")?.toString() || ""
       const tamanho = formData.get("tamanho")?.toString() || ""
       const cor = formData.get("cor")?.toString() || ""
-      const tipo = (formData.get("tipo_item")?.toString() as any) || "ferramenta"
+      const tipo = formData.get("tipo_item")?.toString() || tipoItem || "ferramenta"
+      
+      // Garantir que os valores dos campos hidden estejam corretos
+      formData.set("tipo_item", tipo)
+      if (!formData.get("estado")) {
+        formData.set("estado", "ok")
+      }
 
       if (!formData.get("codigo") || (formData.get("codigo") as string).trim() === "") {
         formData.set("codigo", gerarCodigoLocal(nome, tamanho, cor, tipo))
@@ -225,13 +237,31 @@ function FerramentasList({
         await criarFerramenta(formData)
       }
 
+      // Fechar modal e limpar estados
       setOpen(false)
       setEditing(null)
       setProductPhoto("")
       setProductCode("")
+      
+      // Forçar atualização da lista
       router.refresh()
-    } catch (error) {
-      alert("Erro ao salvar ferramenta")
+      
+      // Aguardar um pouco e recarregar novamente para garantir
+      setTimeout(() => {
+        router.refresh()
+      }, 500)
+    } catch (error: any) {
+      console.error("Erro ao salvar ferramenta:", error)
+      // Melhorar mensagem de erro
+      let errorMessage = "Erro desconhecido ao salvar produto"
+      if (error?.message) {
+        errorMessage = error.message
+      } else if (typeof error === "string") {
+        errorMessage = error
+      } else if (error?.toString) {
+        errorMessage = error.toString()
+      }
+      alert(`Erro ao salvar produto: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
@@ -408,6 +438,10 @@ function FerramentasList({
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
+                {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
+                <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
+                <input type="hidden" name="estado" value={editing?.estado || "ok"} />
+                
                 {userId && (
                   <ProductPhotoUpload
                     currentPhotoUrl={editing?.foto_url || productPhoto}
@@ -442,6 +476,11 @@ function FerramentasList({
                     defaultValue={editing?.tipo_item || tipoItem}
                     onValueChange={(val: any) => {
                       setTipoItem(val)
+                      // Atualizar campo hidden
+                      const hiddenInput = document.querySelector('input[name="tipo_item"]') as HTMLInputElement
+                      if (hiddenInput) {
+                        hiddenInput.value = val
+                      }
                       setProductCode(
                         gerarCodigoLocal(
                           (document.getElementById("nome") as HTMLInputElement)?.value || "",
@@ -549,6 +588,13 @@ function FerramentasList({
                     <Select
                       name="estado"
                       defaultValue={editing?.estado || "ok"}
+                      onValueChange={(value) => {
+                        // Atualizar campo hidden
+                        const hiddenInput = document.querySelector('input[name="estado"]') as HTMLInputElement
+                        if (hiddenInput) {
+                          hiddenInput.value = value
+                        }
+                      }}
                       required
                     >
                       <SelectTrigger>
@@ -611,9 +657,19 @@ function FerramentasList({
                   </Badge>
                 </div>
 
-                {ferramenta.foto_url && (
+                {ferramenta.foto_url ? (
                   <div className="relative w-full h-40 rounded-lg overflow-hidden border bg-zinc-50">
-                    <Image src={ferramenta.foto_url} alt={ferramenta.nome} fill className="object-cover" />
+                    <Image 
+                      src={ferramenta.foto_url} 
+                      alt={ferramenta.nome} 
+                      fill 
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
+                ) : (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden border bg-zinc-50 flex items-center justify-center">
+                    <Package className="h-12 w-12 text-zinc-400" />
                   </div>
                 )}
 

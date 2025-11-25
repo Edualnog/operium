@@ -101,34 +101,106 @@ export function ProductPhotoUpload({
         return
       }
 
+      // Verificar se o usuário está autenticado
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !currentUser) {
+        throw new Error("Você precisa estar autenticado para fazer upload de fotos. Por favor, faça login novamente.")
+      }
+
+      if (currentUser.id !== userId) {
+        throw new Error("Erro de autenticação: ID do usuário não corresponde.")
+      }
+
       const ext = file.name.split(".").pop()
       const fileName = productId
         ? `${productId}_${Date.now()}.${ext}`
         : `temp_${Date.now()}.${ext}`
       const filePath = `${userId}/${fileName}`
 
-      const { error } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(filePath, file, { cacheControl: "3600", upsert: true })
+      // Tentar upload direto primeiro, se falhar por CORS, usar API route
+      let publicUrl: string | null = null
 
-      if (error) {
-        const msg = error.message.toLowerCase()
-        if (msg.includes("bucket") && msg.includes("not")) {
-          setBucketExists(false)
-          alert("Bucket 'produtos-fotos' não encontrado. Crie e tente novamente.")
-          return
+      try {
+        // Tentativa 1: Upload direto para Supabase Storage
+        const { error } = await supabase.storage
+          .from(BUCKET_NAME)
+          .upload(filePath, file, { cacheControl: "3600", upsert: true })
+
+        if (error) {
+          const msg = error.message.toLowerCase()
+          if (msg.includes("bucket") && msg.includes("not")) {
+            setBucketExists(false)
+            alert("Bucket 'produtos-fotos' não encontrado. Crie e tente novamente.")
+            return
+          }
+
+          // Se for erro de CORS ou network, tentar via API route
+          if (
+            msg.includes("cors") ||
+            msg.includes("cross-origin") ||
+            msg.includes("network") ||
+            msg.includes("fetch") ||
+            error.message?.includes("Failed to fetch")
+          ) {
+            console.log("Erro de CORS detectado, tentando upload via API route...")
+            throw new Error("CORS_ERROR") // Marca para tentar via API
+          }
+
+          throw error
         }
-        throw error
+
+        // Obter URL pública
+        const {
+          data: { publicUrl: url },
+        } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath)
+        publicUrl = url
+      } catch (directUploadError: any) {
+        // Se falhou por CORS, tentar via API route
+        if (directUploadError.message === "CORS_ERROR" || directUploadError.message?.includes("Failed to fetch")) {
+          try {
+            console.log("Fazendo upload via API route...")
+            const formData = new FormData()
+            formData.append("file", file)
+            formData.append("bucketName", BUCKET_NAME)
+            if (productId) {
+              formData.append("productId", productId)
+            }
+
+            const response = await fetch("/api/upload-photo", {
+              method: "POST",
+              body: formData,
+            })
+
+            if (!response.ok) {
+              const errorData = await response.json()
+              throw new Error(errorData.error || "Erro ao fazer upload via API")
+            }
+
+            const data = await response.json()
+            publicUrl = data.url
+          } catch (apiError: any) {
+            throw new Error(
+              "Erro ao fazer upload: " + (apiError.message || "Erro desconhecido") +
+              "\n\nVerifique:\n" +
+              "1. Se o bucket 'produtos-fotos' existe no Supabase\n" +
+              "2. Se as políticas RLS estão configuradas\n" +
+              "3. Se você está autenticado"
+            )
+          }
+        } else {
+          throw directUploadError
+        }
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath)
+      if (!publicUrl) {
+        throw new Error("Não foi possível obter a URL da imagem")
+      }
 
       onPhotoUploaded(publicUrl)
     } catch (err: any) {
       console.error("Erro ao enviar foto do produto:", err)
-      alert("Erro ao enviar a foto do produto")
+      alert("Erro ao enviar a foto do produto: " + (err.message || "Erro desconhecido"))
       setPreview(null)
     } finally {
       setUploading(false)

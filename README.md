@@ -182,11 +182,13 @@ Veja mais detalhes em [PERFORMANCE.md](./PERFORMANCE.md)
 ### Vercel (Recomendado)
 
 1. Faça push do código para o GitHub
-2. Conecte seu repositório na Vercel
-3. Configure as variáveis de ambiente:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+2. Acesse [vercel.com](https://vercel.com) e conecte seu repositório
+3. Configure as variáveis de ambiente em **Settings > Environment Variables**:
+   - `NEXT_PUBLIC_SUPABASE_URL` = sua URL do Supabase
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = sua chave anônima
 4. Deploy automático!
+
+**⚠️ IMPORTANTE**: Certifique-se de configurar as variáveis de ambiente antes do primeiro deploy!
 
 ### Outras plataformas
 
@@ -195,6 +197,8 @@ O projeto pode ser deployado em qualquer plataforma que suporte Next.js:
 - Railway
 - Render
 - AWS Amplify
+
+📖 **Guia completo de deploy**: Veja [DEPLOY.md](./DEPLOY.md) para instruções detalhadas de cada plataforma.
 
 ## 🔧 Tecnologias Utilizadas
 

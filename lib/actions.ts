@@ -4,6 +4,16 @@ import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
+// Função helper para revalidar todas as páginas relacionadas
+function revalidateAllPages() {
+  // Revalidar todas as páginas do dashboard
+  revalidatePath("/dashboard")
+  revalidatePath("/dashboard/colaboradores")
+  revalidatePath("/dashboard/estoque")
+  revalidatePath("/dashboard/movimentacoes")
+  revalidatePath("/dashboard/consertos")
+}
+
 // Schemas de validação
 const colaboradorSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -78,7 +88,7 @@ export async function criarColaborador(formData: FormData) {
   })
 
   if (error) throw error
-  revalidatePath("/dashboard/colaboradores")
+  revalidateAllPages()
 }
 
 export async function atualizarColaborador(id: string, formData: FormData) {
@@ -109,7 +119,7 @@ export async function atualizarColaborador(id: string, formData: FormData) {
     .eq("profile_id", user.id)
 
   if (error) throw error
-  revalidatePath("/dashboard/colaboradores")
+  revalidateAllPages()
 }
 
 export async function deletarColaborador(id: string) {
@@ -127,82 +137,311 @@ export async function deletarColaborador(id: string) {
     .eq("profile_id", user.id)
 
   if (error) throw error
-  revalidatePath("/dashboard/colaboradores")
+  revalidateAllPages()
 }
 
 // Ferramentas
 export async function criarFerramenta(formData: FormData) {
-  const supabase = await createServerComponentClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createServerComponentClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  if (!user) throw new Error("Não autenticado")
+    if (!user) throw new Error("Não autenticado")
 
-  const data = ferramentaSchema.parse({
-    nome: formData.get("nome"),
-    categoria: formData.get("categoria"),
-    quantidade_total: Number(formData.get("quantidade_total")),
-    estado: formData.get("estado"),
-    tipo_item: (formData.get("tipo_item") as string) || "ferramenta",
-    codigo: (formData.get("codigo") as string) || undefined,
-    foto_url: (formData.get("foto_url") as string) || undefined,
-    tamanho: (formData.get("tamanho") as string) || undefined,
-    cor: (formData.get("cor") as string) || undefined,
-  })
+    // Helper para converter string vazia em undefined
+    const getValue = (key: string) => {
+      const value = formData.get(key)
+      return value && value.toString().trim() !== "" ? value.toString() : undefined
+    }
 
-  const codigoFinal =
-    data.codigo && data.codigo.trim().length > 0
-      ? data.codigo
-      : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
+    const estadoValue = formData.get("estado") as string
+    const tipoItemValue = (formData.get("tipo_item") as string) || "ferramenta"
+    
+    if (!estadoValue || !["ok", "danificada", "em_conserto"].includes(estadoValue)) {
+      throw new Error("Estado inválido. Deve ser: ok, danificada ou em_conserto")
+    }
 
-  const { error } = await supabase.from("ferramentas").insert({
-    profile_id: user.id,
-    ...data,
-    codigo: codigoFinal,
-    quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
-  })
+    if (!["ferramenta", "epi", "consumivel"].includes(tipoItemValue)) {
+      throw new Error("Tipo de item inválido. Deve ser: ferramenta, epi ou consumivel")
+    }
 
-  if (error) throw error
-  revalidatePath("/dashboard/estoque")
+    const quantidadeTotal = Number(formData.get("quantidade_total"))
+    if (isNaN(quantidadeTotal) || quantidadeTotal < 0) {
+      throw new Error("Quantidade total deve ser um número maior ou igual a zero")
+    }
+
+    const data = ferramentaSchema.parse({
+      nome: formData.get("nome"),
+      categoria: getValue("categoria"),
+      quantidade_total: quantidadeTotal,
+      estado: estadoValue as "ok" | "danificada" | "em_conserto",
+      tipo_item: tipoItemValue as "ferramenta" | "epi" | "consumivel",
+      codigo: getValue("codigo"),
+      foto_url: getValue("foto_url"),
+      tamanho: getValue("tamanho"),
+      cor: getValue("cor"),
+    })
+
+    const codigoFinal =
+      data.codigo && data.codigo.trim().length > 0
+        ? data.codigo
+        : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
+
+    // Preparar dados para inserção - começar com campos básicos obrigatórios
+    const insertData: any = {
+      profile_id: user.id,
+      nome: data.nome,
+      categoria: data.categoria || null,
+      quantidade_total: data.quantidade_total,
+      quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
+      estado: data.estado,
+    }
+
+    // Tentar adicionar campos opcionais (podem não existir se migration não foi executada)
+    try {
+      // Verificar se tipo_item existe tentando adicionar
+      if (data.tipo_item) {
+        insertData.tipo_item = data.tipo_item
+      }
+      if (codigoFinal) {
+        insertData.codigo = codigoFinal
+      }
+      if (data.foto_url) {
+        insertData.foto_url = data.foto_url
+      }
+      if (data.tamanho) {
+        insertData.tamanho = data.tamanho
+      }
+      if (data.cor) {
+        insertData.cor = data.cor
+      }
+    } catch (e) {
+      // Ignorar erros ao adicionar campos opcionais
+      console.warn("Alguns campos opcionais podem não existir na tabela")
+    }
+
+    console.log("Inserindo ferramenta com dados:", {
+      nome: insertData.nome,
+      quantidade_total: insertData.quantidade_total,
+      estado: insertData.estado,
+      profile_id: user.id.substring(0, 8) + "...",
+    })
+
+    // Tentar inserir
+    let insertedData = null
+    let insertError = null
+
+    // Primeira tentativa: com todos os campos
+    const { data: result1, error: error1 } = await supabase
+      .from("ferramentas")
+      .insert(insertData)
+      .select()
+
+    if (error1) {
+      console.warn("Erro na primeira tentativa:", error1.message)
+      
+      // Se erro for sobre coluna não encontrada, tentar sem campos opcionais
+      if (error1.message?.includes("codigo") || 
+          error1.message?.includes("column") || 
+          error1.message?.includes("schema cache") ||
+          error1.message?.includes("tipo_item") ||
+          error1.message?.includes("foto_url") ||
+          error1.message?.includes("tamanho") ||
+          error1.message?.includes("cor")) {
+        
+        console.log("Tentando inserir apenas com campos básicos...")
+        
+        // Versão básica sem campos opcionais
+        const basicData: any = {
+          profile_id: user.id,
+          nome: data.nome,
+          categoria: data.categoria || null,
+          quantidade_total: data.quantidade_total,
+          quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
+          estado: data.estado,
+        }
+        
+        const { data: result2, error: error2 } = await supabase
+          .from("ferramentas")
+          .insert(basicData)
+          .select()
+        
+        if (error2) {
+          console.error("Erro ao inserir (versão básica):", error2)
+          insertError = error2
+        } else {
+          insertedData = result2
+        }
+      } else {
+        insertError = error1
+      }
+    } else {
+      insertedData = result1
+    }
+
+    // Verificar se houve erro
+    if (insertError) {
+      console.error("Erro final ao inserir:", insertError)
+      throw new Error(
+        `Erro ao salvar produto: ${insertError.message}. ` +
+        "Verifique se as políticas RLS estão configuradas corretamente ou execute a migration 010_ferramentas_produto_extra.sql."
+      )
+    }
+
+    // Verificar se os dados foram realmente inseridos
+    if (!insertedData || insertedData.length === 0) {
+      console.error("Nenhum dado retornado após inserção")
+      throw new Error(
+        "Produto não foi inserido no banco de dados. " +
+        "Verifique as políticas RLS (Row Level Security) no Supabase. " +
+        "A política 'Users can insert own ferramentas' deve estar ativa."
+      )
+    }
+
+    console.log("✅ Ferramenta inserida com sucesso! ID:", insertedData[0].id)
+    
+    // Revalidar todas as páginas relacionadas
+    revalidateAllPages()
+  } catch (error: any) {
+    console.error("Erro em criarFerramenta:", error)
+    if (error instanceof z.ZodError) {
+      throw new Error(`Erro de validação: ${error.errors.map(e => e.message).join(", ")}`)
+    }
+    throw error
+  }
 }
 
 export async function atualizarFerramenta(id: string, formData: FormData) {
-  const supabase = await createServerComponentClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createServerComponentClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  if (!user) throw new Error("Não autenticado")
+    if (!user) throw new Error("Não autenticado")
 
-  const data = ferramentaSchema.parse({
-    nome: formData.get("nome"),
-    categoria: formData.get("categoria"),
-    quantidade_total: Number(formData.get("quantidade_total")),
-    estado: formData.get("estado"),
-    tipo_item: (formData.get("tipo_item") as string) || "ferramenta",
-    codigo: (formData.get("codigo") as string) || undefined,
-    foto_url: (formData.get("foto_url") as string) || undefined,
-    tamanho: (formData.get("tamanho") as string) || undefined,
-    cor: (formData.get("cor") as string) || undefined,
-  })
+    // Helper para converter string vazia em undefined
+    const getValue = (key: string) => {
+      const value = formData.get(key)
+      return value && value.toString().trim() !== "" ? value.toString() : undefined
+    }
 
-  const codigoFinal =
-    data.codigo && data.codigo.trim().length > 0
-      ? data.codigo
-      : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
+    const estadoValue = formData.get("estado") as string
+    const tipoItemValue = (formData.get("tipo_item") as string) || "ferramenta"
+    
+    if (!estadoValue || !["ok", "danificada", "em_conserto"].includes(estadoValue)) {
+      throw new Error("Estado inválido. Deve ser: ok, danificada ou em_conserto")
+    }
 
-  const { error } = await supabase
-    .from("ferramentas")
-    .update({
-      ...data,
-      codigo: codigoFinal,
+    if (!["ferramenta", "epi", "consumivel"].includes(tipoItemValue)) {
+      throw new Error("Tipo de item inválido. Deve ser: ferramenta, epi ou consumivel")
+    }
+
+    const quantidadeTotal = Number(formData.get("quantidade_total"))
+    if (isNaN(quantidadeTotal) || quantidadeTotal < 0) {
+      throw new Error("Quantidade total deve ser um número maior ou igual a zero")
+    }
+
+    const data = ferramentaSchema.parse({
+      nome: formData.get("nome"),
+      categoria: getValue("categoria"),
+      quantidade_total: quantidadeTotal,
+      estado: estadoValue as "ok" | "danificada" | "em_conserto",
+      tipo_item: tipoItemValue as "ferramenta" | "epi" | "consumivel",
+      codigo: getValue("codigo"),
+      foto_url: getValue("foto_url"),
+      tamanho: getValue("tamanho"),
+      cor: getValue("cor"),
     })
-    .eq("id", id)
-    .eq("profile_id", user.id)
 
-  if (error) throw error
-  revalidatePath("/dashboard/estoque")
+    // Preparar dados para atualização - começar com campos básicos obrigatórios
+    const updateData: any = {
+      nome: data.nome,
+      categoria: data.categoria || null,
+      quantidade_total: data.quantidade_total,
+      quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
+      estado: data.estado,
+    }
+
+    // Adicionar campos opcionais (agora que a migration foi executada, devem existir)
+    if (data.tipo_item) updateData.tipo_item = data.tipo_item
+    if (data.foto_url) {
+      updateData.foto_url = data.foto_url
+      console.log("📸 Atualizando foto_url:", data.foto_url)
+    }
+    if (data.tamanho) updateData.tamanho = data.tamanho
+    if (data.cor) updateData.cor = data.cor
+    
+    const codigoFinal =
+      data.codigo && data.codigo.trim().length > 0
+        ? data.codigo
+        : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
+    if (codigoFinal) updateData.codigo = codigoFinal
+
+    // Atualizar (agora que a migration foi executada, todos os campos devem existir)
+    console.log("Atualizando ferramenta com dados:", {
+      id,
+      nome: updateData.nome,
+      tem_foto_url: !!updateData.foto_url,
+      foto_url: updateData.foto_url ? updateData.foto_url.substring(0, 50) + "..." : null,
+    })
+
+    const { error } = await supabase
+      .from("ferramentas")
+      .update(updateData)
+      .eq("id", id)
+      .eq("profile_id", user.id)
+
+    if (error) {
+      console.error("Erro ao atualizar ferramenta:", error)
+      // Se erro for sobre coluna não encontrada, tentar sem campos opcionais
+      if (error.message?.includes("codigo") || 
+          error.message?.includes("column") || 
+          error.message?.includes("schema cache") ||
+          error.message?.includes("tipo_item") ||
+          error.message?.includes("foto_url") ||
+          error.message?.includes("tamanho") ||
+          error.message?.includes("cor")) {
+        console.warn("Alguns campos opcionais não encontrados, tentando atualizar apenas campos básicos...")
+        
+        // Versão básica sem campos opcionais
+        const basicUpdateData: any = {
+          nome: data.nome,
+          categoria: data.categoria || null,
+          quantidade_total: data.quantidade_total,
+          quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
+          estado: data.estado,
+        }
+
+        const { error: basicError } = await supabase
+          .from("ferramentas")
+          .update(basicUpdateData)
+          .eq("id", id)
+          .eq("profile_id", user.id)
+
+        if (basicError) {
+          console.error("Erro ao atualizar ferramenta (versão básica):", basicError)
+          throw new Error(
+            `Erro ao atualizar produto: ${basicError.message || "Erro desconhecido"}. ` +
+            "Execute a migration 010_ferramentas_produto_extra.sql no Supabase para usar todos os recursos."
+          )
+        }
+      } else {
+        throw new Error(`Erro ao atualizar produto: ${error.message || "Erro desconhecido"}`)
+      }
+    }
+
+    console.log("✅ Ferramenta atualizada com sucesso! ID:", id)
+    revalidateAllPages()
+  } catch (error: any) {
+    console.error("Erro em atualizarFerramenta:", error)
+    if (error instanceof z.ZodError) {
+      throw new Error(`Erro de validação: ${error.errors.map(e => e.message).join(", ")}`)
+    }
+    throw error
+  }
 }
 
 export async function deletarFerramenta(id: string) {
@@ -220,7 +459,7 @@ export async function deletarFerramenta(id: string) {
     .eq("profile_id", user.id)
 
   if (error) throw error
-  revalidatePath("/dashboard/estoque")
+  revalidateAllPages()
 }
 
 // Movimentações
@@ -265,19 +504,30 @@ export async function registrarEntrada(
   if (updateError) throw updateError
 
   // Registrar movimentação
-  const { error: movError } = await supabase.from("movimentacoes").insert({
+  const movData = {
     profile_id: user.id,
     ferramenta_id: ferramentaId,
     tipo: "entrada",
     quantidade,
     observacoes,
     data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
-  })
+  }
+  
+  console.log("📝 Registrando entrada:", movData)
+  
+  const { data: movResult, error: movError } = await supabase
+    .from("movimentacoes")
+    .insert(movData)
+    .select()
 
-  if (movError) throw movError
+  if (movError) {
+    console.error("❌ Erro ao registrar movimentação:", movError)
+    throw movError
+  }
+  
+  console.log("✅ Movimentação registrada:", movResult)
 
-  revalidatePath("/dashboard/estoque")
-  revalidatePath("/dashboard")
+  revalidateAllPages()
 }
 
 export async function registrarRetirada(
@@ -319,7 +569,7 @@ export async function registrarRetirada(
   if (updateError) throw updateError
 
   // Registrar movimentação
-  const { error: movError } = await supabase.from("movimentacoes").insert({
+  const movData = {
     profile_id: user.id,
     ferramenta_id: ferramentaId,
     colaborador_id: colaboradorId,
@@ -327,12 +577,23 @@ export async function registrarRetirada(
     quantidade,
     observacoes,
     data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
-  })
+  }
+  
+  console.log("📝 Registrando retirada:", movData)
+  
+  const { data: movResult, error: movError } = await supabase
+    .from("movimentacoes")
+    .insert(movData)
+    .select()
 
-  if (movError) throw movError
+  if (movError) {
+    console.error("❌ Erro ao registrar movimentação:", movError)
+    throw movError
+  }
+  
+  console.log("✅ Movimentação registrada:", movResult)
 
-  revalidatePath("/dashboard/estoque")
-  revalidatePath("/dashboard")
+  revalidateAllPages()
 }
 
 export async function registrarDevolucao(
@@ -377,7 +638,7 @@ export async function registrarDevolucao(
   if (updateError) throw updateError
 
   // Registrar movimentação
-  const { error: movError } = await supabase.from("movimentacoes").insert({
+  const movData = {
     profile_id: user.id,
     ferramenta_id: ferramentaId,
     colaborador_id: colaboradorId,
@@ -385,12 +646,23 @@ export async function registrarDevolucao(
     quantidade,
     observacoes,
     data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
-  })
+  }
+  
+  console.log("📝 Registrando devolução:", movData)
+  
+  const { data: movResult, error: movError } = await supabase
+    .from("movimentacoes")
+    .insert(movData)
+    .select()
 
-  if (movError) throw movError
+  if (movError) {
+    console.error("❌ Erro ao registrar movimentação:", movError)
+    throw movError
+  }
+  
+  console.log("✅ Movimentação registrada:", movResult)
 
-  revalidatePath("/dashboard/estoque")
-  revalidatePath("/dashboard")
+  revalidateAllPages()
 }
 
 export async function registrarEnvioConserto(
@@ -458,9 +730,7 @@ export async function registrarEnvioConserto(
 
   if (movError) throw movError
 
-  revalidatePath("/dashboard/estoque")
-  revalidatePath("/dashboard/consertos")
-  revalidatePath("/dashboard")
+  revalidateAllPages()
 }
 
 export async function registrarRetornoConserto(
@@ -509,7 +779,5 @@ export async function registrarRetornoConserto(
 
   if (updateFerramentaError) throw updateFerramentaError
 
-  revalidatePath("/dashboard/consertos")
-  revalidatePath("/dashboard/estoque")
-  revalidatePath("/dashboard")
+  revalidateAllPages()
 }

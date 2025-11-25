@@ -10,6 +10,7 @@ import {
   Hammer,
   Package,
   LogOut,
+  User,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -62,6 +63,13 @@ export default function AppSidebar() {
       href: "/dashboard/consertos",
       icon: (
         <Hammer className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Conta",
+      href: "/dashboard/conta",
+      icon: (
+        <User className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]

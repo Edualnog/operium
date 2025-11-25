@@ -7,51 +7,84 @@ import { ListSkeleton } from "@/components/loading/PageSkeleton"
 export const revalidate = 60
 
 async function getMovimentacoes(userId: string) {
-  const supabase = await createServerComponentClient()
-  const { data } = await supabase
-    .from("movimentacoes")
-    .select(
-      "id, tipo, quantidade, observacoes, data, created_at, ferramentas(nome, tipo_item), colaboradores(nome)"
-    )
-    .eq("profile_id", userId)
-    .order("data", { ascending: false })
-    .limit(50)
-  return (data || []).map((mov: any) => {
-    const ferramenta = Array.isArray(mov.ferramentas) ? mov.ferramentas[0] : mov.ferramentas
-    const colaborador = Array.isArray(mov.colaboradores) ? mov.colaboradores[0] : mov.colaboradores
-    return {
-      id: mov.id,
-      tipo: mov.tipo,
-      quantidade: mov.quantidade,
-      observacoes: mov.observacoes,
-      data: mov.data,
-      created_at: mov.created_at,
-      ferramentas: ferramenta
-        ? { nome: ferramenta.nome, tipo_item: ferramenta.tipo_item }
-        : null,
-      colaboradores: colaborador ? { nome: colaborador.nome } : null,
+  try {
+    const supabase = await createServerComponentClient()
+    const { data, error } = await supabase
+      .from("movimentacoes")
+      .select(
+        "id, tipo, quantidade, observacoes, data, created_at, ferramentas(nome, tipo_item), colaboradores(nome)"
+      )
+      .eq("profile_id", userId)
+      .order("data", { ascending: false })
+      .limit(50)
+    
+    if (error) {
+      console.error("Erro ao buscar movimentações:", error)
+      return []
     }
-  })
+    
+    return (data || []).map((mov: any) => {
+      const ferramenta = Array.isArray(mov.ferramentas) ? mov.ferramentas[0] : mov.ferramentas
+      const colaborador = Array.isArray(mov.colaboradores) ? mov.colaboradores[0] : mov.colaboradores
+      return {
+        id: mov.id,
+        tipo: mov.tipo,
+        quantidade: mov.quantidade,
+        observacoes: mov.observacoes,
+        data: mov.data,
+        created_at: mov.created_at,
+        ferramentas: ferramenta
+          ? { nome: ferramenta.nome, tipo_item: ferramenta.tipo_item }
+          : null,
+        colaboradores: colaborador ? { nome: colaborador.nome } : null,
+      }
+    })
+  } catch (error: any) {
+    console.error("Erro ao buscar movimentações:", error)
+    return []
+  }
 }
 
 async function getFerramentas(userId: string) {
-  const supabase = await createServerComponentClient()
-  const { data } = await supabase
-    .from("ferramentas")
-    .select("id, nome, tipo_item, quantidade_disponivel")
-    .eq("profile_id", userId)
-    .order("nome", { ascending: true })
-  return data || []
+  try {
+    const supabase = await createServerComponentClient()
+    const { data, error } = await supabase
+      .from("ferramentas")
+      .select("id, nome, tipo_item, quantidade_disponivel")
+      .eq("profile_id", userId)
+      .order("nome", { ascending: true })
+    
+    if (error) {
+      console.error("Erro ao buscar ferramentas:", error)
+      return []
+    }
+    
+    return data || []
+  } catch (error: any) {
+    console.error("Erro ao buscar ferramentas:", error)
+    return []
+  }
 }
 
 async function getColaboradores(userId: string) {
-  const supabase = await createServerComponentClient()
-  const { data } = await supabase
-    .from("colaboradores")
-    .select("id, nome")
-    .eq("profile_id", userId)
-    .order("nome", { ascending: true })
-  return data || []
+  try {
+    const supabase = await createServerComponentClient()
+    const { data, error } = await supabase
+      .from("colaboradores")
+      .select("id, nome")
+      .eq("profile_id", userId)
+      .order("nome", { ascending: true })
+    
+    if (error) {
+      console.error("Erro ao buscar colaboradores:", error)
+      return []
+    }
+    
+    return data || []
+  } catch (error: any) {
+    console.error("Erro ao buscar colaboradores:", error)
+    return []
+  }
 }
 
 export default async function MovimentacoesPage() {
@@ -64,11 +97,19 @@ export default async function MovimentacoesPage() {
     redirect("/login")
   }
 
-  const [movimentacoes, ferramentas, colaboradores] = await Promise.all([
-    getMovimentacoes(user.id),
-    getFerramentas(user.id),
-    getColaboradores(user.id),
-  ])
+  let movimentacoes: any[] = []
+  let ferramentas: any[] = []
+  let colaboradores: any[] = []
+
+  try {
+    ;[movimentacoes, ferramentas, colaboradores] = await Promise.all([
+      getMovimentacoes(user.id),
+      getFerramentas(user.id),
+      getColaboradores(user.id),
+    ])
+  } catch (error: any) {
+    console.error("Erro ao carregar dados da página de movimentações:", error)
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8">

@@ -60,20 +60,88 @@ colaboradores-fotos/
       └── {colaborador_id}_{timestamp}.{ext}
 ```
 
-### 4. Verificação
+### 4. Configurar CORS (IMPORTANTE para deploy)
+
+O erro "Failed to fetch" geralmente é causado por CORS não configurado. Para resolver:
+
+1. Acesse o **Supabase Dashboard**
+2. Vá em **Settings** (ícone de engrenagem)
+3. Clique em **API**
+4. Role até a seção **"Additional Settings"**
+5. Em **"Allowed CORS origins"**, adicione:
+   - Para desenvolvimento local: `http://localhost:3000`
+   - Para produção: o domínio da sua aplicação (ex: `https://seu-projeto.vercel.app`)
+   - Você pode adicionar múltiplos domínios, um por linha
+6. Clique em **Save**
+
+**⚠️ IMPORTANTE**: Sem configurar CORS, o upload falhará com erro "Failed to fetch" em produção!
+
+### 5. Executar Migration SQL
+
+Após criar o bucket, execute a migration SQL para configurar as políticas RLS:
+
+1. No Supabase Dashboard, vá em **SQL Editor**
+2. Abra o arquivo `supabase/migrations/009_create_storage_bucket.sql`
+3. Copie e cole o conteúdo no editor
+4. Clique em **Run**
+
+Isso criará automaticamente todas as políticas RLS necessárias.
+
+### 6. Verificação
 
 Após configurar, teste fazendo upload de uma foto no cadastro de colaborador. Se houver erro, verifique:
 
 - ✅ Bucket está público?
-- ✅ Políticas RLS estão configuradas?
+- ✅ Políticas RLS estão configuradas? (execute a migration SQL)
+- ✅ CORS está configurado? (Settings > API > Allowed CORS origins)
 - ✅ Tamanho do arquivo está dentro do limite?
 - ✅ Tipo de arquivo é uma imagem?
+- ✅ Variáveis de ambiente estão configuradas? (`NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
 
 ## 🔒 Segurança
 
 - As fotos são organizadas por `user_id` para garantir isolamento multi-tenant
 - Apenas o dono pode fazer upload/update/delete
 - Leitura é pública (necessário para exibir as fotos)
+
+## 🔧 Solução de Problemas
+
+### Erro: "Failed to fetch"
+
+**Causa mais comum**: CORS não configurado
+
+**Solução**:
+1. Acesse Supabase Dashboard > Settings > API
+2. Em "Allowed CORS origins", adicione seu domínio
+3. Para local: `http://localhost:3000`
+4. Para produção: `https://seu-dominio.com`
+5. Salve e tente novamente
+
+### Erro: "Bucket not found"
+
+**Solução**:
+1. Verifique se o bucket `colaboradores-fotos` foi criado
+2. Verifique se o nome está exatamente correto (case-sensitive)
+3. O bucket deve estar marcado como **público**
+
+### Erro: "Permission denied" ou "Row-level security policy"
+
+**Solução**:
+1. Execute a migration SQL: `supabase/migrations/009_create_storage_bucket.sql`
+2. Verifique se as políticas RLS foram criadas corretamente
+3. Verifique se você está autenticado (faça login novamente)
+
+### Erro: "File size limit exceeded"
+
+**Solução**:
+1. Reduza o tamanho da imagem (máximo 5MB)
+2. Ou aumente o limite no bucket (Supabase Dashboard > Storage > Bucket Settings)
+
+### Erro: "Invalid MIME type"
+
+**Solução**:
+1. Use apenas imagens: JPG, PNG, GIF ou WebP
+2. Verifique se o tipo está permitido nas configurações do bucket
 
 ## 📝 Nota
 

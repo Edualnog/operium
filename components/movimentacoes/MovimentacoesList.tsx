@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -77,6 +77,12 @@ export default function MovimentacoesList({
   })
   const [search, setSearch] = useState("")
 
+  // Atualizar lista quando initialMovs mudar (após router.refresh())
+  useEffect(() => {
+    console.log("📋 Movimentações atualizadas:", initialMovs.length)
+    setMovimentacoes(initialMovs)
+  }, [initialMovs])
+
   const filtered = useMemo(() => {
     const s = search.toLowerCase()
     if (!s) return movimentacoes
@@ -88,18 +94,38 @@ export default function MovimentacoesList({
   }, [movimentacoes, search])
 
   const suggestions = useMemo(() => {
+    // Não mostrar sugestões se já há um produto selecionado
+    if (form.produtoId) return []
+    
     const s = form.produto.toLowerCase()
     if (!s) return []
+    
+    // Verificar se o texto digitado corresponde exatamente a algum produto selecionado
+    const produtoSelecionado = ferramentas.find(f => f.id === form.produtoId)
+    if (produtoSelecionado && form.produto.toLowerCase() === produtoSelecionado.nome.toLowerCase()) {
+      return []
+    }
+    
     return ferramentas
       .filter((f) => f.nome.toLowerCase().includes(s))
       .slice(0, 5)
-  }, [form.produto, ferramentas])
+  }, [form.produto, form.produtoId, ferramentas])
 
   const colabSuggestions = useMemo(() => {
+    // Não mostrar sugestões se já há um colaborador selecionado
+    if (form.colaboradorId) return []
+    
     const s = form.colaboradorNome.toLowerCase()
     if (!s) return []
+    
+    // Verificar se o texto digitado corresponde exatamente a algum colaborador selecionado
+    const colaboradorSelecionado = colaboradores.find(c => c.id === form.colaboradorId)
+    if (colaboradorSelecionado && form.colaboradorNome.toLowerCase() === colaboradorSelecionado.nome.toLowerCase()) {
+      return []
+    }
+    
     return colaboradores.filter((c) => c.nome.toLowerCase().includes(s)).slice(0, 5)
-  }, [form.colaboradorNome, colaboradores])
+  }, [form.colaboradorNome, form.colaboradorId, colaboradores])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -129,6 +155,8 @@ export default function MovimentacoesList({
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || "Erro ao registrar movimentação")
 
+      console.log("✅ Movimentação registrada com sucesso!")
+      
       setOpen(false)
       setForm({
         tipo: "entrada",
@@ -140,6 +168,8 @@ export default function MovimentacoesList({
         observacoes: "",
         dataMov: new Date().toISOString().slice(0, 16),
       })
+      
+      // Revalidar e atualizar a página
       router.refresh()
     } catch (err: any) {
       alert(err.message || "Erro ao registrar movimentação")
