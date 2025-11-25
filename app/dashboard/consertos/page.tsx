@@ -6,7 +6,22 @@ import { ListSkeleton } from "@/components/loading/PageSkeleton"
 
 export const revalidate = 60 // Revalidar a cada 60 segundos
 
-async function getConsertos(userId: string) {
+interface ConsertoItem {
+  id: string
+  ferramenta_id: string
+  descricao?: string | null
+  status: "aguardando" | "em_andamento" | "concluido"
+  custo?: number | null
+  data_envio?: string | null
+  data_retorno?: string | null
+  ferramentas: {
+    id: string
+    nome: string
+    quantidade_disponivel: number
+  }
+}
+
+async function getConsertos(userId: string): Promise<ConsertoItem[]> {
   const supabase = await createServerComponentClient()
   const { data } = await supabase
     .from("consertos")
@@ -28,12 +43,26 @@ async function getConsertos(userId: string) {
     .order("data_envio", { ascending: false })
   
   // Transformar ferramentas de array para objeto único
-  return (data || []).map((conserto: any) => ({
-    ...conserto,
-    ferramentas: Array.isArray(conserto.ferramentas) 
-      ? conserto.ferramentas[0] 
-      : conserto.ferramentas,
-  }))
+  return (data || []).map((conserto: any) => {
+    const ferramentaNormalizada = Array.isArray(conserto.ferramentas)
+      ? conserto.ferramentas[0]
+      : conserto.ferramentas
+
+    return {
+      id: conserto.id,
+      ferramenta_id: conserto.ferramenta_id,
+      descricao: conserto.descricao,
+      status: conserto.status,
+      custo: conserto.custo,
+      data_envio: conserto.data_envio,
+      data_retorno: conserto.data_retorno,
+      ferramentas: {
+        id: ferramentaNormalizada?.id || conserto.ferramenta_id,
+        nome: ferramentaNormalizada?.nome || "Sem nome",
+        quantidade_disponivel: Number(ferramentaNormalizada?.quantidade_disponivel || 0),
+      },
+    }
+  })
 }
 
 export default async function ConsertosPage() {
@@ -62,4 +91,3 @@ export default async function ConsertosPage() {
     </div>
   )
 }
-
