@@ -161,10 +161,6 @@ export function ProductPhotoUpload({
         </Alert>
       )}
 
-      {bucketExists === true && (
-        <div className="text-xs text-green-600 font-medium">Bucket pronto para upload.</div>
-      )}
-
       <div className="flex items-center gap-4">
         <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-zinc-200 bg-zinc-50 flex items-center justify-center">
           {preview ? (

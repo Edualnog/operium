@@ -246,13 +246,6 @@ export function PhotoUpload({
         </Alert>
       )}
 
-      {/* Mensagem de sucesso quando bucket existe */}
-      {bucketExists === true && (
-        <div className="mb-2 text-xs text-green-600 font-medium flex items-center gap-1">
-          ✅ Bucket configurado! Upload de fotos habilitado.
-        </div>
-      )}
-
       <div className="flex items-center gap-4">
         <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-zinc-200 bg-zinc-100 flex items-center justify-center">
           {preview ? (
@@ -307,4 +300,3 @@ export function PhotoUpload({
     </div>
   )
 }
-
