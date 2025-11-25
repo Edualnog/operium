@@ -217,6 +217,14 @@ export async function criarFerramenta(formData: FormData) {
       if (data.cor) {
         insertData.cor = data.cor
       }
+      // Adicionar ponto_ressuprimento se fornecido
+      const pontoRessuprimento = formData.get("ponto_ressuprimento")
+      if (pontoRessuprimento && pontoRessuprimento.toString().trim() !== "") {
+        const pontoValue = Number(pontoRessuprimento)
+        if (!isNaN(pontoValue) && pontoValue >= 0) {
+          insertData.ponto_ressuprimento = pontoValue
+        }
+      }
     } catch (e) {
       // Ignorar erros ao adicionar campos opcionais
       console.warn("Alguns campos opcionais podem não existir na tabela")
@@ -379,6 +387,18 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
         ? data.codigo
         : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
     if (codigoFinal) updateData.codigo = codigoFinal
+    
+    // Adicionar ponto_ressuprimento se fornecido
+    const pontoRessuprimento = formData.get("ponto_ressuprimento")
+    if (pontoRessuprimento && pontoRessuprimento.toString().trim() !== "") {
+      const pontoValue = Number(pontoRessuprimento)
+      if (!isNaN(pontoValue) && pontoValue >= 0) {
+        updateData.ponto_ressuprimento = pontoValue
+      }
+    } else {
+      // Se vazio, definir como null para remover o valor
+      updateData.ponto_ressuprimento = null
+    }
 
     // Atualizar (agora que a migration foi executada, todos os campos devem existir)
     console.log("Atualizando ferramenta com dados:", {
@@ -537,63 +557,77 @@ export async function registrarRetirada(
   observacoes?: string,
   dataMovimentacao?: string
 ) {
-  const supabase = await createServerComponentClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createServerComponentClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
-  if (!user) throw new Error("Não autenticado")
+    if (authError) {
+      console.error("❌ Erro de autenticação:", authError)
+      throw new Error(`Erro de autenticação: ${authError.message}`)
+    }
 
-  // Buscar ferramenta atual - otimizado: apenas campos necessários
-  const { data: ferramenta, error: ferError } = await supabase
-    .from("ferramentas")
-    .select("id, quantidade_total, quantidade_disponivel, estado")
-    .eq("id", ferramentaId)
-    .eq("profile_id", user.id)
-    .single()
+    if (!user) {
+      console.error("❌ Usuário não autenticado")
+      throw new Error("Não autenticado. Por favor, faça login novamente.")
+    }
 
-  if (ferError || !ferramenta) throw new Error("Ferramenta não encontrada")
+    // Buscar ferramenta atual - otimizado: apenas campos necessários
+    const { data: ferramenta, error: ferError } = await supabase
+      .from("ferramentas")
+      .select("id, quantidade_total, quantidade_disponivel, estado")
+      .eq("id", ferramentaId)
+      .eq("profile_id", user.id)
+      .single()
 
-  if (ferramenta.quantidade_disponivel < quantidade) {
-    throw new Error("Quantidade insuficiente disponível")
+    if (ferError || !ferramenta) throw new Error("Ferramenta não encontrada")
+
+    if (ferramenta.quantidade_disponivel < quantidade) {
+      throw new Error("Quantidade insuficiente disponível")
+    }
+
+    // Atualizar ferramenta
+    const { error: updateError } = await supabase
+      .from("ferramentas")
+      .update({
+        quantidade_disponivel: ferramenta.quantidade_disponivel - quantidade,
+      })
+      .eq("id", ferramentaId)
+
+    if (updateError) throw updateError
+
+    // Registrar movimentação
+    const movData = {
+      profile_id: user.id,
+      ferramenta_id: ferramentaId,
+      colaborador_id: colaboradorId,
+      tipo: "retirada",
+      quantidade,
+      observacoes,
+      data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
+    }
+    
+    console.log("📝 Registrando retirada:", movData)
+    
+    const { data: movResult, error: movError } = await supabase
+      .from("movimentacoes")
+      .insert(movData)
+      .select()
+
+    if (movError) {
+      console.error("❌ Erro ao registrar movimentação:", movError)
+      throw movError
+    }
+    
+    console.log("✅ Movimentação registrada:", movResult)
+
+    revalidateAllPages()
+  } catch (error: any) {
+    console.error("❌ Erro completo ao registrar retirada:", error)
+    throw error
   }
-
-  // Atualizar ferramenta
-  const { error: updateError } = await supabase
-    .from("ferramentas")
-    .update({
-      quantidade_disponivel: ferramenta.quantidade_disponivel - quantidade,
-    })
-    .eq("id", ferramentaId)
-
-  if (updateError) throw updateError
-
-  // Registrar movimentação
-  const movData = {
-    profile_id: user.id,
-    ferramenta_id: ferramentaId,
-    colaborador_id: colaboradorId,
-    tipo: "retirada",
-    quantidade,
-    observacoes,
-    data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
-  }
-  
-  console.log("📝 Registrando retirada:", movData)
-  
-  const { data: movResult, error: movError } = await supabase
-    .from("movimentacoes")
-    .insert(movData)
-    .select()
-
-  if (movError) {
-    console.error("❌ Erro ao registrar movimentação:", movError)
-    throw movError
-  }
-  
-  console.log("✅ Movimentação registrada:", movResult)
-
-  revalidateAllPages()
 }
 
 export async function registrarDevolucao(

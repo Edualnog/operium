@@ -1,10 +1,14 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useKPIs } from "@/lib/hooks/useKPIs"
+import { createClientComponentClient } from "@/lib/supabase-client"
 import { KPICard } from "./KPICard"
 import { KpiList } from "./KpiList"
 import { KpiChart } from "./KpiChart"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -20,6 +24,8 @@ import {
   Calendar,
   AlertCircle,
   Target,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react"
 
 interface IndustrialDashboardProps {
@@ -28,6 +34,203 @@ interface IndustrialDashboardProps {
 
 export default function IndustrialDashboard({ userId }: IndustrialDashboardProps) {
   const { data, loading, error } = useKPIs(userId)
+  const [rankingView, setRankingView] = useState<"melhores" | "piores">("melhores")
+  const [periodoConsumo, setPeriodoConsumo] = useState<7 | 14 | 30 | 60 | 120>(30)
+  const [consumoPorPeriodo, setConsumoPorPeriodo] = useState<any[]>([])
+  const [loadingConsumo, setLoadingConsumo] = useState(false)
+  const [itensComprarUrgente, setItensComprarUrgente] = useState<any[]>([])
+  const [loadingItensUrgente, setLoadingItensUrgente] = useState(false)
+  const [periodoFerramentas, setPeriodoFerramentas] = useState<7 | 14 | 30 | 60 | 120>(30)
+  const [ferramentasPorPeriodo, setFerramentasPorPeriodo] = useState<any[]>([])
+  const [loadingFerramentas, setLoadingFerramentas] = useState(false)
+
+  // Buscar dados de consumo baseado no período selecionado
+  useEffect(() => {
+    async function fetchConsumoPorPeriodo() {
+      if (!userId) return
+      
+      setLoadingConsumo(true)
+      try {
+        const supabase = createClientComponentClient()
+        const dataInicio = new Date()
+        dataInicio.setDate(dataInicio.getDate() - periodoConsumo)
+
+        const { data: movimentacoes, error: movError } = await supabase
+          .from("movimentacoes")
+          .select("ferramenta_id, quantidade, data, ferramentas(tipo_item, nome, categoria)")
+          .eq("profile_id", userId)
+          .eq("tipo", "retirada")
+          .gte("data", dataInicio.toISOString())
+
+        if (movError) {
+          console.error("Erro ao buscar movimentações:", movError)
+          setLoadingConsumo(false)
+          return
+        }
+
+        // Calcular consumo por item (apenas consumíveis)
+        const consumoPorItem: Record<string, any> = {}
+        movimentacoes?.forEach((mov: any) => {
+          const ferramenta = mov.ferramentas as any
+          // Filtrar apenas consumíveis
+          if (ferramenta?.tipo_item !== "consumivel") return
+          
+          const id = mov.ferramenta_id
+          if (!consumoPorItem[id]) {
+            consumoPorItem[id] = {
+              id,
+              nome: ferramenta?.nome || "Desconhecido",
+              consumo: 0,
+              categoria: ferramenta?.categoria,
+            }
+          }
+          consumoPorItem[id].consumo += mov.quantidade || 0
+        })
+
+        const itensConsumo = Object.values(consumoPorItem)
+          .map((item: any) => ({
+            ...item,
+            consumo_medio_diario: item.consumo / periodoConsumo,
+          }))
+          .sort((a: any, b: any) => b.consumo - a.consumo)
+          .slice(0, 10)
+
+        setConsumoPorPeriodo(itensConsumo)
+      } catch (err) {
+        console.error("Erro ao calcular consumo:", err)
+      } finally {
+        setLoadingConsumo(false)
+      }
+    }
+
+    fetchConsumoPorPeriodo()
+  }, [userId, periodoConsumo])
+
+  // Buscar itens para comprar urgente (baseado em demanda)
+  useEffect(() => {
+    async function fetchItensComprarUrgente() {
+      if (!userId) return
+      
+      setLoadingItensUrgente(true)
+      try {
+        const supabase = createClientComponentClient()
+        const trintaDiasAtras = new Date()
+        trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30)
+
+        // Buscar consumíveis e suas movimentações
+        const [ferramentasRes, movimentacoesRes] = await Promise.all([
+          supabase
+            .from("ferramentas")
+            .select("id, nome, quantidade_disponivel, ponto_ressuprimento, categoria")
+            .eq("profile_id", userId)
+            .eq("tipo_item", "consumivel"),
+          supabase
+            .from("movimentacoes")
+            .select("ferramenta_id, quantidade")
+            .eq("profile_id", userId)
+            .eq("tipo", "retirada")
+            .gte("data", trintaDiasAtras.toISOString()),
+        ])
+
+        if (ferramentasRes.error || movimentacoesRes.error) {
+          console.error("Erro ao buscar dados:", ferramentasRes.error || movimentacoesRes.error)
+          setLoadingItensUrgente(false)
+          return
+        }
+
+        const ferramentas = ferramentasRes.data || []
+        const movimentacoes = movimentacoesRes.data || []
+
+        // Calcular demanda (total de retiradas) por item
+        const demandaPorItem: Record<string, number> = {}
+        movimentacoes.forEach((mov: any) => {
+          demandaPorItem[mov.ferramenta_id] = (demandaPorItem[mov.ferramenta_id] || 0) + (mov.quantidade || 0)
+        })
+
+        // Criar lista de itens com prioridade
+        const itensComPrioridade = ferramentas
+          .map((f: any) => ({
+            id: f.id,
+            nome: f.nome,
+            quantidade_disponivel: f.quantidade_disponivel || 0,
+            ponto_ressuprimento: f.ponto_ressuprimento || 0,
+            categoria: f.categoria,
+            demanda: demandaPorItem[f.id] || 0,
+            // Prioridade: maior demanda = maior prioridade
+            prioridade: demandaPorItem[f.id] || 0,
+          }))
+          .filter((item: any) => item.demanda > 0) // Apenas itens com demanda
+          .sort((a: any, b: any) => b.prioridade - a.prioridade) // Ordenar por prioridade decrescente
+          .slice(0, 3) // Máximo 3 itens
+
+        setItensComprarUrgente(itensComPrioridade)
+      } catch (err) {
+        console.error("Erro ao buscar itens urgentes:", err)
+      } finally {
+        setLoadingItensUrgente(false)
+      }
+    }
+
+    fetchItensComprarUrgente()
+  }, [userId, data])
+
+  // Buscar ferramentas mais utilizadas baseado no período selecionado
+  useEffect(() => {
+    async function fetchFerramentasPorPeriodo() {
+      if (!userId) return
+      
+      setLoadingFerramentas(true)
+      try {
+        const supabase = createClientComponentClient()
+        const dataInicio = new Date()
+        dataInicio.setDate(dataInicio.getDate() - periodoFerramentas)
+
+        const { data: movimentacoes, error: movError } = await supabase
+          .from("movimentacoes")
+          .select("ferramenta_id, quantidade, data, ferramentas(nome, categoria, tipo_item)")
+          .eq("profile_id", userId)
+          .eq("tipo", "retirada")
+          .gte("data", dataInicio.toISOString())
+
+        if (movError) {
+          console.error("Erro ao buscar movimentações de ferramentas:", movError)
+          setLoadingFerramentas(false)
+          return
+        }
+
+        // Calcular saídas por ferramenta
+        const saidasPorFerramenta: Record<string, any> = {}
+        movimentacoes?.forEach((mov: any) => {
+          const ferramenta = mov.ferramentas as any
+          // Filtrar apenas ferramentas (não consumíveis)
+          if (ferramenta?.tipo_item === "consumivel") return
+          
+          const id = mov.ferramenta_id
+          if (!saidasPorFerramenta[id]) {
+            saidasPorFerramenta[id] = {
+              id,
+              nome: ferramenta?.nome || "Desconhecido",
+              total_saidas: 0,
+              categoria: ferramenta?.categoria || "-",
+            }
+          }
+          saidasPorFerramenta[id].total_saidas += mov.quantidade || 0
+        })
+
+        const ferramentasUtilizadas = Object.values(saidasPorFerramenta)
+          .sort((a: any, b: any) => b.total_saidas - a.total_saidas)
+          .slice(0, 3) // Máximo 3 itens
+
+        setFerramentasPorPeriodo(ferramentasUtilizadas)
+      } catch (err) {
+        console.error("Erro ao calcular ferramentas utilizadas:", err)
+      } finally {
+        setLoadingFerramentas(false)
+      }
+    }
+
+    fetchFerramentasPorPeriodo()
+  }, [userId, periodoFerramentas])
 
   if (loading) {
     return (
@@ -93,70 +296,270 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             iconName="AlertTriangle"
             variant={(data.ferramentasEstragadas?.length || 0) > 0 ? "destructive" : "default"}
           />
-          <KPICard
-            title="Índice de Atraso"
-            value={`${data.indiceAtrasoDevolucao.toFixed(1)}%`}
-            description="Devoluções após prazo"
-            iconName="AlertTriangle"
-            variant={data.indiceAtrasoDevolucao > 20 ? "destructive" : "default"}
-          />
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardHeader className="pb-3 border-b border-zinc-100">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5 text-zinc-700" />
+                <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                  Itens para reposição urgente
+                </CardTitle>
+              </div>
+              <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                Baseado na demanda interna (mais retirados = maior prioridade)
+              </p>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {loadingItensUrgente ? (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-sm text-zinc-500">Carregando...</p>
+                </div>
+              ) : itensComprarUrgente.length === 0 ? (
+                <p className="text-sm text-zinc-500 text-center py-8">
+                  Nenhum item urgente encontrado
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {itensComprarUrgente.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge 
+                            variant={index === 0 ? "destructive" : index === 1 ? "default" : "secondary"}
+                            className="text-xs font-semibold"
+                          >
+                            #{index + 1}
+                          </Badge>
+                          <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                            {item.nome}
+                          </h4>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 mt-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-zinc-500">Demanda:</span>
+                            <Badge variant="outline" className="font-semibold text-xs">
+                              {item.demanda} retiradas
+                            </Badge>
+                          </div>
+                          {item.ponto_ressuprimento > 0 && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-zinc-500">Estoque:</span>
+                              <span className={`text-xs font-medium ${
+                                item.quantidade_disponivel <= item.ponto_ressuprimento 
+                                  ? "text-red-600" 
+                                  : "text-zinc-700"
+                              }`}>
+                                {item.quantidade_disponivel} / Mín: {item.ponto_ressuprimento}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Rankings - Ferramentas */}
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-          <KpiList
-            title="Top Ferramentas Mais Utilizadas"
-            description="Últimos 30 dias"
-            items={data.topFerramentasUtilizadas}
-            columns={[
-              {
-                key: "total_saidas",
-                label: "Saídas",
-                render: (item) => (
-                  <Badge variant="outline" className="font-semibold">
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardHeader className="pb-3 border-b border-zinc-100">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                    Top Ferramentas Mais Utilizadas
+                  </CardTitle>
+                  <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                    {loadingFerramentas ? "Carregando..." : `Últimos ${periodoFerramentas} dias`}
+                  </p>
+                </div>
+                <div className="flex gap-1 border rounded-md p-1 bg-background">
+                  {([7, 14, 30, 60, 120] as const).map((dias) => (
+                    <Button
+                      key={dias}
+                      type="button"
+                      variant={periodoFerramentas === dias ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setPeriodoFerramentas(dias)}
+                      className="h-7 px-2 text-xs"
+                      disabled={loadingFerramentas}
+                    >
+                      {dias}d
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {loadingFerramentas ? (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-sm text-zinc-500">Carregando dados...</p>
+                </div>
+              ) : (() => {
+                const itemsFonte = ferramentasPorPeriodo.length > 0 
+                  ? ferramentasPorPeriodo 
+                  : data.topFerramentasUtilizadas.slice(0, 3)
+                
+                if (itemsFonte.length === 0) {
+                  return (
+                    <p className="text-sm text-zinc-500 text-center py-8">
+                      Nenhuma ferramenta encontrada
+                    </p>
+                  )
+                }
+                
+                return (
+                  <div className="space-y-2">
+                    {itemsFonte.map((item, index) => (
+                      <div
+                        key={item.id || index}
+                        className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-medium text-zinc-400">
+                              #{index + 1}
+                            </span>
+                            <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                              {item.nome}
+                            </h4>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3 mt-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-zinc-500">Saídas:</span>
+                              <Badge variant="outline" className="font-semibold text-xs">
                     {item.total_saidas}
                   </Badge>
-                ),
-              },
-              {
-                key: "categoria",
-                label: "Categoria",
-              },
-            ]}
-            maxItems={10}
-          />
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-zinc-500">Categoria:</span>
+                              <span className="text-xs font-medium text-zinc-700">
+                                {item.categoria || "-"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </CardContent>
+          </Card>
 
-          <KpiList
-            title="Ranking de Responsabilidade"
-            description="Score baseado em devoluções no prazo"
-            items={data.rankingResponsabilidade.map((item) => ({
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardHeader className="pb-3 border-b border-zinc-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                    Ranking de Responsabilidade
+                  </CardTitle>
+                  <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                    Score baseado em devoluções no prazo
+                  </p>
+                </div>
+                <div className="flex gap-1 border rounded-md p-1 bg-background">
+                  <Button
+                    type="button"
+                    variant={rankingView === "melhores" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setRankingView("melhores")}
+                    className="h-7 px-3 text-xs"
+                  >
+                    <ArrowUp className="h-3 w-3 mr-1" />
+                    Melhores
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={rankingView === "piores" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setRankingView("piores")}
+                    className="h-7 px-3 text-xs"
+                  >
+                    <ArrowDown className="h-3 w-3 mr-1" />
+                    Piores
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {(() => {
+                const rankingItems = data.rankingResponsabilidade.map((item) => ({
               ...item,
               id: item.colaborador_id || item.nome,
-            }))}
-            columns={[
-              {
-                key: "score",
-                label: "Score",
-                render: (item) => (
+                }))
+                
+                // Ordenar e pegar os melhores ou piores
+                const sortedItems = [...rankingItems].sort((a, b) => {
+                  if (rankingView === "melhores") {
+                    return b.score - a.score // Maior score primeiro
+                  } else {
+                    return a.score - b.score // Menor score primeiro
+                  }
+                })
+                
+                const displayItems = sortedItems.slice(0, 3)
+                
+                if (displayItems.length === 0) {
+                  return (
+                    <p className="text-sm text-zinc-500 text-center py-8">
+                      Nenhum colaborador encontrado
+                    </p>
+                  )
+                }
+                
+                return (
+                  <div className="space-y-2">
+                    {displayItems.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-medium text-zinc-400">
+                              #{index + 1}
+                            </span>
+                            <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                              {item.nome}
+                            </h4>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3 mt-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-zinc-500">Score:</span>
                   <Badge
                     variant={item.score >= 80 ? "default" : item.score >= 60 ? "secondary" : "destructive"}
-                    className="font-semibold"
+                                className="font-semibold text-xs"
                   >
                     {item.score.toFixed(0)}%
                   </Badge>
-                ),
-              },
-              {
-                key: "total_retiradas",
-                label: "Retiradas",
-              },
-              {
-                key: "devolucoes_no_prazo",
-                label: "No Prazo",
-              },
-            ]}
-            maxItems={10}
-          />
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-zinc-500">Retiradas:</span>
+                              <span className="text-xs font-medium text-zinc-700">
+                                {item.total_retiradas || 0}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-zinc-500">No Prazo:</span>
+                              <span className="text-xs font-medium text-zinc-700">
+                                {item.devolucoes_no_prazo || 0}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Lista de Ferramentas em Uso */}
@@ -187,7 +590,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     : "Sem prazo",
               },
             ]}
-            maxItems={15}
+            maxItems={5}
+            showViewMore={true}
+            viewMoreLink="/dashboard/movimentacoes"
           />
         )}
       </section>
@@ -201,27 +606,77 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           </h2>
         </div>
 
+        <Card className="border border-zinc-200 bg-white shadow-sm">
+          <CardHeader className="pb-3 border-b border-zinc-100">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                  Top consumíveis mais retirados
+                </CardTitle>
+                <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                  {loadingConsumo ? "Carregando..." : `Últimos ${periodoConsumo} dias`}
+                </p>
+              </div>
+              <div className="flex gap-1 border rounded-md p-1 bg-background">
+                {([7, 14, 30, 60, 120] as const).map((dias) => (
+                  <Button
+                    key={dias}
+                    type="button"
+                    variant={periodoConsumo === dias ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setPeriodoConsumo(dias)}
+                    className="h-7 px-2 text-xs"
+                    disabled={loadingConsumo}
+                  >
+                    {dias}d
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            {loadingConsumo ? (
+              <div className="flex items-center justify-center h-[320px]">
+                <p className="text-sm text-zinc-500">Carregando dados...</p>
+              </div>
+            ) : (
         <KpiChart
-          title="Top consumíveis mais retirados"
-          description="Últimos 30 dias"
-          data={(() => {
-            // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
-            const dados = [...data.itensMaiorConsumo]
-            while (dados.length < 10) {
-              dados.push({
-                nome: "",
-                consumo_30d: 0,
-                id: `empty-${dados.length}`,
-              })
-            }
-            return dados.slice(0, 10)
-          })()}
+                title=""
+                description=""
+                data={(() => {
+                  // Usar dados do período selecionado ou fallback para dados padrão
+                  const dadosFonte = consumoPorPeriodo.length > 0 
+                    ? consumoPorPeriodo.map(item => ({
+                        nome: item.nome,
+                        consumo_30d: item.consumo,
+                        id: item.id,
+                      }))
+                    : data.itensMaiorConsumo.map(item => ({
+                        nome: item.nome,
+                        consumo_30d: item.consumo_30d,
+                        id: item.id,
+                      }))
+                  
+                  // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
+                  const dados = [...dadosFonte]
+                  while (dados.length < 10) {
+                    dados.push({
+                      nome: "",
+                      consumo_30d: 0,
+                      id: `empty-${dados.length}`,
+                    })
+                  }
+                  return dados.slice(0, 10)
+                })()}
           type="bar"
           dataKey="consumo_30d"
           xAxisKey="nome"
           color="#3b82f6"
           height={320}
         />
+            )}
+          </CardContent>
+        </Card>
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <KpiList
@@ -399,15 +854,28 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         {data.riscoRuptura.length > 0 && (
           <KpiChart
             title="Risco de Ruptura por Item"
-            description="Score de 0-100 (quanto maior, maior o risco)"
-            data={data.riscoRuptura
+            description="O Risco de Ruptura é um indicador que estima a probabilidade de um item consumível acabar o estoque (ruptura de estoque). Score de 0-100 (quanto maior, maior o risco)"
+            data={(() => {
+              // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
+              const dados = data.riscoRuptura
               .filter((r) => r.score > 0)
               .sort((a, b) => b.score - a.score)
               .slice(0, 10)
               .map((r) => ({
                 nome: r.nome.length > 20 ? r.nome.substring(0, 20) + "..." : r.nome,
                 score: r.score,
-              }))}
+                  id: r.id,
+                }))
+              
+              while (dados.length < 10) {
+                dados.push({
+                  nome: "",
+                  score: 0,
+                  id: `empty-${dados.length}`,
+                })
+              }
+              return dados.slice(0, 10)
+            })()}
             type="bar"
             dataKey="score"
             xAxisKey="nome"

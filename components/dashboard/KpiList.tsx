@@ -2,8 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { useRouter } from "next/navigation"
+import { ArrowRight } from "lucide-react"
 
 interface KpiListProps {
   title: string
@@ -20,6 +23,8 @@ interface KpiListProps {
   }>
   emptyMessage?: string
   maxItems?: number
+  showViewMore?: boolean
+  viewMoreLink?: string
 }
 
 export function KpiList({
@@ -29,8 +34,12 @@ export function KpiList({
   columns,
   emptyMessage = "Nenhum item encontrado",
   maxItems = 10,
+  showViewMore = false,
+  viewMoreLink,
 }: KpiListProps) {
+  const router = useRouter()
   const displayItems = items.slice(0, maxItems)
+  const hasMoreItems = items.length > maxItems
 
   return (
     <Card className="border border-zinc-200 bg-white shadow-sm">
@@ -78,10 +87,23 @@ export function KpiList({
             ))}
           </div>
         )}
-        {items.length > maxItems && (
+        {hasMoreItems && !showViewMore && (
           <p className="text-xs text-zinc-500 text-center mt-4">
             Mostrando {maxItems} de {items.length} itens
           </p>
+        )}
+        {showViewMore && hasMoreItems && viewMoreLink && (
+          <div className="mt-4 pt-4 border-t border-zinc-100">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => router.push(viewMoreLink)}
+            >
+              Ver mais
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -65,6 +65,7 @@ interface Ferramenta {
   foto_url?: string | null
   tamanho?: string | null
   cor?: string | null
+  ponto_ressuprimento?: number | null
   created_at?: string | null
 }
 
@@ -664,6 +665,20 @@ function FerramentasList({
                     </Select>
                   </div>
                 </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="ponto_ressuprimento">Estoque Mínimo</Label>
+                  <Input
+                    id="ponto_ressuprimento"
+                    name="ponto_ressuprimento"
+                    type="number"
+                    min="0"
+                    placeholder="Ex: 5 (alerta quando estoque ≤ 5)"
+                    defaultValue={editing?.ponto_ressuprimento || ""}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Quando o estoque atingir este valor, você será alertado no dashboard
+                  </p>
+                </div>
               </div>
               <DialogFooter>
                 <Button
@@ -714,12 +729,31 @@ function FerramentasList({
                     "space-y-1",
                     cardSize === "pequeno" && "space-y-0.5 w-full"
                   )}>
-                    <h3 className={cn(
-                      "font-semibold",
-                      cardSize === "pequeno" && "text-sm",
-                      cardSize === "medio" && "text-lg",
-                      cardSize === "grande" && "text-xl"
-                    )}>{ferramenta.nome}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className={cn(
+                        "font-semibold",
+                        cardSize === "pequeno" && "text-sm",
+                        cardSize === "medio" && "text-lg",
+                        cardSize === "grande" && "text-xl"
+                      )}>{ferramenta.nome}</h3>
+                      {/* Indicador de estoque baixo */}
+                      {ferramenta.ponto_ressuprimento !== null && 
+                       ferramenta.ponto_ressuprimento !== undefined &&
+                       ferramenta.quantidade_disponivel <= ferramenta.ponto_ressuprimento && (
+                        <Badge 
+                          variant="destructive" 
+                          className={cn(
+                            "animate-pulse",
+                            cardSize === "pequeno" && "text-[10px] px-1.5 py-0",
+                            cardSize === "medio" && "text-xs px-2 py-0.5",
+                            cardSize === "grande" && "text-xs px-2 py-0.5"
+                          )}
+                          title={`Estoque baixo! Mínimo: ${ferramenta.ponto_ressuprimento}`}
+                        >
+                          ⚠️
+                        </Badge>
+                      )}
+                    </div>
                     <div className={cn(
                       "flex flex-col text-muted-foreground",
                       cardSize === "pequeno" && "text-xs",

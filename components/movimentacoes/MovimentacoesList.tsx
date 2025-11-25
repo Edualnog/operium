@@ -78,6 +78,8 @@ export default function MovimentacoesList({
   const [search, setSearch] = useState("")
   const [openExportDialog, setOpenExportDialog] = useState(false)
   const [exportingCsv, setExportingCsv] = useState(false)
+  const [periodoRapido, setPeriodoRapido] = useState<"hoje" | "ontem" | "selecionar" | null>(null)
+  const [dataSelecionada, setDataSelecionada] = useState<string>("")
   const [filters, setFilters] = useState<FilterState>({
     tipo: "todos",
     dataInicio: null,
@@ -85,6 +87,61 @@ export default function MovimentacoesList({
     produtoId: "",
     colaboradorId: "",
   })
+  
+  // Atualizar filtros quando período rápido mudar
+  useEffect(() => {
+    if (periodoRapido === "hoje") {
+      const hoje = new Date()
+      hoje.setHours(0, 0, 0, 0)
+      const fimHoje = new Date()
+      fimHoje.setHours(23, 59, 59, 999)
+      setFilters(prev => ({
+        ...prev,
+        dataInicio: hoje,
+        dataFim: fimHoje,
+      }))
+      setDataSelecionada("")
+    } else if (periodoRapido === "ontem") {
+      const ontem = new Date()
+      ontem.setDate(ontem.getDate() - 1)
+      ontem.setHours(0, 0, 0, 0)
+      const fimOntem = new Date(ontem)
+      fimOntem.setHours(23, 59, 59, 999)
+      setFilters(prev => ({
+        ...prev,
+        dataInicio: ontem,
+        dataFim: fimOntem,
+      }))
+      setDataSelecionada("")
+    } else if (periodoRapido === "selecionar" && dataSelecionada) {
+      const data = new Date(dataSelecionada)
+      data.setHours(0, 0, 0, 0)
+      const fimData = new Date(data)
+      fimData.setHours(23, 59, 59, 999)
+      setFilters(prev => ({
+        ...prev,
+        dataInicio: data,
+        dataFim: fimData,
+      }))
+    } else if (periodoRapido === null) {
+      // Só limpar se não houver filtros de data manualmente definidos
+      setFilters(prev => {
+        // Se os filtros de data foram definidos manualmente (não pelo período rápido), manter
+        // Caso contrário, limpar
+        if (prev.dataInicio || prev.dataFim) {
+          // Verificar se os filtros são do período rápido ou manual
+          // Se não houver período rápido ativo, limpar
+          return {
+            ...prev,
+            dataInicio: null,
+            dataFim: null,
+          }
+        }
+        return prev
+      })
+      setDataSelecionada("")
+    }
+  }, [periodoRapido, dataSelecionada])
   const [exportFilters, setExportFilters] = useState({
     tipo: "todos" as "todos" | "entrada" | "retirada" | "devolucao" | "conserto",
     dataInicio: "",
@@ -369,6 +426,74 @@ export default function MovimentacoesList({
 
   return (
     <div className="space-y-4">
+      {/* Filtros de Período Rápido */}
+      <div className="flex items-center gap-2 mb-4 pb-4 border-b border-zinc-200">
+        <span className="text-sm font-medium text-zinc-700 whitespace-nowrap">Período:</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            type="button"
+            variant={periodoRapido === "hoje" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setPeriodoRapido(periodoRapido === "hoje" ? null : "hoje")}
+            className="text-sm"
+          >
+            Hoje
+          </Button>
+          <Button
+            type="button"
+            variant={periodoRapido === "ontem" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setPeriodoRapido(periodoRapido === "ontem" ? null : "ontem")}
+            className="text-sm"
+          >
+            Ontem
+          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={periodoRapido === "selecionar" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setPeriodoRapido(periodoRapido === "selecionar" ? null : "selecionar")}
+              className="text-sm"
+            >
+              Selecionar
+            </Button>
+            {periodoRapido === "selecionar" && (
+              <Input
+                type="date"
+                value={dataSelecionada}
+                onChange={(e) => {
+                  setDataSelecionada(e.target.value)
+                  if (e.target.value) {
+                    setPeriodoRapido("selecionar")
+                  }
+                }}
+                className="w-auto h-9 text-sm"
+              />
+            )}
+          </div>
+          {periodoRapido && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setPeriodoRapido(null)
+                setDataSelecionada("")
+                setFilters(prev => ({
+                  ...prev,
+                  dataInicio: null,
+                  dataFim: null,
+                }))
+              }}
+              className="text-sm text-zinc-500 hover:text-zinc-700"
+            >
+              Limpar
+            </Button>
+          )}
+        </div>
+      </div>
+
       {/* Filtros */}
       <MovimentacoesFilters
         ferramentas={ferramentas}

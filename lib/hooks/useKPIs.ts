@@ -38,14 +38,14 @@ export function useKPIs(userId: string) {
               colaborador_id,
               tipo,
               data,
-              ferramentas(nome),
+              ferramentas(nome, tipo_item),
               colaboradores(nome)
             `)
             .eq("profile_id", userId)
             .eq("tipo", "retirada"),
           supabase
             .from("movimentacoes")
-            .select("ferramenta_id, colaborador_id, data, tipo")
+            .select("ferramenta_id, colaborador_id, data, tipo, ferramentas(tipo_item)")
             .eq("profile_id", userId)
             .eq("tipo", "devolucao"),
           supabase.rpc("calcular_tmr", { p_profile_id: userId }),
@@ -160,8 +160,17 @@ export function useKPIs(userId: string) {
         // Ranking de responsabilidade (evita novas queries: usa retiradas/devoluções já carregadas)
         const colaboradores = colaboradoresRes.data || []
         const rankingCompleto = colaboradores.map((colab) => {
-          const retiradasColab = retiradas.filter((r) => r.colaborador_id === colab.id)
-          const devolucoesColab = devolucoes.filter((d) => d.colaborador_id === colab.id)
+          // Filtrar EPIs - EPIs não contam para taxa de devolução (ficam com os colaboradores)
+          const retiradasColab = retiradas.filter((r) => {
+            if (r.colaborador_id !== colab.id) return false
+            const ferramenta = r.ferramentas as any
+            return ferramenta?.tipo_item !== "epi"
+          })
+          const devolucoesColab = devolucoes.filter((d) => {
+            if (d.colaborador_id !== colab.id) return false
+            const ferramenta = d.ferramentas as any
+            return ferramenta?.tipo_item !== "epi"
+          })
           const totalRetiradas = retiradasColab.length
           const totalDevolucoes = devolucoesColab.length
 

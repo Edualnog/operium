@@ -20,31 +20,72 @@ async function getMovimentacoesStats(userId: string) {
   const supabase = await createServerComponentClient()
   const { data } = await supabase
     .from("movimentacoes")
-    .select("colaborador_id, tipo, quantidade")
+    .select("colaborador_id, tipo, quantidade, ferramentas(tipo_item, nome, categoria)")
     .eq("profile_id", userId)
     .in("tipo", ["retirada", "devolucao"])
   
   if (!data) return {}
   
+  // Função auxiliar para verificar se é EPI
+  const isEPI = (ferramenta: any): boolean => {
+    if (!ferramenta) return false
+    if (ferramenta.tipo_item === "epi") return true
+    
+    const nomeLower = (ferramenta.nome || "").toLowerCase()
+    const categoriaLower = (ferramenta.categoria || "").toLowerCase()
+    const palavrasEPI = [
+      "capacete", "capacet", "óculos", "oculos", "protetor", "luvas", "luva",
+      "máscara", "mascara", "respiratório", "respiratorio", "botas", "bota",
+      "calçado", "calcado", "segurança", "seguranca", "epi", "cinto", "arnês", "arnes"
+    ]
+    
+    return palavrasEPI.some(p => nomeLower.includes(p)) || 
+           palavrasEPI.some(p => categoriaLower.includes(p)) ||
+           categoriaLower === "epi"
+  }
+  
   const stats: Record<string, { retiradas: number; devolucoes: number; pendente: number }> = {}
+  
   data.forEach((mov) => {
     if (!mov.colaborador_id) return
+    
+    const ferramenta = mov.ferramentas as any
+    const eEPI = isEPI(ferramenta)
+    
     if (!stats[mov.colaborador_id]) {
       stats[mov.colaborador_id] = { retiradas: 0, devolucoes: 0, pendente: 0 }
     }
+    
+    // CONTABILIZAR TODAS as retiradas e devoluções (incluindo EPIs)
     if (mov.tipo === "retirada") {
-      stats[mov.colaborador_id].retiradas += mov.quantidade
+      stats[mov.colaborador_id].retiradas += mov.quantidade || 1
+      console.log(`📥 Retirada contabilizada: ${ferramenta?.nome || 'desconhecido'} (EPI: ${eEPI}), qtd: ${mov.quantidade || 1}, total: ${stats[mov.colaborador_id].retiradas}`)
     } else if (mov.tipo === "devolucao") {
-      stats[mov.colaborador_id].devolucoes += mov.quantidade
+      stats[mov.colaborador_id].devolucoes += mov.quantidade || 1
+      console.log(`📤 Devolução contabilizada: ${ferramenta?.nome || 'desconhecido'} (EPI: ${eEPI}), qtd: ${mov.quantidade || 1}, total: ${stats[mov.colaborador_id].devolucoes}`)
     }
   })
   
-  // Calcular pendente (retiradas - devoluções) e taxa
-  Object.keys(stats).forEach((colabId) => {
-    const stat = stats[colabId]
-    stat.pendente = stat.retiradas - stat.devolucoes
+  // Calcular pendente APENAS para não-EPIs (para taxa de devolução)
+  // Mas manter todas as retiradas/devoluções contabilizadas acima
+  data.forEach((mov) => {
+    if (!mov.colaborador_id) return
+    
+    const ferramenta = mov.ferramentas as any
+    const eEPI = isEPI(ferramenta)
+    
+    // Se for EPI, não afeta o cálculo de pendente (taxa de devolução)
+    if (eEPI) return
+    
+    // Para não-EPIs, calcular pendente normalmente
+    if (mov.tipo === "retirada") {
+      stats[mov.colaborador_id].pendente += mov.quantidade
+    } else if (mov.tipo === "devolucao") {
+      stats[mov.colaborador_id].pendente -= mov.quantidade
+    }
   })
   
+  console.log("📊 Estatísticas finais por colaborador:", stats)
   return stats
 }
 

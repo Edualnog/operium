@@ -13,7 +13,7 @@ async function getFerramentas(userId: string) {
     // Primeiro, tentar buscar com todos os campos (se a migration foi executada)
     let query = supabase
       .from("ferramentas")
-      .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at, tipo_item, codigo, foto_url, tamanho, cor")
+      .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at, tipo_item, codigo, foto_url, tamanho, cor, ponto_ressuprimento")
       .eq("profile_id", userId)
       .order("nome", { ascending: true })
     
@@ -47,6 +47,7 @@ async function getFerramentas(userId: string) {
           foto_url: null,
           tamanho: null,
           cor: null,
+          ponto_ressuprimento: null,
         }))
       }
       
@@ -63,6 +64,7 @@ async function getFerramentas(userId: string) {
       foto_url: (item as any).foto_url || null,
       tamanho: (item as any).tamanho || null,
       cor: (item as any).cor || null,
+      ponto_ressuprimento: (item as any).ponto_ressuprimento || null,
     }))
     
     // Log para diagnóstico
