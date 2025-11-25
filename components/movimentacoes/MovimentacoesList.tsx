@@ -28,6 +28,7 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter } from "lucide-react"
 import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
+import { cn } from "@/lib/utils"
 
 interface Movimentacao {
   id: string
@@ -308,11 +309,18 @@ export default function MovimentacoesList({
   const tipoBadge = (tipo: string) => {
     const map: Record<string, "default" | "secondary" | "destructive"> = {
       entrada: "default",
-      retirada: "secondary",
+      retirada: "destructive",
       devolucao: "default",
       conserto: "secondary",
     }
     return map[tipo] || "default"
+  }
+  
+  const tipoBadgeClassName = (tipo: string) => {
+    if (tipo === "conserto") {
+      return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200"
+    }
+    return ""
   }
 
   const getFilteredMovimentacoes = () => {
@@ -797,7 +805,13 @@ export default function MovimentacoesList({
               className="grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-zinc-50/50 transition-colors"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <Badge variant={tipoBadge(m.tipo)} className="capitalize shrink-0 text-xs px-2 py-0.5">
+                <Badge 
+                  variant={tipoBadge(m.tipo)} 
+                  className={cn(
+                    "capitalize shrink-0 text-xs px-2 py-0.5",
+                    tipoBadgeClassName(m.tipo)
+                  )}
+                >
                   {m.tipo}
                 </Badge>
                 <span className="font-medium text-sm text-zinc-900 truncate">
