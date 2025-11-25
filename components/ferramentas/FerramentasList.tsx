@@ -711,7 +711,7 @@ function FerramentasList({
 
       {filteredFerramentas.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          {search
+          {filters.search
             ? "Nenhuma ferramenta encontrada"
             : "Nenhuma ferramenta cadastrada"}
         </div>
