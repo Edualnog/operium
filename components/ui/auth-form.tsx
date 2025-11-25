@@ -144,6 +144,11 @@ const AuthForm: React.FC = () => {
             {error}
           </div>
         )}
+        {info && (
+          <div className="mb-4 rounded-md bg-green-100 border border-green-300 p-3 text-sm text-green-700">
+            {info}
+          </div>
+        )}
         <Divider />
         <LoginForm
           email={email}
@@ -153,6 +158,15 @@ const AuthForm: React.FC = () => {
           onSubmit={handleSubmit}
           loading={loading}
           isLogin={isLogin}
+          companyName={companyName}
+          cnpj={cnpj}
+          companyEmail={companyEmail}
+          phone={phone}
+          onCompanyNameChange={setCompanyName}
+          onCnpjChange={setCnpj}
+          onCompanyEmailChange={setCompanyEmail}
+          onPhoneChange={setPhone}
+          onResetPassword={handleResetPassword}
         />
         <TermsAndConditions />
       </motion.div>
