@@ -31,13 +31,13 @@ import {
 } from "@/lib/actions"
 import {
   Plus,
-  Search,
   Trash2,
   Edit,
   PackagePlus,
   PackageMinus,
   RotateCcw,
   Wrench,
+  FileDown,
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
@@ -46,6 +46,7 @@ import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
+import { FerramentasFilters, type FilterState } from "./FerramentasFilters"
 
 interface Ferramenta {
   id: string
@@ -74,8 +75,15 @@ function FerramentasList({
   colaboradores: Colaborador[]
 }) {
   const [ferramentas, setFerramentas] = useState(initialFerramentas)
-  const [search, setSearch] = useState("")
-  const debouncedSearch = useDebounce(search, 300)
+  const [filters, setFilters] = useState<FilterState>({
+    search: "",
+    tipo: "",
+    estado: "",
+    categoria: "",
+    ordenarPor: "nome",
+    ordem: "asc",
+  })
+  const debouncedSearch = useDebounce(filters.search, 300)
   const [open, setOpen] = useState(false)
   const [actionDialog, setActionDialog] = useState<{
     type: "entrada" | "retirada" | "devolucao" | "conserto"
@@ -86,6 +94,7 @@ function FerramentasList({
   const [productCode, setProductCode] = useState("")
   const [productPhoto, setProductPhoto] = useState("")
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
+  const [exportingCsv, setExportingCsv] = useState(false)
   const supabase = createClientComponentClient()
   const [userId, setUserId] = useState<string>("")
   useEffect(() => {
@@ -108,15 +117,66 @@ function FerramentasList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const categorias = useMemo(() => {
+    const set = new Set<string>()
+    ferramentas.forEach((f) => {
+      if (f.categoria && f.categoria.trim() !== "") set.add(f.categoria)
+    })
+    return Array.from(set).sort()
+  }, [ferramentas])
+
   const filteredFerramentas = useMemo(() => {
-    if (!debouncedSearch) return ferramentas
+    let result = [...ferramentas]
     const searchLower = debouncedSearch.toLowerCase()
-    return ferramentas.filter(
-      (f) =>
-        f.nome.toLowerCase().includes(searchLower) ||
-        f.categoria?.toLowerCase().includes(searchLower)
-    )
-  }, [ferramentas, debouncedSearch])
+
+    if (searchLower) {
+      result = result.filter(
+        (f) =>
+          f.nome.toLowerCase().includes(searchLower) ||
+          f.categoria?.toLowerCase().includes(searchLower) ||
+          f.codigo?.toLowerCase().includes(searchLower)
+      )
+    }
+
+    if (filters.tipo) {
+      result = result.filter((f) => f.tipo_item === filters.tipo)
+    }
+
+    if (filters.estado) {
+      result = result.filter((f) => f.estado === filters.estado)
+    }
+
+    if (filters.categoria) {
+      result = result.filter((f) => f.categoria === filters.categoria)
+    }
+
+    result.sort((a, b) => {
+      let aVal: any
+      let bVal: any
+      switch (filters.ordenarPor) {
+        case "quantidade_disponivel":
+          aVal = a.quantidade_disponivel
+          bVal = b.quantidade_disponivel
+          break
+        case "quantidade_total":
+          aVal = a.quantidade_total
+          bVal = b.quantidade_total
+          break
+        case "created_at":
+          aVal = a.created_at ? new Date(a.created_at).getTime() : 0
+          bVal = b.created_at ? new Date(b.created_at).getTime() : 0
+          break
+        default:
+          aVal = a.nome.toLowerCase()
+          bVal = b.nome.toLowerCase()
+      }
+      if (aVal < bVal) return filters.ordem === "asc" ? -1 : 1
+      if (aVal > bVal) return filters.ordem === "asc" ? 1 : -1
+      return 0
+    })
+
+    return result
+  }, [ferramentas, debouncedSearch, filters])
 
   const gerarCodigoLocal = (nome: string, tamanho?: string, cor?: string, tipo?: string) => {
     const tipoMap: Record<string, string> = {
@@ -184,6 +244,47 @@ function FerramentasList({
       router.refresh()
     } catch (error) {
       alert("Erro ao excluir ferramenta")
+    }
+  }
+
+  const handleExportCSV = () => {
+    if (filteredFerramentas.length === 0) return
+    setExportingCsv(true)
+    try {
+      const escape = (val: any) => `"${(val ?? "").toString().replace(/"/g, '""')}"`
+      const headers = [
+        "Nome",
+        "Código",
+        "Tipo",
+        "Categoria",
+        "Qtd Total",
+        "Disponível",
+        "Estado",
+        "Tamanho",
+        "Cor",
+      ]
+      const rows = filteredFerramentas.map((f) => [
+        f.nome,
+        f.codigo || "",
+        f.tipo_item || "",
+        f.categoria || "",
+        f.quantidade_total,
+        f.quantidade_disponivel,
+        f.estado,
+        f.tamanho || "",
+        f.cor || "",
+      ])
+      const csv = [headers.map(escape).join(","), ...rows.map((r) => r.map(escape).join(","))].join("\n")
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      const stamp = new Date().toISOString().replace(/[:.-]/g, "").slice(0, 15)
+      a.download = `produtos_${stamp}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setExportingCsv(false)
     }
   }
 
@@ -263,15 +364,23 @@ function FerramentasList({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar produto..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-8"
-          />
+      <FerramentasFilters
+        categorias={categorias}
+        filters={filters}
+        onFiltersChange={setFilters}
+        totalEncontrados={filteredFerramentas.length}
+      />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            disabled={exportingCsv || filteredFerramentas.length === 0}
+          >
+            <FileDown className="mr-2 h-4 w-4" />
+            {exportingCsv ? "Gerando CSV..." : "Exportar CSV"}
+          </Button>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
