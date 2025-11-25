@@ -18,7 +18,7 @@ import {
   atualizarColaborador,
   deletarColaborador,
 } from "@/lib/actions"
-import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown, Grid3x3, Square, LayoutGrid, Shield, AlertTriangle } from "lucide-react"
+import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown, Grid3x3, Square, LayoutGrid, Shield, AlertTriangle, ChevronDown, ChevronUp, Download, History, TrendingUp } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
@@ -79,6 +79,10 @@ function ColaboradoresList({
   const [colaboradorSelecionado, setColaboradorSelecionado] = useState<Colaborador | null>(null)
   const [episAtivos, setEpisAtivos] = useState<EPIAtivo[]>([])
   const [loadingEpis, setLoadingEpis] = useState(false)
+  const [fichaDialogOpen, setFichaDialogOpen] = useState(false)
+  const [historicoMovimentacoes, setHistoricoMovimentacoes] = useState<Record<string, any[]>>({})
+  const [loadingHistorico, setLoadingHistorico] = useState<Record<string, boolean>>({})
+  const [exportingFicha, setExportingFicha] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClientComponentClient()
   
@@ -519,6 +523,263 @@ function ColaboradoresList({
     }
   }
 
+  const handleAbrirFicha = async (colaborador: Colaborador) => {
+    setColaboradorSelecionado(colaborador)
+    setFichaDialogOpen(true)
+    
+    // Carregar EPIs automaticamente
+    await carregarEpis(colaborador)
+    
+    // Se já temos o histórico, não buscar novamente
+    if (historicoMovimentacoes[colaborador.id]) {
+      return
+    }
+
+    // Buscar histórico de movimentações
+    setLoadingHistorico(prev => ({ ...prev, [colaborador.id]: true }))
+    try {
+      const { data: user } = await supabase.auth.getUser()
+      if (!user?.user) return
+
+      const { data: movimentacoes, error } = await supabase
+        .from("movimentacoes")
+        .select(`
+          id,
+          tipo,
+          quantidade,
+          data,
+          observacoes,
+          ferramentas(id, nome, tipo_item),
+          colaboradores(nome)
+        `)
+        .eq("profile_id", user.user.id)
+        .eq("colaborador_id", colaborador.id)
+        .order("data", { ascending: false })
+        .limit(100)
+
+      if (error) {
+        console.error("Erro ao buscar histórico:", error)
+        setHistoricoMovimentacoes(prev => ({ ...prev, [colaborador.id]: [] }))
+      } else {
+        setHistoricoMovimentacoes(prev => ({ ...prev, [colaborador.id]: movimentacoes || [] }))
+      }
+    } catch (err) {
+      console.error("Erro ao buscar histórico:", err)
+      setHistoricoMovimentacoes(prev => ({ ...prev, [colaborador.id]: [] }))
+    } finally {
+      setLoadingHistorico(prev => ({ ...prev, [colaborador.id]: false }))
+    }
+  }
+
+  const handleExportFichaPDF = async (colaborador: Colaborador) => {
+    if (exportingFicha === colaborador.id) return
+
+    setExportingFicha(colaborador.id)
+    
+    try {
+      // Garantir que temos os EPIs e histórico carregados
+      let episColaborador: EPIAtivo[] = []
+      if (colaboradorSelecionado?.id === colaborador.id && episAtivos.length > 0) {
+        episColaborador = episAtivos
+      } else {
+        // Buscar EPIs se necessário
+        await carregarEpis(colaborador)
+        episColaborador = episAtivos
+      }
+
+      let historico = historicoMovimentacoes[colaborador.id] || []
+      if (historico.length === 0) {
+        // Buscar histórico se necessário
+        setLoadingHistorico(prev => ({ ...prev, [colaborador.id]: true }))
+        try {
+          const { data: user } = await supabase.auth.getUser()
+          if (user?.user) {
+            const { data: movimentacoes, error } = await supabase
+              .from("movimentacoes")
+              .select(`
+                id,
+                tipo,
+                quantidade,
+                data,
+                observacoes,
+                ferramentas(id, nome, tipo_item),
+                colaboradores(nome)
+              `)
+              .eq("profile_id", user.user.id)
+              .eq("colaborador_id", colaborador.id)
+              .order("data", { ascending: false })
+              .limit(100)
+
+            if (!error && movimentacoes) {
+              historico = movimentacoes
+              setHistoricoMovimentacoes(prev => ({ ...prev, [colaborador.id]: movimentacoes }))
+            }
+          }
+        } catch (err) {
+          console.error("Erro ao buscar histórico:", err)
+        } finally {
+          setLoadingHistorico(prev => ({ ...prev, [colaborador.id]: false }))
+        }
+      }
+
+      const jsPDFModule = await import("jspdf")
+      const autoTableModule = await import("jspdf-autotable")
+      
+      const jsPDF = jsPDFModule.default || jsPDFModule.jsPDF
+      const autoTable = autoTableModule.default || autoTableModule
+
+      const doc = new jsPDF()
+      const agora = new Date()
+      let yPos = 20
+
+      // Cabeçalho
+      doc.setFontSize(18)
+      doc.text("FICHA DO COLABORADOR", 14, yPos)
+      yPos += 10
+
+      // Dados pessoais
+      doc.setFontSize(12)
+      doc.text("DADOS PESSOAIS", 14, yPos)
+      yPos += 8
+
+      doc.setFontSize(10)
+      const dadosPessoais = [
+        ["Nome:", colaborador.nome],
+        ["Cargo:", colaborador.cargo || "Sem cargo"],
+        ["Email:", colaborador.email || "-"],
+        ["Telefone:", colaborador.telefone || "-"],
+        ["CPF:", colaborador.cpf || "-"],
+        ["Data de Admissão:", colaborador.data_admissao 
+          ? format(new Date(colaborador.data_admissao), "dd/MM/yyyy", { locale: ptBR })
+          : "Sem data"],
+        ["Endereço:", colaborador.endereco || "-"],
+      ]
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [["Campo", "Valor"]],
+        body: dadosPessoais,
+        theme: "grid",
+        headStyles: { fillColor: [59, 130, 246] },
+        styles: { fontSize: 9 },
+        columnStyles: { 0: { fontStyle: "bold", cellWidth: 60 }, 1: { cellWidth: "auto" } },
+      })
+
+      yPos = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 10 : yPos + 40
+
+      // Estatísticas
+      const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0 }
+      const taxaDevolucao = stats.pendente > 0 ? "0%" : "100%"
+
+      doc.setFontSize(12)
+      doc.text("ESTATÍSTICAS", 14, yPos)
+      yPos += 8
+
+      doc.setFontSize(10)
+      const estatisticas = [
+        ["Total de Retiradas:", stats.retiradas.toString()],
+        ["Total de Devoluções:", stats.devolucoes.toString()],
+        ["Itens Pendentes:", stats.pendente.toString()],
+        ["Taxa de Devolução:", taxaDevolucao],
+      ]
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [["Métrica", "Valor"]],
+        body: estatisticas,
+        theme: "grid",
+        headStyles: { fillColor: [59, 130, 246] },
+        styles: { fontSize: 9 },
+        columnStyles: { 0: { fontStyle: "bold", cellWidth: 80 }, 1: { cellWidth: "auto" } },
+      })
+
+      yPos = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 10 : yPos + 30
+
+      // EPIs Ativos
+      if (episColaborador.length > 0) {
+        doc.setFontSize(12)
+        doc.text("EPIs ATIVOS", 14, yPos)
+        yPos += 8
+
+        const episData = episColaborador.map((epi) => [
+          epi.nome,
+          epi.quantidade.toString(),
+          epi.data_retirada 
+            ? format(new Date(epi.data_retirada), "dd/MM/yyyy", { locale: ptBR })
+            : "-",
+          epi.validade 
+            ? format(new Date(epi.validade), "dd/MM/yyyy", { locale: ptBR })
+            : "Sem validade",
+        ])
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [["EPI", "Quantidade", "Data Retirada", "Validade"]],
+          body: episData,
+          theme: "grid",
+          headStyles: { fillColor: [34, 197, 94] },
+          styles: { fontSize: 9 },
+        })
+
+        yPos = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 10 : yPos + 40
+      }
+
+      // Histórico de Movimentações
+      if (historico.length > 0) {
+        doc.setFontSize(12)
+        doc.text("HISTÓRICO DE MOVIMENTAÇÕES", 14, yPos)
+        yPos += 8
+
+        const movData = historico.map((mov) => {
+          try {
+            return [
+              mov.tipo ? mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1) : "-",
+              (mov.ferramentas as any)?.nome || "-",
+              mov.quantidade ? mov.quantidade.toString() : "0",
+              mov.data 
+                ? format(new Date(mov.data), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                : "-",
+              mov.observacoes || "-",
+            ]
+          } catch (err) {
+            console.error("Erro ao processar movimentação:", err, mov)
+            return ["-", "-", "0", "-", "-"]
+          }
+        })
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [["Tipo", "Produto", "Quantidade", "Data/Hora", "Observações"]],
+          body: movData,
+          theme: "grid",
+          headStyles: { fillColor: [59, 130, 246] },
+          styles: { fontSize: 8 },
+        })
+      }
+
+      // Rodapé
+      const pageCount = doc.getNumberOfPages()
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i)
+        doc.setFontSize(8)
+        doc.text(
+          `Gerado em ${format(agora, "dd/MM/yyyy HH:mm", { locale: ptBR })} - Página ${i} de ${pageCount}`,
+          14,
+          doc.internal.pageSize.height - 10
+        )
+      }
+
+      doc.save(`Ficha_${colaborador.nome.replace(/\s+/g, "_")}_${format(agora, "yyyyMMdd", { locale: ptBR })}.pdf`)
+    } catch (error) {
+      console.error("Erro ao exportar ficha PDF:", error)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error("Detalhes do erro:", errorMessage)
+      alert(`Erro ao exportar ficha em PDF: ${errorMessage}`)
+    } finally {
+      setExportingFicha(null)
+    }
+  }
+
   const handleExportPDF = async () => {
     if (filteredAndSortedColaboradores.length === 0) return
     try {
@@ -802,6 +1063,11 @@ function ColaboradoresList({
                   cardSize === "medio" && "p-6",
                   cardSize === "grande" && "p-8"
                 )}>
+                  {/* Área clicável para abrir ficha */}
+                  <div 
+                    className="cursor-pointer"
+                    onClick={() => handleAbrirFicha(colaborador)}
+                  >
                   <div className={cn(
                     "space-y-4",
                     cardSize === "pequeno" && "space-y-2"
@@ -942,7 +1208,8 @@ function ColaboradoresList({
                       <Button
                         variant="outline"
                         size={cardSize === "pequeno" ? "sm" : "sm"}
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.stopPropagation()
                           setColaboradorSelecionado(colaborador)
                           setEpisDialogOpen(true)
                           // Carregar EPIs imediatamente
@@ -962,7 +1229,10 @@ function ColaboradoresList({
                       <Button
                         variant="outline"
                         size={cardSize === "pequeno" ? "sm" : "sm"}
-                        onClick={() => handleEdit(colaborador)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleEdit(colaborador)
+                        }}
                         className={cn(
                           "flex-1",
                           cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
@@ -977,7 +1247,10 @@ function ColaboradoresList({
                       <Button
                         variant="outline"
                         size={cardSize === "pequeno" ? "sm" : "sm"}
-                        onClick={() => handleDelete(colaborador.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDelete(colaborador.id)
+                        }}
                         className={cn(
                           "flex-1 text-destructive hover:text-destructive",
                           cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
@@ -991,12 +1264,241 @@ function ColaboradoresList({
                       </Button>
                     </div>
                   </div>
+                  </div>
                 </CardContent>
               </Card>
             )
           })}
         </div>
       )}
+
+      {/* Dialog de Ficha do Colaborador */}
+      <Dialog open={fichaDialogOpen} onOpenChange={setFichaDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Ficha de {colaboradorSelecionado?.nome}
+            </DialogTitle>
+            <DialogDescription>
+              Informações completas do colaborador, histórico de movimentações e EPIs
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto min-h-0 space-y-6 pr-2">
+            {colaboradorSelecionado && (() => {
+              const stats = movimentacoesStats[colaboradorSelecionado.id] || { retiradas: 0, devolucoes: 0, pendente: 0 }
+              const taxaDevolucao = stats.pendente > 0 ? "0" : "100"
+              const historico = historicoMovimentacoes[colaboradorSelecionado.id] || []
+              const loadingHist = loadingHistorico[colaboradorSelecionado.id] || false
+
+              return (
+                <>
+                  {/* Botão de exportar PDF */}
+                  <div className="flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExportFichaPDF(colaboradorSelecionado)}
+                      disabled={exportingFicha === colaboradorSelecionado.id}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {exportingFicha === colaboradorSelecionado.id ? "Gerando PDF..." : "Exportar Ficha PDF"}
+                    </Button>
+                  </div>
+
+                  {/* Foto e Nome do Colaborador */}
+                  <div className="flex items-center gap-4 pb-4 border-b border-zinc-200">
+                    <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-zinc-200 bg-zinc-100 flex-shrink-0">
+                      {colaboradorSelecionado.foto_url ? (
+                        <Image
+                          src={colaboradorSelecionado.foto_url}
+                          alt={colaboradorSelecionado.nome}
+                          fill
+                          className="object-cover"
+                          sizes="96px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <User className="h-12 w-12 text-zinc-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-zinc-900">{colaboradorSelecionado.nome}</h3>
+                      <p className="text-zinc-600">{colaboradorSelecionado.cargo || "Sem cargo"}</p>
+                    </div>
+                  </div>
+
+                  {/* Dados Pessoais */}
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 mb-3 flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Dados Pessoais
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-zinc-500">Email:</span>
+                        <span className="ml-2 text-zinc-900">{colaboradorSelecionado.email || "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500">Telefone:</span>
+                        <span className="ml-2 text-zinc-900">{colaboradorSelecionado.telefone || "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500">CPF:</span>
+                        <span className="ml-2 text-zinc-900">{colaboradorSelecionado.cpf || "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500">Endereço:</span>
+                        <span className="ml-2 text-zinc-900">{colaboradorSelecionado.endereco || "-"}</span>
+                      </div>
+                      {colaboradorSelecionado.observacoes && (
+                        <div className="md:col-span-2">
+                          <span className="text-zinc-500">Observações:</span>
+                          <p className="mt-1 text-zinc-900">{colaboradorSelecionado.observacoes}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Estatísticas */}
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 mb-3 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      Estatísticas
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="p-3 bg-zinc-50 rounded-lg">
+                        <p className="text-xs text-zinc-500 mb-1">Retiradas</p>
+                        <p className="text-2xl font-bold text-zinc-900">{stats.retiradas}</p>
+                      </div>
+                      <div className="p-3 bg-zinc-50 rounded-lg">
+                        <p className="text-xs text-zinc-500 mb-1">Devoluções</p>
+                        <p className="text-2xl font-bold text-zinc-900">{stats.devolucoes}</p>
+                      </div>
+                      <div className="p-3 bg-zinc-50 rounded-lg">
+                        <p className="text-xs text-zinc-500 mb-1">Pendentes</p>
+                        <p className="text-2xl font-bold text-zinc-900">{stats.pendente}</p>
+                      </div>
+                      <div className={cn(
+                        "p-3 rounded-lg",
+                        taxaDevolucao === "100" ? "bg-green-50" : "bg-red-50"
+                      )}>
+                        <p className="text-xs text-zinc-500 mb-1">Taxa de Devolução</p>
+                        <p className={cn(
+                          "text-2xl font-bold",
+                          taxaDevolucao === "100" ? "text-green-700" : "text-red-700"
+                        )}>
+                          {taxaDevolucao}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EPIs Ativos */}
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 mb-3 flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      EPIs Ativos
+                    </h4>
+                    {loadingEpis ? (
+                      <div className="text-center py-8 text-zinc-500 text-sm">
+                        Carregando EPIs...
+                      </div>
+                    ) : episAtivos.length === 0 ? (
+                      <div className="text-center py-8 text-zinc-500 text-sm">
+                        Nenhum EPI ativo encontrado
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {episAtivos.map((epi) => (
+                          <div key={epi.id} className="p-3 bg-zinc-50 rounded-lg text-sm">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium text-zinc-900">{epi.nome}</span>
+                              {epi.quantidade > 1 && (
+                                <Badge variant="secondary" className="ml-2">
+                                  {epi.quantidade}x
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="mt-1 text-xs text-zinc-600">
+                              Retirado em: {epi.data_retirada 
+                                ? format(new Date(epi.data_retirada), "dd/MM/yyyy", { locale: ptBR })
+                                : "-"}
+                              {epi.validade && (
+                                <> | Validade: {format(new Date(epi.validade), "dd/MM/yyyy", { locale: ptBR })}</>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Histórico de Movimentações */}
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 mb-3 flex items-center gap-2">
+                      <History className="h-4 w-4" />
+                      Histórico de Movimentações
+                      {loadingHist && <span className="text-xs text-zinc-500 ml-2">(Carregando...)</span>}
+                    </h4>
+                    {loadingHist ? (
+                      <div className="text-center py-8 text-zinc-500 text-sm">
+                        Carregando histórico...
+                      </div>
+                    ) : historico.length === 0 ? (
+                      <div className="text-center py-8 text-zinc-500 text-sm">
+                        Nenhuma movimentação registrada
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {historico.map((mov) => (
+                          <div key={mov.id} className="p-3 bg-zinc-50 rounded-lg text-sm">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2">
+                                <Badge 
+                                  variant={mov.tipo === "retirada" ? "destructive" : mov.tipo === "conserto" ? "secondary" : "default"}
+                                  className={cn(
+                                    "text-xs",
+                                    mov.tipo === "conserto" && "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                  )}
+                                >
+                                  {mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1)}
+                                </Badge>
+                                <span className="font-medium text-zinc-900">
+                                  {(mov.ferramentas as any)?.nome || "Produto"}
+                                </span>
+                              </div>
+                              <span className="text-zinc-600">
+                                Qtd: {mov.quantidade}
+                              </span>
+                            </div>
+                            <div className="text-xs text-zinc-500">
+                              {mov.data 
+                                ? format(new Date(mov.data), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                                : "-"}
+                              {mov.observacoes && (
+                                <> | {mov.observacoes}</>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )
+            })()}
+          </div>
+          
+          <DialogFooter className="flex-shrink-0 border-t pt-4 mt-4">
+            <Button variant="outline" onClick={() => setFichaDialogOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog de EPIs */}
       <Dialog open={episDialogOpen} onOpenChange={setEpisDialogOpen}>
