@@ -10,8 +10,13 @@ const AuthForm: React.FC = () => {
   const [isLogin, setIsLogin] = React.useState(true)
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
+  const [companyName, setCompanyName] = React.useState("")
+  const [cnpj, setCnpj] = React.useState("")
+  const [companyEmail, setCompanyEmail] = React.useState("")
+  const [phone, setPhone] = React.useState("")
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
+  const [info, setInfo] = React.useState("")
   const router = useRouter()
   const supabase = createClientComponentClient()
 
@@ -40,6 +45,7 @@ const AuthForm: React.FC = () => {
     e.preventDefault()
     setLoading(true)
     setError("")
+    setInfo("")
 
     try {
       if (isLogin) {
@@ -79,16 +85,43 @@ const AuthForm: React.FC = () => {
         }
 
         if (data.user) {
-          if (data.session) {
-            window.location.href = "/dashboard"
-          } else {
-            setError("Conta criada! Verifique seu email para confirmar a conta antes de fazer login.")
-            setIsLogin(true)
-          }
+          // Preencher perfil com dados da empresa
+          await supabase.from("profiles").upsert({
+            id: data.user.id,
+            name: companyName || data.user.email,
+            company_name: companyName || null,
+            cnpj: cnpj || null,
+            company_email: companyEmail || email,
+            phone: phone || null,
+          })
+          setError("")
+          setInfo("Conta criada! Verifique seu email para confirmar e depois faça login.")
+          setIsLogin(true)
         }
       }
     } catch (error: any) {
       setError(error.message || "Erro ao processar")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError("Informe o email para recuperar a senha.")
+      return
+    }
+    setLoading(true)
+    setError("")
+    setInfo("")
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login`,
+      })
+      if (error) throw error
+      setInfo("Se o email existir, enviamos o link de recuperação.")
+    } catch (err: any) {
+      setError(err.message || "Erro ao solicitar recuperação")
     } finally {
       setLoading(false)
     }
@@ -219,6 +252,15 @@ interface LoginFormProps {
   onSubmit: (e: React.FormEvent) => void
   loading: boolean
   isLogin: boolean
+  companyName: string
+  cnpj: string
+  companyEmail: string
+  phone: string
+  onCompanyNameChange: (value: string) => void
+  onCnpjChange: (value: string) => void
+  onCompanyEmailChange: (value: string) => void
+  onPhoneChange: (value: string) => void
+  onResetPassword: () => void
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({
@@ -229,6 +271,15 @@ const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   loading,
   isLogin,
+  companyName,
+  cnpj,
+  companyEmail,
+  phone,
+  onCompanyNameChange,
+  onCnpjChange,
+  onCompanyEmailChange,
+  onPhoneChange,
+  onResetPassword,
 }) => {
   return (
     <form onSubmit={onSubmit}>
@@ -277,9 +328,63 @@ const LoginForm: React.FC<LoginFormProps> = ({
           ring-1 ring-transparent transition-shadow focus:outline-0 focus:ring-2 focus:ring-blue-700 disabled:opacity-50"
         />
       </div>
+      {!isLogin && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="space-y-1.5">
+            <label className="block text-zinc-500">Empresa</label>
+            <input
+              type="text"
+              value={companyName}
+              onChange={(e) => onCompanyNameChange(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-800 placeholder-zinc-400 ring-1 ring-transparent transition-shadow focus:outline-0 focus:ring-2 focus:ring-blue-700 disabled:opacity-50"
+              placeholder="Nome da empresa"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-zinc-500">CNPJ</label>
+            <input
+              type="text"
+              value={cnpj}
+              onChange={(e) => onCnpjChange(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-800 placeholder-zinc-400 ring-1 ring-transparent transition-shadow focus:outline-0 focus:ring-2 focus:ring-blue-700 disabled:opacity-50"
+              placeholder="00.000.000/0000-00"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-zinc-500">Email da empresa</label>
+            <input
+              type="email"
+              value={companyEmail}
+              onChange={(e) => onCompanyEmailChange(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-800 placeholder-zinc-400 ring-1 ring-transparent transition-shadow focus:outline-0 focus:ring-2 focus:ring-blue-700 disabled:opacity-50"
+              placeholder="contato@empresa.com"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-zinc-500">Telefone</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => onPhoneChange(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-800 placeholder-zinc-400 ring-1 ring-transparent transition-shadow focus:outline-0 focus:ring-2 focus:ring-blue-700 disabled:opacity-50"
+              placeholder="(00) 00000-0000"
+            />
+          </div>
+        </div>
+      )}
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar Conta"}
       </Button>
+      {isLogin && (
+        <button
+          type="button"
+          onClick={onResetPassword}
+          className="mt-3 w-full text-sm text-blue-600 hover:underline disabled:opacity-50"
+          disabled={loading}
+        >
+          Esqueci minha senha
+        </button>
+      )}
     </form>
   )
 }
