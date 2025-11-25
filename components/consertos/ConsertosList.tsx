@@ -23,11 +23,11 @@ import { ptBR } from "date-fns/locale/pt-BR"
 interface Conserto {
   id: string
   ferramenta_id: string
-  descricao?: string
+  descricao?: string | null
   status: "aguardando" | "em_andamento" | "concluido"
-  custo?: number
-  data_envio: string
-  data_retorno?: string
+  custo?: number | null
+  data_envio?: string | null
+  data_retorno?: string | null
   ferramentas: {
     id: string
     nome: string
@@ -286,4 +286,3 @@ function ConsertosList({
 }
 
 export default memo(ConsertosList)
-
