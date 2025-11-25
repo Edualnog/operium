@@ -164,7 +164,7 @@ export async function criarFerramenta(formData: FormData) {
   })
 
   if (error) throw error
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
 }
 
 export async function atualizarFerramenta(id: string, formData: FormData) {
@@ -202,7 +202,7 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
     .eq("profile_id", user.id)
 
   if (error) throw error
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
 }
 
 export async function deletarFerramenta(id: string) {
@@ -220,7 +220,7 @@ export async function deletarFerramenta(id: string) {
     .eq("profile_id", user.id)
 
   if (error) throw error
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
 }
 
 // Movimentações
@@ -276,7 +276,7 @@ export async function registrarEntrada(
 
   if (movError) throw movError
 
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
   revalidatePath("/dashboard")
 }
 
@@ -331,7 +331,7 @@ export async function registrarRetirada(
 
   if (movError) throw movError
 
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
   revalidatePath("/dashboard")
 }
 
@@ -389,7 +389,7 @@ export async function registrarDevolucao(
 
   if (movError) throw movError
 
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
   revalidatePath("/dashboard")
 }
 
@@ -451,7 +451,7 @@ export async function registrarEnvioConserto(
 
   if (movError) throw movError
 
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
   revalidatePath("/dashboard/consertos")
   revalidatePath("/dashboard")
 }
@@ -503,6 +503,6 @@ export async function registrarRetornoConserto(
   if (updateFerramentaError) throw updateFerramentaError
 
   revalidatePath("/dashboard/consertos")
-  revalidatePath("/dashboard/ferramentas")
+  revalidatePath("/dashboard/estoque")
   revalidatePath("/dashboard")
 }

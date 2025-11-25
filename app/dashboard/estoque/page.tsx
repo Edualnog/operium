@@ -26,7 +26,7 @@ async function getColaboradores(userId: string) {
   return data || []
 }
 
-export default async function FerramentasPage() {
+export default async function EstoquePage() {
   const supabase = await createServerComponentClient()
   const {
     data: { user },
@@ -45,7 +45,7 @@ export default async function FerramentasPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Produtos</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Estoque</h1>
         <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
           Cadastre e controle ferramentas, EPIs e consumíveis
         </p>

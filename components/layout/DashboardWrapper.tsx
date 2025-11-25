@@ -51,8 +51,8 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
-      label: "Ferramentas",
-      href: "/dashboard/ferramentas",
+      label: "Estoque",
+      href: "/dashboard/estoque",
       icon: (
         <Wrench className="h-5 w-5 flex-shrink-0" />
       ),
