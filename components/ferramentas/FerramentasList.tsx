@@ -60,6 +60,7 @@ interface Ferramenta {
   foto_url?: string | null
   tamanho?: string | null
   cor?: string | null
+  created_at?: string | null
 }
 
 interface Colaborador {
