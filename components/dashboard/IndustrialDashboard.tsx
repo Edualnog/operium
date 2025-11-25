@@ -204,7 +204,18 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         <KpiChart
           title="Top consumíveis mais retirados"
           description="Últimos 30 dias"
-          data={data.itensMaiorConsumo}
+          data={(() => {
+            // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
+            const dados = [...data.itensMaiorConsumo]
+            while (dados.length < 10) {
+              dados.push({
+                nome: "",
+                consumo_30d: 0,
+                id: `empty-${dados.length}`,
+              })
+            }
+            return dados.slice(0, 10)
+          })()}
           type="bar"
           dataKey="consumo_30d"
           xAxisKey="nome"

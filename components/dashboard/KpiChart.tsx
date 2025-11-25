@@ -70,7 +70,11 @@ export function KpiChart({
         <div style={{ width: "100%", height: `${height}px` }}>
           <ResponsiveContainer width="100%" height="100%">
             {type === "bar" ? (
-              <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 40 }}>
+              <BarChart 
+                data={data} 
+                margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
+                barCategoryGap="10%"
+              >
                 <defs>
                   <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={color} stopOpacity={0.9} />
@@ -85,14 +89,31 @@ export function KpiChart({
                   textAnchor="end"
                   height={80}
                   stroke="#d1d5db"
+                  tickFormatter={(value) => value || ""}
                 />
                 <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(255, 255, 255, 0.98)",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload || !payload.length) return null
+                    const item = payload[0]?.payload
+                    if (!item || !item[xAxisKey] || item[xAxisKey] === "" || item[dataKey] === 0) return null
+                    
+                    return (
+                      <div style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.98)",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                        padding: "8px 12px",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      }}>
+                        <p style={{ fontWeight: 600, marginBottom: "4px", color: "#111827" }}>
+                          {label}
+                        </p>
+                        <p style={{ color: "#6b7280", fontSize: "14px" }}>
+                          {payload[0].value}
+                        </p>
+                      </div>
+                    )
                   }}
                   cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
                 />
@@ -100,6 +121,14 @@ export function KpiChart({
                   dataKey={dataKey}
                   fill={`url(#gradient-${title})`}
                   radius={[8, 8, 0, 0]}
+                  cell={(props: any) => {
+                    const { payload } = props
+                    // Não renderizar barra se o valor for 0 ou o nome estiver vazio
+                    if (!payload || !payload[xAxisKey] || payload[xAxisKey] === "" || (payload[dataKey] === 0 || !payload[dataKey])) {
+                      return <rect {...props} fill="transparent" stroke="none" />
+                    }
+                    return <rect {...props} />
+                  }}
                 />
               </BarChart>
             ) : type === "line" ? (
