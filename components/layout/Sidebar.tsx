@@ -37,6 +37,13 @@ export default function AppSidebar() {
       ),
     },
     {
+      label: "Movimentações",
+      href: "/dashboard/movimentacoes",
+      icon: (
+        <Package className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
       label: "Colaboradores",
       href: "/dashboard/colaboradores",
       icon: (
@@ -55,13 +62,6 @@ export default function AppSidebar() {
       href: "/dashboard/consertos",
       icon: (
         <Hammer className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Movimentações",
-      href: "/dashboard/movimentacoes",
-      icon: (
-        <Package className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]

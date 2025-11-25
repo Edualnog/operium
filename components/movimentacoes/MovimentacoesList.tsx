@@ -71,6 +71,7 @@ export default function MovimentacoesList({
     produtoId: "",
     quantidade: "1",
     colaboradorId: "",
+    colaboradorNome: "",
     observacoes: "",
   })
   const [search, setSearch] = useState("")
@@ -121,7 +122,15 @@ export default function MovimentacoesList({
       if (!res.ok) throw new Error(json.error || "Erro ao registrar movimentação")
 
       setOpen(false)
-      setForm({ tipo: "entrada", produto: "", produtoId: "", quantidade: "1", colaboradorId: "", observacoes: "" })
+      setForm({
+        tipo: "entrada",
+        produto: "",
+        produtoId: "",
+        quantidade: "1",
+        colaboradorId: "",
+        colaboradorNome: "",
+        observacoes: "",
+      })
       router.refresh()
     } catch (err: any) {
       alert(err.message || "Erro ao registrar movimentação")
@@ -222,21 +231,24 @@ export default function MovimentacoesList({
                   {(form.tipo === "retirada" || form.tipo === "devolucao") && (
                     <div className="grid gap-2">
                       <Label>Colaborador</Label>
-                      <Select
-                        value={form.colaboradorId}
-                        onValueChange={(val) => setForm((f) => ({ ...f, colaboradorId: val }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {colaboradores.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Input
+                        placeholder="Digite o nome do colaborador"
+                        value={form.colaboradorNome}
+                        onChange={(e) => setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))}
+                        list="colab-suggestions"
+                      />
+                      <datalist id="colab-suggestions">
+                        {colaboradores.map((c) => (
+                          <option
+                            key={c.id}
+                            value={c.nome}
+                            onClick={() => setForm((f) => ({ ...f, colaboradorId: c.id, colaboradorNome: c.nome }))}
+                          >
+                            {c.nome}
+                          </option>
+                        ))}
+                      </datalist>
+                      <div className="text-xs text-zinc-500">Selecione um colaborador da lista para vincular.</div>
                     </div>
                   )}
                 </div>
