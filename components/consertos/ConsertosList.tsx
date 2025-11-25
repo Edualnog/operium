@@ -249,12 +249,12 @@ function ConsertosList({
         <Dialog open={!!retornoDialog} onOpenChange={() => setRetornoDialog(null)}>
           <DialogContent>
             <form onSubmit={handleRetorno}>
-              <DialogHeader>
-                <DialogTitle>Registrar Retorno de Conserto</DialogTitle>
-                <DialogDescription>
-                  Ferramenta: {retornoDialog.ferramentas.nome}
-                </DialogDescription>
-              </DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>Registrar Retorno de Conserto</DialogTitle>
+                  <DialogDescription>
+                    Ferramenta: {parseFerramenta(retornoDialog.ferramentas).nome}
+                  </DialogDescription>
+                </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="custo">Custo do Conserto (R$)</Label>
