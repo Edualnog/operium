@@ -12,16 +12,22 @@ import {
   LogOut,
   User,
 } from "lucide-react"
-import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
+import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog"
+import { AvatarPicker } from "@/components/ui/avatar-picker"
 
 export default function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClientComponentClient()
-  const [open, setOpen] = useState(false)
+  const { open, animate } = useSidebar()
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -65,17 +71,10 @@ export default function AppSidebar() {
         <Hammer className="h-5 w-5 flex-shrink-0" />
       ),
     },
-    {
-      label: "Conta",
-      href: "/dashboard/conta",
-      icon: (
-        <User className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
   ]
 
   return (
-    <Sidebar open={open} setOpen={setOpen}>
+    <Sidebar>
       <SidebarBody className="justify-between gap-8">
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <div className="mb-6">
@@ -91,23 +90,64 @@ export default function AppSidebar() {
             ))}
           </div>
         </div>
-        <div className="pt-4 border-t border-border">
-          <SidebarLink
-            link={{
-              label: "Sair",
-              href: "#",
-              icon: (
+        <div className="pt-4 border-t border-border flex-shrink-0">
+          <div className="flex gap-1.5 w-full">
+            <button
+              type="button"
+              onClick={() => setProfileDialogOpen(true)}
+              className={cn(
+                "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px] flex-1",
+                "text-muted-foreground hover:text-foreground hover:bg-accent",
+                !open && "justify-center"
+              )}
+            >
+              <span className="flex-shrink-0">
+                <User className="h-5 w-5 flex-shrink-0" />
+              </span>
+              <motion.span
+                animate={{
+                  display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                  opacity: animate ? (open ? 1 : 0) : 1,
+                  width: animate ? (open ? "auto" : 0) : "auto",
+                }}
+                transition={{ duration: 0.2 }}
+                className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
+              >
+                Perfil
+              </motion.span>
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className={cn(
+                "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px] flex-1",
+                "text-destructive hover:text-destructive hover:bg-destructive/10",
+                !open && "justify-center"
+              )}
+            >
+              <span className="flex-shrink-0">
                 <LogOut className="h-5 w-5 flex-shrink-0" />
-              ),
-            }}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={(e) => {
-              e.preventDefault()
-              handleLogout()
-            }}
-          />
+              </span>
+              <motion.span
+                animate={{
+                  display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                  opacity: animate ? (open ? 1 : 0) : 1,
+                  width: animate ? (open ? "auto" : 0) : "auto",
+                }}
+                transition={{ duration: 0.2 }}
+                className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
+              >
+                Sair
+              </motion.span>
+            </button>
+          </div>
         </div>
       </SidebarBody>
+      <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+        <DialogContent className="max-w-md">
+          <AvatarPicker />
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   )
 }

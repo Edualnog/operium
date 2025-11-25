@@ -13,15 +13,21 @@ import {
   User,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { useEffect } from "react"
+import { cn } from "@/lib/utils"
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog"
+import { AvatarPicker } from "@/components/ui/avatar-picker"
 
 export default function DashboardWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClientComponentClient()
-  const [open, setOpen] = useState(false)
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -65,51 +71,114 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
         <Hammer className="h-5 w-5 flex-shrink-0" />
       ),
     },
-    {
-      label: "Conta",
-      href: "/dashboard/conta",
-      icon: (
-        <User className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
   ]
 
   return (
-    <Sidebar open={open} setOpen={setOpen}>
-      <SidebarBody className="justify-between gap-8">
-        <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="mb-6">
-            {open ? <Logo /> : <LogoIcon />}
-          </div>
-          <div className="flex flex-col gap-1">
-            {links.map((link) => (
-              <SidebarLink
-                key={link.href}
-                link={link}
-                active={pathname === link.href}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="pt-4 border-t border-border">
-          <SidebarLink
-            link={{
-              label: "Sair",
-              href: "#",
-              icon: (
-                <LogOut className="h-5 w-5 flex-shrink-0" />
-              ),
-            }}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={(e) => {
-              e.preventDefault()
-              handleLogout()
-            }}
-          />
-        </div>
-      </SidebarBody>
+    <Sidebar>
+      <SidebarContent 
+        links={links}
+        pathname={pathname}
+        onLogout={handleLogout}
+        onProfileClick={() => setProfileDialogOpen(true)}
+      />
+      <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {profileDialogOpen && (
+            <AvatarPicker 
+              onSaveSuccess={() => setProfileDialogOpen(false)}
+              key={profileDialogOpen ? "open" : "closed"}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
       <DynamicMainContent>{children}</DynamicMainContent>
     </Sidebar>
+  )
+}
+
+function SidebarContent({ 
+  links, 
+  pathname, 
+  onLogout, 
+  onProfileClick 
+}: { 
+  links: Array<{ label: string; href: string; icon: React.ReactNode }>
+  pathname: string
+  onLogout: () => void
+  onProfileClick: () => void
+}) {
+  const { open, animate } = useSidebar()
+
+  return (
+    <SidebarBody className="justify-between gap-8">
+      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="mb-6">
+          {open ? <Logo /> : <LogoIcon />}
+        </div>
+        <div className="flex flex-col gap-1">
+          {links.map((link) => (
+            <SidebarLink
+              key={link.href}
+              link={link}
+              active={pathname === link.href}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="pt-4 border-t border-border flex-shrink-0">
+        <div className="flex gap-1.5 w-full">
+          <button
+            type="button"
+            onClick={onProfileClick}
+            className={cn(
+              "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px]",
+              "text-muted-foreground hover:text-foreground hover:bg-accent",
+              !open && "justify-center",
+              open ? "flex-1" : "w-full"
+            )}
+          >
+            <span className="flex-shrink-0">
+              <User className="h-5 w-5 flex-shrink-0" />
+            </span>
+            <motion.span
+              animate={{
+                display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                opacity: animate ? (open ? 1 : 0) : 1,
+                width: animate ? (open ? "auto" : 0) : "auto",
+              }}
+              transition={{ duration: 0.2 }}
+              className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
+            >
+              Perfil
+            </motion.span>
+          </button>
+          <AnimatePresence>
+            {open && (
+              <motion.button
+                type="button"
+                onClick={onLogout}
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className={cn(
+                  "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px] flex-1",
+                  "text-destructive hover:text-destructive hover:bg-destructive/10",
+                  "overflow-hidden"
+                )}
+              >
+                <span className="flex-shrink-0">
+                  <LogOut className="h-5 w-5 flex-shrink-0" />
+                </span>
+                <span className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap">
+                  Sair
+                </span>
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </SidebarBody>
   )
 }
 
