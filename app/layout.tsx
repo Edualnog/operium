@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ERP Almoxarifado",
-  description: "Sistema de gestão de almoxarifado multi-tenant",
+  title: "Almox Fácil",
+  description: "Plataforma de gestão de almoxarifado multi-tenant",
 }
 
 export default function RootLayout({
@@ -30,4 +30,3 @@ export default function RootLayout({
     </html>
   )
 }
-

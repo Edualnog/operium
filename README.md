@@ -1,6 +1,6 @@
-# ERP Almoxarifado Fácil
+# Almox Fácil
 
-Sistema completo de gestão de almoxarifado multi-tenant desenvolvido com Next.js 14, Supabase, Tailwind CSS e Shadcn UI.
+Plataforma completa de gestão de almoxarifado multi-tenant desenvolvida com Next.js 14, Supabase, Tailwind CSS e Shadcn UI.
 
 ## 🚀 Características
 

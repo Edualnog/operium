@@ -110,7 +110,7 @@ const Logo = () => {
         transition={{ duration: 0.2 }}
         className="font-semibold text-foreground whitespace-pre text-base"
       >
-        Almoxarifado
+        Almox Fácil
       </motion.span>
     </Link>
   )

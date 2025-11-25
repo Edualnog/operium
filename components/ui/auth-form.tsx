@@ -161,7 +161,7 @@ const Logo: React.FC = () => (
     <div className="rounded-lg bg-gradient-to-br from-blue-400 to-blue-700 p-2">
       <Package className="h-8 w-8 text-white" />
     </div>
-    <span className="ml-2 text-xl font-bold text-zinc-900">ERP Almoxarifado</span>
+    <span className="ml-2 text-xl font-bold text-zinc-900">Almox Fácil</span>
   </div>
 )
 
