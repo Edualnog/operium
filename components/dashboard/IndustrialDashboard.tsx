@@ -62,10 +62,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">
-          Dashboard de Almoxarifado
+          Almox Fácil
         </h1>
         <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
-          Indústria Metalúrgica — Visão Geral Operacional
+          Mais agilidade e controle nas operações do almoxarifado
         </p>
       </div>
 
@@ -405,4 +405,3 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     </div>
   )
 }
-
