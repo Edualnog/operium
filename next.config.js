@@ -6,6 +6,13 @@ const nextConfig = {
   reactStrictMode: true,
   // Otimização de imagens (se usar no futuro)
   images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cmgmobhnrjawfdafhqko.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
     formats: ['image/avif', 'image/webp'],
   },
   // Otimizações de bundle
