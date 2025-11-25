@@ -193,11 +193,11 @@ function ConsertosList({
                         </h3>
                         <p className="text-sm text-muted-foreground">
                           Enviado em{" "}
-                          {format(
-                            new Date(conserto.data_envio),
-                            "dd/MM/yyyy",
-                            { locale: ptBR }
-                          )}
+                          {conserto.data_envio
+                            ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
+                                locale: ptBR,
+                              })
+                            : "-"}
                         </p>
                         {conserto.data_retorno && (
                           <p className="text-sm text-muted-foreground">
