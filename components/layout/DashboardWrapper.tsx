@@ -57,6 +57,13 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
         <Hammer className="h-5 w-5 flex-shrink-0" />
       ),
     },
+    {
+      label: "Movimentações",
+      href: "/dashboard/movimentacoes",
+      icon: (
+        <Package className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
   ]
 
   return (
