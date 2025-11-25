@@ -89,6 +89,13 @@ export interface ItemCriticoDia {
   acao_sugerida: string
 }
 
+export interface FerramentaEstragada {
+  id: string
+  nome: string
+  estado: string
+  quantidade_disponivel: number
+}
+
 export interface KPIData {
   // Ferramentas
   ferramentasEmUso: FerramentaEmUso[]
@@ -96,6 +103,7 @@ export interface KPIData {
   indiceAtrasoDevolucao: number
   topFerramentasUtilizadas: RankingFerramenta[]
   rankingResponsabilidade: ScoreResponsabilidade[]
+  ferramentasEstragadas?: FerramentaEstragada[]
   
   // Consumíveis
   consumoMedioDiario: number
@@ -110,4 +118,3 @@ export interface KPIData {
   riscoRuptura: RiscoRuptura[]
   itensCriticosDia: ItemCriticoDia[]
 }
-
