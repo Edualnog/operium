@@ -16,6 +16,38 @@ async function getColaboradores(userId: string) {
   return data || []
 }
 
+async function getMovimentacoesStats(userId: string) {
+  const supabase = await createServerComponentClient()
+  const { data } = await supabase
+    .from("movimentacoes")
+    .select("colaborador_id, tipo, quantidade")
+    .eq("profile_id", userId)
+    .in("tipo", ["retirada", "devolucao"])
+  
+  if (!data) return {}
+  
+  const stats: Record<string, { retiradas: number; devolucoes: number; pendente: number }> = {}
+  data.forEach((mov) => {
+    if (!mov.colaborador_id) return
+    if (!stats[mov.colaborador_id]) {
+      stats[mov.colaborador_id] = { retiradas: 0, devolucoes: 0, pendente: 0 }
+    }
+    if (mov.tipo === "retirada") {
+      stats[mov.colaborador_id].retiradas += mov.quantidade
+    } else if (mov.tipo === "devolucao") {
+      stats[mov.colaborador_id].devolucoes += mov.quantidade
+    }
+  })
+  
+  // Calcular pendente (retiradas - devoluções) e taxa
+  Object.keys(stats).forEach((colabId) => {
+    const stat = stats[colabId]
+    stat.pendente = stat.retiradas - stat.devolucoes
+  })
+  
+  return stats
+}
+
 export default async function ColaboradoresPage() {
   const supabase = await createServerComponentClient()
   const {
@@ -26,7 +58,10 @@ export default async function ColaboradoresPage() {
     redirect("/login")
   }
 
-  const colaboradores = await getColaboradores(user.id)
+  const [colaboradores, movimentacoesStats] = await Promise.all([
+    getColaboradores(user.id),
+    getMovimentacoesStats(user.id),
+  ])
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -37,7 +72,7 @@ export default async function ColaboradoresPage() {
         </p>
       </div>
       <Suspense fallback={<ListSkeleton />}>
-        <ColaboradoresList colaboradores={colaboradores} />
+        <ColaboradoresList colaboradores={colaboradores} movimentacoesStats={movimentacoesStats} />
       </Suspense>
     </div>
   )

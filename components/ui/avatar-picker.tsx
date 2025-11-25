@@ -279,10 +279,10 @@ const mainAvatarVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 200,
       damping: 20,
-    },
+    } as const,
   },
   exit: {
     y: -20,
@@ -291,7 +291,7 @@ const mainAvatarVariants = {
       duration: 0.2,
     },
   },
-}
+} as const
 
 const pickerVariants = {
   container: {
@@ -313,13 +313,13 @@ const pickerVariants = {
       y: 0,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 300,
         damping: 20,
-      },
+      } as const,
     },
   },
-}
+} as const
 
 const selectedVariants = {
   initial: {
@@ -330,10 +330,10 @@ const selectedVariants = {
     opacity: 1,
     rotate: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 200,
       damping: 15,
-    },
+    } as const,
   },
   exit: {
     opacity: 0,
@@ -342,7 +342,7 @@ const selectedVariants = {
       duration: 0.2,
     },
   },
-}
+} as const
 
 interface AvatarPickerProps {
   onSaveSuccess?: () => void

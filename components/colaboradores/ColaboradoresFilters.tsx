@@ -25,8 +25,6 @@ import {
   Search,
   SortAsc,
   SortDesc,
-  Grid,
-  List,
 } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -40,7 +38,6 @@ export interface FilterState {
   dataAdmissaoFim: Date | null
   ordenarPor: "nome" | "cargo" | "data_admissao" | "created_at"
   ordem: "asc" | "desc"
-  visualizacao: "grid" | "list"
 }
 
 interface ColaboradoresFiltersProps {
@@ -70,7 +67,6 @@ export function ColaboradoresFilters({
       dataAdmissaoFim: null,
       ordenarPor: "nome",
       ordem: "asc",
-      visualizacao: "grid",
     })
   }
 
@@ -262,25 +258,6 @@ export function ColaboradoresFilters({
             </PopoverContent>
           </Popover>
 
-          {/* Toggle Visualização */}
-          <div className="flex border rounded-md">
-            <Button
-              variant={filters.visualizacao === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => updateFilter("visualizacao", "grid")}
-              className="rounded-r-none"
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={filters.visualizacao === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => updateFilter("visualizacao", "list")}
-              className="rounded-l-none"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
       </div>
 

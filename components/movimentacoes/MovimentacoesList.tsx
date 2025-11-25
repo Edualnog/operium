@@ -26,7 +26,8 @@ import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus } from "lucide-react"
+import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter } from "lucide-react"
+import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 
 interface Movimentacao {
   id: string
@@ -34,7 +35,6 @@ interface Movimentacao {
   quantidade: number
   observacoes?: string | null
   data?: string | null
-  created_at?: string | null
   ferramentas?: { nome: string; tipo_item?: string | null } | null
   colaboradores?: { nome: string } | null
 }
@@ -76,6 +76,22 @@ export default function MovimentacoesList({
     dataMov: new Date().toISOString().slice(0, 16),
   })
   const [search, setSearch] = useState("")
+  const [openExportDialog, setOpenExportDialog] = useState(false)
+  const [exportingCsv, setExportingCsv] = useState(false)
+  const [filters, setFilters] = useState<FilterState>({
+    tipo: "todos",
+    dataInicio: null,
+    dataFim: null,
+    produtoId: "",
+    colaboradorId: "",
+  })
+  const [exportFilters, setExportFilters] = useState({
+    tipo: "todos" as "todos" | "entrada" | "retirada" | "devolucao" | "conserto",
+    dataInicio: "",
+    dataFim: "",
+    produtoId: "",
+    colaboradorId: "",
+  })
 
   // Atualizar lista quando initialMovs mudar (após router.refresh())
   useEffect(() => {
@@ -84,14 +100,65 @@ export default function MovimentacoesList({
   }, [initialMovs])
 
   const filtered = useMemo(() => {
-    const s = search.toLowerCase()
-    if (!s) return movimentacoes
-    return movimentacoes.filter((m) => {
-      const nome = (m.ferramentas?.nome || "").toLowerCase()
-      const colab = (m.colaboradores?.nome || "").toLowerCase()
-      return nome.includes(s) || colab.includes(s) || m.tipo.includes(s)
-    })
-  }, [movimentacoes, search])
+    let result = [...movimentacoes]
+
+    // Filtro por busca de texto
+    if (search) {
+      const s = search.toLowerCase()
+      result = result.filter((m) => {
+        const nome = (m.ferramentas?.nome || "").toLowerCase()
+        const colab = (m.colaboradores?.nome || "").toLowerCase()
+        return nome.includes(s) || colab.includes(s) || m.tipo.includes(s)
+      })
+    }
+
+    // Filtro por tipo
+    if (filters.tipo !== "todos") {
+      result = result.filter((m) => m.tipo === filters.tipo)
+    }
+
+    // Filtro por produto
+    if (filters.produtoId) {
+      result = result.filter((m) => {
+        const produto = ferramentas.find((f) => f.id === filters.produtoId)
+        if (!produto) return false
+        return m.ferramentas?.nome === produto.nome
+      })
+    }
+
+    // Filtro por colaborador
+    if (filters.colaboradorId) {
+      result = result.filter((m) => {
+        const colaborador = colaboradores.find((c) => c.id === filters.colaboradorId)
+        if (!colaborador) return false
+        return m.colaboradores?.nome === colaborador.nome
+      })
+    }
+
+    // Filtro por data início
+    if (filters.dataInicio) {
+      const inicio = new Date(filters.dataInicio)
+      inicio.setHours(0, 0, 0, 0)
+      result = result.filter((m) => {
+        if (!m.data) return false
+        const dataMov = new Date(m.data)
+        return dataMov >= inicio
+      })
+    }
+
+    // Filtro por data fim
+    if (filters.dataFim) {
+      const fim = new Date(filters.dataFim)
+      fim.setHours(23, 59, 59, 999)
+      result = result.filter((m) => {
+        if (!m.data) return false
+        const dataMov = new Date(m.data)
+        return dataMov <= fim
+      })
+    }
+
+    return result
+  }, [movimentacoes, search, filters, ferramentas, colaboradores])
 
   const suggestions = useMemo(() => {
     // Não mostrar sugestões se já há um produto selecionado
@@ -169,8 +236,11 @@ export default function MovimentacoesList({
         dataMov: new Date().toISOString().slice(0, 16),
       })
       
-      // Revalidar e atualizar a página
-      router.refresh()
+      // Forçar revalidação e atualizar a página
+      // Usar setTimeout para garantir que o servidor processou a mudança
+      setTimeout(() => {
+        router.refresh()
+      }, 500)
     } catch (err: any) {
       alert(err.message || "Erro ao registrar movimentação")
     } finally {
@@ -188,8 +258,126 @@ export default function MovimentacoesList({
     return map[tipo] || "default"
   }
 
+  const getFilteredMovimentacoes = () => {
+    // Usar os filtros de exportação (que podem ser diferentes dos filtros da tabela)
+    let result = [...movimentacoes]
+
+    // Filtro por tipo
+    if (exportFilters.tipo !== "todos") {
+      result = result.filter((m) => m.tipo === exportFilters.tipo)
+    }
+
+    // Filtro por produto
+    if (exportFilters.produtoId) {
+      result = result.filter((m) => {
+        const produto = ferramentas.find((f) => f.id === exportFilters.produtoId)
+        if (!produto) return false
+        return m.ferramentas?.nome === produto.nome
+      })
+    }
+
+    // Filtro por colaborador
+    if (exportFilters.colaboradorId) {
+      result = result.filter((m) => {
+        const colaborador = colaboradores.find((c) => c.id === exportFilters.colaboradorId)
+        if (!colaborador) return false
+        return m.colaboradores?.nome === colaborador.nome
+      })
+    }
+
+    // Filtro por data início
+    if (exportFilters.dataInicio) {
+      const inicio = new Date(exportFilters.dataInicio)
+      inicio.setHours(0, 0, 0, 0)
+      result = result.filter((m) => {
+        if (!m.data) return false
+        const dataMov = new Date(m.data)
+        return dataMov >= inicio
+      })
+    }
+
+    // Filtro por data fim
+    if (exportFilters.dataFim) {
+      const fim = new Date(exportFilters.dataFim)
+      fim.setHours(23, 59, 59, 999)
+      result = result.filter((m) => {
+        if (!m.data) return false
+        const dataMov = new Date(m.data)
+        return dataMov <= fim
+      })
+    }
+
+    return result
+  }
+  
+  // Sincronizar filtros de exportação com filtros da tabela quando o dialog abrir
+  useEffect(() => {
+    if (openExportDialog) {
+      setExportFilters({
+        tipo: filters.tipo === "todos" ? "todos" : filters.tipo,
+        dataInicio: filters.dataInicio ? format(filters.dataInicio, "yyyy-MM-dd") : "",
+        dataFim: filters.dataFim ? format(filters.dataFim, "yyyy-MM-dd") : "",
+        produtoId: filters.produtoId || "",
+        colaboradorId: filters.colaboradorId || "",
+      })
+    }
+  }, [openExportDialog, filters])
+
+  const handleExportCSV = () => {
+    const filtered = getFilteredMovimentacoes()
+    if (filtered.length === 0) {
+      alert("Nenhuma movimentação encontrada com os filtros selecionados")
+      return
+    }
+
+    setExportingCsv(true)
+    try {
+      const escape = (val: any) => `"${(val ?? "").toString().replace(/"/g, '""')}"`
+      const headers = [
+        "Data/Hora",
+        "Tipo",
+        "Produto",
+        "Quantidade",
+        "Colaborador",
+        "Observações",
+      ]
+      const rows = filtered.map((m) => [
+        m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+        m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1),
+        m.ferramentas?.nome || "-",
+        m.quantidade,
+        m.colaboradores?.nome || "-",
+        m.observacoes || "",
+      ])
+      const csv = [headers.map(escape).join(","), ...rows.map((r) => r.map(escape).join(","))].join("\n")
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      const stamp = new Date().toISOString().replace(/[:.-]/g, "").slice(0, 15)
+      a.download = `movimentacoes_${stamp}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Erro ao exportar CSV:", error)
+      alert("Erro ao exportar CSV")
+    } finally {
+      setExportingCsv(false)
+      setOpenExportDialog(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
+      {/* Filtros */}
+      <MovimentacoesFilters
+        ferramentas={ferramentas}
+        colaboradores={colaboradores}
+        filters={filters}
+        onFiltersChange={setFilters}
+        totalEncontrados={filtered.length}
+      />
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
@@ -200,14 +388,143 @@ export default function MovimentacoesList({
             className="pl-9"
           />
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Registrar Movimentação
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
+        <div className="flex gap-2">
+          <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" disabled={exportingCsv || movimentacoes.length === 0}>
+                <Filter className="mr-2 h-4 w-4" />
+                Exportar CSV
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Filtros de Exportação</DialogTitle>
+                <DialogDescription>
+                  Selecione os filtros para exportar as movimentações em CSV
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label>Tipo de Movimentação</Label>
+                  <Select
+                    value={exportFilters.tipo}
+                    onValueChange={(val: any) =>
+                      setExportFilters((f) => ({ ...f, tipo: val }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os tipos</SelectItem>
+                      <SelectItem value="entrada">Entrada</SelectItem>
+                      <SelectItem value="retirada">Retirada</SelectItem>
+                      <SelectItem value="devolucao">Devolução</SelectItem>
+                      <SelectItem value="conserto">Conserto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Produto</Label>
+                  <Select
+                    value={exportFilters.produtoId || "todos"}
+                    onValueChange={(val) =>
+                      setExportFilters((f) => ({ ...f, produtoId: val === "todos" ? "" : val }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os produtos</SelectItem>
+                      {ferramentas.map((f) => (
+                        <SelectItem key={f.id} value={f.id}>
+                          {f.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Colaborador</Label>
+                  <Select
+                    value={exportFilters.colaboradorId || "todos"}
+                    onValueChange={(val) =>
+                      setExportFilters((f) => ({ ...f, colaboradorId: val === "todos" ? "" : val }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os colaboradores</SelectItem>
+                      {colaboradores.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-2">
+                    <Label>Data Início</Label>
+                    <Input
+                      type="date"
+                      value={exportFilters.dataInicio}
+                      onChange={(e) =>
+                        setExportFilters((f) => ({ ...f, dataInicio: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Data Fim</Label>
+                    <Input
+                      type="date"
+                      value={exportFilters.dataFim}
+                      onChange={(e) =>
+                        setExportFilters((f) => ({ ...f, dataFim: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="text-sm text-muted-foreground">
+                  {getFilteredMovimentacoes().length} movimentação(ões) serão exportadas
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setExportFilters({
+                      tipo: "todos",
+                      dataInicio: "",
+                      dataFim: "",
+                      produtoId: "",
+                      colaboradorId: "",
+                    })
+                  }}
+                >
+                  Limpar Filtros
+                </Button>
+                <Button onClick={handleExportCSV} disabled={getFilteredMovimentacoes().length === 0}>
+                  {exportingCsv ? "Exportando..." : "Exportar CSV"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Registrar Movimentação
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>Nova movimentação</DialogTitle>
@@ -334,43 +651,49 @@ export default function MovimentacoesList({
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
-      <div className="grid gap-3">
-        {filtered.map((m) => (
-          <Card key={m.id} className="border border-zinc-200">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Badge variant={tipoBadge(m.tipo)} className="capitalize">
-                      {m.tipo}
-                    </Badge>
-                    <span className="text-sm text-zinc-600">
-                      {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
-                    </span>
-                  </div>
-                  <div className="text-base font-semibold text-zinc-900">
-                    {m.ferramentas?.nome || "Produto"}
-                  </div>
-                  <div className="text-sm text-zinc-600 flex flex-wrap gap-3">
-                    <span className="flex items-center gap-1">
-                      <Package className="h-4 w-4" />
-                      {m.quantidade}
-                    </span>
-                    {m.colaboradores?.nome && (
-                      <span className="flex items-center gap-1">
-                        <RotateCcw className="h-4 w-4" />
-                        {m.colaboradores.nome}
-                      </span>
-                    )}
-                    {m.observacoes && <span className="text-xs text-zinc-500">{m.observacoes}</span>}
-                  </div>
-                </div>
+      <div className="border rounded-lg overflow-hidden bg-white">
+        {/* Cabeçalho da tabela */}
+        <div className="grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 bg-zinc-50 border-b border-zinc-200 font-semibold text-xs text-zinc-700 uppercase tracking-wide">
+          <div>Item</div>
+          <div className="text-center">Quantidade</div>
+          <div>Responsável</div>
+          <div>Data/Hora</div>
+          <div>Observações</div>
+        </div>
+        
+        {/* Corpo da tabela */}
+        <div className="divide-y divide-zinc-200">
+          {filtered.map((m) => (
+            <div
+              key={m.id}
+              className="grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-zinc-50/50 transition-colors"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <Badge variant={tipoBadge(m.tipo)} className="capitalize shrink-0 text-xs px-2 py-0.5">
+                  {m.tipo}
+                </Badge>
+                <span className="font-medium text-sm text-zinc-900 truncate">
+                  {m.ferramentas?.nome || "Produto"}
+                </span>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+              <div className="flex items-center justify-center text-sm font-medium text-zinc-700">
+                {m.quantidade}
+              </div>
+              <div className="flex items-center text-sm text-zinc-700 truncate">
+                {m.colaboradores?.nome || "-"}
+              </div>
+              <div className="flex items-center text-sm text-zinc-600">
+                {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
+              </div>
+              <div className="flex items-center text-sm text-zinc-600 truncate" title={m.observacoes || ""}>
+                {m.observacoes || "-"}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {filtered.length === 0 && (

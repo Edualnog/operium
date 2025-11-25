@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { registrarEntrada, registrarRetirada, registrarDevolucao } from "@/lib/actions"
+import { revalidatePath } from "next/cache"
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +24,9 @@ export async function POST(request: Request) {
     } else {
       return NextResponse.json({ error: "Tipo inválido" }, { status: 400 })
     }
+
+    // Revalidar a página de movimentações explicitamente
+    revalidatePath("/dashboard/movimentacoes")
 
     return NextResponse.json({ ok: true })
   } catch (error: any) {

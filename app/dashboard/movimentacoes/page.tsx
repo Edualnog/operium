@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import MovimentacoesList from "@/components/movimentacoes/MovimentacoesList"
 import { ListSkeleton } from "@/components/loading/PageSkeleton"
 
-export const revalidate = 60
+// Removido revalidate para permitir atualização imediata após registrar movimentações
 
 async function getMovimentacoes(userId: string) {
   try {
@@ -12,18 +12,20 @@ async function getMovimentacoes(userId: string) {
     const { data, error } = await supabase
       .from("movimentacoes")
       .select(
-        "id, tipo, quantidade, observacoes, data, created_at, ferramentas(nome, tipo_item), colaboradores(nome)"
+        "id, tipo, quantidade, observacoes, data, ferramentas(nome, tipo_item), colaboradores(nome)"
       )
       .eq("profile_id", userId)
-      .order("data", { ascending: false })
-      .limit(50)
+      .order("data", { ascending: false, nullsFirst: false })
+      .limit(100)
     
     if (error) {
-      console.error("Erro ao buscar movimentações:", error)
+      console.error("❌ Erro ao buscar movimentações:", error)
       return []
     }
     
-    return (data || []).map((mov: any) => {
+    console.log("📋 Movimentações encontradas no banco:", data?.length || 0)
+    
+    const result = (data || []).map((mov: any) => {
       const ferramenta = Array.isArray(mov.ferramentas) ? mov.ferramentas[0] : mov.ferramentas
       const colaborador = Array.isArray(mov.colaboradores) ? mov.colaboradores[0] : mov.colaboradores
       return {
@@ -32,13 +34,15 @@ async function getMovimentacoes(userId: string) {
         quantidade: mov.quantidade,
         observacoes: mov.observacoes,
         data: mov.data,
-        created_at: mov.created_at,
         ferramentas: ferramenta
           ? { nome: ferramenta.nome, tipo_item: ferramenta.tipo_item }
           : null,
         colaboradores: colaborador ? { nome: colaborador.nome } : null,
       }
     })
+    
+    console.log("✅ Movimentações processadas:", result.length)
+    return result
   } catch (error: any) {
     console.error("Erro ao buscar movimentações:", error)
     return []

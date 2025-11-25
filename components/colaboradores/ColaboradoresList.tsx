@@ -18,7 +18,7 @@ import {
   atualizarColaborador,
   deletarColaborador,
 } from "@/lib/actions"
-import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown } from "lucide-react"
+import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown, Grid3x3, Square, LayoutGrid } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
@@ -28,6 +28,7 @@ import Image from "next/image"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { ColaboradoresFilters, type FilterState } from "./ColaboradoresFilters"
+import { cn } from "@/lib/utils"
 
 interface Colaborador {
   id: string
@@ -43,10 +44,20 @@ interface Colaborador {
   created_at?: string
 }
 
+interface MovimentacoesStats {
+  [colaboradorId: string]: {
+    retiradas: number
+    devolucoes: number
+    pendente: number
+  }
+}
+
 function ColaboradoresList({
   colaboradores: initialColaboradores,
+  movimentacoesStats = {},
 }: {
   colaboradores: Colaborador[]
+  movimentacoesStats?: MovimentacoesStats
 }) {
   const [colaboradores, setColaboradores] = useState(initialColaboradores)
   const [open, setOpen] = useState(false)
@@ -56,6 +67,21 @@ function ColaboradoresList({
   const [exporting, setExporting] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
+  
+  // Tamanho dos cards (pequeno, medio, grande)
+  const [cardSize, setCardSize] = useState<"pequeno" | "medio" | "grande">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("colaboradorCardSize")
+      return (saved as "pequeno" | "medio" | "grande") || "medio"
+    }
+    return "medio"
+  })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("colaboradorCardSize", cardSize)
+    }
+  }, [cardSize])
 
   // Obter userId para PhotoUpload
   const [userId, setUserId] = useState<string>("")
@@ -75,7 +101,6 @@ function ColaboradoresList({
     dataAdmissaoFim: null,
     ordenarPor: "nome",
     ordem: "asc",
-    visualizacao: "grid",
   })
 
   const debouncedSearch = useDebounce(filters.search, 300)
@@ -271,188 +296,6 @@ function ColaboradoresList({
     }
   }
 
-  // Renderizar card (visualização em grade)
-  const renderCard = (colaborador: Colaborador) => (
-    <Card key={colaborador.id} className="hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          {/* Foto */}
-          <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-zinc-200 bg-zinc-100 flex-shrink-0">
-            {colaborador.foto_url ? (
-              <Image
-                src={colaborador.foto_url}
-                alt={colaborador.nome}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <User className="h-8 w-8 text-zinc-400" />
-              </div>
-            )}
-          </div>
-
-          {/* Informações */}
-          <div className="flex-1 min-w-0 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg truncate">
-                  {colaborador.nome}
-                </h3>
-                {colaborador.cargo && (
-                  <p className="text-sm text-zinc-600 font-medium">
-                    {colaborador.cargo}
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-1 flex-shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => handleEdit(colaborador)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => handleDelete(colaborador.id)}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Informações adicionais */}
-            <div className="space-y-1 text-xs text-zinc-500">
-              {colaborador.data_admissao && (
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3 w-3" />
-                  <span>
-                    Admissão:{" "}
-                    {format(
-                      new Date(colaborador.data_admissao),
-                      "dd/MM/yyyy",
-                      { locale: ptBR }
-                    )}
-                  </span>
-                </div>
-              )}
-              {colaborador.email && (
-                <div className="flex items-center gap-1.5 truncate">
-                  <Mail className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{colaborador.email}</span>
-                </div>
-              )}
-              {colaborador.telefone && (
-                <div className="flex items-center gap-1.5">
-                  <Phone className="h-3 w-3" />
-                  <span>{colaborador.telefone}</span>
-                </div>
-              )}
-              {colaborador.endereco && (
-                <div className="flex items-center gap-1.5 truncate">
-                  <MapPin className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{colaborador.endereco}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-
-  // Renderizar linha (visualização em lista)
-  const renderRow = (colaborador: Colaborador) => (
-    <Card key={colaborador.id} className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-4">
-          {/* Foto */}
-          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-zinc-200 bg-zinc-100 flex-shrink-0">
-            {colaborador.foto_url ? (
-              <Image
-                src={colaborador.foto_url}
-                alt={colaborador.nome}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <User className="h-6 w-6 text-zinc-400" />
-              </div>
-            )}
-          </div>
-
-          {/* Informações principais */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2 items-center">
-            <div className="min-w-0">
-              <h3 className="font-semibold text-base truncate">
-                {colaborador.nome}
-              </h3>
-              {colaborador.cargo && (
-                <p className="text-sm text-zinc-600 truncate">
-                  {colaborador.cargo}
-                </p>
-              )}
-            </div>
-
-            <div className="text-sm text-zinc-600 truncate">
-              {colaborador.email && (
-                <div className="flex items-center gap-1.5 truncate">
-                  <Mail className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{colaborador.email}</span>
-                </div>
-              )}
-              {colaborador.telefone && (
-                <div className="flex items-center gap-1.5">
-                  <Phone className="h-3 w-3" />
-                  <span>{colaborador.telefone}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="text-sm text-zinc-600">
-              {colaborador.data_admissao && (
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3 w-3" />
-                  <span>
-                    {format(
-                      new Date(colaborador.data_admissao),
-                      "dd/MM/yyyy",
-                      { locale: ptBR }
-                    )}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => handleEdit(colaborador)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => handleDelete(colaborador.id)}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-
   return (
     <div className="space-y-4">
       {/* Filtros */}
@@ -465,6 +308,7 @@ function ColaboradoresList({
 
       {/* Ações */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
         <Button
           variant="outline"
           onClick={handleExportPDF}
@@ -473,6 +317,44 @@ function ColaboradoresList({
           <FileDown className="mr-2 h-4 w-4" />
           {exporting ? "Gerando PDF..." : "Exportar PDF"}
         </Button>
+          
+          {/* Seletor de tamanho dos cards */}
+          <div className="flex items-center gap-1 border rounded-md p-1 bg-background">
+            <button
+              type="button"
+              onClick={() => setCardSize("pequeno")}
+              className={cn(
+                "p-1.5 rounded hover:bg-accent transition-colors",
+                cardSize === "pequeno" && "bg-primary text-primary-foreground"
+              )}
+              title="Pequeno"
+            >
+              <Grid3x3 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardSize("medio")}
+              className={cn(
+                "p-1.5 rounded hover:bg-accent transition-colors",
+                cardSize === "medio" && "bg-primary text-primary-foreground"
+              )}
+              title="Médio"
+            >
+              <Square className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardSize("grande")}
+              className={cn(
+                "p-1.5 rounded hover:bg-accent transition-colors",
+                cardSize === "grande" && "bg-primary text-primary-foreground"
+              )}
+              title="Grande"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
 
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
@@ -617,7 +499,7 @@ function ColaboradoresList({
         </Dialog>
       </div>
 
-      {/* Lista de colaboradores */}
+      {/* Cards de colaboradores */}
       {filteredAndSortedColaboradores.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-zinc-500 text-sm">
@@ -626,13 +508,201 @@ function ColaboradoresList({
               : "Nenhum colaborador cadastrado"}
           </p>
         </div>
-      ) : filters.visualizacao === "grid" ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredAndSortedColaboradores.map(renderCard)}
-        </div>
       ) : (
-        <div className="space-y-2">
-          {filteredAndSortedColaboradores.map(renderRow)}
+        <div className={cn(
+          "grid gap-4",
+          cardSize === "pequeno" && "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
+          cardSize === "medio" && "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+          cardSize === "grande" && "md:grid-cols-2 lg:grid-cols-3"
+        )}>
+          {filteredAndSortedColaboradores.map((colaborador) => {
+            const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0 }
+            const taxaDevolucao = stats.pendente > 0 ? "0" : "100"
+            
+            return (
+              <Card key={colaborador.id} className={cn(
+                cardSize === "pequeno" && "hover:shadow-md transition-shadow",
+                cardSize === "medio" && "hover:shadow-lg transition-shadow",
+                cardSize === "grande" && "hover:shadow-xl transition-shadow"
+              )}>
+                <CardContent className={cn(
+                  cardSize === "pequeno" && "p-3",
+                  cardSize === "medio" && "p-6",
+                  cardSize === "grande" && "p-8"
+                )}>
+                  <div className={cn(
+                    "space-y-4",
+                    cardSize === "pequeno" && "space-y-2"
+                  )}>
+                    {/* Foto e Nome */}
+                    <div className={cn(
+                      "flex items-center gap-3",
+                      cardSize === "pequeno" && "gap-2"
+                    )}>
+                      <div className={cn(
+                        "relative rounded-full overflow-hidden border-2 border-zinc-200 bg-zinc-100 flex-shrink-0",
+                        cardSize === "pequeno" && "w-12 h-12",
+                        cardSize === "medio" && "w-16 h-16",
+                        cardSize === "grande" && "w-20 h-20"
+                      )}>
+                        {colaborador.foto_url ? (
+                          <Image
+                            src={colaborador.foto_url}
+                            alt={colaborador.nome}
+                            fill
+                            className="object-cover"
+                            sizes={cardSize === "pequeno" ? "48px" : cardSize === "medio" ? "64px" : "80px"}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <User className={cn(
+                              "text-zinc-400",
+                              cardSize === "pequeno" && "h-6 w-6",
+                              cardSize === "medio" && "h-8 w-8",
+                              cardSize === "grande" && "h-10 w-10"
+                            )} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={cn(
+                          "font-semibold truncate",
+                          cardSize === "pequeno" && "text-sm",
+                          cardSize === "medio" && "text-lg",
+                          cardSize === "grande" && "text-xl"
+                        )}>
+                          {colaborador.nome}
+                        </h3>
+                        <p className={cn(
+                          "text-muted-foreground truncate",
+                          cardSize === "pequeno" && "text-xs",
+                          cardSize === "medio" && "text-sm",
+                          cardSize === "grande" && "text-sm",
+                          !colaborador.cargo && "opacity-50"
+                        )}>
+                          {colaborador.cargo || "Sem cargo"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Informações */}
+                    <div className={cn(
+                      "space-y-2",
+                      cardSize === "pequeno" && "space-y-1"
+                    )}>
+                      <div className={cn(
+                        "flex items-center gap-2 text-muted-foreground",
+                        cardSize === "pequeno" && "text-xs",
+                        cardSize === "medio" && "text-sm",
+                        cardSize === "grande" && "text-sm",
+                        !colaborador.data_admissao && "opacity-50"
+                      )}>
+                        <Calendar className={cn(
+                          cardSize === "pequeno" && "h-3 w-3",
+                          cardSize === "medio" && "h-4 w-4",
+                          cardSize === "grande" && "h-4 w-4"
+                        )} />
+                        <span>
+                          {colaborador.data_admissao 
+                            ? format(new Date(colaborador.data_admissao), "dd/MM/yyyy", { locale: ptBR })
+                            : "Sem data"}
+                        </span>
+                      </div>
+                      
+                      <div className={cn(
+                        "grid grid-cols-2 gap-2",
+                        cardSize === "pequeno" && "gap-1"
+                      )}>
+                        <div>
+                          <p className={cn(
+                            "text-muted-foreground",
+                            cardSize === "pequeno" && "text-xs",
+                            cardSize === "medio" && "text-xs",
+                            cardSize === "grande" && "text-sm"
+                          )}>Retiradas</p>
+                          <p className={cn(
+                            "font-semibold",
+                            cardSize === "pequeno" && "text-sm",
+                            cardSize === "medio" && "text-base",
+                            cardSize === "grande" && "text-lg"
+                          )}>{stats.retiradas}</p>
+                        </div>
+                        <div>
+                          <p className={cn(
+                            "text-muted-foreground",
+                            cardSize === "pequeno" && "text-xs",
+                            cardSize === "medio" && "text-xs",
+                            cardSize === "grande" && "text-sm"
+                          )}>Devoluções</p>
+                          <p className={cn(
+                            "font-semibold",
+                            cardSize === "pequeno" && "text-sm",
+                            cardSize === "medio" && "text-base",
+                            cardSize === "grande" && "text-lg"
+                          )}>{stats.devolucoes}</p>
+                        </div>
+                      </div>
+
+                      {/* Taxa de Devolução */}
+                      <div>
+                        <p className={cn(
+                          "text-muted-foreground mb-1",
+                          cardSize === "pequeno" && "text-xs",
+                          cardSize === "medio" && "text-xs",
+                          cardSize === "grande" && "text-sm"
+                        )}>Taxa de Devolução</p>
+                        <span className={cn(
+                          "inline-block text-xs font-medium px-2 py-1 rounded",
+                          taxaDevolucao === "100"
+                            ? "bg-green-100 text-green-700" 
+                            : "bg-red-100 text-red-700"
+                        )}>
+                          {taxaDevolucao}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Ações */}
+                    <div className={cn(
+                      "flex gap-2 pt-2 border-t",
+                      cardSize === "pequeno" && "gap-1 pt-1"
+                    )}>
+                      <Button
+                        variant="outline"
+                        size={cardSize === "pequeno" ? "sm" : "sm"}
+                        onClick={() => handleEdit(colaborador)}
+                        className={cn(
+                          "flex-1",
+                          cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
+                        )}
+                      >
+                        <Edit className={cn(
+                          cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
+                          cardSize !== "pequeno" && "mr-1"
+                        )} />
+                        {cardSize !== "pequeno" && "Editar"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size={cardSize === "pequeno" ? "sm" : "sm"}
+                        onClick={() => handleDelete(colaborador.id)}
+                        className={cn(
+                          "flex-1 text-destructive hover:text-destructive",
+                          cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
+                        )}
+                      >
+                        <Trash2 className={cn(
+                          cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
+                          cardSize !== "pequeno" && "mr-1"
+                        )} />
+                        {cardSize !== "pequeno" && "Excluir"}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
     </div>
