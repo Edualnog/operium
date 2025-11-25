@@ -28,11 +28,17 @@ interface Conserto {
   custo?: number | null
   data_envio?: string | null
   data_retorno?: string | null
-  ferramentas: {
-    id: string
-    nome: string
-    quantidade_disponivel: number
-  }
+  ferramentas:
+    | {
+        id: string
+        nome: string
+        quantidade_disponivel: number
+      }
+    | {
+        id: string
+        nome: string
+        quantidade_disponivel: number
+      }[]
 }
 
 function ConsertosList({
@@ -40,6 +46,15 @@ function ConsertosList({
 }: {
   consertos: Conserto[]
 }) {
+  const parseFerramenta = (ferramentas: Conserto["ferramentas"]) => {
+    const f = Array.isArray(ferramentas) ? ferramentas[0] : ferramentas
+    return {
+      id: f?.id || "",
+      nome: f?.nome || "Sem nome",
+      quantidade_disponivel: Number(f?.quantidade_disponivel || 0),
+    }
+  }
+
   const [consertos, setConsertos] = useState(initialConsertos)
   const [retornoDialog, setRetornoDialog] = useState<Conserto | null>(null)
   const [loading, setLoading] = useState(false)
@@ -61,7 +76,8 @@ function ConsertosList({
     setLoading(true)
     const formData = new FormData(e.currentTarget)
     const custo = Number(formData.get("custo"))
-    const quantidade = Number(formData.get("quantidade")) || retornoDialog.ferramentas.quantidade_disponivel
+    const ferramenta = parseFerramenta(retornoDialog.ferramentas)
+    const quantidade = Number(formData.get("quantidade")) || ferramenta.quantidade_disponivel
 
     try {
       await registrarRetornoConserto(retornoDialog.id, custo, quantidade)
@@ -120,7 +136,7 @@ function ConsertosList({
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <h3 className="font-semibold text-lg">
-                          {conserto.ferramentas.nome}
+                          {parseFerramenta(conserto.ferramentas).nome}
                         </h3>
                         <p className="text-sm text-muted-foreground">
                           Enviado em{" "}
@@ -173,7 +189,7 @@ function ConsertosList({
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <h3 className="font-semibold text-lg">
-                          {conserto.ferramentas.nome}
+                          {parseFerramenta(conserto.ferramentas).nome}
                         </h3>
                         <p className="text-sm text-muted-foreground">
                           Enviado em{" "}
