@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, Package } from "lucide-react"
+import { ChevronLeft, Package, Linkedin, Mail, Globe } from "lucide-react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
@@ -128,48 +128,90 @@ const AuthForm: React.FC = () => {
   }
 
   return (
-    <div className="bg-white text-zinc-800 selection:bg-zinc-300 min-h-screen relative overflow-hidden flex items-center justify-center">
+    <div className="bg-white text-zinc-800 selection:bg-zinc-300 min-h-screen relative overflow-hidden flex flex-col">
       <BackgroundDecoration />
       <BackButton />
-      <motion.div
-        initial={{ opacity: 0, y: 25 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.25, ease: "easeInOut" }}
-        className="relative z-10 w-full max-w-xl p-8 bg-white rounded-2xl border border-zinc-200 shadow-2xl"
-      >
-        <Logo />
-        <Header isLogin={isLogin} onToggleMode={() => setIsLogin(!isLogin)} />
-        {error && (
-          <div className="mb-4 rounded-md bg-red-100 border border-red-300 p-3 text-sm text-red-700">
-            {error}
+      <div className="flex-1 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.25, ease: "easeInOut" }}
+          className="relative z-10 w-full max-w-xl p-8 bg-white rounded-2xl border border-zinc-200 shadow-2xl"
+        >
+          <Logo />
+          <Header isLogin={isLogin} onToggleMode={() => setIsLogin(!isLogin)} />
+          {error && (
+            <div className="mb-4 rounded-md bg-red-100 border border-red-300 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+          {info && (
+            <div className="mb-4 rounded-md bg-green-100 border border-green-300 p-3 text-sm text-green-700">
+              {info}
+            </div>
+          )}
+          <Divider />
+          <LoginForm
+            email={email}
+            password={password}
+            onEmailChange={setEmail}
+            onPasswordChange={setPassword}
+            onSubmit={handleSubmit}
+            loading={loading}
+            isLogin={isLogin}
+            companyName={companyName}
+            cnpj={cnpj}
+            companyEmail={companyEmail}
+            phone={phone}
+            onCompanyNameChange={setCompanyName}
+            onCnpjChange={setCnpj}
+            onCompanyEmailChange={setCompanyEmail}
+            onPhoneChange={setPhone}
+            onResetPassword={handleResetPassword}
+          />
+          <TermsAndConditions />
+        </motion.div>
+      </div>
+      <footer className="border-t border-zinc-200 bg-white py-4 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
+            <p className="text-center sm:text-left">
+              © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
+            </p>
+            <div className="flex items-center justify-center gap-6">
+              <a 
+                href="mailto:suporte@almoxfacil.com.br"
+                className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                title="Enviar email para suporte"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden sm:inline">suporte@almoxfacil.com.br</span>
+                <span className="sm:hidden">Suporte</span>
+              </a>
+              <a 
+                href="https://www.linkedin.com/company/almoxfacil" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-blue-600 transition-colors"
+                title="Visitar LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://www.almoxfacil.alnog.com.br" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                title="Visitar website"
+              >
+                <Globe className="h-4 w-4" />
+                <span className="hidden sm:inline">www.almoxfacil.alnog.com.br</span>
+                <span className="sm:hidden">Website</span>
+              </a>
+            </div>
           </div>
-        )}
-        {info && (
-          <div className="mb-4 rounded-md bg-green-100 border border-green-300 p-3 text-sm text-green-700">
-            {info}
-          </div>
-        )}
-        <Divider />
-        <LoginForm
-          email={email}
-          password={password}
-          onEmailChange={setEmail}
-          onPasswordChange={setPassword}
-          onSubmit={handleSubmit}
-          loading={loading}
-          isLogin={isLogin}
-          companyName={companyName}
-          cnpj={cnpj}
-          companyEmail={companyEmail}
-          phone={phone}
-          onCompanyNameChange={setCompanyName}
-          onCnpjChange={setCnpj}
-          onCompanyEmailChange={setCompanyEmail}
-          onPhoneChange={setPhone}
-          onResetPassword={handleResetPassword}
-        />
-        <TermsAndConditions />
-      </motion.div>
+        </div>
+      </footer>
     </div>
   )
 }

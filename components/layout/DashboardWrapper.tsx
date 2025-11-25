@@ -11,6 +11,9 @@ import {
   Package,
   LogOut,
   User,
+  Linkedin,
+  Mail,
+  Globe,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion, AnimatePresence } from "framer-motion"
@@ -196,14 +199,54 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
 
   return (
     <main
-      className="transition-all duration-300 bg-white min-h-screen"
+      className="transition-all duration-300 bg-white min-h-screen flex flex-col"
       style={{
         marginLeft: `clamp(0px, ${width}px, 100%)`,
       }}
     >
-      <div className="p-4 sm:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white">
+      <div className="flex-1 p-4 sm:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white w-full">
         {children}
       </div>
+      <footer className="border-t border-zinc-200 bg-white py-4 mt-auto">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-7 2xl:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
+            <p className="text-center sm:text-left">
+              © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
+            </p>
+            <div className="flex items-center justify-center gap-6">
+              <a 
+                href="mailto:suporte@almoxfacil.com.br"
+                className="flex items-center gap-2 hover:text-primary transition-colors"
+                title="Enviar email para suporte"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden sm:inline">suporte@almoxfacil.com.br</span>
+                <span className="sm:hidden">Suporte</span>
+              </a>
+              <a 
+                href="https://www.linkedin.com/company/almoxfacil" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+                title="Visitar LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://www.almoxfacil.alnog.com.br" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-primary transition-colors"
+                title="Visitar website"
+              >
+                <Globe className="h-4 w-4" />
+                <span className="hidden sm:inline">www.almoxfacil.alnog.com.br</span>
+                <span className="sm:hidden">Website</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   )
 }
