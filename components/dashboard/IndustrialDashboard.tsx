@@ -87,10 +87,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             iconName="Activity"
           />
           <KPICard
-            title="Tempo Médio de Retorno"
-            value={`${data.tempoMedioRetorno.horas.toFixed(1)}h`}
-            description={`${data.tempoMedioRetorno.dias.toFixed(1)} dias em média`}
-            iconName="Clock"
+            title="Ferramentas Estragadas"
+            value={data.ferramentasEstragadas?.length || 0}
+            description="Em manutenção ou danificadas"
+            iconName="AlertTriangle"
+            variant={(data.ferramentasEstragadas?.length || 0) > 0 ? "destructive" : "default"}
           />
           <KPICard
             title="Índice de Atraso"

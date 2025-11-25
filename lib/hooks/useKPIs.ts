@@ -128,40 +128,13 @@ export function useKPIs(userId: string) {
             }
           })
 
-        // Tempo médio de retorno (usa RPC; fallback manual com retiradas/devoluções em memória)
-        let horasTMR = 0
-        if (tmrRes.error) {
-          const retiradasMap = new Map<string, string>()
-          const tempos: number[] = []
-
-          ;[...retiradas, ...devolucoes]
-            .sort((a: any, b: any) => new Date(a.data || 0).getTime() - new Date(b.data || 0).getTime())
-            .forEach((mov: any) => {
-              const key = `${mov.ferramenta_id}-${mov.colaborador_id}`
-              if (mov.tipo === "retirada") {
-                retiradasMap.set(key, mov.data as string)
-              } else if (mov.tipo === "devolucao" && retiradasMap.has(key)) {
-                const saida = new Date(retiradasMap.get(key) as string)
-                const devolucao = new Date(mov.data as string)
-                const horas = (devolucao.getTime() - saida.getTime()) / (1000 * 60 * 60)
-                if (horas > 0) tempos.push(horas)
-                retiradasMap.delete(key)
-              }
-            })
-
-          horasTMR = tempos.length > 0 ? tempos.reduce((acc, t) => acc + t, 0) / tempos.length : 0
-        } else {
-          horasTMR = Number(tmrRes.data) || 0
-        }
-
-        const tempoMedioRetorno = {
-          horas: Math.round(horasTMR * 10) / 10,
-          dias: Math.round((horasTMR / 24) * 10) / 10,
-          minutos: Math.round(horasTMR * 60),
-        }
-
         // Índice de atraso
         const indiceAtraso = indiceRes.error ? 0 : Number(indiceRes.data) || 0
+
+        // Ferramentas estragadas (danificada ou em conserto)
+        const ferramentasEstragadas = (ferramentas || []).filter(
+          (f: any) => f.estado === "danificada" || f.estado === "em_conserto"
+        )
 
         const movimentacoes30d = movimentacoes30dRes.data || []
 
@@ -430,8 +403,14 @@ export function useKPIs(userId: string) {
         if (!cancelled) {
           setData({
             ferramentasEmUso,
-            tempoMedioRetorno,
+            tempoMedioRetorno: { horas: 0, dias: 0, minutos: 0 },
             indiceAtrasoDevolucao: Number(indiceAtraso) || 0,
+            ferramentasEstragadas: ferramentasEstragadas.map((f: any) => ({
+              id: f.id,
+              nome: f.nome,
+              estado: f.estado,
+              quantidade_disponivel: f.quantidade_disponivel,
+            })),
             topFerramentasUtilizadas: topFerramentasUtilizadas as any,
             rankingResponsabilidade,
             consumoMedioDiario,
