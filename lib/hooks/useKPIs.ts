@@ -198,8 +198,6 @@ export function useKPIs(userId: string) {
         )
         const consumoMedioDiario = totalConsumo / 30
 
-        const ferramentas = ferramentasRes.data || []
-
         const itensEstoqueCritico = (ferramentas || [])
           .filter(
             (f) =>
