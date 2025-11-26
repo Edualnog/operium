@@ -13,6 +13,7 @@ import {
   Line,
   Area,
   AreaChart,
+  Cell,
 } from "recharts"
 
 interface KpiChartProps {
@@ -124,17 +125,17 @@ export function KpiChart({
               dataKey={dataKey}
               fill={`url(#gradient-${title || "chart"})`}
               radius={[8, 8, 0, 0]}
-              shape={(props: any) => {
-                const { payload } = props
-                // Se o valor for 0 ou o nome estiver vazio, renderizar barra transparente
-                const value = payload?.[dataKey]
-                const name = payload?.[xAxisKey]
+            >
+              {filteredData.map((entry: any, index: number) => {
+                const value = entry?.[dataKey]
+                const name = entry?.[xAxisKey]
+                // Se o valor for 0 ou o nome estiver vazio, usar transparente
                 if (!name || name === "" || value === 0 || value == null) {
-                  return <rect {...props} fill="transparent" stroke="none" />
+                  return <Cell key={`cell-${index}`} fill="transparent" />
                 }
-                return <rect {...props} />
-              }}
-            />
+                return <Cell key={`cell-${index}`} fill={`url(#gradient-${title || "chart"})`} />
+              })}
+            </Bar>
           </BarChart>
         ) : type === "line" ? (
           <LineChart data={filteredData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>

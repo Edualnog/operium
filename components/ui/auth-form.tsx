@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, Package, Linkedin, Mail, Globe } from "lucide-react"
+import { Package, Linkedin, Mail, Globe } from "lucide-react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
@@ -130,7 +130,6 @@ const AuthForm: React.FC = () => {
   return (
     <div className="bg-white text-zinc-800 selection:bg-zinc-300 min-h-screen relative overflow-hidden flex flex-col">
       <BackgroundDecoration />
-      <BackButton />
       <div className="flex-1 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
@@ -216,20 +215,6 @@ const AuthForm: React.FC = () => {
   )
 }
 
-const BackButton: React.FC = () => {
-  const router = useRouter()
-  return (
-    <div className="absolute left-4 top-4 z-20">
-      <SocialButton 
-        icon={<ChevronLeft size={16} />}
-        onClick={() => router.push("/")}
-      >
-        Voltar
-      </SocialButton>
-    </div>
-  )
-}
-
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string
 }
@@ -269,27 +254,6 @@ const Header: React.FC<{ isLogin: boolean; onToggleMode: () => void }> = ({ isLo
       </button>
     </p>
   </div>
-)
-
-const SocialButton: React.FC<{
-  icon?: React.ReactNode
-  fullWidth?: boolean
-  children?: React.ReactNode
-  onClick?: () => void
-}> = ({ icon, fullWidth, children, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`relative z-0 flex items-center justify-center gap-2 overflow-hidden rounded-md 
-    border border-zinc-300 bg-zinc-100 
-    px-4 py-2 font-semibold text-zinc-800 transition-all duration-500
-    before:absolute before:inset-0 before:-z-10 before:translate-x-[150%] before:translate-y-[150%] before:scale-[2.5]
-    before:rounded-[100%] before:bg-zinc-800 before:transition-transform before:duration-1000 before:content-[""]
-    hover:scale-105 hover:text-white hover:before:translate-x-[0%] hover:before:translate-y-[0%] active:scale-95
-    ${fullWidth ? "col-span-2" : ""}`}
-  >
-    {icon}
-    <span>{children}</span>
-  </button>
 )
 
 const Divider: React.FC = () => (
