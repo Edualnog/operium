@@ -30,6 +30,7 @@ import { ptBR } from "date-fns/locale"
 import { ColaboradoresFilters, type FilterState } from "./ColaboradoresFilters"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { useSidebar } from "@/components/ui/sidebar"
 
 interface Colaborador {
   id: string
@@ -85,6 +86,7 @@ function ColaboradoresList({
   const [exportingFicha, setExportingFicha] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const { open: sidebarOpen } = useSidebar()
   
   // Recarregar EPIs quando o modal for aberto ou colaborador mudar
   useEffect(() => {
@@ -1094,9 +1096,13 @@ function ColaboradoresList({
       ) : (
         <div className={cn(
           "grid gap-4",
-          cardSize === "pequeno" && "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
-          cardSize === "medio" && "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-          cardSize === "grande" && "md:grid-cols-2 lg:grid-cols-3"
+          // Grid dinâmico baseado no tamanho do card e estado do sidebar
+          cardSize === "pequeno" && !sidebarOpen && "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
+          cardSize === "pequeno" && sidebarOpen && "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5",
+          cardSize === "medio" && !sidebarOpen && "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+          cardSize === "medio" && sidebarOpen && "md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3",
+          cardSize === "grande" && !sidebarOpen && "md:grid-cols-2 lg:grid-cols-3",
+          cardSize === "grande" && sidebarOpen && "md:grid-cols-2 lg:grid-cols-2"
         )}>
           {filteredAndSortedColaboradores.map((colaborador) => {
             const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0 }
@@ -1104,11 +1110,13 @@ function ColaboradoresList({
             
             return (
               <Card key={colaborador.id} className={cn(
+                "overflow-hidden",
                 cardSize === "pequeno" && "hover:shadow-md transition-shadow",
                 cardSize === "medio" && "hover:shadow-lg transition-shadow",
                 cardSize === "grande" && "hover:shadow-xl transition-shadow"
               )}>
                 <CardContent className={cn(
+                  "w-full min-w-0",
                   cardSize === "pequeno" && "p-3",
                   cardSize === "medio" && "p-6",
                   cardSize === "grande" && "p-8"
@@ -1266,15 +1274,20 @@ function ColaboradoresList({
                           await carregarEpis(colaborador)
                         }}
                         className={cn(
-                          "flex-1",
+                          "flex-1 min-w-0",
                           cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
                         )}
                       >
                         <Shield className={cn(
                           cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                          cardSize !== "pequeno" && "mr-1"
+                          cardSize !== "pequeno" && "mr-1 flex-shrink-0"
                         )} />
-                        {cardSize !== "pequeno" && "EPIs"}
+                        <span className={cn(
+                          cardSize === "pequeno" && "sr-only",
+                          "truncate"
+                        )}>
+                          {cardSize !== "pequeno" && "EPIs"}
+                        </span>
                       </Button>
                       <Button
                         variant="outline"
@@ -1284,15 +1297,20 @@ function ColaboradoresList({
                           handleEdit(colaborador)
                         }}
                         className={cn(
-                          "flex-1",
+                          "flex-1 min-w-0",
                           cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
                         )}
                       >
                         <Edit className={cn(
                           cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                          cardSize !== "pequeno" && "mr-1"
+                          cardSize !== "pequeno" && "mr-1 flex-shrink-0"
                         )} />
-                        {cardSize !== "pequeno" && "Editar"}
+                        <span className={cn(
+                          cardSize === "pequeno" && "sr-only",
+                          "truncate"
+                        )}>
+                          {cardSize !== "pequeno" && "Editar"}
+                        </span>
                       </Button>
                       <Button
                         variant="outline"
@@ -1302,15 +1320,20 @@ function ColaboradoresList({
                           handleDelete(colaborador.id)
                         }}
                         className={cn(
-                          "flex-1 text-destructive hover:text-destructive",
+                          "flex-1 min-w-0 text-destructive hover:text-destructive",
                           cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
                         )}
                       >
                         <Trash2 className={cn(
                           cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                          cardSize !== "pequeno" && "mr-1"
+                          cardSize !== "pequeno" && "mr-1 flex-shrink-0"
                         )} />
-                        {cardSize !== "pequeno" && "Excluir"}
+                        <span className={cn(
+                          cardSize === "pequeno" && "sr-only",
+                          "truncate"
+                        )}>
+                          {cardSize !== "pequeno" && "Excluir"}
+                        </span>
                       </Button>
                     </div>
                   </div>
