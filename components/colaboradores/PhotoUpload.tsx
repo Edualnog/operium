@@ -30,6 +30,7 @@ export function PhotoUpload({
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
   const [verifying, setVerifying] = useState(false)
+  const [lastUploadTime, setLastUploadTime] = useState<number>(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClientComponentClient()
 
@@ -60,6 +61,19 @@ export function PhotoUpload({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
+  // Sincronizar preview com currentPhotoUrl quando mudar (importante para limpar entre cadastros)
+  useEffect(() => {
+    setPreview(currentPhotoUrl || null)
+    // Limpar o input de arquivo quando a foto for limpa
+    if (!currentPhotoUrl && fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+    // IMPORTANTE: Resetar estado de upload quando a URL mudar (novo colaborador)
+    if (!currentPhotoUrl) {
+      setUploading(false)
+    }
+  }, [currentPhotoUrl])
+
   // Se não tiver userId, mostrar loading
   if (!userId) {
     return (
@@ -73,6 +87,12 @@ export function PhotoUpload({
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // IMPORTANTE: Limpar estado anterior antes de novo upload
+    if (uploading) {
+      console.warn("Upload já em andamento, aguardando...")
+      return
+    }
 
     // Verificar se o bucket existe antes de continuar
     if (bucketExists === false) {
@@ -105,16 +125,26 @@ export function PhotoUpload({
     }
     reader.readAsDataURL(file)
 
+    // Delay maior para garantir que conexões HTTP/2 anteriores foram fechadas
+    // Isso evita problemas de ERR_HTTP2_PROTOCOL_ERROR em uploads consecutivos
+    const timeSinceLastUpload = Date.now() - lastUploadTime
+    const delayNeeded = timeSinceLastUpload < 5000 ? 2000 : 1000 // 2s se upload recente, 1s caso contrário
+    await new Promise(resolve => setTimeout(resolve, delayNeeded))
+
     // Upload para Supabase Storage
     await uploadPhoto(file)
   }
 
   const uploadPhoto = async (file: File) => {
+    // Criar uma nova instância do cliente Supabase para cada upload
+    // Isso evita problemas de conexão HTTP/2 reutilizada
+    const freshSupabase = createClientComponentClient()
+    
     try {
       setUploading(true)
 
       // Verificar se o usuário está autenticado
-      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
+      const { data: { user: currentUser }, error: authError } = await freshSupabase.auth.getUser()
       
       if (authError || !currentUser) {
         throw new Error("Você precisa estar autenticado para fazer upload de fotos. Por favor, faça login novamente.")
@@ -135,6 +165,7 @@ export function PhotoUpload({
         if (fileInputRef.current) {
           fileInputRef.current.value = ""
         }
+        setUploading(false) // IMPORTANTE: Resetar estado antes de retornar
         return
       }
 
@@ -158,107 +189,189 @@ export function PhotoUpload({
         )
       }
 
+      // Função helper para timeout (definida antes do try para estar acessível em todos os escopos)
+      const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+        return Promise.race([
+          promise,
+          new Promise<T>((_, reject) =>
+            setTimeout(() => reject(new Error("Upload timeout: A operação demorou muito tempo")), timeoutMs)
+          ),
+        ])
+      }
+
       // Tentar upload direto primeiro, se falhar por CORS, usar API route
       let publicUrl: string | null = null
 
-      try {
-        // Tentativa 1: Upload direto para Supabase Storage
-        const { error: uploadError, data } = await supabase.storage
-          .from("colaboradores-fotos")
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: true, // Permite sobrescrever se já existir
+      // Estratégia: Se houve upload recente (dentro de 5s), usar API route diretamente
+      // para evitar problemas de HTTP2_PROTOCOL_ERROR. Caso contrário, tentar upload direto primeiro.
+      const timeSinceLastUpload = Date.now() - lastUploadTime
+      const useApiRouteFirst = timeSinceLastUpload < 5000
+
+      if (useApiRouteFirst) {
+        console.log("Usando API route diretamente (upload recente detectado)...")
+        try {
+          const formData = new FormData()
+          formData.append("file", file)
+          if (colaboradorId) {
+            formData.append("colaboradorId", colaboradorId)
+          }
+          formData.append("userId", userId)
+
+          const fetchPromise = fetch("/api/upload-photo", {
+            method: "POST",
+            body: formData,
+            cache: "no-store",
           })
 
-        if (uploadError) {
-          // Se o bucket não existir, atualizar estado e mostrar erro
-          const errorMsg = uploadError.message?.toLowerCase() || ""
-          if (
-            errorMsg.includes("bucket not found") ||
-            errorMsg.includes("not found") ||
-            errorMsg.includes("does not exist")
-          ) {
-            setBucketExists(false)
-            setPreview(null)
-            if (fileInputRef.current) {
-              fileInputRef.current.value = ""
-            }
-            alert(
-              "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
-              "Por favor, crie o bucket no Supabase Dashboard e execute a migration SQL."
-            )
-            return
+          const response = await withTimeout(fetchPromise, 60000)
+
+          if (!response.ok) {
+            const errorData = await response.json()
+            throw new Error(errorData.error || "Erro ao fazer upload via API")
           }
 
-          // Erro de permissão
-          if (
-            errorMsg.includes("permission") ||
-            errorMsg.includes("policy") ||
-            errorMsg.includes("row-level security") ||
-            errorMsg.includes("rls")
-          ) {
-            throw new Error(
-              "Erro de permissão ao fazer upload. " +
-              "Verifique se as políticas RLS do Storage estão configuradas corretamente. " +
-              "Consulte SETUP_STORAGE.md para mais informações."
-            )
-          }
-
-          // Se for erro de CORS ou network, tentar via API route
-          if (
-            errorMsg.includes("cors") ||
-            errorMsg.includes("cross-origin") ||
-            errorMsg.includes("network") ||
-            errorMsg.includes("fetch") ||
-            uploadError.message?.includes("Failed to fetch")
-          ) {
-            console.log("Erro de CORS detectado, tentando upload via API route...")
-            throw new Error("CORS_ERROR") // Marca para tentar via API
-          }
-          
-          // Outros erros
-          throw uploadError
+          const data = await response.json()
+          publicUrl = data.url
+          console.log("Upload via API route concluído com sucesso!", { publicUrl })
+          setLastUploadTime(Date.now())
+        } catch (apiError: any) {
+          console.log("API route falhou, tentando upload direto como fallback...", apiError.message)
+          throw new Error("API_ROUTE_FAILED")
         }
-
-        // Obter URL pública
-        const {
-          data: { publicUrl: url },
-        } = supabase.storage.from("colaboradores-fotos").getPublicUrl(filePath)
-        publicUrl = url
-      } catch (directUploadError: any) {
-        // Se falhou por CORS, tentar via API route
-        if (directUploadError.message === "CORS_ERROR" || directUploadError.message?.includes("Failed to fetch")) {
-          try {
-            console.log("Fazendo upload via API route...")
-            const formData = new FormData()
-            formData.append("file", file)
-            if (colaboradorId) {
-              formData.append("colaboradorId", colaboradorId)
-            }
-
-            const response = await fetch("/api/upload-photo", {
-              method: "POST",
-              body: formData,
+      } else {
+        // Tentar upload direto primeiro
+        console.log("Iniciando upload direto da foto...", { filePath, fileName })
+        
+        try {
+          // Upload direto para Supabase Storage (com timeout de 60 segundos - mais generoso)
+          // Usar freshSupabase para evitar problemas de conexão HTTP/2 reutilizada
+          const uploadPromise = freshSupabase.storage
+            .from("colaboradores-fotos")
+            .upload(filePath, file, {
+              cacheControl: "3600",
+              upsert: true, // Permite sobrescrever se já existir
             })
 
-            if (!response.ok) {
-              const errorData = await response.json()
-              throw new Error(errorData.error || "Erro ao fazer upload via API")
+          const { error: uploadError, data } = await withTimeout(uploadPromise, 60000)
+
+          if (uploadError) {
+            // Se o bucket não existir, atualizar estado e mostrar erro
+            const errorMsg = (uploadError as any)?.message?.toLowerCase() || String(uploadError).toLowerCase() || ""
+            if (
+              errorMsg.includes("bucket not found") ||
+              errorMsg.includes("not found") ||
+              errorMsg.includes("does not exist")
+            ) {
+              setBucketExists(false)
+              setPreview(null)
+              if (fileInputRef.current) {
+                fileInputRef.current.value = ""
+              }
+              setUploading(false)
+              alert(
+                "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
+                "Por favor, crie o bucket no Supabase Dashboard e execute a migration SQL."
+              )
+              return
             }
 
-            const data = await response.json()
-            publicUrl = data.url
-          } catch (apiError: any) {
-            throw new Error(
-              "Erro ao fazer upload: " + (apiError.message || "Erro desconhecido") +
-              "\n\nVerifique:\n" +
-              "1. Se o bucket 'colaboradores-fotos' existe no Supabase\n" +
-              "2. Se as políticas RLS estão configuradas (execute a migration SQL)\n" +
-              "3. Se você está autenticado"
-            )
+            // Erro de permissão
+            if (
+              errorMsg.includes("permission") ||
+              errorMsg.includes("policy") ||
+              errorMsg.includes("row-level security") ||
+              errorMsg.includes("rls")
+            ) {
+              throw new Error(
+                "Erro de permissão ao fazer upload. " +
+                "Verifique se as políticas RLS do Storage estão configuradas corretamente. " +
+                "Consulte SETUP_STORAGE.md para mais informações."
+              )
+            }
+
+            // Se for erro de HTTP2, CORS ou network, tentar via API route
+            const errorMessage = (uploadError as any)?.message || String(uploadError) || ""
+            if (
+              errorMsg.includes("http2") ||
+              errorMsg.includes("protocol_error") ||
+              errorMsg.includes("cors") ||
+              errorMsg.includes("cross-origin") ||
+              errorMsg.includes("network") ||
+              errorMsg.includes("fetch") ||
+              errorMessage.includes("Failed to fetch") ||
+              errorMessage.includes("ERR_HTTP2_PROTOCOL_ERROR")
+            ) {
+              console.log("Erro HTTP2/CORS detectado, tentando upload via API route...")
+              throw new Error("HTTP2_ERROR") // Marca para tentar via API
+            }
+            
+            // Outros erros
+            throw uploadError
           }
-        } else {
-          throw directUploadError
+
+          // Obter URL pública
+          const {
+            data: { publicUrl: url },
+          } = freshSupabase.storage.from("colaboradores-fotos").getPublicUrl(filePath)
+          publicUrl = url
+          console.log("Upload direto concluído com sucesso!", { publicUrl, filePath })
+          setLastUploadTime(Date.now())
+        } catch (directUploadError: any) {
+          // Se falhou por HTTP2, CORS, timeout ou API route falhou, tentar via API route
+          const shouldTryApiRoute = 
+            directUploadError.message === "HTTP2_ERROR" || 
+            directUploadError.message === "API_ROUTE_FAILED" ||
+            directUploadError.message?.includes("Failed to fetch") || 
+            directUploadError.message?.includes("timeout") ||
+            directUploadError.message?.includes("HTTP2") ||
+            directUploadError.message?.includes("protocol_error") ||
+            directUploadError.message?.includes("CORS") ||
+            directUploadError.name === "TypeError"
+
+          if (shouldTryApiRoute) {
+            try {
+              console.log("Fazendo upload via API route (fallback)...")
+              
+              const formData = new FormData()
+              formData.append("file", file)
+              if (colaboradorId) {
+                formData.append("colaboradorId", colaboradorId)
+              }
+              formData.append("userId", userId)
+
+              // Upload via API route com timeout maior (60s)
+              const fetchPromise = fetch("/api/upload-photo", {
+                method: "POST",
+                body: formData,
+                cache: "no-store",
+              })
+
+              const response = await withTimeout(fetchPromise, 60000)
+
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || "Erro ao fazer upload via API")
+              }
+
+              const data = await response.json()
+              publicUrl = data.url
+              console.log("Upload via API route concluído com sucesso!", { publicUrl })
+              setLastUploadTime(Date.now())
+            } catch (apiError: any) {
+              // Se ambos os métodos falharam, lançar erro
+              throw new Error(
+                "Erro ao fazer upload (tentativas via direto e API falharam): " + 
+                (directUploadError.message || apiError?.message || "Erro desconhecido") +
+                "\n\nVerifique:\n" +
+                "1. Se o bucket 'colaboradores-fotos' existe no Supabase\n" +
+                "2. Se as políticas RLS estão configuradas (execute a migration SQL)\n" +
+                "3. Se você está autenticado\n" +
+                "4. Sua conexão de internet"
+              )
+            }
+          } else {
+            throw directUploadError
+          }
         }
       }
 
@@ -266,14 +379,24 @@ export function PhotoUpload({
         throw new Error("Não foi possível obter a URL da imagem")
       }
 
+      console.log("Chamando callback onPhotoUploaded com URL:", publicUrl)
       onPhotoUploaded(publicUrl)
+      console.log("Callback executado com sucesso")
     } catch (error: any) {
       console.error("Erro ao fazer upload:", error)
       
       // Melhorar mensagem de erro baseado no tipo
       let errorMessage = "Erro desconhecido ao fazer upload da foto."
       
-      if (error.message) {
+      if (error.message?.includes("timeout") || error.message?.includes("Timeout")) {
+        errorMessage = 
+          "Upload timeout: A operação demorou muito tempo.\n\n" +
+          "Possíveis causas:\n" +
+          "1. Conexão de internet lenta\n" +
+          "2. Arquivo muito grande (tente uma imagem menor)\n" +
+          "3. Problema no servidor\n\n" +
+          "Tente novamente com uma imagem menor ou verifique sua conexão."
+      } else if (error.message) {
         errorMessage = error.message
       } else if (error.name === "TypeError" && error.message?.includes("fetch")) {
         errorMessage = 
@@ -283,14 +406,17 @@ export function PhotoUpload({
           "2. Bucket não existe ou não está público\n" +
           "3. Problema de rede ou firewall\n" +
           "4. Variáveis de ambiente não configuradas corretamente"
-      } else if (error.message) {
-        errorMessage = error.message
       }
       
       alert(`Erro ao fazer upload da foto: ${errorMessage}`)
       setPreview(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
     } finally {
+      // SEMPRE resetar o estado, mesmo se houver erro
       setUploading(false)
+      console.log("Estado de upload resetado")
     }
   }
 
@@ -365,6 +491,7 @@ export function PhotoUpload({
               src={preview}
               alt="Foto do colaborador"
               fill
+              sizes="96px"
               className="object-cover"
             />
           ) : (

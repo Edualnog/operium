@@ -23,6 +23,24 @@ const nextConfig = {
       exclude: ['error', 'warn'],
     } : false,
   },
+  // Headers para otimizar carregamento de recursos
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+        ],
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig

@@ -4,7 +4,13 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/providers/ThemeProvider"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-const inter = Inter({ subsets: ["latin"] })
+// Otimização de fonte: display swap para melhor performance (evita FOIT - Flash of Invisible Text)
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  fallback: ['system-ui', 'arial'],
+  adjustFontFallback: true,
+})
 
 export const metadata: Metadata = {
   title: "Almox Fácil",

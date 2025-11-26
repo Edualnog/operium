@@ -236,7 +236,7 @@ export function ProductPhotoUpload({
       <div className="flex items-center gap-4">
         <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-zinc-200 bg-zinc-50 flex items-center justify-center">
           {preview ? (
-            <Image src={preview} alt="Foto do produto" fill className="object-cover" />
+            <Image src={preview} alt="Foto do produto" fill sizes="96px" className="object-cover" />
           ) : (
             <Package className="h-10 w-10 text-zinc-400" />
           )}
