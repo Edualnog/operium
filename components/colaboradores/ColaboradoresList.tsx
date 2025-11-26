@@ -306,7 +306,7 @@ function ColaboradoresList({
       }
       
       // Buscar informações das ferramentas relacionadas
-      const ferramentaIds = [...new Set(movimentacoes.map((m: any) => m.ferramenta_id))]
+      const ferramentaIds = Array.from(new Set(movimentacoes.map((m: any) => m.ferramenta_id).filter((id: any) => id != null)))
       console.log("🔍 IDs de ferramentas para buscar:", ferramentaIds)
       
       const { data: ferramentasInfo, error: ferError } = await supabase

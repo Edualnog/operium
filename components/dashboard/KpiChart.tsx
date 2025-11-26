@@ -63,12 +63,17 @@ export function KpiChart({
     )
   }
 
+  // Filtrar dados para não mostrar barras vazias
+  const filteredData = type === "bar" 
+    ? data.filter((item: any) => item[xAxisKey] && item[xAxisKey] !== "" && item[dataKey] != null && item[dataKey] !== 0)
+    : data
+
   const chartContent = (
     <div style={{ width: "100%", height: `${height}px` }}>
       <ResponsiveContainer width="100%" height="100%">
         {type === "bar" ? (
           <BarChart 
-            data={data} 
+            data={filteredData} 
             margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
             barCategoryGap="10%"
           >
@@ -118,18 +123,10 @@ export function KpiChart({
               dataKey={dataKey}
               fill={`url(#gradient-${title || "chart"})`}
               radius={[8, 8, 0, 0]}
-              cell={(props: any) => {
-                const { payload } = props
-                // Não renderizar barra se o valor for 0 ou o nome estiver vazio
-                if (!payload || !payload[xAxisKey] || payload[xAxisKey] === "" || (payload[dataKey] === 0 || !payload[dataKey])) {
-                  return <rect {...props} fill="transparent" stroke="none" />
-                }
-                return <rect {...props} />
-              }}
             />
           </BarChart>
         ) : type === "line" ? (
-          <LineChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+          <LineChart data={filteredData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
             <XAxis
               dataKey={xAxisKey}
@@ -155,7 +152,7 @@ export function KpiChart({
             />
           </LineChart>
         ) : (
-          <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+          <AreaChart data={filteredData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
             <defs>
               <linearGradient id={`area-${title || "chart"}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={color} stopOpacity={0.4} />
