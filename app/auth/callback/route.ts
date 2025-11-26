@@ -42,18 +42,18 @@ export async function GET(request: Request) {
         // Verificar se o perfil já existe
         const { data: existingProfile } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, name, company_email')
           .eq('id', user.id)
           .single()
 
+        const userName = user.user_metadata?.full_name || 
+                        user.user_metadata?.name || 
+                        user.user_metadata?.email?.split('@')[0] || 
+                        user.email?.split('@')[0] || 
+                        'Usuário'
+
         // Se não existir, criar perfil básico
         if (!existingProfile) {
-          const userName = user.user_metadata?.full_name || 
-                          user.user_metadata?.name || 
-                          user.user_metadata?.email?.split('@')[0] || 
-                          user.email?.split('@')[0] || 
-                          'Usuário'
-          
           await supabase.from('profiles').upsert({
             id: user.id,
             name: userName,
@@ -64,8 +64,8 @@ export async function GET(request: Request) {
         } else {
           // Atualizar perfil existente com informações do Google se necessário
           await supabase.from('profiles').update({
-            name: user.user_metadata?.full_name || user.user_metadata?.name || existingProfile.name,
-            company_email: user.email || existingProfile.company_email,
+            name: user.user_metadata?.full_name || user.user_metadata?.name || existingProfile?.name || userName,
+            company_email: user.email || existingProfile?.company_email || user.email,
           }).eq('id', user.id)
         }
       }
