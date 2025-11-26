@@ -56,6 +56,28 @@ Por padrão, o Supabase permite registro de novos usuários. Se quiser restringi
 2. Desative "Enable email signup" se quiser apenas login
 3. Configure outros métodos de autenticação se necessário
 
+### 5.1. Configurar Login com Google OAuth
+
+Para habilitar o login com Google:
+
+1. No painel do Supabase, vá em **Authentication** > **Providers**
+2. Clique em **Google**
+3. Ative o toggle "Enable Google provider"
+4. Você precisará criar um projeto no Google Cloud Console:
+   - Acesse [Google Cloud Console](https://console.cloud.google.com/)
+   - Crie um novo projeto ou selecione um existente
+   - Vá em **APIs & Services** > **Credentials**
+   - Clique em **Create Credentials** > **OAuth client ID**
+   - Escolha **Web application**
+   - Adicione as URLs autorizadas:
+     - **Authorized JavaScript origins**: `https://seu-projeto.supabase.co`
+     - **Authorized redirect URIs**: `https://seu-projeto.supabase.co/auth/v1/callback`
+   - Copie o **Client ID** e **Client Secret**
+5. Volte ao Supabase e cole o Client ID e Client Secret
+6. Clique em **Save**
+
+**⚠️ IMPORTANTE**: Substitua `seu-projeto` pelo ID do seu projeto Supabase. Você encontra o ID na URL do projeto ou em **Settings** > **General** > **Reference ID**.
+
 ### 6. Verificar Row Level Security (RLS)
 
 As políticas RLS já estão configuradas na migration. Para verificar:
