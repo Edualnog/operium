@@ -4,7 +4,8 @@ import { Suspense } from "react"
 import FerramentasList from "@/components/ferramentas/FerramentasList"
 import { ListSkeleton } from "@/components/loading/PageSkeleton"
 
-export const revalidate = 60 // Revalidar a cada 60 segundos
+// Página precisa ser dinâmica pois depende de cookies/sessão
+export const dynamic = "force-dynamic"
 
 async function getFerramentas(userId: string) {
   try {
