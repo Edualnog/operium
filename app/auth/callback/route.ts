@@ -63,9 +63,15 @@ export async function GET(request: Request) {
           })
         } else {
           // Atualizar perfil existente com informações do Google se necessário
+          const updatedName = user.user_metadata?.full_name || 
+                             user.user_metadata?.name || 
+                             existingProfile.name || 
+                             userName
+          const updatedEmail = user.email || existingProfile.company_email || user.email
+          
           await supabase.from('profiles').update({
-            name: user.user_metadata?.full_name || user.user_metadata?.name || existingProfile?.name || userName,
-            company_email: user.email || existingProfile?.company_email || user.email,
+            name: updatedName,
+            company_email: updatedEmail,
           }).eq('id', user.id)
         }
       }
