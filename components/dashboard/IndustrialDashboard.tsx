@@ -647,13 +647,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   // Usar dados do período selecionado ou fallback para dados padrão
                   const dadosFonte = consumoPorPeriodo.length > 0 
                     ? consumoPorPeriodo.map(item => ({
-                        nome: item.nome,
-                        consumo_30d: item.consumo,
+                        nome: item.nome || "",
+                        consumo_30d: item.consumo || 0,
                         id: item.id,
                       }))
                     : data.itensMaiorConsumo.map(item => ({
-                        nome: item.nome,
-                        consumo_30d: item.consumo_30d,
+                        nome: item.nome || "",
+                        consumo_30d: item.consumo_30d || 0,
                         id: item.id,
                       }))
                   
@@ -856,17 +856,19 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             title="Risco de Ruptura por Item"
             description="O Risco de Ruptura é um indicador que estima a probabilidade de um item consumível acabar o estoque (ruptura de estoque). Score de 0-100 (quanto maior, maior o risco)"
             data={(() => {
-              // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
-              const dados = data.riscoRuptura
-              .filter((r) => r.score > 0)
-              .sort((a, b) => b.score - a.score)
-              .slice(0, 10)
-              .map((r) => ({
-                nome: r.nome.length > 20 ? r.nome.substring(0, 20) + "..." : r.nome,
-                score: r.score,
+              // Filtrar e ordenar dados reais
+              const dadosReais = data.riscoRuptura
+                .filter((r) => r.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 10)
+                .map((r) => ({
+                  nome: r.nome.length > 20 ? r.nome.substring(0, 20) + "..." : r.nome,
+                  score: r.score,
                   id: r.id,
                 }))
               
+              // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
+              const dados = [...dadosReais]
               while (dados.length < 10) {
                 dados.push({
                   nome: "",

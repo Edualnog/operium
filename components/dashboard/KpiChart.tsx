@@ -63,10 +63,10 @@ export function KpiChart({
     )
   }
 
-  // Filtrar dados para não mostrar barras vazias
+  // Para gráficos de barra, manter todos os dados (incluindo vazios) para sempre mostrar 10 barras
   const filteredData = type === "bar" 
-    ? data.filter((item: any) => item[xAxisKey] && item[xAxisKey] !== "" && item[dataKey] != null && item[dataKey] !== 0)
-    : data
+    ? data // Não filtrar - manter todos os dados para sempre mostrar 10 barras
+    : data.filter((item: any) => item[xAxisKey] && item[xAxisKey] !== "" && item[dataKey] != null && item[dataKey] !== 0)
 
   const chartContent = (
     <div style={{ width: "100%", height: `${height}px` }}>
@@ -98,7 +98,8 @@ export function KpiChart({
               content={({ active, payload, label }) => {
                 if (!active || !payload || !payload.length) return null
                 const item = payload[0]?.payload
-                if (!item || !item[xAxisKey] || item[xAxisKey] === "" || item[dataKey] === 0) return null
+                // Não mostrar tooltip para itens vazios
+                if (!item || !item[xAxisKey] || item[xAxisKey] === "" || item[dataKey] === 0 || item[dataKey] == null) return null
                 
                 return (
                   <div style={{
@@ -123,6 +124,16 @@ export function KpiChart({
               dataKey={dataKey}
               fill={`url(#gradient-${title || "chart"})`}
               radius={[8, 8, 0, 0]}
+              shape={(props: any) => {
+                const { payload } = props
+                // Se o valor for 0 ou o nome estiver vazio, renderizar barra transparente
+                const value = payload?.[dataKey]
+                const name = payload?.[xAxisKey]
+                if (!name || name === "" || value === 0 || value == null) {
+                  return <rect {...props} fill="transparent" stroke="none" />
+                }
+                return <rect {...props} />
+              }}
             />
           </BarChart>
         ) : type === "line" ? (
