@@ -88,7 +88,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
         onProfileClick={() => setProfileDialogOpen(true)}
       />
       <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] md:max-w-2xl max-h-[calc(100vh-2rem)] md:max-h-[90vh] overflow-y-auto p-0 md:p-6 m-4 md:m-0 w-[calc(100vw-2rem)] md:w-auto">
+        <DialogContent className="max-w-[calc(100vw-2rem)] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl max-h-[calc(100vh-2rem)] md:max-h-[90vh] overflow-y-auto p-0 md:p-6 m-4 md:m-0 w-[calc(100vw-2rem)] md:w-auto">
           <DialogHeader className="sr-only">
             <DialogTitle>Perfil do Usuário</DialogTitle>
             <DialogDescription>

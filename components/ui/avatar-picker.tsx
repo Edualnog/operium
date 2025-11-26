@@ -559,7 +559,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
 
   return (
     <motion.div initial="initial" animate="animate" className="w-full">
-      <Card className="w-full max-w-md mx-auto overflow-hidden bg-gradient-to-b from-background to-muted/30 md:shadow-lg">
+      <Card className="w-full max-w-md md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto overflow-hidden bg-gradient-to-b from-background to-muted/30 md:shadow-lg">
         <CardContent className="p-0">
           {/* Header com botão Editar */}
           <div className="relative">
@@ -593,103 +593,106 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
             )}
           </div>
 
-          <div className="px-8 pb-8 -mt-16">
-            {/* Main avatar display */}
-            <motion.div
-              className="relative w-40 h-40 mx-auto rounded-full overflow-hidden border-4 bg-background flex items-center justify-center"
-              variants={mainAvatarVariants}
-              layoutId="selectedAvatar"
-            >
+          <div className="px-4 md:px-8 pb-8 -mt-16">
+            {/* Seção Avatar - Centralizada */}
+            <div className="flex flex-col items-center">
+              {/* Main avatar display */}
               <motion.div
-                className="w-full h-full flex items-center justify-center scale-[3]"
-                animate={{
-                  rotate: rotationCount,
-                }}
-                transition={{
-                  duration: 0.8,
-                  ease: [0.4, 0, 0.2, 1], // Custom easing for a nice acceleration and deceleration
-                }}
+                className="relative w-40 h-40 rounded-full overflow-hidden border-4 bg-background flex items-center justify-center"
+                variants={mainAvatarVariants}
+                layoutId="selectedAvatar"
               >
-                {selectedAvatar.svg}
+                <motion.div
+                  className="w-full h-full flex items-center justify-center scale-[3]"
+                  animate={{
+                    rotate: rotationCount,
+                  }}
+                  transition={{
+                    duration: 0.8,
+                    ease: [0.4, 0, 0.2, 1], // Custom easing for a nice acceleration and deceleration
+                  }}
+                >
+                  {selectedAvatar.svg}
+                </motion.div>
               </motion.div>
-            </motion.div>
 
-            {/* Username display */}
-            <motion.div
-              className="text-center mt-4"
-              variants={pickerVariants.item}
-            >
-              <motion.h2
-                className="text-2xl font-bold"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                Me
-              </motion.h2>
-              <motion.p
-                className="text-muted-foreground text-sm"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                Select your avatar
-              </motion.p>
-            </motion.div>
-
-            {/* Avatar selection */}
-            <motion.div
-              className="mt-6"
-              variants={pickerVariants.container}
-            >
+              {/* Username display */}
               <motion.div
-                className="flex justify-center gap-4"
+                className="text-center mt-4"
+                variants={pickerVariants.item}
+              >
+                <motion.h2
+                  className="text-2xl font-bold"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Me
+                </motion.h2>
+                <motion.p
+                  className="text-muted-foreground text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  Select your avatar
+                </motion.p>
+              </motion.div>
+
+              {/* Avatar selection */}
+              <motion.div
+                className="mt-6"
                 variants={pickerVariants.container}
               >
-                {avatars.map((avatar) => (
-                  <motion.button
-                    key={avatar.id}
-                    onClick={() => handleAvatarSelect(avatar)}
-                    disabled={loading}
-                    className={cn(
-                      "relative w-12 h-12 rounded-full overflow-hidden border-2",
-                      "transition-all duration-300",
-                      loading && "opacity-50 cursor-not-allowed"
-                    )}
-                    variants={pickerVariants.item}
-                    whileHover={{
-                      y: -2,
-                      transition: { duration: 0.2 },
-                    }}
-                    whileTap={{
-                      y: 0,
-                      transition: { duration: 0.2 },
-                    }}
-                    aria-label={`Select ${avatar.alt}`}
-                    aria-pressed={selectedAvatar.id === avatar.id}
-                  >
-                    <div className="w-full h-full flex items-center justify-center">
-                      {avatar.svg}
-                    </div>
-                    {selectedAvatar.id === avatar.id && (
-                      <motion.div
-                        className="absolute inset-0 bg-primary/20 ring-2 ring-primary ring-offset-2 ring-offset-background rounded-full"
-                        variants={selectedVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        layoutId="selectedIndicator"
-                      />
-                    )}
-                  </motion.button>
-                ))}
+                <motion.div
+                  className="flex justify-center gap-4"
+                  variants={pickerVariants.container}
+                >
+                  {avatars.map((avatar) => (
+                    <motion.button
+                      key={avatar.id}
+                      onClick={() => handleAvatarSelect(avatar)}
+                      disabled={loading}
+                      className={cn(
+                        "relative w-12 h-12 rounded-full overflow-hidden border-2",
+                        "transition-all duration-300",
+                        loading && "opacity-50 cursor-not-allowed"
+                      )}
+                      variants={pickerVariants.item}
+                      whileHover={{
+                        y: -2,
+                        transition: { duration: 0.2 },
+                      }}
+                      whileTap={{
+                        y: 0,
+                        transition: { duration: 0.2 },
+                      }}
+                      aria-label={`Select ${avatar.alt}`}
+                      aria-pressed={selectedAvatar.id === avatar.id}
+                    >
+                      <div className="w-full h-full flex items-center justify-center">
+                        {avatar.svg}
+                      </div>
+                      {selectedAvatar.id === avatar.id && (
+                        <motion.div
+                          className="absolute inset-0 bg-primary/20 ring-2 ring-primary ring-offset-2 ring-offset-background rounded-full"
+                          variants={selectedVariants}
+                          initial="initial"
+                          animate="animate"
+                          exit="exit"
+                          layoutId="selectedIndicator"
+                        />
+                      )}
+                    </motion.button>
+                  ))}
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
 
             {/* Separator */}
-            <Separator className="my-6" />
+            <Separator className="my-8" />
 
-            {/* Company Data Form */}
+            {/* Company Data Form - Embaixo */}
             <motion.div
               className="space-y-4"
               variants={pickerVariants.container}
@@ -714,8 +717,8 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
                 )}
               </div>
 
-              <motion.div className="space-y-3" variants={pickerVariants.container}>
-                <motion.div variants={pickerVariants.item}>
+              <motion.div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0" variants={pickerVariants.container}>
+                <motion.div variants={pickerVariants.item} className="md:col-span-2">
                   <Label htmlFor="company_name">Nome da Empresa</Label>
                   <Input
                     id="company_name"
@@ -746,6 +749,21 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
                 </motion.div>
 
                 <motion.div variants={pickerVariants.item}>
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="(00) 00000-0000"
+                    disabled={!isEditing}
+                    className={cn(
+                      "mt-1",
+                      !isEditing && "bg-muted text-muted-foreground cursor-not-allowed"
+                    )}
+                  />
+                </motion.div>
+
+                <motion.div variants={pickerVariants.item} className="md:col-span-2">
                   <Label htmlFor="company_email">Email da Empresa</Label>
                   <Input
                     id="company_email"
@@ -761,23 +779,8 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
                   />
                 </motion.div>
 
-                <motion.div variants={pickerVariants.item}>
-                  <Label htmlFor="phone">Telefone</Label>
-                  <Input
-                    id="phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(00) 00000-0000"
-                    disabled={!isEditing}
-                    className={cn(
-                      "mt-1",
-                      !isEditing && "bg-muted text-muted-foreground cursor-not-allowed"
-                    )}
-                  />
-                </motion.div>
-
                 {isEditing && (
-                  <motion.div variants={pickerVariants.item} className="pt-2">
+                  <motion.div variants={pickerVariants.item} className="pt-2 md:col-span-2">
                     <Button
                       onClick={handleSaveCompanyData}
                       disabled={saving}
@@ -795,4 +798,3 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
     </motion.div>
   )
 }
-
