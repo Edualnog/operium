@@ -335,7 +335,7 @@ export default function SignupPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
             <p>© {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.</p>
             <div className="flex items-center gap-4">
-              <a href="mailto:suporte@almoxfacil.com.br" className="hover:text-blue-600 transition-colors" title="Email">
+              <a href="mailto:suporte@alnog.com.br" className="hover:text-blue-600 transition-colors" title="Email">
                 <Mail className="h-4 w-4" />
               </a>
               <a href="https://www.linkedin.com/company/almoxfacil" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors" title="LinkedIn">

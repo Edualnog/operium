@@ -707,7 +707,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
             <div className="flex items-center gap-6">
               <a 
-                href="mailto:suporte@almoxfacil.com.br"
+                href="mailto:suporte@alnog.com.br"
                 className="text-slate-500 hover:text-blue-600 transition-colors"
                 title="Suporte por email"
               >
