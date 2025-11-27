@@ -16,6 +16,10 @@ const DashboardWrapper = dynamic(() => import("@/components/layout/DashboardWrap
   ),
 })
 
+const OnboardingWrapper = dynamic(() => import("@/components/onboarding/OnboardingWrapper"), {
+  ssr: false,
+})
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -50,9 +54,11 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-white">
-      <DashboardWrapper>
-        {children}
-      </DashboardWrapper>
+      <OnboardingWrapper>
+        <DashboardWrapper>
+          {children}
+        </DashboardWrapper>
+      </OnboardingWrapper>
     </div>
   )
 }
