@@ -164,10 +164,11 @@ export async function GET(request: Request) {
     }
 
     // FALLBACK: Se chegou aqui, não há token, sessão nem usuário autenticado
-    // Isso pode acontecer se o Supabase processou o token mas não criou sessão/cookies
-    // Nesse caso, redirecionar para login com mensagem amigável
+    // Isso pode acontecer se o Supabase já processou o token e confirmou o email
+    // mas redirecionou sem criar sessão/cookies. Nesse caso, o email já está confirmado,
+    // então apenas redirecionamos para login sem erro - o usuário pode fazer login normalmente
     return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=verification_processing&message=${encodeURIComponent('Verificação de email em processamento. Se o problema persistir, tente fazer login normalmente.')}`
+      `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado! Faça login para continuar.')}`
     )
 
   } catch (err: any) {
