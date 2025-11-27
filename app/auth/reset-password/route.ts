@@ -51,20 +51,15 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Verificar se já há uma sessão ativa (Supabase pode ter processado o token)
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (session && session.user) {
-      // Se há sessão, redirecionar para a página de reset (usuário pode alterar senha)
-      return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
-    }
-
     // Se há code na URL (Supabase pode enviar code em vez de token)
     if (code) {
+      console.log('Processando code de recuperação de senha:', code.substring(0, 20) + '...')
+      
       // Tentar trocar o code por uma sessão
       const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
       
       if (exchangeError) {
+        console.error('Erro ao trocar code por sessão:', exchangeError)
         let errorMessage = 'Link de recuperação inválido ou expirado.'
         
         if (exchangeError.message.includes('expired') || exchangeError.message.includes('invalid')) {
@@ -78,8 +73,18 @@ export async function GET(request: Request) {
 
       // Se a troca foi bem-sucedida, redirecionar para a página de reset
       if (exchangeData?.session) {
+        console.log('Sessão criada com sucesso, redirecionando para reset-password')
         return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
       }
+    }
+
+    // Verificar se já há uma sessão ativa (Supabase pode ter processado o token)
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (session && session.user) {
+      console.log('Sessão já existe, redirecionando para reset-password')
+      // Se há sessão, redirecionar para a página de reset (usuário pode alterar senha)
+      return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
     }
 
     // Se há token na URL, tentar verificar o token
