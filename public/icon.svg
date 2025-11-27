@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <rect width="500" height="500" fill="#5569ff"/>
+  <path d="M250 80 350 130 350 230 250 280 150 230 150 130 250 80Z" fill="none" stroke="#ffffff" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M250 80V180" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+  <path d="M150 130 250 180 350 130" fill="none" stroke="#ffffff" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M250 180 250 280" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+  <path d="M250 180 150 230" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+  <path d="M250 180 350 230" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+  <text x="50%" y="400" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="700" text-anchor="middle">Almox Fácil</text>
+</svg>
