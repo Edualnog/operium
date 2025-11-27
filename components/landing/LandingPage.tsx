@@ -317,30 +317,30 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 </div>
               </div>
               {/* Dashboard Mock */}
-              <div className="p-6 bg-slate-50">
-                <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="p-3 sm:p-6 bg-slate-50">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
                   {[
                     { label: "Itens em Estoque", value: "1.284" },
                     { label: "Colaboradores", value: "45" },
                     { label: "Ferramentas", value: "328" },
                     { label: "Movimentações/mês", value: "892" }
                   ].map((stat, i) => (
-                    <div key={i} className="p-4 rounded-xl bg-white shadow-sm border border-slate-200">
-                      <p className="text-sm text-slate-500">{stat.label}</p>
-                      <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                    <div key={i} className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-white shadow-sm border border-slate-200">
+                      <p className="text-xs sm:text-sm text-slate-500 truncate">{stat.label}</p>
+                      <p className="text-lg sm:text-2xl font-bold text-slate-900">{stat.value}</p>
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-2 h-48 rounded-xl bg-white shadow-sm border border-slate-200 p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="font-semibold text-slate-700">Movimentações</p>
-                      <div className="flex gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500" />
-                        <div className="w-3 h-3 rounded-full bg-indigo-500" />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="sm:col-span-2 h-36 sm:h-48 rounded-lg sm:rounded-xl bg-white shadow-sm border border-slate-200 p-3 sm:p-4">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <p className="font-semibold text-slate-700 text-sm sm:text-base">Movimentações</p>
+                      <div className="flex gap-1.5 sm:gap-2">
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500" />
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-indigo-500" />
                       </div>
                     </div>
-                    <div className="h-28 flex items-end gap-2">
+                    <div className="h-20 sm:h-28 flex items-end gap-1 sm:gap-2">
                       {[40, 65, 45, 80, 55, 90, 70, 85, 60, 75, 95, 82].map((h, i) => (
                         <div 
                           key={i} 
@@ -350,20 +350,20 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       ))}
                     </div>
                   </div>
-                  <div className="h-48 rounded-xl bg-white shadow-sm border border-slate-200 p-4">
-                    <p className="font-semibold text-slate-700 mb-4">Status</p>
-                    <div className="space-y-3">
+                  <div className="h-36 sm:h-48 rounded-lg sm:rounded-xl bg-white shadow-sm border border-slate-200 p-3 sm:p-4">
+                    <p className="font-semibold text-slate-700 mb-3 sm:mb-4 text-sm sm:text-base">Status</p>
+                    <div className="space-y-2 sm:space-y-3">
                       {[
                         { label: "Disponível", pct: 72, color: "bg-green-500" },
                         { label: "Em uso", pct: 20, color: "bg-blue-500" },
                         { label: "Manutenção", pct: 8, color: "bg-yellow-500" }
                       ].map((item, i) => (
                         <div key={i}>
-                          <div className="flex justify-between text-sm mb-1">
+                          <div className="flex justify-between text-xs sm:text-sm mb-1">
                             <span className="text-slate-600">{item.label}</span>
                             <span className="text-slate-900 font-medium">{item.pct}%</span>
                           </div>
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.pct}%` }} />
                           </div>
                         </div>
@@ -416,22 +416,22 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       </section>
 
       {/* Multi-Platform Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-100 to-white overflow-hidden">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-100 to-white overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mb-4">
-              <Globe className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium mb-4">
+              <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Multi-plataforma
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
               Acesse de qualquer lugar
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-4 sm:px-0">
               Desktop, tablet ou celular — seu almoxarifado na palma da mão. 
               Interface responsiva que se adapta perfeitamente a qualquer dispositivo.
             </p>
@@ -442,7 +442,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="relative"
+            className="relative px-4 sm:px-0"
           >
             {/* Glow effect behind image */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-indigo-400/20 to-purple-400/20 blur-3xl rounded-full transform scale-75" />
@@ -458,41 +458,41 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-wrap justify-center gap-8 mt-12"
+            className="grid grid-cols-3 sm:flex sm:flex-wrap justify-center gap-3 sm:gap-8 mt-8 sm:mt-12"
           >
-            <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div>
-                <p className="font-semibold text-slate-900">Desktop</p>
-                <p className="text-sm text-slate-500">Tela completa</p>
+              <div className="text-center sm:text-left">
+                <p className="font-semibold text-slate-900 text-sm sm:text-base">Desktop</p>
+                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Tela completa</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
-              <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
-                <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div>
-                <p className="font-semibold text-slate-900">Tablet</p>
-                <p className="text-sm text-slate-500">Touch otimizado</p>
+              <div className="text-center sm:text-left">
+                <p className="font-semibold text-slate-900 text-sm sm:text-base">Tablet</p>
+                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Touch otimizado</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div>
-                <p className="font-semibold text-slate-900">Mobile</p>
-                <p className="text-sm text-slate-500">Sempre disponível</p>
+              <div className="text-center sm:text-left">
+                <p className="font-semibold text-slate-900 text-sm sm:text-base">Mobile</p>
+                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Sempre disponível</p>
               </div>
             </div>
           </motion.div>
@@ -500,10 +500,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 relative overflow-hidden">
+      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-500 rounded-full blur-[128px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-blue-500 rounded-full blur-[128px]" />
         </div>
 
         <div className="max-w-4xl mx-auto relative">
@@ -511,12 +511,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
               Preço simples, sem surpresas
             </h2>
-            <p className="text-lg text-slate-400">
+            <p className="text-base sm:text-lg text-slate-400">
               Comece com 7 dias grátis. Cancele quando quiser.
             </p>
           </motion.div>
@@ -525,34 +525,34 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-b from-slate-800 to-slate-800/50 rounded-3xl border border-slate-700 p-8 sm:p-12"
+            className="bg-gradient-to-b from-slate-800 to-slate-800/50 rounded-2xl sm:rounded-3xl border border-slate-700 p-5 sm:p-8 lg:p-12"
           >
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm font-medium mb-4">
-                  <Zap className="h-4 w-4" />
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 sm:gap-8">
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                  <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Plano Profissional
                 </div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-2xl text-slate-500 line-through">R$69,90</span>
-                  <span className="text-5xl font-bold text-white">R$39,90</span>
-                  <span className="text-slate-400">/mês</span>
+                <div className="flex items-baseline justify-center lg:justify-start gap-2 sm:gap-3">
+                  <span className="text-lg sm:text-2xl text-slate-500 line-through">R$69,90</span>
+                  <span className="text-3xl sm:text-5xl font-bold text-white">R$39,90</span>
+                  <span className="text-slate-400 text-sm sm:text-base">/mês</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center justify-center lg:justify-start gap-2 mt-2">
                   <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">
                     43% OFF
                   </span>
-                  <p className="text-slate-400">Por empresa • Inclui tudo</p>
+                  <p className="text-slate-400 text-xs sm:text-sm">Por empresa • Inclui tudo</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {pricingFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-blue-400" />
+                  <div key={index} className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                      <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-400" />
                     </div>
-                    <span className="text-slate-300 text-sm">{feature}</span>
+                    <span className="text-slate-300 text-xs sm:text-sm">{feature}</span>
                   </div>
                 ))}
               </div>
