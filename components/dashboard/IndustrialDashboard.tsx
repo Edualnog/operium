@@ -504,7 +504,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div>
                   <p className="text-xs text-zinc-500">Itens em Estoque</p>
                   <p className="text-xl font-bold text-zinc-900">
-                    {data.itensEstoqueCritico.length + data.itensMaiorConsumo.length}
+                    {data.totais?.itensEstoque || 0}
                   </p>
                 </div>
               </div>
@@ -520,7 +520,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div>
                   <p className="text-xs text-zinc-500">Colaboradores</p>
                   <p className="text-xl font-bold text-zinc-900">
-                    {data.rankingResponsabilidade.length}
+                    {data.totais?.colaboradores || 0}
                   </p>
                 </div>
               </div>
@@ -536,7 +536,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div>
                   <p className="text-xs text-zinc-500">Ferramentas</p>
                   <p className="text-xl font-bold text-zinc-900">
-                    {data.topFerramentasUtilizadas.length}
+                    {data.totais?.ferramentas || 0}
                   </p>
                 </div>
               </div>

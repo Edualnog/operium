@@ -96,6 +96,14 @@ export interface FerramentaEstragada {
   quantidade_disponivel: number
 }
 
+export interface Totais {
+  colaboradores: number
+  ferramentas: number
+  itensEstoque: number
+  consumiveis: number
+  epis: number
+}
+
 export interface KPIData {
   // Ferramentas
   ferramentasEmUso: FerramentaEmUso[]
@@ -117,4 +125,7 @@ export interface KPIData {
   // Previsões
   riscoRuptura: RiscoRuptura[]
   itensCriticosDia: ItemCriticoDia[]
+  
+  // Totais para dashboard
+  totais?: Totais
 }

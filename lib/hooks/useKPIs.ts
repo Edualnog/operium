@@ -428,6 +428,14 @@ export function useKPIs(userId: string) {
             episProximosValidade,
             riscoRuptura,
             itensCriticosDia,
+            // Totais para os cards do dashboard
+            totais: {
+              colaboradores: colaboradores.length,
+              ferramentas: ferramentas.filter((f: any) => f.tipo_item === "ferramenta").length,
+              itensEstoque: ferramentas.length,
+              consumiveis: ferramentas.filter((f: any) => f.tipo_item === "consumivel").length,
+              epis: ferramentas.filter((f: any) => f.tipo_item === "epi").length,
+            },
           })
           setLoading(false)
         }
