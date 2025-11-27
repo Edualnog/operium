@@ -87,17 +87,22 @@ Para habilitar o login com Google:
 9. Adicione as **Redirect URLs** permitidas:
    - `http://localhost:3000/auth/callback` (desenvolvimento - OAuth)
    - `http://localhost:3000/auth/verify` (desenvolvimento - verificação de email)
+   - `http://localhost:3000/auth/reset-password` (desenvolvimento - recuperação de senha)
    - `https://seu-dominio.com/auth/callback` (produção OAuth, se aplicável)
    - `https://seu-dominio.com/auth/verify` (produção - verificação de email)
+   - `https://seu-dominio.com/auth/reset-password` (produção - recuperação de senha)
    - `https://*.vercel.app/auth/callback` (wildcard para preview URLs do Vercel - OAuth)
    - `https://*.vercel.app/auth/verify` (wildcard para preview URLs do Vercel - verificação de email)
+   - `https://*.vercel.app/auth/reset-password` (wildcard para preview URLs do Vercel - recuperação de senha)
    - `https://seu-projeto.vercel.app/auth/callback` (produção Vercel - OAuth)
    - `https://seu-projeto.vercel.app/auth/verify` (produção Vercel - verificação de email)
+   - `https://seu-projeto.vercel.app/auth/reset-password` (produção Vercel - recuperação de senha)
 10. Clique em **Save**
 
-**⚠️ IMPORTANTE para Verificação de Email:**
+**⚠️ IMPORTANTE para Verificação de Email e Recuperação de Senha:**
 - A rota `/auth/verify` é essencial para tratar erros de verificação de email (links expirados, etc.)
-- Sem essa URL configurada, erros de verificação mostrarão JSON bruto do Supabase
+- A rota `/auth/reset-password` é essencial para recuperação de senha
+- Sem essas URLs configuradas, erros mostrarão JSON bruto do Supabase
 - Configure tanto para desenvolvimento quanto para produção
 
 **⚠️ IMPORTANTE para Preview URLs do Vercel:**
