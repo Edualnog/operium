@@ -247,7 +247,7 @@ export default function SignupPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Nome da Empresa
+                  Nome da Empresa <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -256,6 +256,7 @@ export default function SignupPage() {
                   className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                   placeholder="Sua empresa"
                   disabled={loading}
+                  required
                 />
               </div>
               <div>
@@ -308,16 +309,24 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-xs text-center text-slate-500">
-            Ao criar sua conta, você concorda com nossos{" "}
-            <a href="#" className="text-blue-600 hover:underline">
-              Termos e Condições
-            </a>{" "}
-            e{" "}
-            <a href="#" className="text-blue-600 hover:underline">
-              Política de Privacidade
-            </a>
-          </p>
+          <div className="mt-6 space-y-3">
+            <p className="text-xs text-center text-slate-500">
+              Ao criar sua conta, você concorda com nossos{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Termos e Condições
+              </a>{" "}
+              e{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Política de Privacidade
+              </a>
+            </p>
+            <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+              <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span>Seus dados estão protegidos conforme a <strong className="text-slate-500">LGPD</strong></span>
+            </div>
+          </div>
         </motion.div>
       </div>
 

@@ -695,9 +695,15 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               <span className="font-bold text-lg">Almox Fácil</span>
             </div>
 
-            <p className="text-slate-500 text-sm">
-              © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
-            </p>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-slate-500 text-sm">
+                © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
+              </p>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <Shield className="h-3.5 w-3.5 text-green-500" />
+                <span>Dados protegidos conforme a <strong className="text-slate-500">LGPD</strong></span>
+              </div>
+            </div>
 
             <div className="flex items-center gap-6">
               <a 
