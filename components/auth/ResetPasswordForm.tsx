@@ -221,8 +221,12 @@ export default function ResetPasswordForm() {
     >
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Package className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-[#4B6BFB] rounded-lg flex items-center justify-center p-1.5">
+            <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
+              <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+              <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+              <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+            </svg>
           </div>
           <span className="text-2xl font-bold text-gray-900 dark:text-white">
             Almox Fácil

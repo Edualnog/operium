@@ -255,8 +255,12 @@ const Button: React.FC<ButtonProps> = ({ children, className, ...props }) => (
 
 const Logo: React.FC = () => (
   <div className="mb-6 flex justify-center items-center">
-    <div className="rounded-lg bg-gradient-to-br from-blue-400 to-blue-700 p-2">
-      <Package className="h-8 w-8 text-white" />
+    <div className="rounded-lg bg-[#4B6BFB] p-1.5">
+      <svg className="h-8 w-8" viewBox="0 0 500 500" fill="none">
+        <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+        <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+        <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+      </svg>
     </div>
     <span className="ml-2 text-xl font-bold text-zinc-900">Almox Fácil</span>
   </div>
