@@ -1,9 +1,40 @@
 import Stripe from "stripe";
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   try {
+    // Verificar autenticação do usuário
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name) {
+            return cookieStore.get(name)?.value
+          },
+          set(name, value, options) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name, options) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Não autorizado. Faça login primeiro." }), 
+        { status: 401 }
+      )
+    }
+
     const body = await req.json();
 
     const session = await stripe.checkout.sessions.create({
@@ -23,11 +54,14 @@ export async function POST(req) {
         trial_period_days: 7,
       },
 
+      // Associar checkout ao usuário (CRÍTICO!)
+      client_reference_id: user.id,
+
       // Para onde o usuário vai depois de pagar
-      success_url: `${process.env.APP_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
 
       // Para onde volta caso cancele antes de pagar
-      cancel_url: `${process.env.LANDING_URL}/cancelled`,
+      cancel_url: `${process.env.LANDING_URL || process.env.NEXT_PUBLIC_LANDING_URL || 'http://localhost:3000'}/cancelled`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

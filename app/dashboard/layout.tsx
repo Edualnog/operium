@@ -30,6 +30,20 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
+  // Verificar status da assinatura
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('subscription_status')
+    .eq('id', user.id)
+    .single()
+
+  // Permitir acesso apenas se tiver assinatura ativa ou em trial
+  // Se inativo, o usuário pode ver mas com aviso (validação mais flexível)
+  // Para bloquear completamente, descomente a linha abaixo:
+  // if (profile?.subscription_status !== 'active' && profile?.subscription_status !== 'trialing') {
+  //   redirect("/upgrade")
+  // }
+
   return (
     <div className="min-h-screen bg-white">
       <DashboardWrapper>

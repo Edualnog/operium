@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import dynamic from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
+import CheckoutHandler from "@/components/checkout/CheckoutHandler"
 
 const IndustrialDashboard = dynamic(
   () => import("@/components/dashboard/IndustrialDashboard"),
@@ -46,6 +47,7 @@ export default async function DashboardPage() {
         </div>
       }
     >
+      <CheckoutHandler userId={user.id} />
       <IndustrialDashboard userId={user.id} />
     </Suspense>
   )
