@@ -28,13 +28,6 @@ export async function GET(request: Request) {
     )
   }
 
-  // Se não houver token nem token_hash, redireciona para login
-  if (!token && !tokenHash) {
-    return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=no_token&message=${encodeURIComponent('Token de verificação não encontrado.')}`
-    )
-  }
-
   const cookieStore = cookies()
   
   const supabase = createServerClient(
@@ -56,6 +49,38 @@ export async function GET(request: Request) {
   )
 
   try {
+    // Primeiro, verificar se já há uma sessão ativa (Supabase pode ter criado automaticamente)
+    const { data: { session: existingSession }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (existingSession && existingSession.user) {
+      // Se já há sessão, verificar se o perfil existe
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', existingSession.user.id)
+        .single()
+
+      if (!existingProfile) {
+        await supabase.from('profiles').upsert({
+          id: existingSession.user.id,
+          name: existingSession.user.email?.split('@')[0] || 'Usuário',
+          company_email: existingSession.user.email,
+        }, {
+          onConflict: 'id'
+        })
+      }
+
+      // Redirecionar para dashboard se já está autenticado
+      return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+    }
+
+    // Se não há sessão e não há token, redirecionar com erro
+    if (!token && !tokenHash) {
+      return NextResponse.redirect(
+        `${requestUrl.origin}/login?error=no_token&message=${encodeURIComponent('Token de verificação não encontrado.')}`
+      )
+    }
+
     // Verificar o token de email
     const { data, error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash || token || '',
