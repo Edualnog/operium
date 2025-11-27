@@ -1,10 +1,10 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
-import ProfileForm from "@/components/profile/ProfileForm"
+import ContaClient from "@/components/conta/ContaClient"
 
 export const revalidate = 0
 
-async function getProfile() {
+async function getAccountData() {
   const supabase = await createServerComponentClient()
   const {
     data: { user },
@@ -14,9 +14,9 @@ async function getProfile() {
     redirect("/login")
   }
 
-  const { data, error } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, name, company_name, cnpj, company_email, phone")
+    .select("*")
     .eq("id", user.id)
     .single()
 
@@ -24,23 +24,20 @@ async function getProfile() {
     console.error(error)
   }
 
-  return { user, profile: data }
+  return { user, profile }
 }
 
 export default async function ContaPage() {
-  const { user, profile } = await getProfile()
+  const { user, profile } = await getAccountData()
 
   return (
-    <div className="max-w-3xl space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">
-          Minha Conta
-        </h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
-          Gerencie seus dados pessoais e os dados da sua empresa
-        </p>
-      </div>
-      <ProfileForm userId={user.id} userEmail={user.email ?? null} initialProfile={profile} />
-    </div>
+    <ContaClient 
+      user={{
+        id: user.id,
+        email: user.email || "",
+        created_at: user.created_at || "",
+      }}
+      profile={profile}
+    />
   )
 }
