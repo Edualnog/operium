@@ -399,13 +399,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     Últimos 12 meses
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
                     <span className="text-xs text-zinc-500">Entradas</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-indigo-500" />
+                    <div className="w-3 h-3 rounded-full bg-rose-500" />
                     <span className="text-xs text-zinc-500">Saídas</span>
                   </div>
                 </div>
@@ -424,7 +424,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     return (
                       <div key={index} className="flex-1 flex flex-col items-center gap-1">
                         <div 
-                          className="w-full bg-gradient-to-t from-blue-500 to-indigo-500 rounded-t-sm transition-all hover:from-blue-600 hover:to-indigo-600"
+                          className="w-full bg-gradient-to-t from-emerald-500 to-rose-500 rounded-t-sm transition-all hover:from-emerald-600 hover:to-rose-600"
                           style={{ height: `${Math.max(height, 4)}%` }}
                           title={`${item.mes}: ${item.total} movimentações`}
                         />
