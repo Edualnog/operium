@@ -18,7 +18,8 @@ import {
   atualizarColaborador,
   deletarColaborador,
 } from "@/lib/actions"
-import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown, Grid3x3, Square, LayoutGrid, Shield, AlertTriangle, ChevronDown, ChevronUp, Download, History, TrendingUp } from "lucide-react"
+import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown, Grid3x3, Square, LayoutGrid, Shield, AlertTriangle, ChevronDown, ChevronUp, Download, History, TrendingUp, Upload } from "lucide-react"
+import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
@@ -84,6 +85,7 @@ function ColaboradoresList({
   const [historicoMovimentacoes, setHistoricoMovimentacoes] = useState<Record<string, any[]>>({})
   const [loadingHistorico, setLoadingHistorico] = useState<Record<string, boolean>>({})
   const [exportingFicha, setExportingFicha] = useState<string | null>(null)
+  const [importModalOpen, setImportModalOpen] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { open: sidebarOpen } = useSidebar()
@@ -120,6 +122,47 @@ function ColaboradoresList({
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Configuração de importação de Excel
+  const importConfig: ImportConfig = {
+    title: "Importar Colaboradores",
+    description: "Importe colaboradores a partir de uma planilha Excel ou CSV",
+    templateFileName: "modelo_colaboradores.xlsx",
+    columns: [
+      { excelColumn: "nome", dbColumn: "nome", label: "Nome", required: true, type: "text" },
+      { excelColumn: "cargo", dbColumn: "cargo", label: "Cargo", required: false, type: "text" },
+      { excelColumn: "email", dbColumn: "email", label: "Email", required: false, type: "text" },
+      { excelColumn: "telefone", dbColumn: "telefone", label: "Telefone", required: false, type: "text" },
+      { excelColumn: "cpf", dbColumn: "cpf", label: "CPF", required: false, type: "text" },
+      { excelColumn: "endereco", dbColumn: "endereco", label: "Endereço", required: false, type: "text" },
+      { excelColumn: "data_admissao", dbColumn: "data_admissao", label: "Data Admissão", required: false, type: "date" },
+      { excelColumn: "observacoes", dbColumn: "observacoes", label: "Observações", required: false, type: "text" },
+    ],
+    onImport: async (data) => {
+      let success = 0
+      const errors: string[] = []
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+        try {
+          const formData = new FormData()
+          Object.entries(row).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== "") {
+              formData.append(key, value.toString())
+            }
+          })
+          await criarColaborador(formData)
+          success++
+        } catch (error: any) {
+          errors.push(`Linha ${i + 2}: ${error.message || "Erro ao criar colaborador"}`)
+        }
+      }
+
+      // Atualizar lista após importação
+      router.refresh()
+      return { success, errors }
+    }
+  }
 
   // Estado dos filtros
   const [filters, setFilters] = useState<FilterState>({
@@ -941,13 +984,21 @@ function ColaboradoresList({
           </div>
         </div>
 
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setEditing(null)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Colaborador
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setImportModalOpen(true)}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Importar Excel
+          </Button>
+          <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setEditing(null)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Colaborador
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
@@ -1081,8 +1132,17 @@ function ColaboradoresList({
               </DialogFooter>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Modal de Importação */}
+      {importModalOpen && (
+        <ImportExcel
+          config={importConfig}
+          onClose={() => setImportModalOpen(false)}
+        />
+      )}
 
       {/* Cards de colaboradores */}
       {filteredAndSortedColaboradores.length === 0 ? (
