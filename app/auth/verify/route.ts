@@ -134,6 +134,16 @@ export async function GET(request: Request) {
 
       // Se a verificação foi bem-sucedida
       if (data?.user) {
+        // Verificar se o email foi realmente confirmado
+        const emailConfirmed = data.user.email_confirmed_at !== null
+        console.log('Verificação OTP bem-sucedida:', {
+          userId: data.user.id,
+          email: data.user.email,
+          emailConfirmed,
+          emailConfirmedAt: data.user.email_confirmed_at,
+          hasSession: !!data.session
+        })
+
         // Verificar/criar perfil
         const { data: existingProfile } = await supabase
           .from('profiles')
@@ -157,6 +167,7 @@ export async function GET(request: Request) {
         }
 
         // Se não houver sessão, redireciona para login com mensagem de sucesso
+        // O email já foi confirmado pelo verifyOtp acima
         return NextResponse.redirect(
           `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado com sucesso! Faça login para continuar.')}`
         )
