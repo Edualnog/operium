@@ -26,6 +26,8 @@ import {
   Target,
   ArrowUp,
   ArrowDown,
+  BarChart3,
+  Activity,
 } from "lucide-react"
 
 interface IndustrialDashboardProps {
@@ -43,6 +45,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   const [periodoFerramentas, setPeriodoFerramentas] = useState<7 | 14 | 30 | 60 | 120>(30)
   const [ferramentasPorPeriodo, setFerramentasPorPeriodo] = useState<any[]>([])
   const [loadingFerramentas, setLoadingFerramentas] = useState(false)
+  const [movimentacoesMensais, setMovimentacoesMensais] = useState<any[]>([])
+  const [loadingMovMensais, setLoadingMovMensais] = useState(false)
+  const [statusFerramentas, setStatusFerramentas] = useState({ disponiveis: 0, emUso: 0, manutencao: 0 })
 
   // Buscar dados de consumo baseado no período selecionado
   useEffect(() => {
@@ -232,6 +237,113 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     fetchFerramentasPorPeriodo()
   }, [userId, periodoFerramentas])
 
+  // Buscar movimentações mensais para o gráfico de overview
+  useEffect(() => {
+    async function fetchMovimentacoesMensais() {
+      if (!userId) return
+      
+      setLoadingMovMensais(true)
+      try {
+        const supabase = createClientComponentClient()
+        const dozeMesesAtras = new Date()
+        dozeMesesAtras.setMonth(dozeMesesAtras.getMonth() - 12)
+
+        const { data: movimentacoes, error: movError } = await supabase
+          .from("movimentacoes")
+          .select("data, tipo")
+          .eq("profile_id", userId)
+          .gte("data", dozeMesesAtras.toISOString())
+
+        if (movError) {
+          console.error("Erro ao buscar movimentações mensais:", movError)
+          setLoadingMovMensais(false)
+          return
+        }
+
+        // Agrupar por mês
+        const porMes: Record<string, number> = {}
+        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+        
+        movimentacoes?.forEach((mov: any) => {
+          const date = new Date(mov.data)
+          const mesAno = `${meses[date.getMonth()]}`
+          porMes[mesAno] = (porMes[mesAno] || 0) + 1
+        })
+
+        // Criar array com últimos 12 meses
+        const resultado = []
+        const hoje = new Date()
+        for (let i = 11; i >= 0; i--) {
+          const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1)
+          const mes = meses[d.getMonth()]
+          resultado.push({
+            mes,
+            total: porMes[mes] || 0,
+          })
+        }
+
+        setMovimentacoesMensais(resultado)
+      } catch (err) {
+        console.error("Erro ao calcular movimentações mensais:", err)
+      } finally {
+        setLoadingMovMensais(false)
+      }
+    }
+
+    fetchMovimentacoesMensais()
+  }, [userId])
+
+  // Calcular status das ferramentas
+  useEffect(() => {
+    async function calcularStatus() {
+      if (!userId) return
+      
+      try {
+        const supabase = createClientComponentClient()
+        
+        // Buscar todas as ferramentas
+        const { data: ferramentas, error: ferrError } = await supabase
+          .from("ferramentas")
+          .select("id, quantidade_disponivel, status")
+          .eq("profile_id", userId)
+          .eq("tipo_item", "ferramenta")
+
+        if (ferrError) {
+          console.error("Erro ao buscar ferramentas:", ferrError)
+          return
+        }
+
+        // Contar status
+        let disponiveis = 0
+        let emUso = 0
+        let manutencao = 0
+
+        ferramentas?.forEach((f: any) => {
+          if (f.status === "manutencao" || f.status === "danificado") {
+            manutencao++
+          } else if (f.quantidade_disponivel <= 0) {
+            emUso++
+          } else {
+            disponiveis++
+          }
+        })
+
+        const total = ferramentas?.length || 0
+        if (total > 0) {
+          setStatusFerramentas({
+            disponiveis: Math.round((disponiveis / total) * 100),
+            emUso: Math.round((emUso / total) * 100),
+            manutencao: Math.round((manutencao / total) * 100),
+          })
+        }
+      } catch (err) {
+        console.error("Erro ao calcular status:", err)
+      }
+    }
+
+    calcularStatus()
+  }, [userId, data])
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -271,6 +383,183 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           Mais agilidade e controle nas operações do almoxarifado
         </p>
       </div>
+
+      {/* SESSÃO OVERVIEW - Gráficos principais */}
+      <section className="space-y-6 mb-8">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+          {/* Gráfico de Movimentações */}
+          <Card className="lg:col-span-2 border border-zinc-200 bg-white shadow-sm">
+            <CardHeader className="pb-3 border-b border-zinc-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                    Movimentações
+                  </CardTitle>
+                  <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                    Últimos 12 meses
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    <span className="text-xs text-zinc-500">Entradas</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-indigo-500" />
+                    <span className="text-xs text-zinc-500">Saídas</span>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {loadingMovMensais ? (
+                <div className="flex items-center justify-center h-48">
+                  <p className="text-sm text-zinc-500">Carregando...</p>
+                </div>
+              ) : (
+                <div className="h-48 flex items-end gap-1 sm:gap-2">
+                  {movimentacoesMensais.map((item, index) => {
+                    const maxValue = Math.max(...movimentacoesMensais.map(m => m.total), 1)
+                    const height = (item.total / maxValue) * 100
+                    return (
+                      <div key={index} className="flex-1 flex flex-col items-center gap-1">
+                        <div 
+                          className="w-full bg-gradient-to-t from-blue-500 to-indigo-500 rounded-t-sm transition-all hover:from-blue-600 hover:to-indigo-600"
+                          style={{ height: `${Math.max(height, 4)}%` }}
+                          title={`${item.mes}: ${item.total} movimentações`}
+                        />
+                        <span className="text-[10px] sm:text-xs text-zinc-400">{item.mes}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Status das Ferramentas */}
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardHeader className="pb-3 border-b border-zinc-100">
+              <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                Status
+              </CardTitle>
+              <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                Situação das ferramentas
+              </p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              {/* Disponível */}
+              <div>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-zinc-600">Disponível</span>
+                  <span className="text-zinc-900 font-semibold">{statusFerramentas.disponiveis}%</span>
+                </div>
+                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-green-500 rounded-full transition-all duration-500"
+                    style={{ width: `${statusFerramentas.disponiveis}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Em uso */}
+              <div>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-zinc-600">Em uso</span>
+                  <span className="text-zinc-900 font-semibold">{statusFerramentas.emUso}%</span>
+                </div>
+                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                    style={{ width: `${statusFerramentas.emUso}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Manutenção */}
+              <div>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-zinc-600">Manutenção</span>
+                  <span className="text-zinc-900 font-semibold">{statusFerramentas.manutencao}%</span>
+                </div>
+                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                    style={{ width: `${statusFerramentas.manutencao}%` }}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Cards de estatísticas rápidas */}
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-50">
+                  <Package className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">Itens em Estoque</p>
+                  <p className="text-xl font-bold text-zinc-900">
+                    {data.itensEstoqueCritico.length + data.itensMaiorConsumo.length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-50">
+                  <Users className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">Colaboradores</p>
+                  <p className="text-xl font-bold text-zinc-900">
+                    {data.rankingResponsabilidade.length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-50">
+                  <Wrench className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">Ferramentas</p>
+                  <p className="text-xl font-bold text-zinc-900">
+                    {data.topFerramentasUtilizadas.length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-zinc-200 bg-white shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-50">
+                  <Activity className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">Movimentações/mês</p>
+                  <p className="text-xl font-bold text-zinc-900">
+                    {movimentacoesMensais.length > 0 ? movimentacoesMensais[movimentacoesMensais.length - 1]?.total || 0 : 0}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* SESSÃO 1: FERRAMENTAS */}
       <section className="space-y-6">
