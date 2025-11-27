@@ -30,15 +30,19 @@ export default function SubscribePage() {
         return
       }
 
-      // Verificar se já tem assinatura ativa
+      // Verificar se já tem assinatura ativa ou passou pelo checkout
       const { data: profile } = await supabase
         .from("profiles")
-        .select("subscription_status")
+        .select("subscription_status, stripe_customer_id")
         .eq("id", user.id)
         .single()
 
       const activeStatuses = ["active", "trialing"]
-      if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
+      const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
+      const hasStripeCustomer = !!profile?.stripe_customer_id
+      
+      // Se já tem assinatura ativa OU já passou pelo checkout (tem stripe_customer_id)
+      if (hasActiveSubscription || hasStripeCustomer) {
         router.push("/dashboard")
         return
       }

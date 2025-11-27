@@ -44,12 +44,15 @@ export default function LoginPage() {
         // Verificar status da assinatura
         const { data: profile } = await supabase
           .from("profiles")
-          .select("subscription_status")
+          .select("subscription_status, stripe_customer_id")
           .eq("id", session.user.id)
           .single()
 
         const activeStatuses = ["active", "trialing"]
-        if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
+        const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
+        const hasStripeCustomer = !!profile?.stripe_customer_id
+        
+        if (hasActiveSubscription || hasStripeCustomer) {
           router.push("/dashboard")
         } else {
           router.push("/subscribe")
@@ -68,12 +71,15 @@ export default function LoginPage() {
         // Verificar status da assinatura
         const { data: profile } = await supabase
           .from("profiles")
-          .select("subscription_status")
+          .select("subscription_status, stripe_customer_id")
           .eq("id", session.user.id)
           .single()
 
         const activeStatuses = ["active", "trialing"]
-        if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
+        const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
+        const hasStripeCustomer = !!profile?.stripe_customer_id
+        
+        if (hasActiveSubscription || hasStripeCustomer) {
           window.location.href = "/dashboard"
         } else {
           window.location.href = "/subscribe"
@@ -135,12 +141,15 @@ export default function LoginPage() {
         // Verificar status da assinatura
         const { data: profile } = await supabase
           .from("profiles")
-          .select("subscription_status")
+          .select("subscription_status, stripe_customer_id")
           .eq("id", data.user.id)
           .single()
 
         const activeStatuses = ["active", "trialing"]
-        if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
+        const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
+        const hasStripeCustomer = !!profile?.stripe_customer_id
+        
+        if (hasActiveSubscription || hasStripeCustomer) {
           window.location.href = "/dashboard"
         } else {
           window.location.href = "/subscribe"
