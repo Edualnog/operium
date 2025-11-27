@@ -7,9 +7,13 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Link from "next/link"
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
+  const [companyName, setCompanyName] = React.useState("")
+  const [cnpj, setCnpj] = React.useState("")
+  const [companyEmail, setCompanyEmail] = React.useState("")
+  const [phone, setPhone] = React.useState("")
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [info, setInfo] = React.useState("")
@@ -20,22 +24,10 @@ export default function LoginPage() {
   const redirectTo = searchParams.get("redirect")
 
   React.useEffect(() => {
-    // Verificar parâmetros da URL para mensagens de erro/sucesso
-    const errorParam = searchParams.get('error')
-    const success = searchParams.get('success')
-    const message = searchParams.get('message')
-
-    if (errorParam && message) {
-      setError(decodeURIComponent(message))
-      window.history.replaceState({}, '', window.location.pathname + (redirectTo ? `?redirect=${redirectTo}` : ''))
-    } else if (success && message) {
-      setInfo(decodeURIComponent(message))
-      window.history.replaceState({}, '', window.location.pathname + (redirectTo ? `?redirect=${redirectTo}` : ''))
-    }
-
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
+        // Se veio do checkout, redirecionar para checkout
         if (redirectTo === "checkout") {
           handleCheckoutRedirect()
           return
@@ -60,31 +52,22 @@ export default function LoginPage() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Se veio do checkout, iniciar checkout
         if (redirectTo === "checkout") {
           handleCheckoutRedirect()
           return
         }
         
-        // Verificar status da assinatura
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("subscription_status")
-          .eq("id", session.user.id)
-          .single()
-
-        const activeStatuses = ["active", "trialing"]
-        if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
-          window.location.href = "/dashboard"
-        } else {
-          window.location.href = "/subscribe"
-        }
+        // Sempre redirecionar para subscribe após criar conta
+        // (novo usuário nunca tem assinatura)
+        window.location.href = "/subscribe"
       }
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [router, supabase, searchParams, redirectTo])
+  }, [router, supabase, redirectTo])
 
   const handleCheckoutRedirect = async () => {
     try {
@@ -110,67 +93,49 @@ export default function LoginPage() {
     setInfo("")
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/verify`,
+        },
       })
 
       if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          setError("Email ou senha incorretos")
-        } else if (error.message.includes("Email not confirmed")) {
-          setError("Por favor, confirme seu email antes de fazer login")
+        if (error.message.includes("already registered")) {
+          setError("Este email já está cadastrado. Tente fazer login.")
         } else {
-          setError(error.message || "Erro ao fazer login")
+          setError(error.message || "Erro ao criar conta")
         }
         return
       }
 
-      if (data.user && data.session) {
-        if (redirectTo === "checkout") {
-          handleCheckoutRedirect()
-          return
-        }
+      if (data.user) {
+        // Preencher perfil com dados da empresa
+        await supabase.from("profiles").upsert({
+          id: data.user.id,
+          name: companyName || data.user.email,
+          company_name: companyName || null,
+          cnpj: cnpj || null,
+          company_email: companyEmail || email,
+          phone: phone || null,
+        })
         
-        // Verificar status da assinatura
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("subscription_status")
-          .eq("id", data.user.id)
-          .single()
-
-        const activeStatuses = ["active", "trialing"]
-        if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
-          window.location.href = "/dashboard"
+        // Se houver sessão, confirmação de email está desabilitada
+        if (data.session) {
+          if (redirectTo === "checkout") {
+            handleCheckoutRedirect()
+          } else {
+            // Novo usuário - sempre vai para subscribe
+            window.location.href = "/subscribe"
+          }
         } else {
-          window.location.href = "/subscribe"
+          // Confirmação de email habilitada - mostra mensagem
+          setInfo("Conta criada! Verifique seu email para confirmar e depois faça login.")
         }
-      } else if (data.user) {
-        setError("Por favor, confirme seu email antes de fazer login")
       }
     } catch (err: any) {
       setError(err.message || "Erro ao processar")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleResetPassword = async () => {
-    if (!email) {
-      setError("Informe o email para recuperar a senha.")
-      return
-    }
-    setLoading(true)
-    setError("")
-    setInfo("")
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      })
-      if (error) throw error
-      setInfo("Se o email existir, enviamos o link de recuperação.")
-    } catch (err: any) {
-      setError(err.message || "Erro ao solicitar recuperação")
     } finally {
       setLoading(false)
     }
@@ -206,7 +171,7 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative z-10 w-full max-w-md p-8 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50"
+          className="relative z-10 w-full max-w-xl p-8 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50"
         >
           <div className="mb-6 flex justify-center items-center">
             <div className="rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-3 shadow-lg shadow-blue-500/25">
@@ -216,17 +181,17 @@ export default function LoginPage() {
 
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-slate-900">
-              Entre na sua conta
+              Crie sua conta
             </h1>
             <p className="mt-2 text-slate-600">
-              Não tem uma conta?{" "}
-              <Link href={`/signup${redirectTo ? `?redirect=${redirectTo}` : ""}`} className="text-blue-600 hover:underline font-medium">
-                Crie uma
+              Já tem uma conta?{" "}
+              <Link href={`/login${redirectTo ? `?redirect=${redirectTo}` : ""}`} className="text-blue-600 hover:underline font-medium">
+                Entre aqui
               </Link>
             </p>
             {redirectTo === "checkout" && (
               <p className="mt-3 text-sm text-blue-600 bg-blue-50 rounded-lg px-4 py-2">
-                Após fazer login, você será redirecionado para o checkout
+                Após criar sua conta, você será redirecionado para o checkout
               </p>
             )}
           </div>
@@ -266,7 +231,7 @@ export default function LoginPage() {
               <input
                 id="password-input"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Mínimo 6 caracteres"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -276,26 +241,72 @@ export default function LoginPage() {
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Nome da Empresa
+                </label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  placeholder="Sua empresa"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  CNPJ <span className="text-slate-400 font-normal">(opcional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={cnpj}
+                  onChange={(e) => setCnpj(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  placeholder="00.000.000/0000-00"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Email da empresa <span className="text-slate-400 font-normal">(opcional)</span>
+                </label>
+                <input
+                  type="email"
+                  value={companyEmail}
+                  onChange={(e) => setCompanyEmail(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  placeholder="contato@empresa.com"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Telefone <span className="text-slate-400 font-normal">(opcional)</span>
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  placeholder="(00) 00000-0000"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
             <button
               type="submit"
               className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 text-lg font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-600 hover:to-indigo-700 hover:shadow-blue-500/40 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              {loading ? "Entrando..." : "Entrar"}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleResetPassword}
-              className="mt-4 w-full text-sm text-blue-600 hover:underline disabled:opacity-50"
-              disabled={loading}
-            >
-              Esqueci minha senha
+              {loading ? "Criando conta..." : "Criar Conta"}
             </button>
           </form>
 
           <p className="mt-6 text-xs text-center text-slate-500">
-            Ao entrar, você concorda com nossos{" "}
+            Ao criar sua conta, você concorda com nossos{" "}
             <a href="#" className="text-blue-600 hover:underline">
               Termos e Condições
             </a>{" "}
@@ -343,3 +354,4 @@ function BackgroundDecoration() {
     </>
   )
 }
+

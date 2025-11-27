@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useState, useEffect, Fragment } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -804,10 +804,9 @@ export default function MovimentacoesList({
         {/* Corpo da tabela */}
         <div className="divide-y divide-zinc-200">
           {filtered.map((m) => (
-            <>
+            <Fragment key={m.id}>
               {/* Versão Desktop */}
               <div
-                key={m.id}
                 className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-zinc-50/50 transition-colors"
               >
               <div className="flex items-center gap-2 min-w-0">
@@ -840,7 +839,6 @@ export default function MovimentacoesList({
               
               {/* Versão Mobile */}
               <div
-                key={`${m.id}-mobile`}
                 className="md:hidden p-3 border-b border-zinc-200 space-y-2"
               >
                 <div className="flex items-center justify-between gap-2">
@@ -872,7 +870,7 @@ export default function MovimentacoesList({
                   </div>
                 )}
               </div>
-            </>
+            </Fragment>
           ))}
         </div>
       </div>

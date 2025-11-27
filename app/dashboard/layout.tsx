@@ -37,12 +37,11 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .single()
 
-  // Permitir acesso apenas se tiver assinatura ativa ou em trial
-  // Se inativo, o usuário pode ver mas com aviso (validação mais flexível)
-  // Para bloquear completamente, descomente a linha abaixo:
-  // if (profile?.subscription_status !== 'active' && profile?.subscription_status !== 'trialing') {
-  //   redirect("/upgrade")
-  // }
+  // Bloquear acesso se não tiver assinatura ativa ou em trial
+  const activeStatuses = ['active', 'trialing']
+  if (!profile?.subscription_status || !activeStatuses.includes(profile.subscription_status)) {
+    redirect("/subscribe")
+  }
 
   return (
     <div className="min-h-screen bg-white">

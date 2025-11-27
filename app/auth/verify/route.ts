@@ -73,8 +73,20 @@ export async function GET(request: Request) {
         })
       }
 
-      // Redirecionar para dashboard
-      return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+      // Verificar status da assinatura
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_status')
+        .eq('id', existingSession.user.id)
+        .single()
+
+      const activeStatuses = ['active', 'trialing']
+      if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
+        return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+      }
+      
+      // Sem assinatura - redirecionar para checkout
+      return NextResponse.redirect(`${requestUrl.origin}/subscribe`)
     }
 
     // SEGUNDO: Se não há sessão, verificar se há usuário autenticado
@@ -104,7 +116,18 @@ export async function GET(request: Request) {
       const { data: { session: retrySession } } = await supabase.auth.getSession()
       
       if (retrySession) {
-        return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+        // Verificar assinatura
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_status')
+          .eq('id', currentUser.id)
+          .single()
+
+        const activeStatuses = ['active', 'trialing']
+        if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
+          return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+        }
+        return NextResponse.redirect(`${requestUrl.origin}/subscribe`)
       }
       
       // Se ainda não há sessão, redirecionar para login com mensagem de sucesso
@@ -161,9 +184,19 @@ export async function GET(request: Request) {
           })
         }
 
-        // Se há sessão, redireciona direto para dashboard
+        // Se há sessão, verificar assinatura e redirecionar
         if (data.session) {
-          return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('subscription_status')
+            .eq('id', data.user.id)
+            .single()
+
+          const activeStatuses = ['active', 'trialing']
+          if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
+            return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+          }
+          return NextResponse.redirect(`${requestUrl.origin}/subscribe`)
         }
 
         // Se não houver sessão, redireciona para login com mensagem de sucesso
