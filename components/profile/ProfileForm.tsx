@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { createClientComponentClient } from "@/lib/supabase-client"
 
 interface ProfileFormProps {
-  user: any
+  userId: string
+  userEmail: string | null
   initialProfile: {
     id: string
     name?: string | null
@@ -18,18 +19,37 @@ interface ProfileFormProps {
   } | null
 }
 
-export default function ProfileForm({ user, initialProfile }: ProfileFormProps) {
+export default function ProfileForm({ userId, userEmail, initialProfile }: ProfileFormProps) {
   const supabase = createClientComponentClient()
+  const [companyEmail, setCompanyEmail] = useState(userEmail || initialProfile?.company_email || "")
   const [form, setForm] = useState({
     name: initialProfile?.name || "",
     company_name: initialProfile?.company_name || "",
     cnpj: initialProfile?.cnpj || "",
-    company_email: initialProfile?.company_email || "",
     phone: initialProfile?.phone || "",
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [info, setInfo] = useState("")
+
+  // Garantir que temos o email atual do usuário
+  useEffect(() => {
+    if (userEmail) {
+      setCompanyEmail(userEmail)
+      return
+    }
+
+    const fetchEmail = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user?.email) {
+        setCompanyEmail(user.email)
+      }
+    }
+
+    fetchEmail()
+  }, [userEmail, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,10 +63,10 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
           name: form.name,
           company_name: form.company_name || null,
           cnpj: form.cnpj || null,
-          company_email: form.company_email || null,
+          company_email: companyEmail || null,
           phone: form.phone || null,
         })
-        .eq("id", user.id)
+        .eq("id", userId)
 
       if (error) throw error
       setInfo("Dados atualizados com sucesso.")
@@ -100,10 +120,14 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
           <Label>Email da empresa</Label>
           <Input
             type="email"
-            value={form.company_email}
-            onChange={(e) => onChange("company_email", e.target.value)}
-            placeholder="contato@empresa.com"
+            value={companyEmail}
+            readOnly
+            disabled
+            className="bg-zinc-100 text-zinc-500 cursor-not-allowed"
           />
+          <p className="text-xs text-zinc-500">
+            Usamos o mesmo email da sua conta para notificações e faturamento.
+          </p>
         </div>
       </div>
 

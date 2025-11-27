@@ -105,15 +105,11 @@ function ConsertosList({
     // Não mostrar sugestões se já há um produto selecionado
     if (form.produtoId) return []
     
-    const s = form.produto.toLowerCase()
-    if (!s) return produtos.slice(0, 5)
+    const s = form.produto.trim().toLowerCase()
+    // Só mostrar sugestões quando o usuário começar a digitar (mínimo 1 caractere)
+    if (!s || s.length < 1) return []
     
-    // Verificar se o texto digitado corresponde exatamente a algum produto selecionado
-    const produtoSelecionado = produtos.find(p => p.id === form.produtoId)
-    if (produtoSelecionado && form.produto.toLowerCase() === produtoSelecionado.nome.toLowerCase()) {
-      return []
-    }
-    
+    // Filtrar produtos que contêm o texto digitado
     return produtos.filter((p) => p.nome.toLowerCase().includes(s)).slice(0, 5)
   }, [form.produto, form.produtoId, produtos])
 

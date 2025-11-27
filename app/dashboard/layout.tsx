@@ -30,6 +30,24 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
+  // Verificar status da assinatura
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('subscription_status, stripe_customer_id')
+    .eq('id', user.id)
+    .single()
+
+  // Permitir acesso se:
+  // 1. Tem assinatura ativa ou em trial
+  // 2. Ou tem stripe_customer_id (já passou pelo checkout)
+  const activeStatuses = ['active', 'trialing']
+  const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
+  const hasStripeCustomer = !!profile?.stripe_customer_id
+  
+  if (!hasActiveSubscription && !hasStripeCustomer) {
+    redirect("/subscribe")
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <DashboardWrapper>

@@ -362,6 +362,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
   const [cnpj, setCnpj] = useState("")
   const [companyEmail, setCompanyEmail] = useState("")
   const [phone, setPhone] = useState("")
+  const [userEmail, setUserEmail] = useState("")
 
   // Dados originais para cancelar edição
   const [originalData, setOriginalData] = useState({
@@ -377,6 +378,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
+        setUserEmail(user.email || "")
 
         // Tentar carregar todos os campos, mas se alguns não existirem, não dar erro
         const { data: profile } = await supabase
@@ -407,19 +409,23 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
             const data = {
               companyName: companyData.company_name || "",
               cnpj: companyData.cnpj || "",
-              companyEmail: companyData.company_email || "",
+              companyEmail: companyData.company_email || user.email || "",
               phone: companyData.phone || "",
             }
             setCompanyName(data.companyName)
             setCnpj(data.cnpj)
             setCompanyEmail(data.companyEmail)
             setPhone(data.phone)
-            setOriginalData(data)
-            // Se houver dados salvos, começar em modo de visualização
+            setOriginalData({
+              companyName: data.companyName,
+              cnpj: data.cnpj,
+              companyEmail: data.companyEmail || user.email || "",
+              phone: data.phone,
+            })
             const hasData = data.companyName || data.cnpj || data.companyEmail || data.phone
             setIsEditing(!hasData)
           } else {
-            // Se não houver dados, começar em modo de edição
+            setCompanyEmail(user.email || "")
             setIsEditing(true)
           }
         } catch (err) {
@@ -445,7 +451,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
     // Restaurar dados originais
     setCompanyName(originalData.companyName)
     setCnpj(originalData.cnpj)
-    setCompanyEmail(originalData.companyEmail)
+    setCompanyEmail(originalData.companyEmail || userEmail)
     setPhone(originalData.phone)
     setIsEditing(false)
   }
@@ -495,8 +501,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
       if (cnpj.trim()) updateData.cnpj = cnpj.trim()
       else updateData.cnpj = null
       
-      if (companyEmail.trim()) updateData.company_email = companyEmail.trim()
-      else updateData.company_email = null
+      updateData.company_email = (user.email || companyEmail || "").trim() || null
       
       if (phone.trim()) updateData.phone = phone.trim()
       else updateData.phone = null
@@ -532,7 +537,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
         setOriginalData({
           companyName: companyName.trim(),
           cnpj: cnpj.trim(),
-          companyEmail: companyEmail.trim(),
+          companyEmail: (user.email || companyEmail || "").trim(),
           phone: phone.trim(),
         })
         setIsEditing(false) // Sair do modo de edição
@@ -768,15 +773,15 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
                   <Input
                     id="company_email"
                     type="email"
-                    value={companyEmail}
-                    onChange={(e) => setCompanyEmail(e.target.value)}
+                    value={companyEmail || userEmail}
+                    readOnly
+                    disabled
                     placeholder="empresa@exemplo.com"
-                    disabled={!isEditing}
-                    className={cn(
-                      "mt-1",
-                      !isEditing && "bg-muted text-muted-foreground cursor-not-allowed"
-                    )}
+                    className="mt-1 bg-muted text-muted-foreground cursor-not-allowed"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Usamos o mesmo email da sua conta para as comunicações.
+                  </p>
                 </motion.div>
 
                 {isEditing && (
