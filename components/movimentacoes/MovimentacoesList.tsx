@@ -26,7 +26,8 @@ import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter } from "lucide-react"
+import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload } from "lucide-react"
+import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 import { cn } from "@/lib/utils"
 
@@ -150,6 +151,91 @@ export default function MovimentacoesList({
     produtoId: "",
     colaboradorId: "",
   })
+
+  // Estado para modal de importação
+  const [importModalOpen, setImportModalOpen] = useState(false)
+
+  // Configuração de importação de Excel para Movimentações
+  const importConfig: ImportConfig = {
+    title: "Importar Movimentações",
+    description: "Importe movimentações a partir de uma planilha Excel ou CSV. Use o nome exato do produto e colaborador.",
+    templateFileName: "modelo_movimentacoes.xlsx",
+    columns: [
+      { excelColumn: "tipo", dbColumn: "tipo", label: "Tipo", required: true, type: "select", options: ["entrada", "retirada", "devolucao", "ajuste"] },
+      { excelColumn: "produto", dbColumn: "produto", label: "Produto (Nome)", required: true, type: "text" },
+      { excelColumn: "quantidade", dbColumn: "quantidade", label: "Quantidade", required: true, type: "number" },
+      { excelColumn: "colaborador", dbColumn: "colaborador", label: "Colaborador (Nome)", required: false, type: "text" },
+      { excelColumn: "observacoes", dbColumn: "observacoes", label: "Observações", required: false, type: "text" },
+      { excelColumn: "data", dbColumn: "data", label: "Data", required: false, type: "date" },
+    ],
+    onImport: async (data) => {
+      let success = 0
+      const errors: string[] = []
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+        try {
+          // Buscar ferramenta pelo nome
+          const ferramenta = ferramentas.find(
+            f => f.nome.toLowerCase() === row.produto?.toString().toLowerCase()
+          )
+          if (!ferramenta) {
+            errors.push(`Linha ${i + 2}: Produto "${row.produto}" não encontrado`)
+            continue
+          }
+
+          // Buscar colaborador pelo nome (se informado)
+          let colaboradorId = ""
+          if (row.colaborador && row.colaborador.toString().trim() !== "") {
+            const colaborador = colaboradores.find(
+              c => c.nome.toLowerCase() === row.colaborador?.toString().toLowerCase()
+            )
+            if (!colaborador) {
+              errors.push(`Linha ${i + 2}: Colaborador "${row.colaborador}" não encontrado`)
+              continue
+            }
+            colaboradorId = colaborador.id
+          }
+
+          // Criar movimentação via API
+          const { data: { user } } = await supabase.auth.getUser()
+          if (!user) throw new Error("Usuário não autenticado")
+
+          const movData = {
+            profile_id: user.id,
+            ferramenta_id: ferramenta.id,
+            colaborador_id: colaboradorId || null,
+            tipo: row.tipo,
+            quantidade: parseInt(row.quantidade) || 1,
+            observacoes: row.observacoes || null,
+            data: row.data ? new Date(row.data).toISOString() : new Date().toISOString(),
+          }
+
+          const { error } = await supabase.from("movimentacoes").insert(movData)
+          if (error) throw error
+
+          // Atualizar quantidade da ferramenta
+          const qtdAtual = ferramenta.quantidade_disponivel || 0
+          let novaQtd = qtdAtual
+          if (row.tipo === "entrada") novaQtd = qtdAtual + parseInt(row.quantidade)
+          else if (row.tipo === "retirada") novaQtd = qtdAtual - parseInt(row.quantidade)
+          else if (row.tipo === "devolucao") novaQtd = qtdAtual + parseInt(row.quantidade)
+
+          await supabase
+            .from("ferramentas")
+            .update({ quantidade_disponivel: Math.max(0, novaQtd) })
+            .eq("id", ferramenta.id)
+
+          success++
+        } catch (error: any) {
+          errors.push(`Linha ${i + 2}: ${error.message || "Erro ao criar movimentação"}`)
+        }
+      }
+
+      router.refresh()
+      return { success, errors }
+    }
+  }
 
   // Atualizar lista quando initialMovs mudar (após router.refresh())
   useEffect(() => {
@@ -652,6 +738,13 @@ export default function MovimentacoesList({
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          <Button
+            variant="outline"
+            onClick={() => setImportModalOpen(true)}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Importar Excel
+          </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setOpen(true)}>
@@ -789,6 +882,14 @@ export default function MovimentacoesList({
         </Dialog>
         </div>
       </div>
+
+      {/* Modal de Importação */}
+      {importModalOpen && (
+        <ImportExcel
+          config={importConfig}
+          onClose={() => setImportModalOpen(false)}
+        />
+      )}
 
       <div className="border rounded-lg overflow-hidden bg-white">
         {/* Cabeçalho da tabela */}

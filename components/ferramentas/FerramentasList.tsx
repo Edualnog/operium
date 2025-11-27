@@ -42,7 +42,9 @@ import {
   Grid3x3,
   Square,
   LayoutGrid,
+  Upload,
 } from "lucide-react"
+import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
@@ -143,6 +145,61 @@ function FerramentasList({
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Estado para modal de importação
+  const [importModalOpen, setImportModalOpen] = useState(false)
+
+  // Configuração de importação de Excel
+  const importConfig: ImportConfig = {
+    title: "Importar Ferramentas/Estoque",
+    description: "Importe ferramentas, EPIs ou consumíveis a partir de uma planilha Excel ou CSV",
+    templateFileName: "modelo_ferramentas.xlsx",
+    columns: [
+      { excelColumn: "nome", dbColumn: "nome", label: "Nome", required: true, type: "text" },
+      { excelColumn: "categoria", dbColumn: "categoria", label: "Categoria", required: false, type: "text" },
+      { excelColumn: "codigo", dbColumn: "codigo", label: "Código", required: false, type: "text" },
+      { excelColumn: "quantidade_total", dbColumn: "quantidade_total", label: "Qtd Total", required: true, type: "number" },
+      { excelColumn: "quantidade_disponivel", dbColumn: "quantidade_disponivel", label: "Qtd Disponível", required: false, type: "number" },
+      { excelColumn: "tipo_item", dbColumn: "tipo_item", label: "Tipo", required: false, type: "select", options: ["ferramenta", "epi", "consumivel"] },
+      { excelColumn: "estado", dbColumn: "estado", label: "Estado", required: false, type: "select", options: ["ok", "danificada", "em_conserto"] },
+      { excelColumn: "tamanho", dbColumn: "tamanho", label: "Tamanho", required: false, type: "text" },
+      { excelColumn: "cor", dbColumn: "cor", label: "Cor", required: false, type: "text" },
+      { excelColumn: "ponto_ressuprimento", dbColumn: "ponto_ressuprimento", label: "Ponto Ressuprimento", required: false, type: "number" },
+    ],
+    onImport: async (data) => {
+      let success = 0
+      const errors: string[] = []
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+        try {
+          const formData = new FormData()
+          
+          // Se quantidade_disponivel não foi informada, usar quantidade_total
+          if (!row.quantidade_disponivel && row.quantidade_total) {
+            row.quantidade_disponivel = row.quantidade_total
+          }
+          
+          // Valores padrão
+          if (!row.estado) row.estado = "ok"
+          if (!row.tipo_item) row.tipo_item = "ferramenta"
+          
+          Object.entries(row).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== "") {
+              formData.append(key, value.toString())
+            }
+          })
+          await criarFerramenta(formData)
+          success++
+        } catch (error: any) {
+          errors.push(`Linha ${i + 2}: ${error.message || "Erro ao criar item"}`)
+        }
+      }
+
+      router.refresh()
+      return { success, errors }
+    }
+  }
 
   const categorias = useMemo(() => {
     const set = new Set<string>()
@@ -475,13 +532,21 @@ function FerramentasList({
             </button>
           </div>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setEditing(null)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Produto
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setImportModalOpen(true)}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Importar Excel
+          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setEditing(null)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Produto
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
@@ -697,8 +762,17 @@ function FerramentasList({
               </DialogFooter>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Modal de Importação */}
+      {importModalOpen && (
+        <ImportExcel
+          config={importConfig}
+          onClose={() => setImportModalOpen(false)}
+        />
+      )}
 
       <div className={cn(
         "grid gap-4",
