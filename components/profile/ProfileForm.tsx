@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { createClientComponentClient } from "@/lib/supabase-client"
 
 interface ProfileFormProps {
-  user: any
+  userId: string
+  userEmail: string | null
   initialProfile: {
     id: string
     name?: string | null
@@ -18,9 +19,9 @@ interface ProfileFormProps {
   } | null
 }
 
-export default function ProfileForm({ user, initialProfile }: ProfileFormProps) {
+export default function ProfileForm({ userId, userEmail, initialProfile }: ProfileFormProps) {
   const supabase = createClientComponentClient()
-  const companyEmail = user?.email || initialProfile?.company_email || ""
+  const companyEmail = userEmail || initialProfile?.company_email || ""
   const [form, setForm] = useState({
     name: initialProfile?.name || "",
     company_name: initialProfile?.company_name || "",
@@ -46,7 +47,7 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
           company_email: companyEmail || null,
           phone: form.phone || null,
         })
-        .eq("id", user.id)
+        .eq("id", userId)
 
       if (error) throw error
       setInfo("Dados atualizados com sucesso.")

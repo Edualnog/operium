@@ -40,7 +40,7 @@ export default async function ContaPage() {
           Gerencie seus dados pessoais e os dados da sua empresa
         </p>
       </div>
-      <ProfileForm user={user} initialProfile={profile} />
+      <ProfileForm userId={user.id} userEmail={user.email} initialProfile={profile} />
     </div>
   )
 }
