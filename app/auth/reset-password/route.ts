@@ -53,10 +53,10 @@ export async function GET(request: Request) {
   try {
     // Se há code na URL (Supabase pode enviar code em vez de token)
     if (code) {
-      console.log('Processando code de recuperação de senha:', code.substring(0, 20) + '...')
+      console.log('Processando code de recuperação de senha')
       
       // Tentar trocar o code por uma sessão
-      const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
       
       if (exchangeError) {
         console.error('Erro ao trocar code por sessão:', exchangeError)
@@ -71,9 +71,11 @@ export async function GET(request: Request) {
         )
       }
 
-      // Se a troca foi bem-sucedida, redirecionar para a página de reset
-      if (exchangeData?.session) {
-        console.log('Sessão criada com sucesso, redirecionando para reset-password')
+      // Verificar se a sessão foi criada após o exchange
+      const { data: { session: newSession } } = await supabase.auth.getSession()
+      
+      if (newSession && newSession.user) {
+        console.log('Sessão criada com sucesso após exchange, redirecionando para reset-password')
         return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
       }
     }
