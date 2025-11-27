@@ -22,24 +22,18 @@ export default function ResetPasswordForm() {
 
   React.useEffect(() => {
     // Verificar se há sessão válida para reset de senha
+    // O Supabase cria uma sessão temporária quando processa o token de recovery
     const checkResetSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       
       if (!session) {
-        // Se não há sessão, verificar se há token na URL
-        const token = searchParams.get('token')
-        const tokenHash = searchParams.get('token_hash')
-        
-        // Se não há token nem sessão, o link pode ter expirado
-        // Mas não mostrar erro ainda - deixar o usuário tentar e o erro virá ao atualizar
-        if (!token && !tokenHash) {
-          // Não mostrar erro aqui - deixar tentar atualizar primeiro
-        }
+        // Se não há sessão, pode ser que o link expirou ou ainda não foi processado
+        // Não mostrar erro aqui - deixar o usuário tentar atualizar e o erro virá se necessário
       }
     }
     
     checkResetSession()
-  }, [searchParams, supabase])
+  }, [supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
