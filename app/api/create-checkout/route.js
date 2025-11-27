@@ -8,9 +8,18 @@ export async function POST(req) {
   try {
     // Verificar autenticação do usuário
     const cookieStore = await cookies()
+    
+    // Verificar variáveis de ambiente obrigatórias
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return new Response(
+        JSON.stringify({ error: "Configuração do servidor inválida." }), 
+        { status: 500 }
+      )
+    }
+    
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       {
         cookies: {
           get(name) {
