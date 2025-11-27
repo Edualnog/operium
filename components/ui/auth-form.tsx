@@ -140,7 +140,7 @@ const AuthForm: React.FC = () => {
     setInfo("")
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password/route`,
+        redirectTo: `${window.location.origin}/auth/reset-password`,
       })
       if (error) throw error
       setInfo("Se o email existir, enviamos o link de recuperação.")

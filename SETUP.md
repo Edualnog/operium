@@ -88,24 +88,19 @@ Para habilitar o login com Google:
    - `http://localhost:3000/auth/callback` (desenvolvimento - OAuth)
    - `http://localhost:3000/auth/verify` (desenvolvimento - verificação de email)
    - `http://localhost:3000/auth/reset-password` (desenvolvimento - recuperação de senha)
-   - `http://localhost:3000/auth/reset-password/route` (desenvolvimento - processamento de reset)
    - `https://seu-dominio.com/auth/callback` (produção OAuth, se aplicável)
    - `https://seu-dominio.com/auth/verify` (produção - verificação de email)
    - `https://seu-dominio.com/auth/reset-password` (produção - recuperação de senha)
-   - `https://seu-dominio.com/auth/reset-password/route` (produção - processamento de reset)
    - `https://*.vercel.app/auth/callback` (wildcard para preview URLs do Vercel - OAuth)
    - `https://*.vercel.app/auth/verify` (wildcard para preview URLs do Vercel - verificação de email)
    - `https://*.vercel.app/auth/reset-password` (wildcard para preview URLs do Vercel - recuperação de senha)
-   - `https://*.vercel.app/auth/reset-password/route` (wildcard para preview URLs do Vercel - processamento)
    - `https://seu-projeto.vercel.app/auth/callback` (produção Vercel - OAuth)
    - `https://seu-projeto.vercel.app/auth/verify` (produção Vercel - verificação de email)
    - `https://seu-projeto.vercel.app/auth/reset-password` (produção Vercel - recuperação de senha)
-   - `https://seu-projeto.vercel.app/auth/reset-password/route` (produção Vercel - processamento)
 10. Clique em **Save**
 
 **⚠️ IMPORTANTE para Verificação de Email e Recuperação de Senha:**
-- A rota `/auth/verify` é essencial para tratar erros de verificação de email (links expirados, etc.)
-- A rota `/auth/reset-password` é essencial para recuperação de senha
+- As rotas `/auth/verify` e `/auth/reset-password` tratam erros de confirmação/recuperação
 - Sem essas URLs configuradas, erros mostrarão JSON bruto do Supabase
 - Configure tanto para desenvolvimento quanto para produção
 

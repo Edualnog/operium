@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Package, Lock, CheckCircle2, AlertCircle } from "lucide-react"
 import { motion } from "framer-motion"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label"
 
 export default function ResetPasswordForm() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supabase = createClientComponentClient()
   
   const [password, setPassword] = React.useState("")
@@ -19,20 +18,71 @@ export default function ResetPasswordForm() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [success, setSuccess] = React.useState(false)
+  const [status, setStatus] = React.useState<"checking" | "ready" | "error">("checking")
+  const [statusMessage, setStatusMessage] = React.useState("Validando link...")
 
   React.useEffect(() => {
-    // Verificar se há sessão válida para reset de senha
-    // O Supabase cria uma sessão temporária quando processa o token de recovery
-    const checkResetSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (!session) {
-        // Se não há sessão, pode ser que o link expirou ou ainda não foi processado
-        // Não mostrar erro aqui - deixar o usuário tentar atualizar e o erro virá se necessário
+    const processLink = async () => {
+      if (typeof window === "undefined") return
+
+      setStatus("checking")
+      setStatusMessage("Validando link de recuperação...")
+
+      try {
+        const url = new URL(window.location.href)
+        const params = url.searchParams
+        const code = params.get("code")
+        const token = params.get("token")
+        const tokenHash = params.get("token_hash")
+        const typeParam = params.get("type") || "recovery"
+
+        // 1. Tentar obter sessão atual (Supabase pode já ter processado)
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session && session.user) {
+          setStatus("ready")
+          return
+        }
+
+        // 2. Se houver code (PKCE), trocar por sessão
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code)
+          if (error) {
+            throw error
+          }
+
+          const { data: { session: newSession } } = await supabase.auth.getSession()
+          if (newSession && newSession.user) {
+            setStatus("ready")
+            return
+          }
+
+          throw new Error("Link de recuperação inválido ou já utilizado. Solicite um novo link.")
+        }
+
+        // 3. Se houver token/token_hash (modo OTP), verificar
+        if (token || tokenHash) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash || token || "",
+            type: typeParam as any,
+          })
+
+          if (error) {
+            throw error
+          }
+
+          setStatus("ready")
+          return
+        }
+
+        throw new Error("Link de recuperação inválido ou expirado. Solicite um novo link.")
+      } catch (err: any) {
+        console.error("Erro ao validar link de recuperação:", err)
+        setError(err.message || "Link de recuperação inválido ou expirado. Solicite um novo link.")
+        setStatus("error")
       }
     }
-    
-    checkResetSession()
+
+    processLink()
   }, [supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +140,50 @@ export default function ResetPasswordForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (status === "checking") {
+    return (
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        </div>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+          {statusMessage}
+        </p>
+      </div>
+    )
+  }
+
+  if (status === "error") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8"
+      >
+        <div className="text-center space-y-4">
+          <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Link inválido
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              {error || "O link de recuperação expirou ou já foi utilizado. Solicite um novo link para continuar."}
+            </p>
+          </div>
+          <Button onClick={() => router.push("/login")} className="w-full">
+            Voltar para o login
+          </Button>
+        </div>
+      </motion.div>
+    )
   }
 
   if (success) {
