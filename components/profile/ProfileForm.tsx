@@ -24,7 +24,7 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
     name: initialProfile?.name || "",
     company_name: initialProfile?.company_name || "",
     cnpj: initialProfile?.cnpj || "",
-    company_email: initialProfile?.company_email || "",
+    company_email: initialProfile?.company_email || user?.email || "",
     phone: initialProfile?.phone || "",
   })
   const [loading, setLoading] = useState(false)
@@ -43,7 +43,7 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
           name: form.name,
           company_name: form.company_name || null,
           cnpj: form.cnpj || null,
-          company_email: form.company_email || null,
+          company_email: user?.email || form.company_email || null,
           phone: form.phone || null,
         })
         .eq("id", user.id)
@@ -100,10 +100,14 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
           <Label>Email da empresa</Label>
           <Input
             type="email"
-            value={form.company_email}
-            onChange={(e) => onChange("company_email", e.target.value)}
-            placeholder="contato@empresa.com"
+            value={user?.email || form.company_email}
+            readOnly
+            disabled
+            className="bg-zinc-100 text-zinc-500 cursor-not-allowed"
           />
+          <p className="text-xs text-zinc-500">
+            Usamos o mesmo email da sua conta para notificações e faturamento.
+          </p>
         </div>
       </div>
 
