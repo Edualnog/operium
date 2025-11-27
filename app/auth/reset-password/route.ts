@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   
   const token = requestUrl.searchParams.get('token')
   const tokenHash = requestUrl.searchParams.get('token_hash')
+  const code = requestUrl.searchParams.get('code')
   const type = requestUrl.searchParams.get('type') || 'recovery'
   const error = requestUrl.searchParams.get('error')
   const errorCode = requestUrl.searchParams.get('error_code')
@@ -58,6 +59,29 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
     }
 
+    // Se há code na URL (Supabase pode enviar code em vez de token)
+    if (code) {
+      // Tentar trocar o code por uma sessão
+      const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+      
+      if (exchangeError) {
+        let errorMessage = 'Link de recuperação inválido ou expirado.'
+        
+        if (exchangeError.message.includes('expired') || exchangeError.message.includes('invalid')) {
+          errorMessage = 'O link de recuperação expirou. Por favor, solicite um novo link de recuperação de senha.'
+        }
+        
+        return NextResponse.redirect(
+          `${requestUrl.origin}/login?error=reset_failed&message=${encodeURIComponent(errorMessage)}`
+        )
+      }
+
+      // Se a troca foi bem-sucedida, redirecionar para a página de reset
+      if (exchangeData?.session) {
+        return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
+      }
+    }
+
     // Se há token na URL, tentar verificar o token
     if (token || tokenHash) {
       const { data, error: verifyError } = await supabase.auth.verifyOtp({
@@ -83,9 +107,16 @@ export async function GET(request: Request) {
       }
     }
 
-    // Se não há token nem sessão, pode ser que o Supabase já processou
-    // Redirecionar para a página de reset mesmo assim
-    return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
+    // Se há sessão mas não há code/token, pode ser que o Supabase já processou
+    // Redirecionar para a página de reset
+    if (session) {
+      return NextResponse.redirect(`${requestUrl.origin}/auth/reset-password`)
+    }
+
+    // Se não há nada, redirecionar para login com erro
+    return NextResponse.redirect(
+      `${requestUrl.origin}/login?error=reset_failed&message=${encodeURIComponent('Link de recuperação inválido. Por favor, solicite um novo link.')}`
+    )
 
   } catch (err: any) {
     console.error('Erro no reset de senha:', err)
