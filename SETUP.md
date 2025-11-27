@@ -85,11 +85,20 @@ Para habilitar o login com Google:
    - Para desenvolvimento local: `http://localhost:3000`
    - Para produção: sua URL de produção (ex: `https://seu-dominio.com` ou `https://seu-projeto.vercel.app`)
 9. Adicione as **Redirect URLs** permitidas:
-   - `http://localhost:3000/auth/callback` (desenvolvimento)
-   - `https://seu-dominio.com/auth/callback` (produção, se aplicável)
-   - `https://*.vercel.app/auth/callback` (wildcard para preview URLs do Vercel - **IMPORTANTE!**)
-   - `https://seu-projeto.vercel.app/auth/callback` (produção Vercel, se aplicável)
+   - `http://localhost:3000/auth/callback` (desenvolvimento - OAuth)
+   - `http://localhost:3000/auth/verify` (desenvolvimento - verificação de email)
+   - `https://seu-dominio.com/auth/callback` (produção OAuth, se aplicável)
+   - `https://seu-dominio.com/auth/verify` (produção - verificação de email)
+   - `https://*.vercel.app/auth/callback` (wildcard para preview URLs do Vercel - OAuth)
+   - `https://*.vercel.app/auth/verify` (wildcard para preview URLs do Vercel - verificação de email)
+   - `https://seu-projeto.vercel.app/auth/callback` (produção Vercel - OAuth)
+   - `https://seu-projeto.vercel.app/auth/verify` (produção Vercel - verificação de email)
 10. Clique em **Save**
+
+**⚠️ IMPORTANTE para Verificação de Email:**
+- A rota `/auth/verify` é essencial para tratar erros de verificação de email (links expirados, etc.)
+- Sem essa URL configurada, erros de verificação mostrarão JSON bruto do Supabase
+- Configure tanto para desenvolvimento quanto para produção
 
 **⚠️ IMPORTANTE para Preview URLs do Vercel:**
 - Se você usar preview deployments do Vercel (como para a branch v2.0), você DEVE adicionar o wildcard `https://*.vercel.app/auth/callback`

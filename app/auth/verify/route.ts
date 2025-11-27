@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const token = requestUrl.searchParams.get('token')
+  const tokenHash = requestUrl.searchParams.get('token_hash')
   const type = requestUrl.searchParams.get('type') || 'email'
   const error = requestUrl.searchParams.get('error')
   const errorCode = requestUrl.searchParams.get('error_code')
@@ -18,6 +19,8 @@ export async function GET(request: Request) {
       errorMessage = 'O link de verificação expirou. Por favor, solicite um novo link de confirmação.'
     } else if (errorDescription) {
       errorMessage = decodeURIComponent(errorDescription)
+    } else if (error) {
+      errorMessage = decodeURIComponent(error)
     }
     
     return NextResponse.redirect(
@@ -25,8 +28,8 @@ export async function GET(request: Request) {
     )
   }
 
-  // Se não houver token, redireciona para login
-  if (!token) {
+  // Se não houver token nem token_hash, redireciona para login
+  if (!token && !tokenHash) {
     return NextResponse.redirect(
       `${requestUrl.origin}/login?error=no_token&message=${encodeURIComponent('Token de verificação não encontrado.')}`
     )
@@ -55,7 +58,7 @@ export async function GET(request: Request) {
   try {
     // Verificar o token de email
     const { data, error } = await supabase.auth.verifyOtp({
-      token_hash: token,
+      token_hash: tokenHash || token || '',
       type: type as any,
     })
 
