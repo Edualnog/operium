@@ -12,32 +12,6 @@ export async function GET(request: Request) {
   const error = requestUrl.searchParams.get('error')
   const errorCode = requestUrl.searchParams.get('error_code')
   const errorDescription = requestUrl.searchParams.get('error_description')
-  
-  // Log para debug (remover em produção se necessário)
-  console.log('Verificação de email - Parâmetros recebidos:', {
-    hasToken: !!token,
-    hasTokenHash: !!tokenHash,
-    hasError: !!error,
-    errorCode,
-    url: requestUrl.toString()
-  })
-
-  // Se houver erro nos parâmetros, redireciona para login com mensagem de erro
-  if (error || errorCode) {
-    let errorMessage = 'Link de verificação inválido ou expirado.'
-    
-    if (errorCode === 'otp_expired') {
-      errorMessage = 'O link de verificação expirou. Por favor, solicite um novo link de confirmação.'
-    } else if (errorDescription) {
-      errorMessage = decodeURIComponent(errorDescription)
-    } else if (error) {
-      errorMessage = decodeURIComponent(error)
-    }
-    
-    return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=verification_failed&message=${encodeURIComponent(errorMessage)}`
-    )
-  }
 
   const cookieStore = cookies()
   
@@ -59,12 +33,30 @@ export async function GET(request: Request) {
     }
   )
 
+  // Se houver erro nos parâmetros, redireciona para login com mensagem de erro
+  if (error || errorCode) {
+    let errorMessage = 'Link de verificação inválido ou expirado.'
+    
+    if (errorCode === 'otp_expired') {
+      errorMessage = 'O link de verificação expirou. Por favor, solicite um novo link de confirmação.'
+    } else if (errorDescription) {
+      errorMessage = decodeURIComponent(errorDescription)
+    } else if (error) {
+      errorMessage = decodeURIComponent(error)
+    }
+    
+    return NextResponse.redirect(
+      `${requestUrl.origin}/login?error=verification_failed&message=${encodeURIComponent(errorMessage)}`
+    )
+  }
+
   try {
-    // Primeiro, verificar se já há uma sessão ativa (Supabase pode ter criado automaticamente)
-    const { data: { session: existingSession }, error: sessionError } = await supabase.auth.getSession()
+    // PRIMEIRO: Sempre verificar se já há uma sessão ativa
+    // (Supabase pode ter processado o token e criado a sessão antes de redirecionar)
+    const { data: { session: existingSession } } = await supabase.auth.getSession()
     
     if (existingSession && existingSession.user) {
-      // Se já há sessão, verificar se o perfil existe
+      // Verificar se o perfil existe, se não, criar
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id')
@@ -81,102 +73,107 @@ export async function GET(request: Request) {
         })
       }
 
-      // Redirecionar para dashboard se já está autenticado
+      // Redirecionar para dashboard
       return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
     }
 
-    // Se não há token, tentar verificar usuário atual (pode ter sido autenticado em background)
-    if (!token && !tokenHash) {
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+    // SEGUNDO: Se não há sessão, verificar se há usuário autenticado
+    // (pode ter sido autenticado mas a sessão ainda não está nos cookies)
+    const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+    
+    if (currentUser && !userError) {
+      // Verificar/criar perfil
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', currentUser.id)
+        .single()
+
+      if (!existingProfile) {
+        await supabase.from('profiles').upsert({
+          id: currentUser.id,
+          name: currentUser.email?.split('@')[0] || 'Usuário',
+          company_email: currentUser.email,
+        }, {
+          onConflict: 'id'
+        })
+      }
+
+      // Tentar obter sessão novamente após um breve delay
+      await new Promise(resolve => setTimeout(resolve, 300))
+      const { data: { session: retrySession } } = await supabase.auth.getSession()
       
-      if (currentUser) {
-        // Usuário foi autenticado, verificar/criar perfil e redirecionar
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', currentUser.id)
-          .single()
-
-        if (!existingProfile) {
-          await supabase.from('profiles').upsert({
-            id: currentUser.id,
-            name: currentUser.email?.split('@')[0] || 'Usuário',
-            company_email: currentUser.email,
-          }, {
-            onConflict: 'id'
-          })
-        }
-
+      if (retrySession) {
         return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
       }
-
-      // Se realmente não há token nem sessão, redirecionar com erro
-      return NextResponse.redirect(
-        `${requestUrl.origin}/login?error=no_token&message=${encodeURIComponent('Link de verificação inválido. Por favor, solicite um novo link de confirmação.')}`
-      )
-    }
-
-    // Verificar o token de email
-    const { data, error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash || token || '',
-      type: type as any,
-    })
-
-    if (error) {
-      let errorMessage = 'Falha ao verificar o email. Por favor, tente novamente.'
       
-      if (error.message.includes('expired') || error.message.includes('invalid') || error.message.includes('expired')) {
-        errorMessage = 'O link de verificação expirou ou é inválido. Por favor, solicite um novo link de confirmação.'
-      }
-      
-      return NextResponse.redirect(
-        `${requestUrl.origin}/login?error=verification_failed&message=${encodeURIComponent(errorMessage)}`
-      )
-    }
-
-    // Se a verificação foi bem-sucedida
-    if (data?.user) {
-      // Verificar se o perfil existe, se não, criar
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', user.id)
-          .single()
-
-        if (!existingProfile) {
-          await supabase.from('profiles').upsert({
-            id: user.id,
-            name: user.email?.split('@')[0] || 'Usuário',
-            company_email: user.email,
-          }, {
-            onConflict: 'id'
-          })
-        }
-      }
-
-      // Se há sessão, redireciona direto para dashboard
-      if (data.session) {
-        return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
-      }
-
-      // Se não houver sessão, redireciona para login com mensagem de sucesso
+      // Se ainda não há sessão, redirecionar para login com mensagem de sucesso
       return NextResponse.redirect(
         `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado com sucesso! Faça login para continuar.')}`
       )
     }
 
-    // Fallback
+    // TERCEIRO: Se há token na URL, tentar verificar o token
+    if (token || tokenHash) {
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash || token || '',
+        type: type as any,
+      })
+
+      if (verifyError) {
+        let errorMessage = 'Falha ao verificar o email. Por favor, tente novamente.'
+        
+        if (verifyError.message.includes('expired') || verifyError.message.includes('invalid')) {
+          errorMessage = 'O link de verificação expirou ou é inválido. Por favor, solicite um novo link de confirmação.'
+        }
+        
+        return NextResponse.redirect(
+          `${requestUrl.origin}/login?error=verification_failed&message=${encodeURIComponent(errorMessage)}`
+        )
+      }
+
+      // Se a verificação foi bem-sucedida
+      if (data?.user) {
+        // Verificar/criar perfil
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', data.user.id)
+          .single()
+
+        if (!existingProfile) {
+          await supabase.from('profiles').upsert({
+            id: data.user.id,
+            name: data.user.email?.split('@')[0] || 'Usuário',
+            company_email: data.user.email,
+          }, {
+            onConflict: 'id'
+          })
+        }
+
+        // Se há sessão, redireciona direto para dashboard
+        if (data.session) {
+          return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+        }
+
+        // Se não houver sessão, redireciona para login com mensagem de sucesso
+        return NextResponse.redirect(
+          `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado com sucesso! Faça login para continuar.')}`
+        )
+      }
+    }
+
+    // FALLBACK: Se chegou aqui, não há token, sessão nem usuário autenticado
+    // Isso pode acontecer se o Supabase processou o token mas não criou sessão/cookies
+    // Nesse caso, redirecionar para login com mensagem amigável
     return NextResponse.redirect(
-      `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado com sucesso! Faça login para continuar.')}`
+      `${requestUrl.origin}/login?error=verification_processing&message=${encodeURIComponent('Verificação de email em processamento. Se o problema persistir, tente fazer login normalmente.')}`
     )
+
   } catch (err: any) {
     console.error('Erro na verificação:', err)
     return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=verification_error&message=${encodeURIComponent('Erro ao processar verificação de email. Por favor, tente novamente.')}`
+      `${requestUrl.origin}/login?error=verification_error&message=${encodeURIComponent('Erro ao processar verificação de email. Por favor, tente novamente ou faça login normalmente.')}`
     )
   }
 }
-
