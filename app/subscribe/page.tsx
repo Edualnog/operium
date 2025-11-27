@@ -177,9 +177,15 @@ export default function SubscribePage() {
                 <Zap className="h-4 w-4" />
                 Plano Profissional
               </div>
-              <div className="flex items-baseline justify-center gap-1">
+              <div className="flex items-baseline justify-center gap-2">
+                <span className="text-xl text-slate-400 line-through">R$69,90</span>
                 <span className="text-5xl font-bold text-slate-900">R$39,90</span>
                 <span className="text-slate-500">/mês</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                  43% OFF
+                </span>
               </div>
               <p className="mt-2 text-slate-500">
                 Após 7 dias de teste grátis

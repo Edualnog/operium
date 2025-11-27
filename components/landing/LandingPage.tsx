@@ -415,6 +415,90 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </div>
       </section>
 
+      {/* Multi-Platform Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-100 to-white overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mb-4">
+              <Globe className="h-4 w-4" />
+              Multi-plataforma
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              Acesse de qualquer lugar
+            </h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Desktop, tablet ou celular — seu almoxarifado na palma da mão. 
+              Interface responsiva que se adapta perfeitamente a qualquer dispositivo.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="relative"
+          >
+            {/* Glow effect behind image */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-indigo-400/20 to-purple-400/20 blur-3xl rounded-full transform scale-75" />
+            
+            <img 
+              src="/images/mockup-devices.png" 
+              alt="Almox Fácil em múltiplos dispositivos - Desktop, Tablet e Mobile" 
+              className="relative w-full max-w-4xl mx-auto drop-shadow-2xl"
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-wrap justify-center gap-8 mt-12"
+          >
+            <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
+              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">Desktop</p>
+                <p className="text-sm text-slate-500">Tela completa</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
+              <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">Tablet</p>
+                <p className="text-sm text-slate-500">Touch otimizado</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
+              <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">Mobile</p>
+                <p className="text-sm text-slate-500">Sempre disponível</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 relative overflow-hidden">
         {/* Background decoration */}
@@ -449,11 +533,17 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <Zap className="h-4 w-4" />
                   Plano Profissional
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-bold text-white">R$97</span>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-2xl text-slate-500 line-through">R$69,90</span>
+                  <span className="text-5xl font-bold text-white">R$39,90</span>
                   <span className="text-slate-400">/mês</span>
                 </div>
-                <p className="mt-2 text-slate-400">Por empresa • Inclui tudo</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">
+                    43% OFF
+                  </span>
+                  <p className="text-slate-400">Por empresa • Inclui tudo</p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
