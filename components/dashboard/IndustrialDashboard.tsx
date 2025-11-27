@@ -304,7 +304,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         // Buscar todas as ferramentas
         const { data: ferramentas, error: ferrError } = await supabase
           .from("ferramentas")
-          .select("id, quantidade_disponivel, status")
+          .select("id, quantidade_disponivel, quantidade_total, estado")
           .eq("profile_id", userId)
           .eq("tipo_item", "ferramenta")
 
@@ -319,9 +319,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         let manutencao = 0
 
         ferramentas?.forEach((f: any) => {
-          if (f.status === "manutencao" || f.status === "danificado") {
+          if (f.estado === "manutencao" || f.estado === "danificado") {
             manutencao++
-          } else if (f.quantidade_disponivel <= 0) {
+          } else if (f.quantidade_disponivel < f.quantidade_total) {
             emUso++
           } else {
             disponiveis++
