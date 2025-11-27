@@ -20,11 +20,11 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ user, initialProfile }: ProfileFormProps) {
   const supabase = createClientComponentClient()
+  const companyEmail = user?.email || initialProfile?.company_email || ""
   const [form, setForm] = useState({
     name: initialProfile?.name || "",
     company_name: initialProfile?.company_name || "",
     cnpj: initialProfile?.cnpj || "",
-    company_email: initialProfile?.company_email || user?.email || "",
     phone: initialProfile?.phone || "",
   })
   const [loading, setLoading] = useState(false)
@@ -43,7 +43,7 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
           name: form.name,
           company_name: form.company_name || null,
           cnpj: form.cnpj || null,
-          company_email: user?.email || form.company_email || null,
+          company_email: companyEmail || null,
           phone: form.phone || null,
         })
         .eq("id", user.id)
@@ -100,7 +100,7 @@ export default function ProfileForm({ user, initialProfile }: ProfileFormProps) 
           <Label>Email da empresa</Label>
           <Input
             type="email"
-            value={user?.email || form.company_email}
+            value={companyEmail}
             readOnly
             disabled
             className="bg-zinc-100 text-zinc-500 cursor-not-allowed"
