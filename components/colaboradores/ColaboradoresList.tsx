@@ -86,9 +86,41 @@ function ColaboradoresList({
   const [loadingHistorico, setLoadingHistorico] = useState<Record<string, boolean>>({})
   const [exportingFicha, setExportingFicha] = useState<string | null>(null)
   const [importModalOpen, setImportModalOpen] = useState(false)
+  
+  // Estado para validação de duplicatas
+  const [nomeDigitado, setNomeDigitado] = useState("")
+  const [colaboradoresSimilares, setColaboradoresSimilares] = useState<Colaborador[]>([])
+  const [confirmarDuplicata, setConfirmarDuplicata] = useState(false)
+  
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { open: sidebarOpen } = useSidebar()
+  
+  // Debounce para verificação de nome duplicado
+  const debouncedNome = useDebounce(nomeDigitado, 500)
+  
+  // Verificar se existe colaborador com nome similar
+  useEffect(() => {
+    if (!debouncedNome || debouncedNome.length < 3 || editing) {
+      setColaboradoresSimilares([])
+      setConfirmarDuplicata(false)
+      return
+    }
+    
+    const nomeLower = debouncedNome.toLowerCase().trim()
+    const similares = colaboradores.filter((c) => {
+      const colaboradorNome = c.nome.toLowerCase().trim()
+      // Verificar se o nome é igual ou muito similar
+      return colaboradorNome === nomeLower || 
+             colaboradorNome.includes(nomeLower) ||
+             nomeLower.includes(colaboradorNome)
+    })
+    
+    setColaboradoresSimilares(similares)
+    if (similares.length > 0) {
+      setConfirmarDuplicata(false) // Reset confirmação quando encontra duplicatas
+    }
+  }, [debouncedNome, colaboradores, editing])
   
   // Recarregar EPIs quando o modal for aberto ou colaborador mudar
   useEffect(() => {
@@ -266,6 +298,12 @@ function ColaboradoresList({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    
+    // Verificar se há duplicatas e não foi confirmado
+    if (!editing && colaboradoresSimilares.length > 0 && !confirmarDuplicata) {
+      return // Não permite submit sem confirmação
+    }
+    
     setLoading(true)
 
     try {
@@ -285,6 +323,9 @@ function ColaboradoresList({
       setOpen(false)
       setEditing(null)
       setPhotoUrl("")
+      setNomeDigitado("")
+      setColaboradoresSimilares([])
+      setConfirmarDuplicata(false)
       router.refresh()
     } catch (error) {
       alert("Erro ao salvar colaborador")
@@ -565,6 +606,9 @@ function ColaboradoresList({
     if (!isOpen) {
       setEditing(null)
       setPhotoUrl("")
+      setNomeDigitado("")
+      setColaboradoresSimilares([])
+      setConfirmarDuplicata(false)
     }
   }
 
@@ -1028,9 +1072,60 @@ function ColaboradoresList({
                   <Input
                     id="nome"
                     name="nome"
-                    defaultValue={editing?.nome || ""}
+                    value={editing ? (editing.nome || "") : nomeDigitado}
+                    onChange={(e) => {
+                      if (!editing) {
+                        setNomeDigitado(e.target.value)
+                        setConfirmarDuplicata(false)
+                      }
+                    }}
                     required
+                    className={colaboradoresSimilares.length > 0 && !editing ? "border-yellow-500 focus:ring-yellow-500" : ""}
                   />
+                  
+                  {/* Aviso de colaborador similar */}
+                  {!editing && colaboradoresSimilares.length > 0 && (
+                    <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-3 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-yellow-800">
+                            Colaborador com nome similar já existe!
+                          </p>
+                          <p className="text-xs text-yellow-700 mt-1">
+                            Encontrado{colaboradoresSimilares.length > 1 ? "s" : ""}:
+                          </p>
+                          <ul className="mt-1 space-y-1">
+                            {colaboradoresSimilares.slice(0, 3).map((c) => (
+                              <li key={c.id} className="text-sm text-yellow-800 flex items-center gap-2">
+                                <User className="h-3 w-3" />
+                                <span className="font-medium">{c.nome}</span>
+                                {c.cargo && <span className="text-xs text-yellow-600">({c.cargo})</span>}
+                              </li>
+                            ))}
+                            {colaboradoresSimilares.length > 3 && (
+                              <li className="text-xs text-yellow-600">
+                                ...e mais {colaboradoresSimilares.length - 3} colaborador(es)
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 pt-2 border-t border-yellow-200">
+                        <input
+                          type="checkbox"
+                          id="confirmar-duplicata"
+                          checked={confirmarDuplicata}
+                          onChange={(e) => setConfirmarDuplicata(e.target.checked)}
+                          className="h-4 w-4 rounded border-yellow-400 text-yellow-600 focus:ring-yellow-500"
+                        />
+                        <label htmlFor="confirmar-duplicata" className="text-sm text-yellow-800">
+                          Confirmo que desejo cadastrar mesmo assim
+                        </label>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Cargo */}
@@ -1126,7 +1221,10 @@ function ColaboradoresList({
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  disabled={loading || (!editing && colaboradoresSimilares.length > 0 && !confirmarDuplicata)}
+                >
                   {loading ? "Salvando..." : "Salvar"}
                 </Button>
               </DialogFooter>
