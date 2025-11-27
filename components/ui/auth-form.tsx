@@ -21,6 +21,22 @@ const AuthForm: React.FC = () => {
   const supabase = createClientComponentClient()
 
   React.useEffect(() => {
+    // Verificar parâmetros da URL para mensagens de erro/sucesso
+    const params = new URLSearchParams(window.location.search)
+    const error = params.get('error')
+    const success = params.get('success')
+    const message = params.get('message')
+
+    if (error && message) {
+      setError(decodeURIComponent(message))
+      // Limpar parâmetros da URL
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (success && message) {
+      setInfo(decodeURIComponent(message))
+      // Limpar parâmetros da URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
@@ -75,7 +91,7 @@ const AuthForm: React.FC = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}/auth/verify`,
           },
         })
 
@@ -94,9 +110,17 @@ const AuthForm: React.FC = () => {
             company_email: companyEmail || email,
             phone: phone || null,
           })
+          
           setError("")
-          setInfo("Conta criada! Verifique seu email para confirmar e depois faça login.")
-          setIsLogin(true)
+          
+          // Se houver sessão, confirmação de email está desabilitada - redireciona direto
+          if (data.session) {
+            window.location.href = "/dashboard"
+          } else {
+            // Se não houver sessão, confirmação de email está habilitada - mostra mensagem
+            setInfo("Conta criada! Verifique seu email para confirmar e depois faça login.")
+            setIsLogin(true)
+          }
         }
       }
     } catch (error: any) {
