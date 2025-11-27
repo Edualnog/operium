@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import {
@@ -10,7 +10,7 @@ import {
   Hammer,
   Package,
   LogOut,
-  User,
+  Settings,
   Linkedin,
   Mail,
   Globe,
@@ -18,22 +18,12 @@ import {
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { useEffect } from "react"
 import { cn } from "@/lib/utils"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { AvatarPicker } from "@/components/ui/avatar-picker"
 
 export default function DashboardWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClientComponentClient()
-  const [profileDialogOpen, setProfileDialogOpen] = useState(false)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -85,26 +75,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
         links={links}
         pathname={pathname}
         onLogout={handleLogout}
-        onProfileClick={() => setProfileDialogOpen(true)}
       />
-      <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl max-h-[calc(100vh-2rem)] md:max-h-[90vh] overflow-y-auto p-0 md:p-6 m-4 md:m-0 w-[calc(100vw-2rem)] md:w-auto">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Perfil do Usuário</DialogTitle>
-            <DialogDescription>
-              Gerencie seu avatar e dados da empresa
-            </DialogDescription>
-          </DialogHeader>
-          {profileDialogOpen && (
-            <div className="p-4 md:p-0">
-              <AvatarPicker 
-                onSaveSuccess={() => setProfileDialogOpen(false)}
-                key={profileDialogOpen ? "open" : "closed"}
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
       <DynamicMainContent>{children}</DynamicMainContent>
     </Sidebar>
   )
@@ -113,22 +84,19 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
 function SidebarContent({ 
   links, 
   pathname, 
-  onLogout, 
-  onProfileClick 
+  onLogout,
 }: { 
   links: Array<{ label: string; href: string; icon: React.ReactNode }>
   pathname: string
   onLogout: () => void
-  onProfileClick: () => void
 }) {
   const { open, animate, setOpen } = useSidebar()
   
-  // Fechar menu mobile ao clicar em perfil
-  const handleProfileClick = () => {
+  // Fechar menu mobile ao navegar
+  const handleNavigation = () => {
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setOpen(false)
     }
-    onProfileClick()
   }
 
   return (
@@ -149,18 +117,20 @@ function SidebarContent({
       </div>
       <div className="pt-3 md:pt-4 border-t border-border flex-shrink-0 px-0 md:px-0">
         <div className="flex gap-2 md:gap-1.5 w-full">
-          <button
-            type="button"
-            onClick={handleProfileClick}
+          <Link
+            href="/dashboard/conta"
+            onClick={handleNavigation}
             className={cn(
               "flex items-center justify-center md:justify-start gap-2 md:gap-3 group/sidebar py-2 md:py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px]",
-              "text-muted-foreground hover:text-foreground hover:bg-accent",
+              pathname === "/dashboard/conta"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent",
               !open && "justify-center",
               open ? "flex-1" : "w-full"
             )}
           >
             <span className="flex-shrink-0">
-              <User className="h-5 w-5 flex-shrink-0" />
+              <Settings className="h-5 w-5 flex-shrink-0" />
             </span>
             <motion.span
               animate={{
@@ -171,9 +141,9 @@ function SidebarContent({
               transition={{ duration: 0.2 }}
               className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
             >
-              Perfil
+              Conta
             </motion.span>
-          </button>
+          </Link>
           <AnimatePresence>
             {open && (
               <motion.button
