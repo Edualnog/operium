@@ -214,12 +214,12 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
             </p>
             <div className="flex items-center justify-center gap-4 md:gap-6">
               <a 
-                href="mailto:suporte@almoxfacil.com.br"
+                href="mailto:suporte@alnog.com.br"
                 className="flex items-center gap-2 hover:text-primary transition-colors"
                 title="Enviar email para suporte"
               >
                 <Mail className="h-4 w-4 flex-shrink-0" />
-                <span className="hidden md:inline">suporte@almoxfacil.com.br</span>
+                <span className="hidden md:inline">suporte@alnog.com.br</span>
                 <span className="md:hidden text-xs">Suporte</span>
               </a>
               <a 
