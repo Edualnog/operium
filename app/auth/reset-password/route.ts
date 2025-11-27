@@ -114,6 +114,13 @@ export async function GET(request: Request) {
       }
     }
 
+    // Se chegou aqui e há code mas não criou sessão, pode ser que o code seja inválido
+    if (code) {
+      return NextResponse.redirect(
+        `${requestUrl.origin}/login?error=reset_failed&message=${encodeURIComponent('Link de recuperação inválido ou expirado. Por favor, solicite um novo link.')}`
+      )
+    }
+
     // Se há sessão mas não há code/token, pode ser que o Supabase já processou
     // Redirecionar para a página de reset
     if (session) {
