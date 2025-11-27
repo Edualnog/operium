@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,7 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ userId, userEmail, initialProfile }: ProfileFormProps) {
   const supabase = createClientComponentClient()
-  const companyEmail = userEmail || initialProfile?.company_email || ""
+  const [companyEmail, setCompanyEmail] = useState(userEmail || initialProfile?.company_email || "")
   const [form, setForm] = useState({
     name: initialProfile?.name || "",
     company_name: initialProfile?.company_name || "",
@@ -31,6 +31,22 @@ export default function ProfileForm({ userId, userEmail, initialProfile }: Profi
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [info, setInfo] = useState("")
+
+  // Garantir que temos o email atual do usuário
+  useEffect(() => {
+    if (companyEmail) return
+
+    const fetchEmail = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user?.email) {
+        setCompanyEmail(user.email)
+      }
+    }
+
+    fetchEmail()
+  }, [companyEmail, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
