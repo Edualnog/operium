@@ -4,12 +4,23 @@ import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
+  
+  // Capturar todos os parâmetros possíveis que o Supabase pode enviar
   const token = requestUrl.searchParams.get('token')
   const tokenHash = requestUrl.searchParams.get('token_hash')
   const type = requestUrl.searchParams.get('type') || 'email'
   const error = requestUrl.searchParams.get('error')
   const errorCode = requestUrl.searchParams.get('error_code')
   const errorDescription = requestUrl.searchParams.get('error_description')
+  
+  // Log para debug (remover em produção se necessário)
+  console.log('Verificação de email - Parâmetros recebidos:', {
+    hasToken: !!token,
+    hasTokenHash: !!tokenHash,
+    hasError: !!error,
+    errorCode,
+    url: requestUrl.toString()
+  })
 
   // Se houver erro nos parâmetros, redireciona para login com mensagem de erro
   if (error || errorCode) {
@@ -74,10 +85,34 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
     }
 
-    // Se não há sessão e não há token, redirecionar com erro
+    // Se não há token, tentar verificar usuário atual (pode ter sido autenticado em background)
     if (!token && !tokenHash) {
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+      
+      if (currentUser) {
+        // Usuário foi autenticado, verificar/criar perfil e redirecionar
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', currentUser.id)
+          .single()
+
+        if (!existingProfile) {
+          await supabase.from('profiles').upsert({
+            id: currentUser.id,
+            name: currentUser.email?.split('@')[0] || 'Usuário',
+            company_email: currentUser.email,
+          }, {
+            onConflict: 'id'
+          })
+        }
+
+        return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+      }
+
+      // Se realmente não há token nem sessão, redirecionar com erro
       return NextResponse.redirect(
-        `${requestUrl.origin}/login?error=no_token&message=${encodeURIComponent('Token de verificação não encontrado.')}`
+        `${requestUrl.origin}/login?error=no_token&message=${encodeURIComponent('Link de verificação inválido. Por favor, solicite um novo link de confirmação.')}`
       )
     }
 
