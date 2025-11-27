@@ -49,6 +49,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     phone: profile?.phone || "",
   })
   const [loading, setLoading] = useState(false)
+  const [portalLoading, setPortalLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   const subscriptionStatus = profile?.subscription_status || "inactive"
@@ -122,6 +123,28 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
 
   const statusInfo = getStatusInfo()
   const StatusIcon = statusInfo.icon
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true)
+    try {
+      const response = await fetch("/api/create-portal-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao abrir portal")
+      }
+      
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (err: any) {
+      setMessage({ type: "error", text: err.message || "Erro ao abrir gerenciamento de assinatura" })
+      setPortalLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -203,15 +226,14 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
           </div>
 
           {profile?.stripe_customer_id && (
-            <a
-              href="https://billing.stripe.com/p/login/test_28o00Y1Oy9Lq8hi8ww"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors text-sm"
+            <button
+              onClick={handleManageSubscription}
+              disabled={portalLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Gerenciar assinatura
+              {portalLoading ? "Abrindo..." : "Gerenciar assinatura"}
               <ExternalLink className="h-4 w-4" />
-            </a>
+            </button>
           )}
         </div>
 
