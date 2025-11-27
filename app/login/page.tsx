@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Package, Mail, Linkedin, Globe, ArrowLeft } from "lucide-react"
+import { Mail, Linkedin, Globe, ArrowLeft } from "lucide-react"
 import { motion } from "framer-motion"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
@@ -194,8 +194,12 @@ export default function LoginPage() {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
-                <Package className="h-5 w-5 text-white" />
+              <div className="p-1.5 rounded-xl bg-[#4B6BFB] shadow-lg shadow-blue-500/25">
+                <svg className="h-7 w-7" viewBox="0 0 500 500" fill="none">
+                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                </svg>
               </div>
               <span className="font-bold text-xl tracking-tight">Almox Fácil</span>
             </Link>
@@ -218,8 +222,12 @@ export default function LoginPage() {
           className="relative z-10 w-full max-w-md p-8 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50"
         >
           <div className="mb-6 flex justify-center items-center">
-            <div className="rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-3 shadow-lg shadow-blue-500/25">
-              <Package className="h-8 w-8 text-white" />
+            <div className="rounded-xl bg-[#4B6BFB] p-2 shadow-lg shadow-blue-500/25">
+              <svg className="h-10 w-10" viewBox="0 0 500 500" fill="none">
+                <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+              </svg>
             </div>
           </div>
 

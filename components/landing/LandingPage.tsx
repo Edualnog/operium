@@ -133,8 +133,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
-                <Package className="h-5 w-5 text-white" />
+              <div className="p-1.5 rounded-xl bg-[#4B6BFB] shadow-lg shadow-blue-500/25">
+                <svg className="h-7 w-7" viewBox="0 0 500 500" fill="none">
+                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                </svg>
               </div>
               <span className="font-bold text-xl tracking-tight">Almox Fácil</span>
             </Link>
@@ -689,8 +693,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
-                <Package className="h-5 w-5 text-white" />
+              <div className="p-1.5 rounded-xl bg-[#4B6BFB]">
+                <svg className="h-6 w-6" viewBox="0 0 500 500" fill="none">
+                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                </svg>
               </div>
               <span className="font-bold text-lg">Almox Fácil</span>
             </div>

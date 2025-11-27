@@ -147,7 +147,13 @@ const Logo = () => {
       href="/dashboard"
       className="font-normal flex space-x-3 items-center text-sm text-foreground py-2 relative z-20"
     >
-      <div className="h-7 w-8 bg-primary rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
+        <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
+          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+        </svg>
+      </div>
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -166,7 +172,13 @@ const LogoIcon = () => {
       href="/dashboard"
       className="font-normal flex items-center justify-center text-sm text-foreground py-2 relative z-20 w-full"
     >
-      <div className="h-7 w-8 bg-primary rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
+        <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
+          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+        </svg>
+      </div>
     </Link>
   )
 }
