@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Mail, ArrowLeft } from "lucide-react"
+import { Turnstile } from "@marsidev/react-turnstile"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -36,6 +37,8 @@ export default function SignupPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [info, setInfo] = React.useState("")
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null)
+  const captchaRef = React.useRef<any>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClientComponentClient()
@@ -114,12 +117,19 @@ export default function SignupPage() {
     setError("")
     setInfo("")
 
+    if (!captchaToken) {
+      setError("Por favor, complete a verificação de segurança")
+      setLoading(false)
+      return
+    }
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/verify`,
+          captchaToken,
         },
       })
 
@@ -160,6 +170,9 @@ export default function SignupPage() {
       setError(err.message || "Erro ao processar")
     } finally {
       setLoading(false)
+      // Reset CAPTCHA após tentativa
+      captchaRef.current?.reset()
+      setCaptchaToken(null)
     }
   }
 
@@ -325,6 +338,23 @@ export default function SignupPage() {
                   disabled={loading}
                 />
               </div>
+            </div>
+
+            <div className="mb-6 flex justify-center">
+              <Turnstile
+                ref={captchaRef}
+                siteKey="0x4AAAAAACDVBq1Z1dId38ug"
+                onSuccess={(token) => setCaptchaToken(token)}
+                onError={() => {
+                  setError("Erro na verificação de segurança. Tente novamente.")
+                  setCaptchaToken(null)
+                }}
+                onExpire={() => setCaptchaToken(null)}
+                options={{
+                  theme: "light",
+                  language: "pt-BR",
+                }}
+              />
             </div>
 
             <button

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Mail, ArrowLeft } from "lucide-react"
+import { Turnstile } from "@marsidev/react-turnstile"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -32,6 +33,8 @@ export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [info, setInfo] = React.useState("")
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null)
+  const captchaRef = React.useRef<any>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClientComponentClient()
@@ -134,10 +137,17 @@ export default function LoginPage() {
     setError("")
     setInfo("")
 
+    if (!captchaToken) {
+      setError("Por favor, complete a verificação de segurança")
+      setLoading(false)
+      return
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: { captchaToken },
       })
 
       if (error) {
@@ -180,6 +190,9 @@ export default function LoginPage() {
       setError(err.message || "Erro ao processar")
     } finally {
       setLoading(false)
+      // Reset CAPTCHA após tentativa
+      captchaRef.current?.reset()
+      setCaptchaToken(null)
     }
   }
 
@@ -309,6 +322,23 @@ export default function LoginPage() {
                 disabled={loading}
                 minLength={6}
                 className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              />
+            </div>
+
+            <div className="mb-6 flex justify-center">
+              <Turnstile
+                ref={captchaRef}
+                siteKey="0x4AAAAAACDVBq1Z1dId38ug"
+                onSuccess={(token) => setCaptchaToken(token)}
+                onError={() => {
+                  setError("Erro na verificação de segurança. Tente novamente.")
+                  setCaptchaToken(null)
+                }}
+                onExpire={() => setCaptchaToken(null)}
+                options={{
+                  theme: "light",
+                  language: "pt-BR",
+                }}
               />
             </div>
 
