@@ -117,18 +117,34 @@ export const MobileSidebar = ({
 
   return (
     <>
+      {/* Mobile Header Bar */}
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-white border-b border-zinc-200 w-full"
+          "h-14 px-4 flex flex-row md:hidden items-center justify-between bg-white border-b border-zinc-200 w-full sticky top-0 z-40"
         )}
         {...props}
       >
-        <div className="flex justify-end z-20 w-full">
-          <Menu
-            className="text-foreground cursor-pointer"
-            onClick={() => setOpen(!open)}
-          />
-        </div>
+        {/* Logo mobile */}
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
+            <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
+              <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+              <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+              <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <span className="font-semibold text-foreground">Almox Fácil</span>
+        </Link>
+        
+        {/* Menu button */}
+        <button
+          className="p-2.5 rounded-lg hover:bg-zinc-100 active:bg-zinc-200 transition-colors touch-manipulation"
+          onClick={() => setOpen(!open)}
+          aria-label="Menu"
+        >
+          <Menu className="h-6 w-6 text-foreground" />
+        </button>
+        
         <AnimatePresence>
           {open && (
             <motion.div
@@ -140,16 +156,18 @@ export const MobileSidebar = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-white p-4 md:p-10 z-[100] flex flex-col justify-between",
+                "fixed h-full w-full inset-0 bg-white p-5 z-[100] flex flex-col justify-between safe-area-inset",
                 className
               )}
             >
-              <div
-                className="absolute right-4 top-4 md:right-10 md:top-10 z-50 text-foreground cursor-pointer"
+              {/* Close button - larger touch target */}
+              <button
+                className="absolute right-4 top-4 p-2.5 rounded-lg hover:bg-zinc-100 active:bg-zinc-200 transition-colors touch-manipulation z-50"
                 onClick={() => setOpen(!open)}
+                aria-label="Fechar menu"
               >
-                <X />
-              </div>
+                <X className="h-6 w-6 text-foreground" />
+              </button>
               {children}
             </motion.div>
           )}
@@ -191,11 +209,15 @@ export const SidebarLink = ({
           handleMobileClick()
         }}
         className={cn(
-          "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px]",
+          // Base styles
+          "flex items-center justify-start gap-3 group/sidebar rounded-lg transition-colors cursor-pointer touch-manipulation",
+          // Mobile: larger touch targets
+          "py-3.5 px-4 min-h-[52px] md:py-2.5 md:px-3 md:min-h-[44px] md:rounded-md",
+          // Active/inactive states
           active
             ? "bg-primary text-primary-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent",
-          !open && "justify-center",
+            : "text-muted-foreground hover:text-foreground hover:bg-accent active:bg-accent/80",
+          !open && "md:justify-center",
           className
         )}
         {...props}
@@ -208,7 +230,7 @@ export const SidebarLink = ({
             width: animate ? (open ? "auto" : 0) : "auto",
           }}
           transition={{ duration: 0.2 }}
-          className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
+          className="text-base md:text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
         >
           {link.label}
         </motion.span>
@@ -221,11 +243,15 @@ export const SidebarLink = ({
       href={link.href}
       onClick={handleMobileClick}
       className={cn(
-        "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors min-h-[44px]",
+        // Base styles
+        "flex items-center justify-start gap-3 group/sidebar rounded-lg transition-colors touch-manipulation",
+        // Mobile: larger touch targets
+        "py-3.5 px-4 min-h-[52px] md:py-2.5 md:px-3 md:min-h-[44px] md:rounded-md",
+        // Active/inactive states
         active
           ? "bg-primary text-primary-foreground"
-          : "text-muted-foreground hover:text-foreground hover:bg-accent",
-        !open && "justify-center",
+          : "text-muted-foreground hover:text-foreground hover:bg-accent active:bg-accent/80",
+        !open && "md:justify-center",
         className
       )}
       {...props}
@@ -238,7 +264,7 @@ export const SidebarLink = ({
           width: animate ? (open ? "auto" : 0) : "auto",
         }}
         transition={{ duration: 0.2 }}
-        className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
+        className="text-base md:text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
       >
         {link.label}
       </motion.span>

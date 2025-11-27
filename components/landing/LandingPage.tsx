@@ -255,69 +255,93 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             </button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - improved touch targets */}
           {mobileMenuOpen && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="md:hidden py-4 border-t border-slate-200"
             >
-              <div className="flex flex-col gap-4">
-                <a href="#features" className="text-slate-600 hover:text-slate-900 font-medium">Recursos</a>
-                <a href="#pricing" className="text-slate-600 hover:text-slate-900 font-medium">Preços</a>
-                <a href="#faq" className="text-slate-600 hover:text-slate-900 font-medium">FAQ</a>
+              <div className="flex flex-col gap-1">
+                <a 
+                  href="#features" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
+                >
+                  Recursos
+                </a>
+                <a 
+                  href="#pricing" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
+                >
+                  Preços
+                </a>
+                <a 
+                  href="#faq" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
+                >
+                  FAQ
+                </a>
                 <a 
                   href="https://www.youtube.com/@almoxfacil" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-slate-600 hover:text-red-500 font-medium"
+                  className="flex items-center gap-2 text-slate-600 hover:text-red-500 active:bg-red-50 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
                 >
-                  <PlayCircle className="h-4 w-4" />
+                  <PlayCircle className="h-5 w-5" />
                   Tutoriais
                 </a>
                 
-                {/* Social Icons Mobile */}
-                <div className="flex items-center gap-4 py-2">
+                {/* Social Icons Mobile - larger touch targets */}
+                <div className="flex items-center justify-center gap-3 py-4 mt-2 border-t border-slate-100">
                   <a 
                     href="https://www.youtube.com/@almoxfacil" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-slate-500 hover:text-red-500 transition-colors"
+                    className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-red-50 active:bg-red-100 transition-colors touch-manipulation"
                   >
                     <YouTubeIcon className="h-5 w-5" />
-                    <span className="text-sm">YouTube</span>
                   </a>
                   <a 
                     href="https://www.instagram.com/almoxfacil" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-slate-500 hover:text-pink-500 transition-colors"
+                    className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-pink-500 hover:bg-pink-50 active:bg-pink-100 transition-colors touch-manipulation"
                   >
                     <InstagramIcon className="h-5 w-5" />
-                    <span className="text-sm">Instagram</span>
                   </a>
                   <a 
                     href="https://www.linkedin.com/company/almoxfacil" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors"
+                    className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-colors touch-manipulation"
                   >
                     <LinkedInIcon className="h-5 w-5" />
-                    <span className="text-sm">LinkedIn</span>
                   </a>
                 </div>
 
-                <div className="flex flex-col gap-2 pt-4 border-t border-slate-200">
+                <div className="flex flex-col gap-3 pt-4 border-t border-slate-200">
                   {isLoggedIn ? (
-                    <Link href="/dashboard" className="px-4 py-2 rounded-lg bg-slate-100 text-center font-medium">
+                    <Link 
+                      href="/dashboard" 
+                      className="px-4 py-3.5 rounded-xl bg-slate-100 text-center font-medium active:bg-slate-200 transition-colors touch-manipulation"
+                    >
                       Dashboard
                     </Link>
                   ) : (
                     <>
-                      <Link href="/login" className="px-4 py-2 rounded-lg bg-slate-100 text-center font-medium">
+                      <Link 
+                        href="/login" 
+                        className="px-4 py-3.5 rounded-xl bg-slate-100 text-center font-medium active:bg-slate-200 transition-colors touch-manipulation"
+                      >
                         Entrar
                       </Link>
-                      <Link href="/signup" className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center font-medium">
+                      <Link 
+                        href="/signup" 
+                        className="px-4 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center font-semibold shadow-lg shadow-blue-500/25 active:from-blue-600 active:to-indigo-700 transition-all touch-manipulation"
+                      >
                         Começar grátis
                       </Link>
                     </>

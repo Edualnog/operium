@@ -118,12 +118,17 @@ function SidebarContent({
   }
 
   return (
-    <SidebarBody className="justify-between gap-8">
+    <SidebarBody className="justify-between gap-6 md:gap-8">
       <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="mb-6">
+        {/* Logo - hidden on mobile (shown in header bar) */}
+        <div className="mb-6 hidden md:block">
           {open ? <Logo /> : <LogoIcon />}
         </div>
-        <div className="flex flex-col gap-1">
+        {/* Mobile title */}
+        <div className="mb-4 md:hidden">
+          <h2 className="text-lg font-semibold text-foreground px-1">Menu</h2>
+        </div>
+        <div className="flex flex-col gap-1.5 md:gap-1">
           {links.map((link) => (
             <SidebarLink
               key={link.href}
@@ -133,18 +138,20 @@ function SidebarContent({
           ))}
         </div>
       </div>
-      <div className="pt-3 md:pt-4 border-t border-border flex-shrink-0 px-0 md:px-0">
-        <div className="flex gap-2 md:gap-1.5 w-full">
+      <div className="pt-4 md:pt-4 border-t border-border flex-shrink-0">
+        {/* Mobile: Stack buttons vertically */}
+        <div className="flex flex-col md:flex-row gap-2 md:gap-1.5 w-full">
           <Link
             href="/dashboard/conta"
             onClick={handleNavigation}
             className={cn(
-              "flex items-center justify-center md:justify-start gap-2 md:gap-3 group/sidebar py-2 md:py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px]",
+              "flex items-center justify-start gap-3 group/sidebar rounded-lg md:rounded-md transition-colors cursor-pointer touch-manipulation",
+              "py-3.5 px-4 min-h-[52px] md:py-2.5 md:px-3 md:min-h-[44px]",
               pathname === "/dashboard/conta"
                 ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent",
-              !open && "justify-center",
-              open ? "flex-1" : "w-full"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent active:bg-accent/80",
+              !open && "md:justify-center",
+              open ? "md:flex-1" : "w-full"
             )}
           >
             <span className="flex-shrink-0">
@@ -157,11 +164,32 @@ function SidebarContent({
                 width: animate ? (open ? "auto" : 0) : "auto",
               }}
               transition={{ duration: 0.2 }}
-              className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
+              className="text-base md:text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
             >
               Conta
             </motion.span>
           </Link>
+          {/* Mobile: Always show logout button */}
+          <button
+            type="button"
+            onClick={() => {
+              handleNavigation()
+              onLogout()
+            }}
+            className={cn(
+              "flex md:hidden items-center justify-start gap-3 group/sidebar rounded-lg transition-colors cursor-pointer touch-manipulation",
+              "py-3.5 px-4 min-h-[52px]",
+              "text-destructive hover:text-destructive hover:bg-destructive/10 active:bg-destructive/20"
+            )}
+          >
+            <span className="flex-shrink-0">
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+            </span>
+            <span className="text-base font-medium">
+              Sair
+            </span>
+          </button>
+          {/* Desktop: Animated logout button */}
           <AnimatePresence>
             {open && (
               <motion.button
@@ -172,7 +200,7 @@ function SidebarContent({
                 exit={{ opacity: 0, width: 0 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  "flex items-center justify-center md:justify-start gap-2 md:gap-3 group/sidebar py-2 md:py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px] flex-1",
+                  "hidden md:flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px] flex-1",
                   "text-destructive hover:text-destructive hover:bg-destructive/10",
                   "overflow-hidden"
                 )}
@@ -216,24 +244,30 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
 
   return (
     <main
-      className="transition-all duration-300 bg-white min-h-screen flex flex-col"
+      className="transition-all duration-300 bg-zinc-50/50 md:bg-white min-h-screen flex flex-col"
       style={{
         marginLeft: isMobile ? "0" : `clamp(0px, ${width}px, 100%)`,
       }}
     >
-      <div className="flex-1 p-3 md:p-4 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white w-full">
+      {/* Main content with better mobile padding */}
+      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white md:bg-transparent w-full">
         {children}
       </div>
-      <footer className="border-t border-zinc-200 bg-white py-4 mt-auto">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-7 2xl:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
-            <p className="text-center md:text-left">
-              © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
+      
+      {/* Footer - more compact on mobile */}
+      <footer className="border-t border-zinc-200 bg-white py-3 md:py-4 mt-auto">
+        <div className="max-w-[1920px] mx-auto px-3 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 text-sm text-zinc-600">
+            {/* Copyright - smaller on mobile */}
+            <p className="text-center md:text-left text-xs md:text-sm order-2 md:order-1">
+              © {new Date().getFullYear()} Almox Fácil
             </p>
-            <div className="flex items-center justify-center gap-3">
+            
+            {/* Social links - larger touch targets on mobile */}
+            <div className="flex items-center justify-center gap-2 md:gap-3 order-1 md:order-2">
               <a 
                 href="mailto:suporte@alnog.com.br"
-                className="p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 transition-all"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation"
                 title="Suporte por email"
               >
                 <Mail className="h-4 w-4" />
@@ -242,7 +276,7 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
                 href="https://www.youtube.com/@almoxfacil" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-red-100 hover:text-red-500 transition-all"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-red-100 hover:text-red-500 active:bg-red-200 transition-all touch-manipulation"
                 title="YouTube - Tutoriais"
               >
                 <YouTubeIcon className="h-4 w-4" />
@@ -251,7 +285,7 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
                 href="https://www.instagram.com/almoxfacil" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-pink-100 hover:text-pink-500 transition-all"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-pink-100 hover:text-pink-500 active:bg-pink-200 transition-all touch-manipulation"
                 title="Instagram"
               >
                 <InstagramIcon className="h-4 w-4" />
@@ -260,7 +294,7 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
                 href="https://www.linkedin.com/company/almoxfacil" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 transition-all"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation"
                 title="LinkedIn"
               >
                 <LinkedInIcon className="h-4 w-4" />

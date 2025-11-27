@@ -246,12 +246,12 @@ export default function LoginPage() {
         </nav>
       </header>
 
-      <div className="flex-1 flex items-center justify-center pt-24 pb-12 px-4">
+      <div className="flex-1 flex items-center justify-center pt-20 sm:pt-24 pb-8 sm:pb-12 px-4">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative z-10 w-full max-w-md p-8 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50"
+          className="relative z-10 w-full max-w-md p-5 sm:p-8 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50"
         >
           <div className="mb-6 flex justify-center items-center">
             <div className="rounded-xl bg-[#4B6BFB] p-2 shadow-lg shadow-blue-500/25">
@@ -304,11 +304,11 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 touch-manipulation"
               />
             </div>
 
-            <div className="mb-6">
+            <div className="mb-5 sm:mb-6">
               <label htmlFor="password-input" className="mb-1.5 block text-sm font-medium text-slate-700">
                 Senha
               </label>
@@ -321,11 +321,11 @@ export default function LoginPage() {
                 required
                 disabled={loading}
                 minLength={6}
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 touch-manipulation"
               />
             </div>
 
-            <div className="mb-6 flex justify-center">
+            <div className="mb-5 sm:mb-6 flex justify-center">
               <Turnstile
                 ref={captchaRef}
                 siteKey="0x4AAAAAACDVBq1Z1dId38ug"
@@ -344,7 +344,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 text-lg font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-600 hover:to-indigo-700 hover:shadow-blue-500/40 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3.5 sm:py-3 text-base sm:text-lg font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-600 hover:to-indigo-700 hover:shadow-blue-500/40 active:from-blue-700 active:to-indigo-800 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
               disabled={loading}
             >
               {loading ? "Entrando..." : "Entrar"}
@@ -353,7 +353,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleResetPassword}
-              className="mt-4 w-full text-sm text-blue-600 hover:underline disabled:opacity-50"
+              className="mt-4 w-full py-2 text-sm text-blue-600 hover:underline active:text-blue-800 disabled:opacity-50 touch-manipulation"
               disabled={loading}
             >
               Esqueci minha senha
