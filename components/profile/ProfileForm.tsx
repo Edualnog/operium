@@ -34,7 +34,10 @@ export default function ProfileForm({ userId, userEmail, initialProfile }: Profi
 
   // Garantir que temos o email atual do usuário
   useEffect(() => {
-    if (companyEmail) return
+    if (userEmail) {
+      setCompanyEmail(userEmail)
+      return
+    }
 
     const fetchEmail = async () => {
       const {
@@ -46,7 +49,7 @@ export default function ProfileForm({ userId, userEmail, initialProfile }: Profi
     }
 
     fetchEmail()
-  }, [companyEmail, supabase])
+  }, [userEmail, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
