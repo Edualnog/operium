@@ -188,8 +188,13 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
             ref={canvasRef}
             width={width}
             height={height}
-            className="w-full touch-none cursor-crosshair"
-            style={{ maxWidth: "100%", height: "auto", aspectRatio: `${width}/${height}` }}
+            className="w-full touch-none cursor-crosshair select-none"
+            style={{ 
+              maxWidth: "100%", 
+              height: "auto", 
+              aspectRatio: `${width}/${height}`,
+              minHeight: "150px"
+            }}
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}
@@ -200,23 +205,29 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
           />
           {!hasSignature && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <p className="text-zinc-400 text-sm">Assine aqui</p>
+              <p className="text-zinc-400 text-xs sm:text-sm">Assine aqui</p>
             </div>
           )}
         </div>
-        <div className="flex justify-between items-center">
-          <p className="text-xs text-zinc-500">
-            {hasSignature ? "✓ Assinatura capturada" : "Use o mouse ou dedo para assinar"}
+        <div className="flex justify-between items-center gap-2">
+          <p className="text-[10px] sm:text-xs text-zinc-500 flex-1">
+            {hasSignature ? "✓ Assinatura capturada" : (
+              <>
+                <span className="hidden sm:inline">Use o mouse ou dedo para assinar</span>
+                <span className="sm:hidden">Toque e arraste para assinar</span>
+              </>
+            )}
           </p>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={clear}
-            className="gap-1.5"
+            className="gap-1.5 min-h-[36px] text-xs sm:text-sm"
           >
             <Eraser className="h-3.5 w-3.5" />
-            Limpar
+            <span className="hidden sm:inline">Limpar</span>
+            <span className="sm:hidden">✕</span>
           </Button>
         </div>
       </div>

@@ -43,19 +43,19 @@ export function useNotifications(userId: string): UseNotificationsReturn {
       // 1. Buscar itens com estoque crítico
       const { data: ferramentas } = await supabase
         .from("ferramentas")
-        .select("id, nome, quantidade_atual, ponto_ressuprimento")
+        .select("id, nome, quantidade_disponivel, ponto_ressuprimento")
         .eq("profile_id", userId)
         .gt("ponto_ressuprimento", 0)
 
       if (ferramentas) {
         ferramentas.forEach((item) => {
-          if (item.quantidade_atual < item.ponto_ressuprimento) {
-            const deficit = item.ponto_ressuprimento - item.quantidade_atual
+          if (item.quantidade_disponivel < item.ponto_ressuprimento) {
+            const deficit = item.ponto_ressuprimento - item.quantidade_disponivel
             generatedNotifications.push({
               id: `estoque-${item.id}`,
               tipo: "estoque_critico",
               titulo: "Estoque Crítico",
-              mensagem: `${item.nome} está com apenas ${item.quantidade_atual} unidades (mínimo: ${item.ponto_ressuprimento}). Déficit de ${deficit} unidades.`,
+              mensagem: `${item.nome} está com apenas ${item.quantidade_disponivel} unidades (mínimo: ${item.ponto_ressuprimento}). Déficit de ${deficit} unidades.`,
               lida: false,
               data_criacao: now.toISOString(),
               prioridade: deficit > 10 ? "urgente" : "alta",

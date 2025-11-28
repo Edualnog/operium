@@ -289,7 +289,7 @@ export default function TermoResponsabilidadeModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-600" />
@@ -318,9 +318,9 @@ export default function TermoResponsabilidadeModal({
         ) : (
           <>
             {/* Dados do colaborador */}
-            <div className="bg-zinc-50 rounded-lg p-4 space-y-2">
-              <h4 className="font-medium text-zinc-900">Colaborador</h4>
-              <div className="text-sm text-zinc-600">
+            <div className="bg-zinc-50 rounded-lg p-3 sm:p-4 space-y-2">
+              <h4 className="font-medium text-zinc-900 text-sm sm:text-base">Colaborador</h4>
+              <div className="text-xs sm:text-sm text-zinc-600 space-y-1">
                 <p><strong>Nome:</strong> {colaborador.nome}</p>
                 {colaborador.cargo && <p><strong>Cargo:</strong> {colaborador.cargo}</p>}
                 {colaborador.cpf && <p><strong>CPF:</strong> {colaborador.cpf}</p>}
@@ -329,20 +329,20 @@ export default function TermoResponsabilidadeModal({
 
             {/* Itens */}
             <div className="space-y-2">
-              <h4 className="font-medium text-zinc-900">
+              <h4 className="font-medium text-zinc-900 text-sm sm:text-base">
                 {tipo === "retirada" ? "Equipamentos a Receber" : "Equipamentos a Devolver"}
               </h4>
-              <div className="bg-zinc-50 rounded-lg p-3 space-y-2">
+              <div className="bg-zinc-50 rounded-lg p-2 sm:p-3 space-y-2">
                 {itens.map((item, index) => (
-                  <div key={item.id || index} className="flex items-center justify-between text-sm">
-                    <span className="text-zinc-700">{item.nome}</span>
+                  <div key={item.id || index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-xs sm:text-sm py-1 border-b border-zinc-200 last:border-0">
+                    <span className="text-zinc-700 font-medium">{item.nome}</span>
                     <div className="flex items-center gap-2">
                       {item.tipo_item && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-[10px] sm:text-xs">
                           {item.tipo_item === "epi" ? "EPI" : item.tipo_item === "ferramenta" ? "Ferramenta" : item.tipo_item}
                         </Badge>
                       )}
-                      <Badge variant="secondary">{item.quantidade}x</Badge>
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs">{item.quantidade}x</Badge>
                     </div>
                   </div>
                 ))}
@@ -350,7 +350,7 @@ export default function TermoResponsabilidadeModal({
             </div>
 
             {/* Termo resumido */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-blue-900">
               <p className="font-medium mb-2">Ao assinar, o colaborador declara:</p>
               <ul className="list-disc list-inside space-y-1 text-blue-800">
                 {tipo === "retirada" ? (
@@ -371,12 +371,14 @@ export default function TermoResponsabilidadeModal({
 
             {/* Área de assinatura */}
             <div className="space-y-2">
-              <h4 className="font-medium text-zinc-900">Assinatura do Colaborador</h4>
+              <h4 className="font-medium text-zinc-900 text-sm sm:text-base">Assinatura do Colaborador</h4>
+              <p className="text-xs text-zinc-500 sm:hidden">Use o dedo para assinar abaixo</p>
               <SignaturePad
                 ref={signaturePadRef}
                 width={600}
                 height={200}
                 onChange={handleSignatureChange}
+                className="touch-manipulation"
               />
             </div>
 
@@ -387,14 +389,19 @@ export default function TermoResponsabilidadeModal({
               </div>
             )}
 
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={handleClose} disabled={isGenerating}>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2 mt-4">
+              <Button 
+                variant="outline" 
+                onClick={handleClose} 
+                disabled={isGenerating}
+                className="w-full sm:w-auto min-h-[44px]"
+              >
                 Cancelar
               </Button>
               <Button
                 onClick={generatePDF}
                 disabled={!hasSignature || isGenerating}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto min-h-[44px]"
               >
                 {isGenerating ? (
                   <>
@@ -404,7 +411,8 @@ export default function TermoResponsabilidadeModal({
                 ) : (
                   <>
                     <Download className="h-4 w-4" />
-                    Confirmar e Gerar PDF
+                    <span className="hidden sm:inline">Confirmar e Gerar PDF</span>
+                    <span className="sm:hidden">Gerar PDF</span>
                   </>
                 )}
               </Button>

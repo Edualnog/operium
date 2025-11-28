@@ -19,7 +19,20 @@ import {
   X,
   Loader2,
   PlayCircle,
-  BookOpen
+  BookOpen,
+  Bell,
+  FileSignature,
+  FileSpreadsheet,
+  FileDown,
+  AlertTriangle,
+  CalendarClock,
+  Smartphone,
+  ClipboardCheck,
+  TrendingUp,
+  Layers,
+  ShieldCheck,
+  Palette,
+  RefreshCw
 } from "lucide-react"
 
 // Ícones SVG elegantes para redes sociais
@@ -401,10 +414,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               </button>
 
               <a 
-                href="#features"
+                href="#all-features"
                 className="w-full sm:w-auto px-8 py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold text-lg hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2"
               >
-                Ver recursos
+                Ver todos os recursos
                 <ChevronDown className="h-5 w-5" />
               </a>
             </div>
@@ -541,6 +554,341 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Detailed Features Section */}
+      <section id="all-features" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-slate-50">
+        <div className="max-w-7xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 text-sm font-medium mb-4">
+              <Layers className="h-4 w-4" />
+              Funcionalidades Completas
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
+              Tudo que seu almoxarifado precisa
+            </h2>
+            <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto">
+              Conheça em detalhes todas as funcionalidades que vão transformar 
+              a gestão do seu almoxarifado industrial
+            </p>
+          </motion.div>
+
+          {/* Features Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Gestão de Estoque */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.05 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Package className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Gestão de Estoque</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Controle completo de itens consumíveis e não-consumíveis com rastreamento em tempo real.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <span>Ponto de ressuprimento automático</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <span>Categorização por tipo</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <span>Código único por item</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Controle de EPIs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-green-300 hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <ShieldCheck className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Controle de EPIs</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Gerencie equipamentos de proteção individual com controle de validade e conformidade.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <span>Controle de validade</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <span>Tamanhos e cores</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <span>Histórico por colaborador</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Alertas Inteligentes */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.15 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-orange-300 hover:shadow-xl hover:shadow-orange-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Bell className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Alertas Inteligentes</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Sistema de notificações automáticas para nunca perder um prazo importante.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                  <span>Estoque crítico</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                  <span>EPIs próximos do vencimento</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                  <span>Devoluções pendentes</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Assinatura Digital */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-purple-300 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <FileSignature className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Assinatura Digital</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Termo de responsabilidade com assinatura digital para retiradas de EPIs e ferramentas.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                  <span>Termo de responsabilidade automático</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                  <span>PDF para auditorias</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                  <span>Assinatura touch/mouse</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Dashboard Analytics */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.25 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-cyan-300 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Dashboard & KPIs</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Visualize métricas importantes em tempo real com gráficos interativos.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-cyan-500 flex-shrink-0" />
+                  <span>Gráficos de movimentação</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-cyan-500 flex-shrink-0" />
+                  <span>Análise de consumo</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-cyan-500 flex-shrink-0" />
+                  <span>Taxa de devolução</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Importação Excel */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <FileSpreadsheet className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Importação Excel</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Migre seus dados existentes facilmente com importação de planilhas Excel/CSV.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                  <span>Drag & drop de arquivos</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                  <span>Mapeamento de colunas</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                  <span>Validação automática</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Exportação PDF */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.35 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-red-300 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <FileDown className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Exportação PDF</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Gere relatórios profissionais em PDF para apresentações e auditorias.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>Relatórios de estoque</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>Lista de colaboradores</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>Histórico de movimentações</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Gestão de Colaboradores */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Gestão de Colaboradores</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Cadastre sua equipe completa com dados detalhados e histórico de atividades.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                  <span>Dados completos (CPF, cargo, setor)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                  <span>Foto do colaborador</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                  <span>Validação de duplicados</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Responsivo */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.45 }}
+              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-pink-300 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Smartphone className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">100% Responsivo</h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-4">
+                Acesse de qualquer dispositivo com interface otimizada para touch.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-500">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                  <span>Desktop, tablet e mobile</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                  <span>Botões otimizados para toque</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                  <span>Instalável como app (PWA)</span>
+                </li>
+              </ul>
+            </motion.div>
+          </div>
+
+          {/* CTA dentro da seção */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-12 sm:mt-16 text-center"
+          >
+            <p className="text-slate-600 mb-4">
+              E muito mais! Descubra todas as funcionalidades com o teste grátis.
+            </p>
+            <button
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+            >
+              {checkoutLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                <>
+                  Testar grátis por 7 dias
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </button>
+          </motion.div>
         </div>
       </section>
 
