@@ -121,7 +121,7 @@ export default function InventarioList() {
 
       if (error) throw error
       
-      const uniqueCategorias = [...new Set(data?.map(d => d.categoria).filter(Boolean))]
+      const uniqueCategorias = Array.from(new Set(data?.map(d => d.categoria).filter(Boolean)))
       setCategorias(uniqueCategorias as string[])
     } catch (error) {
       console.error("Erro ao buscar categorias:", error)
