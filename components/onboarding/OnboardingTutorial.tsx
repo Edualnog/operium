@@ -112,6 +112,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep])
 
   const slideVariants = {
