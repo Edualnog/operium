@@ -261,6 +261,7 @@ export default function TermoResponsabilidadeModal({
           tipo,
           itens: itens.map((i) => ({ id: i.id, nome: i.nome, quantidade: i.quantidade })),
           assinatura_url: publicUrl !== "local" ? publicUrl : null,
+          assinatura_base64: signatureDataUrl, // Salvar assinatura em base64 para visualização rápida
           pdf_url: publicUrl !== "local" ? publicUrl : null,
           data_assinatura: dataAtual.toISOString(),
         })

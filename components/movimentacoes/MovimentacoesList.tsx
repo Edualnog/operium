@@ -32,6 +32,7 @@ import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 import { cn } from "@/lib/utils"
 import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabilidadeModal"
+import MovimentacaoDetailModal from "./MovimentacaoDetailModal"
 
 interface Movimentacao {
   id: string
@@ -166,6 +167,10 @@ export default function MovimentacoesList({
 
   // Estado para modal de importação
   const [importModalOpen, setImportModalOpen] = useState(false)
+  
+  // Estado para modal de detalhes da movimentação
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [selectedMovimentacaoId, setSelectedMovimentacaoId] = useState<string | null>(null)
 
   // Configuração de importação de Excel para Movimentações
   const importConfig: ImportConfig = {
@@ -555,6 +560,41 @@ export default function MovimentacoesList({
     } finally {
       setExportingCsv(false)
       setOpenExportDialog(false)
+    }
+  }
+
+  // Abrir modal de detalhes da movimentação
+  const handleOpenDetail = (movimentacaoId: string) => {
+    setSelectedMovimentacaoId(movimentacaoId)
+    setDetailModalOpen(true)
+  }
+
+  // Reimprimir termo de responsabilidade
+  const handleReprintTermo = (movimentacao: any) => {
+    if (!movimentacao.colaborador) return
+    
+    // Buscar dados completos do colaborador
+    const colaboradorCompleto = colaboradores.find(c => c.id === movimentacao.colaborador.id)
+    // Buscar dados completos da ferramenta
+    const ferramentaCompleta = ferramentas.find(f => f.id === movimentacao.ferramenta?.id)
+    
+    if (colaboradorCompleto && movimentacao.ferramenta) {
+      setMovimentacaoParaAssinar({
+        id: movimentacao.id,
+        colaborador: {
+          id: colaboradorCompleto.id,
+          nome: colaboradorCompleto.nome,
+        },
+        itens: [{
+          id: movimentacao.ferramenta.id,
+          nome: movimentacao.ferramenta.nome,
+          quantidade: movimentacao.quantidade,
+          tipo_item: movimentacao.ferramenta.tipo_item || undefined,
+        }],
+        tipo: movimentacao.tipo as "retirada" | "devolucao",
+      })
+      setDetailModalOpen(false)
+      setTermoModalOpen(true)
     }
   }
 
@@ -971,7 +1011,8 @@ export default function MovimentacoesList({
             <Fragment key={m.id}>
               {/* Versão Desktop */}
               <div
-                className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-zinc-50/50 transition-colors"
+                onClick={() => handleOpenDetail(m.id)}
+                className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-blue-50/50 transition-colors cursor-pointer group"
               >
               <div className="flex items-center gap-2 min-w-0">
                 <Badge 
@@ -983,7 +1024,7 @@ export default function MovimentacoesList({
                 >
                   {m.tipo}
                 </Badge>
-                <span className="font-medium text-sm text-zinc-900 truncate">
+                <span className="font-medium text-sm text-zinc-900 truncate group-hover:text-blue-700 transition-colors">
                   {m.ferramentas?.nome || "Produto"}
                 </span>
               </div>
@@ -996,14 +1037,18 @@ export default function MovimentacoesList({
               <div className="flex items-center text-sm text-zinc-600">
                 {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
               </div>
-              <div className="flex items-center text-sm text-zinc-600 truncate" title={m.observacoes || ""}>
-                {m.observacoes || "-"}
+              <div className="flex items-center gap-2 text-sm text-zinc-600 truncate" title={m.observacoes || ""}>
+                <span className="truncate flex-1">{m.observacoes || "-"}</span>
+                <span className="opacity-0 group-hover:opacity-100 text-blue-500 text-xs whitespace-nowrap transition-opacity">
+                  Ver detalhes →
+                </span>
               </div>
               </div>
               
               {/* Versão Mobile */}
               <div
-                className="md:hidden p-3 border-b border-zinc-200 space-y-2"
+                onClick={() => handleOpenDetail(m.id)}
+                className="md:hidden p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer"
               >
                 <div className="flex items-center justify-between gap-2">
                   <Badge 
@@ -1033,6 +1078,9 @@ export default function MovimentacoesList({
                     {m.observacoes}
                   </div>
                 )}
+                <div className="text-xs text-blue-500 text-center pt-1">
+                  Toque para ver detalhes
+                </div>
               </div>
             </Fragment>
           ))}
@@ -1059,7 +1107,21 @@ export default function MovimentacoesList({
           movimentacaoId={movimentacaoParaAssinar.id}
           onSuccess={(termoId, pdfUrl) => {
             console.log("✅ Termo assinado:", termoId, pdfUrl)
+            router.refresh()
           }}
+        />
+      )}
+
+      {/* Modal de Detalhes da Movimentação */}
+      {selectedMovimentacaoId && (
+        <MovimentacaoDetailModal
+          open={detailModalOpen}
+          onOpenChange={(open) => {
+            setDetailModalOpen(open)
+            if (!open) setSelectedMovimentacaoId(null)
+          }}
+          movimentacaoId={selectedMovimentacaoId}
+          onReprint={handleReprintTermo}
         />
       )}
     </div>
