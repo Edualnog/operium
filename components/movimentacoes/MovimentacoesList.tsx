@@ -22,14 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload } from "lucide-react"
+import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload, FileSignature } from "lucide-react"
 import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 import { cn } from "@/lib/utils"
+import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabilidadeModal"
 
 interface Movimentacao {
   id: string
@@ -78,6 +80,16 @@ export default function MovimentacoesList({
     dataMov: new Date().toISOString().slice(0, 16),
   })
   const [search, setSearch] = useState("")
+  
+  // Estados para assinatura digital
+  const [solicitarAssinatura, setSolicitarAssinatura] = useState(true)
+  const [termoModalOpen, setTermoModalOpen] = useState(false)
+  const [movimentacaoParaAssinar, setMovimentacaoParaAssinar] = useState<{
+    id: string
+    colaborador: { id: string; nome: string; cargo?: string; cpf?: string }
+    itens: { id: string; nome: string; quantidade: number; tipo_item?: string }[]
+    tipo: "retirada" | "devolucao"
+  } | null>(null)
   const [openExportDialog, setOpenExportDialog] = useState(false)
   const [exportingCsv, setExportingCsv] = useState(false)
   const [periodoRapido, setPeriodoRapido] = useState<"hoje" | "ontem" | "selecionar" | null>(null)
@@ -367,6 +379,34 @@ export default function MovimentacoesList({
       if (!res.ok) throw new Error(json.error || "Erro ao registrar movimentação")
 
       console.log("✅ Movimentação registrada com sucesso!")
+      
+      // Verificar se deve abrir modal de assinatura
+      const deveAssinar = solicitarAssinatura && (form.tipo === "retirada" || form.tipo === "devolucao")
+      
+      if (deveAssinar && form.colaboradorId) {
+        // Encontrar dados do colaborador
+        const colaboradorSelecionado = colaboradores.find(c => c.id === form.colaboradorId)
+        // Encontrar dados do produto
+        const produtoSelecionado = ferramentas.find(f => f.id === form.produtoId)
+        
+        if (colaboradorSelecionado && produtoSelecionado) {
+          setMovimentacaoParaAssinar({
+            id: json.id || json.data?.id || "",
+            colaborador: {
+              id: colaboradorSelecionado.id,
+              nome: colaboradorSelecionado.nome,
+            },
+            itens: [{
+              id: produtoSelecionado.id,
+              nome: produtoSelecionado.nome,
+              quantidade: Number(form.quantidade),
+              tipo_item: produtoSelecionado.tipo_item || undefined,
+            }],
+            tipo: form.tipo as "retirada" | "devolucao",
+          })
+          setTermoModalOpen(true)
+        }
+      }
       
       setOpen(false)
       setForm({
@@ -868,6 +908,29 @@ export default function MovimentacoesList({
                     onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
                   />
                 </div>
+
+                {/* Checkbox de assinatura - só aparece para retirada/devolução */}
+                {(form.tipo === "retirada" || form.tipo === "devolucao") && (
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Checkbox
+                      id="solicitar-assinatura"
+                      checked={solicitarAssinatura}
+                      onCheckedChange={(checked) => setSolicitarAssinatura(checked === true)}
+                    />
+                    <div className="flex-1">
+                      <label
+                        htmlFor="solicitar-assinatura"
+                        className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2"
+                      >
+                        <FileSignature className="h-4 w-4" />
+                        Solicitar assinatura digital
+                      </label>
+                      <p className="text-xs text-blue-700 mt-0.5">
+                        Gera termo de responsabilidade com assinatura do colaborador
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>
@@ -980,6 +1043,24 @@ export default function MovimentacoesList({
         <div className="text-center py-12 text-muted-foreground">
           Nenhuma movimentação encontrada
         </div>
+      )}
+
+      {/* Modal de Termo de Responsabilidade */}
+      {movimentacaoParaAssinar && (
+        <TermoResponsabilidadeModal
+          open={termoModalOpen}
+          onOpenChange={(open) => {
+            setTermoModalOpen(open)
+            if (!open) setMovimentacaoParaAssinar(null)
+          }}
+          colaborador={movimentacaoParaAssinar.colaborador}
+          itens={movimentacaoParaAssinar.itens}
+          tipo={movimentacaoParaAssinar.tipo}
+          movimentacaoId={movimentacaoParaAssinar.id}
+          onSuccess={(termoId, pdfUrl) => {
+            console.log("✅ Termo assinado:", termoId, pdfUrl)
+          }}
+        />
       )}
     </div>
   )

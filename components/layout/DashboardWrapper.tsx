@@ -14,6 +14,7 @@ import {
   Mail,
   PlayCircle,
 } from "lucide-react"
+import NotificationBell from "@/components/notifications/NotificationBell"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -42,6 +43,13 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const [userId, setUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id)
+    })
+  }, [supabase])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -94,7 +102,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
         pathname={pathname}
         onLogout={handleLogout}
       />
-      <DynamicMainContent>{children}</DynamicMainContent>
+      <DynamicMainContent userId={userId}>{children}</DynamicMainContent>
     </Sidebar>
   )
 }
@@ -220,7 +228,7 @@ function SidebarContent({
   )
 }
 
-function DynamicMainContent({ children }: { children: React.ReactNode }) {
+function DynamicMainContent({ children, userId }: { children: React.ReactNode; userId: string | null }) {
   const { open, animate } = useSidebar()
   const [width, setWidth] = useState(280)
   const [isMobile, setIsMobile] = useState(false)
@@ -249,6 +257,13 @@ function DynamicMainContent({ children }: { children: React.ReactNode }) {
         marginLeft: isMobile ? "0" : `clamp(0px, ${width}px, 100%)`,
       }}
     >
+      {/* Header com notificações */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-zinc-200 px-3 py-2 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8">
+        <div className="max-w-[1920px] mx-auto flex items-center justify-end gap-3">
+          {userId && <NotificationBell userId={userId} />}
+        </div>
+      </header>
+      
       {/* Main content with better mobile padding */}
       <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white md:bg-transparent w-full">
         {children}
