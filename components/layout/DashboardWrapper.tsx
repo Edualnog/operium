@@ -13,6 +13,7 @@ import {
   Settings,
   Mail,
   PlayCircle,
+  ClipboardList,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
 
@@ -91,6 +92,13 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       href: "/dashboard/consertos",
       icon: (
         <Hammer className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Inventário",
+      href: "/dashboard/inventario",
+      icon: (
+        <ClipboardList className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
