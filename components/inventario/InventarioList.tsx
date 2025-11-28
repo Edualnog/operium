@@ -85,6 +85,7 @@ export default function InventarioList() {
   useEffect(() => {
     fetchInventarios()
     fetchCategorias()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchInventarios = async () => {

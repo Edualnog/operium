@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { 
   Package, 
@@ -924,10 +925,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             {/* Glow effect behind image */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-indigo-400/20 to-purple-400/20 blur-3xl rounded-full transform scale-75" />
             
-            <img 
+            <Image 
               src="/images/mockup-devices.png" 
               alt="Almox Fácil em múltiplos dispositivos - Desktop, Tablet e Mobile" 
+              width={1200}
+              height={800}
               className="relative w-full max-w-4xl mx-auto drop-shadow-2xl"
+              priority
             />
           </motion.div>
 

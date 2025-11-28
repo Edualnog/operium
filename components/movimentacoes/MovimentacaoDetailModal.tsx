@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import {
   Dialog,
   DialogContent,
@@ -126,6 +127,7 @@ export default function MovimentacaoDetailModal({
     if (open && movimentacaoId) {
       loadMovimentacao()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, movimentacaoId])
 
   const loadMovimentacao = async () => {
@@ -301,9 +303,11 @@ export default function MovimentacaoDetailModal({
                 <div className="bg-zinc-50 rounded-xl p-4">
                   <div className="flex items-start gap-4">
                     {movimentacao.ferramenta?.foto_url ? (
-                      <img 
+                      <Image 
                         src={movimentacao.ferramenta.foto_url} 
                         alt={movimentacao.ferramenta.nome}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-lg object-cover border border-zinc-200"
                       />
                     ) : (
@@ -356,9 +360,11 @@ export default function MovimentacaoDetailModal({
                   <div className="bg-zinc-50 rounded-xl p-4">
                     <div className="flex items-center gap-4">
                       {movimentacao.colaborador.foto_url ? (
-                        <img 
+                        <Image 
                           src={movimentacao.colaborador.foto_url} 
                           alt={movimentacao.colaborador.nome}
+                          width={56}
+                          height={56}
                           className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm"
                         />
                       ) : (
@@ -425,6 +431,7 @@ export default function MovimentacaoDetailModal({
                       <div className="bg-white rounded-lg p-3 border border-green-200">
                         <p className="text-xs text-zinc-500 mb-2">Assinatura do colaborador:</p>
                         <div className="flex justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img 
                             src={movimentacao.termo.assinatura_base64 || movimentacao.termo.assinatura_url || ""}
                             alt="Assinatura"

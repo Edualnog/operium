@@ -102,6 +102,7 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
 
   useEffect(() => {
     fetchItens()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inventario.id])
 
   const fetchItens = async () => {

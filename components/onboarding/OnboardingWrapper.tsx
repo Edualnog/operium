@@ -18,6 +18,7 @@ export default function OnboardingWrapper({ children }: OnboardingWrapperProps) 
 
   useEffect(() => {
     checkOnboardingStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const checkOnboardingStatus = async () => {

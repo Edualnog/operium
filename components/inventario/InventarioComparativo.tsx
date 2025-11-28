@@ -96,6 +96,7 @@ export default function InventarioComparativo({ inventario, onBack }: Inventario
 
   useEffect(() => {
     fetchItens()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inventario.id])
 
   const fetchItens = async () => {
