@@ -55,9 +55,9 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-white">
       <OnboardingWrapper>
-        <DashboardWrapper>
-          {children}
-        </DashboardWrapper>
+      <DashboardWrapper>
+        {children}
+      </DashboardWrapper>
       </OnboardingWrapper>
     </div>
   )

@@ -991,7 +991,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 ),
               },
             ]}
-            maxItems={10}
+            maxItems={3}
           />
 
           <KpiList
@@ -1014,7 +1014,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 render: (item) => item.consumo_medio_diario.toFixed(1),
               },
             ]}
-            maxItems={10}
+            maxItems={3}
           />
         </div>
       </section>
@@ -1047,7 +1047,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 ),
               },
             ]}
-            maxItems={15}
+            maxItems={3}
           />
 
           <KpiList
@@ -1074,7 +1074,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   new Date(item.validade).toLocaleDateString("pt-BR"),
               },
             ]}
-            maxItems={15}
+            maxItems={3}
           />
         </div>
       </section>

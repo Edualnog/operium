@@ -1036,13 +1036,13 @@ function ColaboradoresList({
             <Upload className="mr-2 h-4 w-4" />
             Importar Excel
           </Button>
-          <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditing(null)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Novo Colaborador
-              </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogTrigger asChild>
+            <Button onClick={() => setEditing(null)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Colaborador
+            </Button>
+          </DialogTrigger>
           <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
@@ -1230,7 +1230,7 @@ function ColaboradoresList({
               </DialogFooter>
             </form>
           </DialogContent>
-          </Dialog>
+        </Dialog>
         </div>
       </div>
 

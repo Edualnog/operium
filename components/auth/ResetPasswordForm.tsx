@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Package, Lock, CheckCircle2, AlertCircle } from "lucide-react"
+import { Package, Lock, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
@@ -15,6 +15,8 @@ export default function ResetPasswordForm() {
   
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [success, setSuccess] = React.useState(false)
@@ -77,7 +79,11 @@ export default function ResetPasswordForm() {
         throw new Error("Link de recuperação inválido ou expirado. Solicite um novo link.")
       } catch (err: any) {
         console.error("Erro ao validar link de recuperação:", err)
+        if (err.message?.toLowerCase().includes("rate limit") || err.message?.includes("429")) {
+          setError("Você atingiu o limite de tentativas. Por favor, aguarde alguns minutos e tente novamente.")
+        } else {
         setError(err.message || "Link de recuperação inválido ou expirado. Solicite um novo link.")
+        }
         setStatus("error")
       }
     }
@@ -130,7 +136,9 @@ export default function ResetPasswordForm() {
     } catch (err: any) {
       let errorMessage = "Erro ao alterar a senha. Por favor, tente novamente."
       
-      if (err.message.includes("expired") || err.message.includes("invalid")) {
+      if (err.message?.toLowerCase().includes("rate limit") || err.message?.includes("429")) {
+        errorMessage = "Você atingiu o limite de tentativas. Por favor, aguarde alguns minutos e tente novamente."
+      } else if (err.message?.includes("expired") || err.message?.includes("invalid")) {
         errorMessage = "Link de recuperação expirado ou inválido. Por favor, solicite um novo link."
       } else if (err.message) {
         errorMessage = err.message
@@ -260,15 +268,27 @@ export default function ResetPasswordForm() {
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Digite sua nova senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
               required
               minLength={6}
               disabled={loading}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -280,15 +300,27 @@ export default function ResetPasswordForm() {
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
               id="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirme sua nova senha"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
               required
               minLength={6}
               disabled={loading}
             />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              tabIndex={-1}
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>
 

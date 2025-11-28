@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Mail, ArrowLeft } from "lucide-react"
+import { Mail, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { Turnstile } from "@marsidev/react-turnstile"
 
 // Ícones SVG elegantes para redes sociais
@@ -30,6 +30,7 @@ import Link from "next/link"
 export default function SignupPage() {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
+  const [showPassword, setShowPassword] = React.useState(false)
   const [companyName, setCompanyName] = React.useState("")
   const [cnpj, setCnpj] = React.useState("")
   const [companyEmail, setCompanyEmail] = React.useState("")
@@ -136,6 +137,8 @@ export default function SignupPage() {
       if (error) {
         if (error.message.includes("already registered")) {
           setError("Este email já está cadastrado. Tente fazer login.")
+        } else if (error.message.toLowerCase().includes("rate limit") || error.message.includes("429")) {
+          setError("Você atingiu o limite de tentativas. Por favor, aguarde alguns minutos e tente novamente.")
         } else {
           setError(error.message || "Erro ao criar conta")
         }
@@ -271,17 +274,31 @@ export default function SignupPage() {
               <label htmlFor="password-input" className="mb-1.5 block text-sm font-medium text-slate-700">
                 Senha
               </label>
+              <div className="relative">
               <input
                 id="password-input"
-                type="password"
+                  type={showPassword ? "text" : "password"}
                 placeholder="Mínimo 6 caracteres"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
                 minLength={6}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 touch-manipulation"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 pr-12 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 touch-manipulation"
               />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors touch-manipulation"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6">

@@ -139,7 +139,7 @@ export const MobileSidebar = ({
         {/* Menu button */}
         <button
           className="p-2.5 rounded-lg hover:bg-zinc-100 active:bg-zinc-200 transition-colors touch-manipulation"
-          onClick={() => setOpen(!open)}
+            onClick={() => setOpen(!open)}
           aria-label="Menu"
         >
           <Menu className="h-6 w-6 text-foreground" />
