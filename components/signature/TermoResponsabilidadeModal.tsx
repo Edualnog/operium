@@ -290,13 +290,13 @@ export default function TermoResponsabilidadeModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6" aria-describedby="termo-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-600" />
             Termo de Responsabilidade
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="termo-description">
             {tipo === "retirada"
               ? "O colaborador deve assinar para confirmar o recebimento dos equipamentos"
               : "O colaborador deve assinar para confirmar a devolução dos equipamentos"}
