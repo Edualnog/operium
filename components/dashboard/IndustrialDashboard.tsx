@@ -126,7 +126,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         const [ferramentasRes, movimentacoesRes] = await Promise.all([
           supabase
             .from("ferramentas")
-            .select("id, nome, quantidade_disponivel, ponto_ressuprimento, categoria")
+            .select("id, nome, quantidade_disponivel, ponto_ressuprimento, categoria, lead_time_dias")
             .eq("profile_id", userId)
             .eq("tipo_item", "consumivel"),
           supabase
@@ -152,20 +152,48 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           demandaPorItem[mov.ferramenta_id] = (demandaPorItem[mov.ferramenta_id] || 0) + (mov.quantidade || 0)
         })
 
-        // Criar lista de itens com prioridade
+        // Criar lista de itens com prioridade considerando consumo médio e cobertura vs lead time
         const itensComPrioridade = ferramentas
-          .map((f: any) => ({
-            id: f.id,
-            nome: f.nome,
-            quantidade_disponivel: f.quantidade_disponivel || 0,
-            ponto_ressuprimento: f.ponto_ressuprimento || 0,
-            categoria: f.categoria,
-            demanda: demandaPorItem[f.id] || 0,
-            // Prioridade: maior demanda = maior prioridade
-            prioridade: demandaPorItem[f.id] || 0,
-          }))
-          .filter((item: any) => item.demanda > 0) // Apenas itens com demanda
-          .sort((a: any, b: any) => b.prioridade - a.prioridade) // Ordenar por prioridade decrescente
+          .map((f: any) => {
+            const demanda = demandaPorItem[f.id] || 0
+            const consumoMedioDiario = demanda / 30
+            const estoqueAtual = f.quantidade_disponivel || 0
+            const pontoRessuprimento = f.ponto_ressuprimento || 0
+            const leadTime = f.lead_time_dias || 7
+
+            const diasCobertura = consumoMedioDiario > 0 ? estoqueAtual / consumoMedioDiario : Infinity
+            const urgenciaBase = Number.isFinite(diasCobertura)
+              ? diasCobertura - leadTime
+              : 9999
+
+            const abaixoMinimo = pontoRessuprimento > 0 && estoqueAtual <= pontoRessuprimento
+            // Ajuste: itens abaixo do mínimo sobem na lista
+            const prioridadeScore = urgenciaBase - (abaixoMinimo ? 30 : 0)
+
+            return {
+              id: f.id,
+              nome: f.nome,
+              quantidade_disponivel: estoqueAtual,
+              ponto_ressuprimento: pontoRessuprimento,
+              categoria: f.categoria,
+              demanda,
+              consumo_medio_diario: consumoMedioDiario,
+              dias_cobertura: Number.isFinite(diasCobertura) ? diasCobertura : null,
+              lead_time: leadTime,
+              abaixo_minimo: abaixoMinimo,
+              prioridade_score: prioridadeScore,
+            }
+          })
+          // Itens com consumo ou já abaixo do mínimo
+          .filter((item: any) => item.demanda > 0 || item.abaixo_minimo)
+          .sort((a: any, b: any) => {
+            // 1) abaixo do mínimo primeiro
+            if (a.abaixo_minimo !== b.abaixo_minimo) return a.abaixo_minimo ? -1 : 1
+            // 2) menor cobertura vs lead time (prioridade_score menor = mais urgente)
+            if (a.prioridade_score !== b.prioridade_score) return a.prioridade_score - b.prioridade_score
+            // 3) maior consumo médio para desempate
+            return (b.consumo_medio_diario || 0) - (a.consumo_medio_diario || 0)
+          })
           .slice(0, 3) // Máximo 3 itens
 
         setItensComprarUrgente(itensComPrioridade)
@@ -252,7 +280,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           .from("movimentacoes")
           .select("data, tipo")
           .eq("profile_id", userId)
-          .gte("data", dozeMesesAtras.toISOString())
+          .or(`data.gte.${dozeMesesAtras.toISOString()},data.is.null`)
 
         if (movError) {
           console.error("Erro ao buscar movimentações mensais:", movError)
@@ -260,29 +288,59 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           return
         }
 
-        // Agrupar por mês
-        const porMes: Record<string, number> = {}
+        // Agrupar por mês/ano e tipo (evita colidir nomes de meses de anos diferentes)
         const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-        
+        const mapaMes: Record<string, { entradas: number; saidas: number; total: number; label: string }> = {}
+
         movimentacoes?.forEach((mov: any) => {
-          const date = new Date(mov.data)
-          const mesAno = `${meses[date.getMonth()]}`
-          porMes[mesAno] = (porMes[mesAno] || 0) + 1
+          const dataRef = mov.data ? new Date(mov.data) : new Date()
+          // Filtrar manualmente os últimos 12 meses para dados sem data
+          if (dataRef < dozeMesesAtras) return
+          const date = dataRef
+          const key = `${date.getFullYear()}-${date.getMonth()}`
+          if (!mapaMes[key]) {
+            mapaMes[key] = {
+              entradas: 0,
+              saidas: 0,
+              total: 0,
+              label: `${meses[date.getMonth()]} ${String(date.getFullYear()).slice(-2)}`,
+            }
+          }
+
+          mapaMes[key].total += 1
+
+          // Contagem por tipo
+          if (mov.tipo === 'entrada' || mov.tipo === 'devolucao') {
+            mapaMes[key].entradas += 1
+          } else if (['retirada', 'ajuste', 'conserto'].includes(mov.tipo)) {
+            mapaMes[key].saidas += 1
+          }
         })
 
-        // Criar array com últimos 12 meses
-        const resultado = []
+        // Criar array com últimos 12 meses (ordem cronológica)
+        const resultado: any[] = []
         const hoje = new Date()
         for (let i = 11; i >= 0; i--) {
           const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1)
-          const mes = meses[d.getMonth()]
+          const key = `${d.getFullYear()}-${d.getMonth()}`
+          const dadosMes = mapaMes[key] || { entradas: 0, saidas: 0, total: 0, label: `${meses[d.getMonth()]}` }
           resultado.push({
-            mes,
-            total: porMes[mes] || 0,
+            mes: dadosMes.label,
+            entradas: dadosMes.entradas,
+            saidas: dadosMes.saidas,
+            total: dadosMes.total,
           })
         }
 
         setMovimentacoesMensais(resultado)
+        
+        // Debug: Log para verificar os dados
+        console.log('📊 Movimentações Mensais:', {
+          totalMovimentacoes: movimentacoes?.length || 0,
+          ultimosMeses: resultado.slice(-3),
+          primeirosMeses: resultado.slice(0, 3),
+          todosOsMeses: resultado
+        })
       } catch (err) {
         console.error("Erro ao calcular movimentações mensais:", err)
       } finally {
@@ -313,27 +371,130 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           return
         }
 
-        // Contar status
-        let disponiveis = 0
-        let emUso = 0
-        let manutencao = 0
+        // Buscar consertos ativos (não concluídos) para calcular unidades em conserto
+        const { data: consertosAtivos } = await supabase
+          .from("consertos")
+          .select("id, ferramenta_id, data_envio")
+          .eq("profile_id", userId)
+          .neq("status", "concluido")
+
+        // Calcular unidades em conserto por ferramenta (descontando as que já retornaram)
+        const unidadesEmConserto: Record<string, number> = {}
+        
+        if (consertosAtivos && consertosAtivos.length > 0) {
+          for (const conserto of consertosAtivos) {
+            const dataEnvioRef = conserto.data_envio || new Date().toISOString()
+
+            // 1) Tenta pegar a movimentação de envio vinculada pelo ID na observação
+            const { data: movEnvioPorObs } = await supabase
+              .from("movimentacoes")
+              .select("quantidade, data")
+              .eq("profile_id", userId)
+              .eq("ferramenta_id", conserto.ferramenta_id)
+              .eq("tipo", "conserto")
+              .ilike("observacoes", `%${conserto.id}%`)
+              .order("data", { ascending: true })
+              .limit(1)
+
+            let movEnvio = movEnvioPorObs?.[0]
+
+            // 2) Fallback: primeiro envio registrado depois da data do conserto
+            if (!movEnvio) {
+              const { data: movEnvioFallback } = await supabase
+                .from("movimentacoes")
+                .select("quantidade, data")
+                .eq("profile_id", userId)
+                .eq("ferramenta_id", conserto.ferramenta_id)
+                .eq("tipo", "conserto")
+                .gte("data", dataEnvioRef)
+                .order("data", { ascending: true })
+                .limit(1)
+              movEnvio = movEnvioFallback?.[0]
+            }
+
+            const quantidadeEnviada = movEnvio?.quantidade || 1
+
+            // 3) Retornos vinculados a este conserto (observação com ID)
+            const { data: movRetornos } = await supabase
+              .from("movimentacoes")
+              .select("quantidade")
+              .eq("profile_id", userId)
+              .eq("ferramenta_id", conserto.ferramenta_id)
+              .eq("tipo", "entrada")
+              .ilike("observacoes", `%${conserto.id}%`)
+
+            let quantidadeJaRetornada = (movRetornos || []).reduce(
+              (acc: number, m: any) => acc + (m.quantidade || 0),
+              0
+            )
+
+            // Fallback para dados antigos sem observação: considerar entradas após a data do conserto
+            if (quantidadeJaRetornada === 0) {
+              const { data: movRetornosFallback } = await supabase
+                .from("movimentacoes")
+                .select("quantidade")
+                .eq("profile_id", userId)
+                .eq("ferramenta_id", conserto.ferramenta_id)
+                .eq("tipo", "entrada")
+                .gte("data", dataEnvioRef)
+
+              quantidadeJaRetornada = (movRetornosFallback || []).reduce(
+                (acc: number, m: any) => acc + (m.quantidade || 0),
+                0
+              )
+            }
+
+            const quantidadeAindaEmConserto = quantidadeEnviada - quantidadeJaRetornada
+            
+            if (quantidadeAindaEmConserto > 0) {
+              unidadesEmConserto[conserto.ferramenta_id] = 
+                (unidadesEmConserto[conserto.ferramenta_id] || 0) + quantidadeAindaEmConserto
+            }
+          }
+        }
+
+        // Contar status por UNIDADE (não por item)
+        // Cada unidade deve ser contada apenas uma vez
+        let totalDisponiveis = 0
+        let totalEmUso = 0
+        let totalManutencao = 0
+        let totalUnidades = 0
 
         ferramentas?.forEach((f: any) => {
-          if (f.estado === "manutencao" || f.estado === "danificado") {
-            manutencao++
-          } else if (f.quantidade_disponivel < f.quantidade_total) {
-            emUso++
+          const qtdTotal = f.quantidade_total || 0
+          const qtdDisponivel = f.quantidade_disponivel || 0
+          const qtdEmConserto = unidadesEmConserto[f.id] || 0
+          
+          totalUnidades += qtdTotal
+          
+          // Unidades danificadas (estado = "danificada") - toda a quantidade vai para manutenção
+          if (f.estado === "danificada") {
+            totalManutencao += qtdTotal
+            // Não contar como disponível nem em uso
           } else {
-            disponiveis++
+            // Unidades em conserto
+            totalManutencao += qtdEmConserto
+            
+            // O restante: quantidade_total - quantidade_disponivel - qtdEmConserto = em uso
+            // quantidade_disponivel já descontou as que estão em conserto
+            const qtdRealEmUso = qtdTotal - qtdDisponivel - qtdEmConserto
+            
+            totalDisponiveis += qtdDisponivel
+            totalEmUso += Math.max(0, qtdRealEmUso) // Não pode ser negativo
           }
         })
 
-        const total = ferramentas?.length || 0
-        if (total > 0) {
+        if (totalUnidades > 0) {
           setStatusFerramentas({
-            disponiveis: Math.round((disponiveis / total) * 100),
-            emUso: Math.round((emUso / total) * 100),
-            manutencao: Math.round((manutencao / total) * 100),
+            disponiveis: Math.round((totalDisponiveis / totalUnidades) * 100),
+            emUso: Math.round((totalEmUso / totalUnidades) * 100),
+            manutencao: Math.round((totalManutencao / totalUnidades) * 100),
+          })
+        } else {
+          setStatusFerramentas({
+            disponiveis: 0,
+            emUso: 0,
+            manutencao: 0,
           })
         }
       } catch (err) {
@@ -372,6 +533,17 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     )
   }
 
+  const totalEmUsoUnidades = data.totalFerramentasEmUso ?? data.ferramentasEmUso.reduce(
+    (acc, item) => acc + (item.quantidade_em_uso || 0),
+    0
+  )
+
+  const totalEstragadasUnidades = data.totalFerramentasEstragadas ??
+    (data.ferramentasEstragadas || []).reduce(
+      (acc, item) => acc + (item.quantidade_unidades || 0),
+      0
+    )
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
@@ -388,25 +560,26 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       <section className="space-y-6 mb-8">
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
           {/* Gráfico de Movimentações */}
-          <Card className="lg:col-span-2 border border-zinc-200 bg-white shadow-sm">
+          <Card className="lg:col-span-2 border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="pb-3 border-b border-zinc-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-zinc-600" />
                     Movimentações
                   </CardTitle>
                   <p className="text-xs sm:text-sm text-zinc-600 mt-1">
-                    Últimos 12 meses
+                    Últimos 12 meses • Passe o mouse sobre as barras para detalhes
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50">
                     <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                    <span className="text-xs text-zinc-500">Entradas</span>
+                    <span className="text-xs text-emerald-700 font-medium">Entradas</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-50">
                     <div className="w-3 h-3 rounded-full bg-rose-500" />
-                    <span className="text-xs text-zinc-500">Saídas</span>
+                    <span className="text-xs text-rose-700 font-medium">Saídas</span>
                   </div>
                 </div>
               </div>
@@ -414,24 +587,130 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             <CardContent className="pt-4">
               {loadingMovMensais ? (
                 <div className="flex items-center justify-center h-48">
-                  <p className="text-sm text-zinc-500">Carregando...</p>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-900"></div>
+                    <p className="text-sm text-zinc-500">Carregando dados...</p>
+                  </div>
+                </div>
+              ) : movimentacoesMensais.length === 0 ? (
+                <div className="flex items-center justify-center h-48">
+                  <div className="text-center">
+                    <AlertCircle className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
+                    <p className="text-sm text-zinc-500">Nenhuma movimentação nos últimos 12 meses</p>
+                    <p className="text-xs text-zinc-400 mt-1">Comece registrando entradas e saídas de itens</p>
+                  </div>
                 </div>
               ) : (
-                <div className="h-48 flex items-end gap-1 sm:gap-2">
+                <div className="relative">
+                  {/* Linha de base e grid */}
+                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none" style={{ height: '12rem' }}>
+                    <div className="w-full h-px bg-zinc-100"></div>
+                    <div className="w-full h-px bg-zinc-100"></div>
+                    <div className="w-full h-px bg-zinc-100"></div>
+                    <div className="w-full h-px bg-zinc-200 border-t border-zinc-300"></div>
+                  </div>
+                  
+                  <div className="h-48 flex items-end gap-1 sm:gap-2 relative z-10">
                   {movimentacoesMensais.map((item, index) => {
-                    const maxValue = Math.max(...movimentacoesMensais.map(m => m.total), 1)
-                    const height = (item.total / maxValue) * 100
+                    const maxValue = Math.max(
+                      ...movimentacoesMensais.map(m => Math.max(m.entradas, m.saidas)),
+                      1
+                    )
+                    const heightEntradas = (item.entradas / maxValue) * 100
+                    const heightSaidas = (item.saidas / maxValue) * 100
+                    const totalMovimentacoes = item.entradas + item.saidas
+                    const temDados = totalMovimentacoes > 0
+                    
                     return (
-                      <div key={index} className="flex-1 flex flex-col items-center gap-1">
-                        <div 
-                          className="w-full bg-gradient-to-t from-emerald-500 to-rose-500 rounded-t-sm transition-all hover:from-emerald-600 hover:to-rose-600"
-                          style={{ height: `${Math.max(height, 4)}%` }}
-                          title={`${item.mes}: ${item.total} movimentações`}
-                        />
-                        <span className="text-[10px] sm:text-xs text-zinc-400">{item.mes}</span>
+                      <div 
+                        key={index} 
+                        className="flex-1 flex flex-col items-center gap-1 h-full group relative animate-in fade-in slide-in-from-bottom-4"
+                        style={{ animationDelay: `${index * 50}ms`, animationDuration: '500ms', animationFillMode: 'backwards' }}
+                      >
+                        {/* Tooltip */}
+                        {temDados && (
+                          <div className="absolute bottom-full mb-2 hidden group-hover:block z-10 pointer-events-none">
+                            <div className="bg-zinc-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                              <div className="font-semibold mb-1.5 border-b border-zinc-700 pb-1.5">{item.mes}</div>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                  <span>Entradas: <strong>{item.entradas}</strong></span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-rose-500" />
+                                  <span>Saídas: <strong>{item.saidas}</strong></span>
+                                </div>
+                                <div className="flex items-center gap-2 pt-1 mt-1 border-t border-zinc-700">
+                                  <span>Total: <strong>{totalMovimentacoes}</strong></span>
+                                </div>
+                              </div>
+                              {/* Seta do tooltip */}
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-zinc-900" />
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="w-full flex flex-col-reverse gap-0.5 justify-end transition-all duration-300" style={{ height: '12rem' }}>
+                          {/* Indicador de "sem dados" */}
+                          {!temDados && (
+                            <div className="w-full h-1 bg-zinc-100 rounded-full opacity-50" />
+                          )}
+                          
+                          {/* Barra de Saídas (vermelho) */}
+                          <div 
+                            className={`w-full bg-gradient-to-t from-rose-500 to-rose-400 rounded-t-sm transition-all duration-300 hover:from-rose-600 hover:to-rose-500 hover:shadow-lg hover:scale-105 ${
+                              item.saidas === 0 ? 'opacity-0' : 'opacity-100'
+                            }`}
+                            style={{ height: `${heightSaidas}%` }}
+                          />
+                          {/* Barra de Entradas (verde) */}
+                          <div 
+                            className={`w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm transition-all duration-300 hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:scale-105 ${
+                              item.entradas === 0 ? 'opacity-0' : 'opacity-100'
+                            }`}
+                            style={{ height: `${heightEntradas}%` }}
+                          />
+                        </div>
+                        <span className={`text-[10px] sm:text-xs transition-colors ${temDados ? 'text-zinc-700 font-medium' : 'text-zinc-400'}`}>
+                          {item.mes}
+                        </span>
                       </div>
                     )
                   })}
+                </div>
+                </div>
+              )}
+              
+              {/* Estatísticas do período */}
+              {!loadingMovMensais && movimentacoesMensais.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-zinc-100">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <p className="text-xs text-zinc-500 mb-1">Total Movimentações</p>
+                      <p className="text-lg font-bold text-zinc-900">
+                        {movimentacoesMensais.reduce((acc, m) => acc + m.total, 0)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-zinc-500 mb-1">Total Entradas</p>
+                      <p className="text-lg font-bold text-emerald-600">
+                        {movimentacoesMensais.reduce((acc, m) => acc + m.entradas, 0)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-zinc-500 mb-1">Total Saídas</p>
+                      <p className="text-lg font-bold text-rose-600">
+                        {movimentacoesMensais.reduce((acc, m) => acc + m.saidas, 0)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-zinc-500 mb-1">Média Mensal</p>
+                      <p className="text-lg font-bold text-blue-600">
+                        {Math.round(movimentacoesMensais.reduce((acc, m) => acc + m.total, 0) / 12)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -552,7 +831,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div>
                   <p className="text-xs text-zinc-500">Movimentações/mês</p>
                   <p className="text-xl font-bold text-zinc-900">
-                    {movimentacoesMensais.length > 0 ? movimentacoesMensais[movimentacoesMensais.length - 1]?.total || 0 : 0}
+                    {(() => {
+                      // Pegar o mês atual
+                      const hoje = new Date()
+                      const mesAtual = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][hoje.getMonth()]
+                      const mesAtualData = movimentacoesMensais.find(m => m.mes === mesAtual)
+                      return mesAtualData?.total || 0
+                    })()}
                   </p>
                 </div>
               </div>
@@ -574,16 +859,16 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <KPICard
             title="Ferramentas em Uso Agora"
-            value={data.ferramentasEmUso.length}
+            value={totalEmUsoUnidades}
             description="Unidades atualmente emprestadas"
             iconName="Activity"
           />
           <KPICard
             title="Ferramentas Estragadas"
-            value={data.ferramentasEstragadas?.length || 0}
+            value={totalEstragadasUnidades}
             description="Em manutenção ou danificadas"
             iconName="AlertTriangle"
-            variant={(data.ferramentasEstragadas?.length || 0) > 0 ? "destructive" : "default"}
+            variant={(totalEstragadasUnidades || 0) > 0 ? "destructive" : "default"}
           />
           <Card className="border border-zinc-200 bg-white shadow-sm">
             <CardHeader className="pb-3 border-b border-zinc-100">
@@ -861,6 +1146,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               {
                 key: "colaborador",
                 label: "Colaborador",
+              },
+              {
+                key: "quantidade_em_uso",
+                label: "Qtde",
+                render: (item) => item.quantidade_em_uso || 0,
               },
               {
                 key: "dias_em_uso",
