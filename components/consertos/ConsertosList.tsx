@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { registrarRetornoConserto } from "@/lib/actions"
+import { registrarRetornoConserto, atualizarStatusConserto } from "@/lib/actions"
 import { CheckCircle2, Clock, Wrench } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
@@ -72,6 +72,7 @@ function ConsertosList({
   const [openNew, setOpenNew] = useState(false)
   const [openExportDialog, setOpenExportDialog] = useState(false)
   const [produtos, setProdutos] = useState<{ id: string; nome: string; quantidade_disponivel: number }[]>([])
+  const [statusLoadingId, setStatusLoadingId] = useState<string | null>(null)
   const [form, setForm] = useState({
     produto: "",
     produtoId: "",
@@ -214,6 +215,19 @@ function ConsertosList({
       alert(error.message || "Erro ao registrar retorno")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleAtualizarStatus = async (consertoId: string, status: Conserto["status"]) => {
+    try {
+      setStatusLoadingId(consertoId)
+      await atualizarStatusConserto(consertoId, status)
+      setConsertos((prev) => prev.map((c) => (c.id === consertoId ? { ...c, status } : c)))
+      router.refresh()
+    } catch (error: any) {
+      alert(error.message || "Erro ao atualizar status")
+    } finally {
+      setStatusLoadingId(null)
     }
   }
 
@@ -858,14 +872,26 @@ function ConsertosList({
                       </p>
                     )}
 
-                    {conserto.status !== "concluido" && (
-                      <Button
-                        className="w-full mt-auto"
-                        onClick={() => setRetornoDialog(conserto)}
-                      >
-                        Registrar Retorno
-                      </Button>
-                    )}
+                    <div className="flex flex-col gap-2 mt-auto">
+                      {conserto.status === "aguardando" && (
+                        <Button
+                          variant="secondary"
+                          disabled={statusLoadingId === conserto.id}
+                          onClick={() => handleAtualizarStatus(conserto.id, "em_andamento")}
+                        >
+                          {statusLoadingId === conserto.id ? "Atualizando..." : "Marcar em andamento"}
+                        </Button>
+                      )}
+
+                      {conserto.status !== "concluido" && (
+                        <Button
+                          className="w-full"
+                          onClick={() => setRetornoDialog(conserto)}
+                        >
+                          Registrar Retorno
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
