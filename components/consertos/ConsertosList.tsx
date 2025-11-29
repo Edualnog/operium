@@ -71,10 +71,11 @@ function ConsertosList({
   const router = useRouter()
   const [openNew, setOpenNew] = useState(false)
   const [openExportDialog, setOpenExportDialog] = useState(false)
-  const [produtos, setProdutos] = useState<{ id: string; nome: string }[]>([])
+  const [produtos, setProdutos] = useState<{ id: string; nome: string; quantidade_disponivel: number }[]>([])
   const [form, setForm] = useState({
     produto: "",
     produtoId: "",
+    quantidade: "1",
     status: "aguardando" as "aguardando" | "em_andamento" | "concluido",
     local: "",
     prazo: "",
@@ -114,7 +115,10 @@ function ConsertosList({
   }, [form.produto, form.produtoId, produtos])
 
   const carregarProdutos = async () => {
-    const { data } = await supabase.from("ferramentas").select("id, nome").order("nome", { ascending: true })
+    const { data } = await supabase
+      .from("ferramentas")
+      .select("id, nome, quantidade_disponivel")
+      .order("nome", { ascending: true })
     setProdutos(data || [])
   }
 
@@ -122,6 +126,64 @@ function ConsertosList({
     carregarProdutos()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  const [quantidadeEmConserto, setQuantidadeEmConserto] = useState<number>(0)
+
+  useEffect(() => {
+    async function buscarQuantidadeEmConserto() {
+      if (!retornoDialog) return
+      
+      try {
+        const ferramenta = parseFerramenta(retornoDialog.ferramentas)
+        const dataEnvioRef = retornoDialog.data_envio || new Date().toISOString()
+
+        // Primeiro tenta achar a movimentação do envio com referência ao conserto na observação
+        const { data: movEnvioPorObs } = await supabase
+          .from("movimentacoes")
+          .select("quantidade, data")
+          .eq("ferramenta_id", ferramenta.id)
+          .eq("tipo", "conserto")
+          .ilike("observacoes", `%${retornoDialog.id}%`)
+          .order("data", { ascending: true })
+          .limit(1)
+
+        let movEnvio = movEnvioPorObs?.[0]
+
+        // Fallback: primeiro envio registrado depois da data do conserto
+        if (!movEnvio) {
+          const { data: movEnvioFallback } = await supabase
+            .from("movimentacoes")
+            .select("quantidade, data")
+            .eq("ferramenta_id", ferramenta.id)
+            .eq("tipo", "conserto")
+            .gte("data", dataEnvioRef)
+            .order("data", { ascending: true })
+            .limit(1)
+          movEnvio = movEnvioFallback?.[0]
+        }
+
+        const quantidadeEnviada = movEnvio?.quantidade || 1
+
+        // Buscar movimentações de entrada (retorno) associadas a este conserto
+        const { data: movRetornos } = await supabase
+          .from("movimentacoes")
+          .select("quantidade")
+          .eq("ferramenta_id", ferramenta.id)
+          .eq("tipo", "entrada")
+          .ilike("observacoes", `%${retornoDialog.id}%`)
+
+        const quantidadeJaRetornada = (movRetornos || []).reduce((acc: number, m: any) => acc + (m.quantidade || 0), 0)
+        const quantidadeAindaEmConserto = quantidadeEnviada - quantidadeJaRetornada
+
+        setQuantidadeEmConserto(Math.max(0, quantidadeAindaEmConserto))
+      } catch (err) {
+        console.error("Erro ao buscar quantidade em conserto:", err)
+        setQuantidadeEmConserto(1)
+      }
+    }
+
+    buscarQuantidadeEmConserto()
+  }, [retornoDialog, supabase])
+
   const handleRetorno = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!retornoDialog) return
@@ -129,12 +191,24 @@ function ConsertosList({
     setLoading(true)
     const formData = new FormData(e.currentTarget)
     const custo = Number(formData.get("custo"))
-    const ferramenta = parseFerramenta(retornoDialog.ferramentas)
-    const quantidade = Number(formData.get("quantidade")) || ferramenta.quantidade_disponivel
+    const quantidade = Number(formData.get("quantidade"))
+
+    if (quantidade < 1) {
+      alert("A quantidade deve ser pelo menos 1")
+      setLoading(false)
+      return
+    }
+
+    if (quantidade > quantidadeEmConserto) {
+      alert(`Quantidade inválida. Ainda em conserto: ${quantidadeEmConserto}`)
+      setLoading(false)
+      return
+    }
 
     try {
       await registrarRetornoConserto(retornoDialog.id, custo, quantidade)
       setRetornoDialog(null)
+      setQuantidadeEmConserto(0)
       router.refresh()
     } catch (error: any) {
       alert(error.message || "Erro ao registrar retorno")
@@ -161,11 +235,24 @@ function ConsertosList({
       alert("Selecione um produto")
       return
     }
+    
+    const quantidade = Number(form.quantidade)
+    if (quantidade < 1) {
+      alert("A quantidade deve ser pelo menos 1")
+      return
+    }
+    
+    const produtoSelecionado = produtos.find(p => p.id === form.produtoId)
+    if (produtoSelecionado && quantidade > produtoSelecionado.quantidade_disponivel) {
+      alert(`Quantidade insuficiente. Disponível: ${produtoSelecionado.quantidade_disponivel}`)
+      return
+    }
+    
     setLoading(true)
     try {
       await registrarEnvioConserto(
         form.produtoId,
-        1,
+        quantidade,
         form.descricao,
         form.status,
         form.local,
@@ -176,6 +263,7 @@ function ConsertosList({
       setForm({
         produto: "",
         produtoId: "",
+        quantidade: "1",
         status: "aguardando",
         local: "",
         prazo: "",
@@ -600,7 +688,7 @@ function ConsertosList({
                   <Input
                     placeholder="Digite o nome do produto"
                     value={form.produto}
-                    onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
+                    onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "", quantidade: "1" }))}
                   />
                   {produtoSuggestions.length > 0 && (
                     <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
@@ -609,14 +697,41 @@ function ConsertosList({
                           type="button"
                           key={p.id}
                           className="w-full text-left px-3 py-2 hover:bg-zinc-50"
-                          onClick={() => setForm((f) => ({ ...f, produto: p.nome, produtoId: p.id }))}
+                          onClick={() => setForm((f) => ({ 
+                            ...f, 
+                            produto: p.nome, 
+                            produtoId: p.id,
+                            quantidade: "1" // Resetar quantidade ao selecionar novo produto
+                          }))}
                         >
-                          {p.nome}
+                          <div className="flex items-center justify-between">
+                            <span>{p.nome}</span>
+                            <span className="text-xs text-zinc-500">
+                              {p.quantidade_disponivel || 0} disponíveis
+                            </span>
+                          </div>
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
+                {form.produtoId && (
+                  <div className="grid gap-2">
+                    <Label>Quantidade para Conserto</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max={produtos.find(p => p.id === form.produtoId)?.quantidade_disponivel || 1}
+                      value={form.quantidade}
+                      onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
+                      placeholder="Quantidade"
+                      required
+                    />
+                    <p className="text-xs text-zinc-500">
+                      Disponível: {produtos.find(p => p.id === form.produtoId)?.quantidade_disponivel || 0} unidades
+                    </p>
+                  </div>
+                )}
                 <div className="grid gap-2">
                   <Label>Status</Label>
                   <Select value={form.status} onValueChange={(val: any) => setForm((f) => ({ ...f, status: val }))}>
@@ -687,47 +802,47 @@ function ConsertosList({
       {consertosAbertos.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Consertos em Aberto</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
             {consertosAbertos.map((conserto) => (
-              <Card key={conserto.id}>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-lg">
-                      {parseFerramenta(conserto.ferramentas).nome}
-                    </h3>
-                    {conserto.prioridade && (
-                      <Badge
-                        variant={
-                          conserto.prioridade === "alta"
-                            ? "destructive"
-                            : conserto.prioridade === "media"
-                              ? "default"
-                              : "secondary"
-                        }
-                      >
-                        Prioridade: {conserto.prioridade}
-                      </Badge>
-                    )}
-                    <p className="text-sm text-muted-foreground">
-                      Enviado em{" "}
-                      {conserto.data_envio
-                        ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
-                            locale: ptBR,
-                          })
-                        : "-"}
-                    </p>
-                    {conserto.local_conserto && (
-                      <p className="text-xs text-muted-foreground">
-                        Local: {conserto.local_conserto}
-                      </p>
-                    )}
-                    {conserto.prazo && (
-                      <p className="text-xs text-muted-foreground">
-                        Prazo: {format(new Date(conserto.prazo), "dd/MM/yyyy", { locale: ptBR })}
-                      </p>
-                    )}
+              <Card key={conserto.id} className="flex h-full flex-col">
+                <CardContent className="p-6 flex h-full flex-col">
+                  <div className="flex h-full flex-col gap-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-lg">
+                          {parseFerramenta(conserto.ferramentas).nome}
+                        </h3>
+                        {conserto.prioridade && (
+                          <Badge
+                            variant={
+                              conserto.prioridade === "alta"
+                                ? "destructive"
+                                : conserto.prioridade === "media"
+                                  ? "default"
+                                  : "secondary"
+                            }
+                          >
+                            Prioridade: {conserto.prioridade}
+                          </Badge>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                          Enviado em{" "}
+                          {conserto.data_envio
+                            ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
+                                locale: ptBR,
+                              })
+                            : "-"}
+                        </p>
+                        {conserto.local_conserto && (
+                          <p className="text-xs text-muted-foreground">
+                            Local: {conserto.local_conserto}
+                          </p>
+                        )}
+                        {conserto.prazo && (
+                          <p className="text-xs text-muted-foreground">
+                            Prazo: {format(new Date(conserto.prazo), "dd/MM/yyyy", { locale: ptBR })}
+                          </p>
+                        )}
                       </div>
                       <Badge variant={getStatusBadge(conserto.status)}>
                         <span className="flex items-center gap-1">
@@ -745,7 +860,7 @@ function ConsertosList({
 
                     {conserto.status !== "concluido" && (
                       <Button
-                        className="w-full"
+                        className="w-full mt-auto"
                         onClick={() => setRetornoDialog(conserto)}
                       >
                         Registrar Retorno
@@ -763,11 +878,11 @@ function ConsertosList({
       {consertosConcluidos.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Consertos Concluídos</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
             {consertosConcluidos.map((conserto) => (
-              <Card key={conserto.id}>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
+              <Card key={conserto.id} className="flex h-full flex-col">
+                <CardContent className="p-6 flex h-full flex-col">
+                  <div className="flex h-full flex-col gap-4">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <h3 className="font-semibold text-lg">
@@ -828,7 +943,7 @@ function ConsertosList({
                     )}
 
                     {conserto.custo && (
-                      <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                      <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-auto">
                         <span className="text-sm font-medium">Custo:</span>
                         <span className="text-sm font-semibold">
                           R$ {conserto.custo.toFixed(2)}
@@ -851,7 +966,12 @@ function ConsertosList({
 
       {/* Dialog de Retorno */}
       {retornoDialog && (
-        <Dialog open={!!retornoDialog} onOpenChange={() => setRetornoDialog(null)}>
+        <Dialog open={!!retornoDialog} onOpenChange={(open) => {
+          if (!open) {
+            setRetornoDialog(null)
+            setQuantidadeEmConserto(0)
+          }
+        }}>
           <DialogContent>
             <form onSubmit={handleRetorno}>
                 <DialogHeader>
@@ -879,9 +999,15 @@ function ConsertosList({
                     name="quantidade"
                     type="number"
                     min="1"
-                    defaultValue={parseFerramenta(retornoDialog.ferramentas).quantidade_disponivel}
+                    max={quantidadeEmConserto}
+                    defaultValue={quantidadeEmConserto > 0 ? quantidadeEmConserto : 1}
                     required
                   />
+                  <p className="text-xs text-zinc-500">
+                    {quantidadeEmConserto > 0 
+                      ? `${quantidadeEmConserto} unidade(s) ainda em conserto`
+                      : "Carregando..."}
+                  </p>
                 </div>
               </div>
               <DialogFooter>

@@ -741,17 +741,21 @@ export async function registrarEnvioConserto(
   if (updateError) throw updateError
 
   // Criar registro de conserto
-  const { error: consertoError } = await supabase.from("consertos").insert({
-    profile_id: user.id,
-    ferramenta_id: ferramentaId,
-    descricao,
-    status: status || "aguardando",
-    local_conserto,
-    prazo: prazo ? new Date(prazo).toISOString() : null,
-    prioridade,
-  })
+  const { data: consertoCriado, error: consertoError } = await supabase
+    .from("consertos")
+    .insert({
+      profile_id: user.id,
+      ferramenta_id: ferramentaId,
+      descricao,
+      status: status || "aguardando",
+      local_conserto,
+      prazo: prazo ? new Date(prazo).toISOString() : null,
+      prioridade,
+    })
+    .select("id")
+    .single()
 
-  if (consertoError) throw consertoError
+  if (consertoError || !consertoCriado) throw consertoError || new Error("Erro ao criar conserto")
 
   // Registrar movimentação
   const { error: movError } = await supabase.from("movimentacoes").insert({
@@ -759,7 +763,7 @@ export async function registrarEnvioConserto(
     ferramenta_id: ferramentaId,
     tipo: "conserto",
     quantidade,
-    observacoes: descricao,
+    observacoes: descricao ? `${descricao} (conserto ${consertoCriado.id})` : `Conserto ${consertoCriado.id}`,
   })
 
   if (movError) throw movError
@@ -779,24 +783,75 @@ export async function registrarRetornoConserto(
 
   if (!user) throw new Error("Não autenticado")
 
-  // Buscar conserto - otimizado: apenas campos necessários
+  // Buscar conserto com movimentação de envio
   const { data: conserto, error: consertoError } = await supabase
     .from("consertos")
-    .select("id, ferramenta_id, ferramentas(id, quantidade_disponivel, estado)")
+    .select("id, ferramenta_id, status, custo, data_retorno, data_envio, ferramentas(id, quantidade_disponivel, estado)")
     .eq("id", consertoId)
     .eq("profile_id", user.id)
     .single()
 
   if (consertoError || !conserto) throw new Error("Conserto não encontrado")
 
+  const dataEnvioRef = conserto.data_envio || new Date().toISOString()
+
+  // Tentar achar movimentação de envio ligada a este conserto (pela observação)
+  const { data: movEnvioPorObs } = await supabase
+    .from("movimentacoes")
+    .select("id, quantidade, data, observacoes")
+    .eq("profile_id", user.id)
+    .eq("ferramenta_id", conserto.ferramenta_id)
+    .eq("tipo", "conserto")
+    .ilike("observacoes", `%${conserto.id}%`)
+    .order("data", { ascending: true })
+    .limit(1)
+
+  // Fallback: primeiro envio registrado após a data do conserto
+  const { data: movEnvioFallback } = await supabase
+    .from("movimentacoes")
+    .select("id, quantidade, data")
+    .eq("profile_id", user.id)
+    .eq("ferramenta_id", conserto.ferramenta_id)
+    .eq("tipo", "conserto")
+    .gte("data", dataEnvioRef)
+    .order("data", { ascending: true })
+    .limit(1)
+
+  const movimentoEnvio = (movEnvioPorObs && movEnvioPorObs[0]) || (movEnvioFallback && movEnvioFallback[0])
+  const quantidadeEnviada = movimentoEnvio?.quantidade || 1
+
+  // Buscar retornos deste conserto (marcados na observação)
+  const { data: movRetornos } = await supabase
+    .from("movimentacoes")
+    .select("quantidade")
+    .eq("profile_id", user.id)
+    .eq("ferramenta_id", conserto.ferramenta_id)
+    .eq("tipo", "entrada")
+    .ilike("observacoes", `%${conserto.id}%`)
+
+  const quantidadeJaRetornada = (movRetornos || []).reduce((acc, m) => acc + (m.quantidade || 0), 0)
+  const quantidadeRestante = Math.max(0, quantidadeEnviada - quantidadeJaRetornada)
+
+  if (quantidade > quantidadeRestante) {
+    throw new Error(`Quantidade inválida. Ainda em conserto: ${quantidadeRestante}`)
+  }
+
+  const quantidadeTotalRetornada = quantidadeJaRetornada + quantidade
+  const todasRetornaram = quantidadeTotalRetornada >= quantidadeEnviada
+
   // Atualizar conserto
+  const updateData: any = {
+    custo: (conserto.custo || 0) + custo, // Somar custos se houver retorno parcial
+  }
+
+  if (todasRetornaram) {
+    updateData.status = "concluido"
+    updateData.data_retorno = new Date().toISOString()
+  }
+
   const { error: updateConsertoError } = await supabase
     .from("consertos")
-    .update({
-      status: "concluido",
-      custo,
-      data_retorno: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", consertoId)
 
   if (updateConsertoError) throw updateConsertoError
@@ -806,12 +861,23 @@ export async function registrarRetornoConserto(
   const { error: updateFerramentaError } = await supabase
     .from("ferramentas")
     .update({
-      estado: "ok",
+      estado: todasRetornaram ? "ok" : "em_conserto", // Só volta para "ok" se todas retornaram
       quantidade_disponivel: ferramenta.quantidade_disponivel + quantidade,
     })
     .eq("id", ferramenta.id)
 
   if (updateFerramentaError) throw updateFerramentaError
+
+  // Registrar movimentação de entrada (retorno)
+  const { error: movEntradaError } = await supabase.from("movimentacoes").insert({
+    profile_id: user.id,
+    ferramenta_id: conserto.ferramenta_id,
+    tipo: "entrada",
+    quantidade,
+    observacoes: `Retorno de conserto ${consertoId}`,
+  })
+
+  if (movEntradaError) throw movEntradaError
 
   revalidateAllPages()
 }

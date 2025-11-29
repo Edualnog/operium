@@ -7,6 +7,7 @@ export interface FerramentaEmUso {
   saida_at: string
   prazo_devolucao?: string
   dias_em_uso: number
+  quantidade_em_uso: number
 }
 
 export interface TempoMedioRetorno {
@@ -94,6 +95,7 @@ export interface FerramentaEstragada {
   nome: string
   estado: string
   quantidade_disponivel: number
+  quantidade_unidades: number
 }
 
 export interface Totais {
@@ -128,4 +130,6 @@ export interface KPIData {
   
   // Totais para dashboard
   totais?: Totais
+  totalFerramentasEmUso?: number
+  totalFerramentasEstragadas?: number
 }

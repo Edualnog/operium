@@ -29,6 +29,7 @@ export function useKPIs(userId: string) {
           ferramentasRes,
           episMovRes,
           episRes,
+          consertosAtivosRes,
         ] = await Promise.all([
           supabase
             .from("movimentacoes")
@@ -37,6 +38,7 @@ export function useKPIs(userId: string) {
               ferramenta_id,
               colaborador_id,
               tipo,
+              quantidade,
               data,
               ferramentas(nome, tipo_item),
               colaboradores(nome)
@@ -45,7 +47,7 @@ export function useKPIs(userId: string) {
             .eq("tipo", "retirada"),
           supabase
             .from("movimentacoes")
-            .select("ferramenta_id, colaborador_id, data, tipo, ferramentas(tipo_item)")
+            .select("ferramenta_id, colaborador_id, data, tipo, quantidade, ferramentas(tipo_item)")
             .eq("profile_id", userId)
             .eq("tipo", "devolucao"),
           supabase.rpc("calcular_tmr", { p_profile_id: userId }),
@@ -66,7 +68,7 @@ export function useKPIs(userId: string) {
           supabase
             .from("ferramentas")
             .select(
-              "id, nome, quantidade_disponivel, ponto_ressuprimento, categoria, tipo_item, lead_time_dias, validade"
+              "id, nome, quantidade_disponivel, quantidade_total, ponto_ressuprimento, categoria, tipo_item, lead_time_dias, validade, estado"
             )
             .eq("profile_id", userId),
           supabase
@@ -86,6 +88,11 @@ export function useKPIs(userId: string) {
             .eq("profile_id", userId)
             .eq("tipo_item", "epi")
             .not("validade", "is", null),
+          supabase
+            .from("consertos")
+            .select("id, ferramenta_id, data_envio")
+            .eq("profile_id", userId)
+            .neq("status", "concluido"),
         ])
 
         if (retiradasRes.error) throw retiradasRes.error
@@ -96,36 +103,82 @@ export function useKPIs(userId: string) {
         if (ferramentasRes.error) throw ferramentasRes.error
         if (episMovRes.error) throw episMovRes.error
         if (episRes.error) throw episRes.error
+        if (consertosAtivosRes.error) throw consertosAtivosRes.error
 
         const retiradas = retiradasRes.data || []
         const devolucoes = devolucoesRes.data || []
         const ferramentas = ferramentasRes.data || []
+        const consertosAtivos = consertosAtivosRes.data || []
 
-        // Ferramentas em uso (retiradas sem devolução posterior)
+        // Movimentações relacionadas a consertos (para calcular unidades em conserto)
+        let movimentacoesConserto: any[] = []
+        if (consertosAtivos.length > 0) {
+          const idsFerramentasConserto = Array.from(new Set(consertosAtivos.map((c: any) => c.ferramenta_id))).filter(Boolean)
+          if (idsFerramentasConserto.length > 0) {
+            const { data: movConcRes, error: movConcError } = await supabase
+              .from("movimentacoes")
+              .select("ferramenta_id, quantidade, data, tipo, observacoes")
+              .eq("profile_id", userId)
+              .in("ferramenta_id", idsFerramentasConserto)
+              .in("tipo", ["conserto", "entrada"])
+
+            if (movConcError) throw movConcError
+            movimentacoesConserto = movConcRes || []
+          }
+        }
+
+        // Ferramentas em uso (retiradas sem devolução posterior) - APENAS tipo_item = "ferramenta"
+        let totalFerramentasEmUso = 0
         const ferramentasEmUso = retiradas
-          .filter((ret) => {
-            const foiDevolvida = devolucoes.some(
-              (dev) =>
+          .map((ret) => {
+            // Filtrar apenas ferramentas (não consumíveis, não EPIs)
+            const ferramenta = ret.ferramentas as any
+            if (ferramenta?.tipo_item !== "ferramenta") {
+              return null
+            }
+            
+            // Verificar se foi devolvida
+            const quantidadeRetirada = ret.quantidade || 1
+
+            // Somar devoluções para a mesma ferramenta/colaborador após a retirada
+            const quantidadeDevolvida = devolucoes.reduce((acc, dev) => {
+              const devFerramenta = dev.ferramentas as any
+              if (
                 dev.ferramenta_id === ret.ferramenta_id &&
                 dev.colaborador_id === ret.colaborador_id &&
+                devFerramenta?.tipo_item === "ferramenta" &&
                 dev.data &&
                 ret.data &&
                 new Date(dev.data) > new Date(ret.data)
-            )
-            return !foiDevolvida
+              ) {
+                return acc + (dev.quantidade || 1)
+              }
+              return acc
+            }, 0)
+
+            const quantidadeEmUso = Math.max(0, quantidadeRetirada - quantidadeDevolvida)
+            if (quantidadeEmUso <= 0) return null
+
+            return { ret, quantidadeEmUso }
           })
-          .map((ret) => {
+          .filter((item): item is { ret: any; quantidadeEmUso: number } => Boolean(item))
+          .map(({ ret, quantidadeEmUso }) => {
             const saida = ret.data ? new Date(ret.data) : new Date()
             const agora = new Date()
             const diasEmUso = Math.floor((agora.getTime() - saida.getTime()) / (1000 * 60 * 60 * 24))
+
+            totalFerramentasEmUso += quantidadeEmUso
 
             return {
               id: ret.id,
               nome: (ret.ferramentas as any)?.nome || "Desconhecida",
               colaborador: (ret.colaboradores as any)?.nome || "Sem colaborador",
+              colaborador_id: ret.colaborador_id || "",
+              ferramenta_id: ret.ferramenta_id || "",
               saida_at: ret.data || "",
               prazo_devolucao: undefined,
               dias_em_uso: diasEmUso,
+              quantidade_em_uso: quantidadeEmUso,
             }
           })
 
@@ -133,9 +186,63 @@ export function useKPIs(userId: string) {
         const indiceAtraso = indiceRes.error ? 0 : Number(indiceRes.data) || 0
 
         // Ferramentas estragadas (danificada ou em conserto)
-        const ferramentasEstragadas = (ferramentas || []).filter(
-          (f: any) => f.estado === "danificada" || f.estado === "em_conserto"
-        )
+        // Calcular unidades em conserto por ferramenta
+        const unidadesEmConserto: Record<string, number> = {}
+        consertosAtivos.forEach((conserto: any) => {
+          const dataEnvioRef = conserto.data_envio || new Date().toISOString()
+          const movFerramenta = movimentacoesConserto.filter((m) => m.ferramenta_id === conserto.ferramenta_id)
+
+          // Envio
+          let movEnvio = movFerramenta.find(
+            (m) => m.tipo === "conserto" && (m.observacoes || "").includes(conserto.id)
+          )
+
+          if (!movEnvio) {
+            movEnvio = movFerramenta
+              .filter((m) => m.tipo === "conserto" && new Date(m.data) >= new Date(dataEnvioRef))
+              .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime())[0]
+          }
+
+          const quantidadeEnviada = movEnvio?.quantidade || 1
+
+          // Retornos
+          let quantidadeRetornada = movFerramenta
+            .filter((m) => m.tipo === "entrada" && (m.observacoes || "").includes(conserto.id))
+            .reduce((acc, m) => acc + (m.quantidade || 0), 0)
+
+          if (quantidadeRetornada === 0) {
+            quantidadeRetornada = movFerramenta
+              .filter((m) => m.tipo === "entrada" && new Date(m.data) >= new Date(dataEnvioRef))
+              .reduce((acc, m) => acc + (m.quantidade || 0), 0)
+          }
+
+          const restante = quantidadeEnviada - quantidadeRetornada
+          if (restante > 0) {
+            unidadesEmConserto[conserto.ferramenta_id] =
+              (unidadesEmConserto[conserto.ferramenta_id] || 0) + restante
+          }
+        })
+
+        const ferramentasEstragadas = (ferramentas || [])
+          .map((f: any) => {
+            let quantidadeUnidades = 0
+            if (f.estado === "danificada") {
+              quantidadeUnidades = f.quantidade_total || 0
+            } else if (f.estado === "em_conserto") {
+              quantidadeUnidades = unidadesEmConserto[f.id] || 0
+            }
+
+            if (quantidadeUnidades <= 0) return null
+
+            return {
+              id: f.id,
+              nome: f.nome,
+              estado: f.estado,
+              quantidade_disponivel: f.quantidade_disponivel,
+              quantidade_unidades: quantidadeUnidades,
+            }
+          })
+          .filter(Boolean) as any
 
         const movimentacoes30d = movimentacoes30dRes.data || []
 
@@ -160,25 +267,49 @@ export function useKPIs(userId: string) {
         // Ranking de responsabilidade (evita novas queries: usa retiradas/devoluções já carregadas)
         const colaboradores = colaboradoresRes.data || []
         const rankingCompleto = colaboradores.map((colab) => {
-          // Filtrar EPIs - EPIs não contam para taxa de devolução (ficam com os colaboradores)
+          // Considerar apenas categoria "ferramenta" (excluir EPIs e consumíveis)
           const retiradasColab = retiradas.filter((r) => {
             if (r.colaborador_id !== colab.id) return false
             const ferramenta = r.ferramentas as any
-            return ferramenta?.tipo_item !== "epi"
+            return ferramenta?.tipo_item === "ferramenta"
           })
+
           const devolucoesColab = devolucoes.filter((d) => {
             if (d.colaborador_id !== colab.id) return false
             const ferramenta = d.ferramentas as any
-            return ferramenta?.tipo_item !== "epi"
+            return ferramenta?.tipo_item === "ferramenta"
           })
-          const totalRetiradas = retiradasColab.length
-          const totalDevolucoes = devolucoesColab.length
 
-          // Score começa em 100% e só cai quando há retiradas não devolvidas
-          let score = 100
-          if (totalRetiradas > 0 && totalDevolucoes < totalRetiradas) {
-            score = Math.max(0, (totalDevolucoes / totalRetiradas) * 100)
-          }
+          // Contabilizar por quantidade (unidades), não apenas por registros
+          const totalRetiradas = retiradasColab.reduce(
+            (acc, r) => acc + (r.quantidade || 1),
+            0
+          )
+
+          // Devoluções após a data da respectiva retirada
+          let totalDevolucoes = 0
+          retiradasColab.forEach((retirada) => {
+            const devolvidas = devolucoesColab
+              .filter((dev) => {
+                const devFerramenta = dev.ferramentas as any
+                return (
+                  dev.ferramenta_id === retirada.ferramenta_id &&
+                  dev.colaborador_id === retirada.colaborador_id &&
+                  devFerramenta?.tipo_item === "ferramenta" &&
+                  dev.data &&
+                  retirada.data &&
+                  new Date(dev.data) > new Date(retirada.data)
+                )
+              })
+              .reduce((acc, dev) => acc + (dev.quantidade || 1), 0)
+
+            totalDevolucoes += devolvidas
+          })
+
+          // Score baseado em unidades devolvidas vs retiradas
+          const score = totalRetiradas > 0
+            ? Math.max(0, Math.min(100, (totalDevolucoes / totalRetiradas) * 100))
+            : 100
 
           return {
             colaborador_id: colab.id,
@@ -312,6 +443,39 @@ export function useKPIs(userId: string) {
           (ferramentas || [])
             .filter((f: any) => f.tipo_item === "consumivel")
             .map(async (f: any) => {
+              // Consumo médio diário (30 dias)
+              const consumoMedio = (consumiveisMov || [])
+                .filter((m: any) => m.ferramenta_id === f.id)
+                .reduce((acc: number, m: any) => acc + (m.quantidade || 0), 0) / 30
+
+              const leadTime = f.lead_time_dias || 7
+              const estoque = f.quantidade_disponivel || 0
+              const pontoRessuprimento = f.ponto_ressuprimento || 0
+
+              const diasRestantes =
+                consumoMedio > 0 && estoque > 0
+                  ? Math.floor(estoque / consumoMedio)
+                  : 0
+
+              // Risco local: quanto da demanda no lead time não é coberta pelo estoque acima do PRD
+              const demandaNoLead = consumoMedio * leadTime
+              const estoqueUtil = Math.max(estoque - pontoRessuprimento, 0)
+              let riscoCalculado = 0
+
+              if (consumoMedio <= 0) {
+                riscoCalculado = estoque <= pontoRessuprimento ? 30 : 0
+              } else {
+                const deficit = demandaNoLead - estoqueUtil
+                // Se houver déficit, risco proporcional; se não, risco baixo
+                riscoCalculado = deficit > 0
+                  ? Math.min(100, (deficit / Math.max(demandaNoLead, 1)) * 100)
+                  : Math.max(0, 20 - diasRestantes)
+              }
+
+              // Estoque zerado sempre máximo
+              if (estoque <= 0) riscoCalculado = 100
+
+              // Tentar usar RPC se existir, senão seguir com cálculo local
               const { data: risco, error: err12 } = await supabase.rpc(
                 "calcular_risco_ruptura",
                 {
@@ -319,52 +483,25 @@ export function useKPIs(userId: string) {
                   p_ferramenta_id: f.id,
                 }
               )
-
-              if (err12) {
-                // Se a função não existir, calcular manualmente
-                const consumoMedio = (consumiveisMov || [])
-                  .filter((m: any) => m.ferramenta_id === f.id)
-                  .reduce((acc: number, m: any) => acc + (m.quantidade || 0), 0) / 30
-
-                const leadTime = f.lead_time_dias || 7
-                const estoque = f.quantidade_disponivel || 0
-                const score = estoque > 0 
-                  ? Math.min((consumoMedio * leadTime) / estoque * 100, 100)
-                  : 100
-
-                const diasRestantes =
-                  estoque > 0 && consumoMedio > 0
-                    ? Math.floor(estoque / consumoMedio)
-                    : 0
-
-                return {
-                  id: f.id,
-                  nome: f.nome,
-                  score: score,
-                  consumo_medio_diario: consumoMedio,
-                  lead_time: leadTime,
-                  estoque_atual: estoque,
-                  dias_restantes: diasRestantes,
-                }
-              }
-
-              const consumoMedio = (consumiveisMov || [])
-                .filter((m: any) => m.ferramenta_id === f.id)
-                .reduce((acc: number, m: any) => acc + (m.quantidade || 0), 0) / 30
-
-              const diasRestantes =
-                f.quantidade_disponivel > 0 && consumoMedio > 0
-                  ? Math.floor(f.quantidade_disponivel / consumoMedio)
-                  : 0
+              const scoreRpc = err12 ? undefined : Number(risco)
+              // Usa o maior entre RPC e cálculo local para ser conservador
+              const scoreFinal = Math.min(
+                100,
+                Math.max(
+                  riscoCalculado,
+                  Number.isFinite(scoreRpc || 0) ? (scoreRpc as number) : 0
+                )
+              )
 
               return {
                 id: f.id,
                 nome: f.nome,
-                score: Number(risco) || 0,
+                score: scoreFinal,
                 consumo_medio_diario: consumoMedio,
-                lead_time: f.lead_time_dias || 7,
-                estoque_atual: f.quantidade_disponivel,
+                lead_time: leadTime,
+                estoque_atual: estoque,
                 dias_restantes: diasRestantes,
+                ponto_ressuprimento: pontoRessuprimento,
               }
             })
         )
@@ -418,6 +555,7 @@ export function useKPIs(userId: string) {
               nome: f.nome,
               estado: f.estado,
               quantidade_disponivel: f.quantidade_disponivel,
+              quantidade_unidades: f.quantidade_unidades,
             })),
             topFerramentasUtilizadas: topFerramentasUtilizadas as any,
             rankingResponsabilidade,
@@ -431,11 +569,18 @@ export function useKPIs(userId: string) {
             // Totais para os cards do dashboard
             totais: {
               colaboradores: colaboradores.length,
-              ferramentas: ferramentas.filter((f: any) => f.tipo_item === "ferramenta").length,
+              ferramentas: ferramentas
+                .filter((f: any) => f.tipo_item === "ferramenta")
+                .reduce((acc: number, f: any) => acc + (f.quantidade_total || 0), 0), // Soma unidades, não itens
               itensEstoque: ferramentas.length,
               consumiveis: ferramentas.filter((f: any) => f.tipo_item === "consumivel").length,
               epis: ferramentas.filter((f: any) => f.tipo_item === "epi").length,
             },
+            totalFerramentasEmUso: totalFerramentasEmUso,
+            totalFerramentasEstragadas: ferramentasEstragadas.reduce(
+              (acc: number, f: any) => acc + (f?.quantidade_unidades || 0),
+              0
+            ),
           })
           setLoading(false)
         }
