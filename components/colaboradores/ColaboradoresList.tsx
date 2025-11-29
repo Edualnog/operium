@@ -52,8 +52,8 @@ interface MovimentacoesStats {
     retiradas: number
     devolucoes: number
     pendente: number
-    retiradasNaoEpi?: number
-    devolucoesNaoEpi?: number
+    retiradasFerramenta?: number
+    devolucoesFerramenta?: number
   }
 }
 
@@ -1270,9 +1270,9 @@ function ColaboradoresList({
           cardSize === "grande" && sidebarOpen && "md:grid-cols-2 lg:grid-cols-2"
         )}>
           {filteredAndSortedColaboradores.map((colaborador) => {
-            const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasNaoEpi: 0, devolucoesNaoEpi: 0 }
-            const retiradasBase = stats.retiradasNaoEpi ?? stats.retiradas
-            const devolucoesBase = stats.devolucoesNaoEpi ?? stats.devolucoes
+            const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasFerramenta: 0, devolucoesFerramenta: 0 }
+            const retiradasBase = stats.retiradasFerramenta ?? stats.retiradas
+            const devolucoesBase = stats.devolucoesFerramenta ?? stats.devolucoes
             const taxaDevolucao = retiradasBase > 0
               ? Math.max(0, Math.min(100, Math.round((devolucoesBase / retiradasBase) * 100)))
               : 100
@@ -1529,9 +1529,9 @@ function ColaboradoresList({
           
           <div className="flex-1 overflow-y-auto min-h-0 space-y-6 pr-2">
             {colaboradorSelecionado && (() => {
-              const stats = movimentacoesStats[colaboradorSelecionado.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasNaoEpi: 0, devolucoesNaoEpi: 0 }
-              const retiradasBase = stats.retiradasNaoEpi ?? stats.retiradas
-              const devolucoesBase = stats.devolucoesNaoEpi ?? stats.devolucoes
+            const stats = movimentacoesStats[colaboradorSelecionado.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasFerramenta: 0, devolucoesFerramenta: 0 }
+              const retiradasBase = stats.retiradasFerramenta ?? stats.retiradas
+              const devolucoesBase = stats.devolucoesFerramenta ?? stats.devolucoes
               const taxaDevolucao = retiradasBase > 0
                 ? Math.max(0, Math.min(100, Math.round((devolucoesBase / retiradasBase) * 100)))
                 : 100
