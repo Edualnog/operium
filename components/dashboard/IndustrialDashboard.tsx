@@ -533,16 +533,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     )
   }
 
-  const totalEmUsoUnidades = data.totalFerramentasEmUso ?? data.ferramentasEmUso.reduce(
-    (acc, item) => acc + (item.quantidade_em_uso || 0),
+  const totalEmUsoUnidades = 
+    data?.totalFerramentasEmUso ?? 
+    data?.ferramentasEmUso?.reduce((acc, item) => acc + (item.quantidade_em_uso || 0), 0) ?? 
     0
-  )
 
-  const totalEstragadasUnidades = data.totalFerramentasEstragadas ??
-    (data.ferramentasEstragadas || []).reduce(
-      (acc, item) => acc + (item.quantidade_unidades || 0),
-      0
-    )
+  const totalEstragadasUnidades = 
+    data?.totalFerramentasEstragadas ??
+    (data?.ferramentasEstragadas || []).reduce((acc, item) => acc + (item.quantidade_unidades || 0), 0) ??
+    0
 
   return (
     <div className="space-y-6 sm:space-y-8">
