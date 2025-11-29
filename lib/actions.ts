@@ -4,6 +4,8 @@ import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
+type ConsertoStatus = "aguardando" | "em_andamento" | "concluido"
+
 // Função helper para revalidar todas as páginas relacionadas
 function revalidateAllPages() {
   // Revalidar todas as páginas do dashboard
@@ -703,7 +705,7 @@ export async function registrarEnvioConserto(
   ferramentaId: string,
   quantidade: number,
   descricao?: string,
-  status?: "aguardando" | "em_andamento" | "concluido",
+  status?: ConsertoStatus,
   local_conserto?: string,
   prazo?: string,
   prioridade?: string
@@ -767,6 +769,44 @@ export async function registrarEnvioConserto(
   })
 
   if (movError) throw movError
+
+  revalidateAllPages()
+}
+
+export async function atualizarStatusConserto(
+  consertoId: string,
+  status: ConsertoStatus
+) {
+  const supabase = await createServerComponentClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error("Não autenticado")
+
+  if (!["aguardando", "em_andamento", "concluido"].includes(status)) {
+    throw new Error("Status inválido")
+  }
+
+  const updateData: Record<string, any> = { status }
+
+  // Se mover para "em_andamento" e não houver data de envio, define agora
+  if (status === "em_andamento") {
+    updateData.data_envio = new Date().toISOString()
+  }
+
+  // Se marcar como concluído direto, também registra data_retorno
+  if (status === "concluido") {
+    updateData.data_retorno = new Date().toISOString()
+  }
+
+  const { error } = await supabase
+    .from("consertos")
+    .update(updateData)
+    .eq("id", consertoId)
+    .eq("profile_id", user.id)
+
+  if (error) throw error
 
   revalidateAllPages()
 }
