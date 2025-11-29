@@ -759,9 +759,9 @@ function ColaboradoresList({
       yPos = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 10 : yPos + 40
 
       // Estatísticas
-      const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasNaoEpi: 0, devolucoesNaoEpi: 0 }
-      const retiradasBase = stats.retiradasNaoEpi ?? stats.retiradas
-      const devolucoesBase = stats.devolucoesNaoEpi ?? stats.devolucoes
+      const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasFerramenta: 0, devolucoesFerramenta: 0 }
+      const retiradasBase = stats.retiradasFerramenta ?? stats.retiradas
+      const devolucoesBase = stats.devolucoesFerramenta ?? stats.devolucoes
       const taxa = retiradasBase > 0
         ? Math.max(0, Math.min(100, Math.round((devolucoesBase / retiradasBase) * 100)))
         : 100
