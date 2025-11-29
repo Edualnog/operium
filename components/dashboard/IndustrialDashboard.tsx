@@ -533,15 +533,20 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     )
   }
 
-  const totalEmUsoUnidades = 
-    data?.totalFerramentasEmUso ?? 
-    data?.ferramentasEmUso?.reduce((acc, item) => acc + (item.quantidade_em_uso || 0), 0) ?? 
-    0
+  // Calcular totais com type safety
+  let totalEmUsoUnidades = 0
+  if (typeof data.totalFerramentasEmUso === 'number') {
+    totalEmUsoUnidades = data.totalFerramentasEmUso
+  } else if (Array.isArray(data.ferramentasEmUso)) {
+    totalEmUsoUnidades = data.ferramentasEmUso.reduce((acc, item) => acc + (item.quantidade_em_uso || 0), 0)
+  }
 
-  const totalEstragadasUnidades = 
-    data?.totalFerramentasEstragadas ??
-    (data?.ferramentasEstragadas || []).reduce((acc, item) => acc + (item.quantidade_unidades || 0), 0) ??
-    0
+  let totalEstragadasUnidades = 0
+  if (typeof data.totalFerramentasEstragadas === 'number') {
+    totalEstragadasUnidades = data.totalFerramentasEstragadas
+  } else if (Array.isArray(data.ferramentasEstragadas)) {
+    totalEstragadasUnidades = data.ferramentasEstragadas.reduce((acc, item) => acc + (item.quantidade_unidades || 0), 0)
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8">
