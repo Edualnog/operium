@@ -44,7 +44,7 @@ async function getMovimentacoesStats(userId: string) {
            categoriaLower === "epi"
   }
   
-  const stats: Record<string, { retiradas: number; devolucoes: number; pendente: number }> = {}
+  const stats: Record<string, { retiradas: number; devolucoes: number; pendente: number; retiradasNaoEpi: number; devolucoesNaoEpi: number }> = {}
   
   data.forEach((mov) => {
     if (!mov.colaborador_id) return
@@ -53,7 +53,7 @@ async function getMovimentacoesStats(userId: string) {
     const eEPI = isEPI(ferramenta)
     
     if (!stats[mov.colaborador_id]) {
-      stats[mov.colaborador_id] = { retiradas: 0, devolucoes: 0, pendente: 0 }
+      stats[mov.colaborador_id] = { retiradas: 0, devolucoes: 0, pendente: 0, retiradasNaoEpi: 0, devolucoesNaoEpi: 0 }
     }
     
     // CONTABILIZAR TODAS as retiradas e devoluções (incluindo EPIs)
@@ -63,6 +63,15 @@ async function getMovimentacoesStats(userId: string) {
     } else if (mov.tipo === "devolucao") {
       stats[mov.colaborador_id].devolucoes += mov.quantidade || 1
       console.log(`📤 Devolução contabilizada: ${ferramenta?.nome || 'desconhecido'} (EPI: ${eEPI}), qtd: ${mov.quantidade || 1}, total: ${stats[mov.colaborador_id].devolucoes}`)
+    }
+    
+    // Contagem separada para não EPIs (usada na taxa e pendentes)
+    if (!eEPI) {
+      if (mov.tipo === "retirada") {
+        stats[mov.colaborador_id].retiradasNaoEpi += mov.quantidade || 1
+      } else if (mov.tipo === "devolucao") {
+        stats[mov.colaborador_id].devolucoesNaoEpi += mov.quantidade || 1
+      }
     }
   })
   
@@ -118,4 +127,3 @@ export default async function ColaboradoresPage() {
     </div>
   )
 }
-

@@ -52,6 +52,8 @@ interface MovimentacoesStats {
     retiradas: number
     devolucoes: number
     pendente: number
+    retiradasNaoEpi?: number
+    devolucoesNaoEpi?: number
   }
 }
 
@@ -757,8 +759,13 @@ function ColaboradoresList({
       yPos = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 10 : yPos + 40
 
       // Estatísticas
-      const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0 }
-      const taxaDevolucao = stats.pendente > 0 ? "0%" : "100%"
+      const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasNaoEpi: 0, devolucoesNaoEpi: 0 }
+      const retiradasBase = stats.retiradasNaoEpi ?? stats.retiradas
+      const devolucoesBase = stats.devolucoesNaoEpi ?? stats.devolucoes
+      const taxa = retiradasBase > 0
+        ? Math.max(0, Math.min(100, Math.round((devolucoesBase / retiradasBase) * 100)))
+        : 100
+      const taxaDevolucao = `${taxa}%`
 
       doc.setFontSize(12)
       doc.text("ESTATÍSTICAS", 14, yPos)
@@ -1263,8 +1270,12 @@ function ColaboradoresList({
           cardSize === "grande" && sidebarOpen && "md:grid-cols-2 lg:grid-cols-2"
         )}>
           {filteredAndSortedColaboradores.map((colaborador) => {
-            const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0 }
-            const taxaDevolucao = stats.pendente > 0 ? "0" : "100"
+            const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasNaoEpi: 0, devolucoesNaoEpi: 0 }
+            const retiradasBase = stats.retiradasNaoEpi ?? stats.retiradas
+            const devolucoesBase = stats.devolucoesNaoEpi ?? stats.devolucoes
+            const taxaDevolucao = retiradasBase > 0
+              ? Math.max(0, Math.min(100, Math.round((devolucoesBase / retiradasBase) * 100)))
+              : 100
             
             return (
               <Card key={colaborador.id} className={cn(
@@ -1407,7 +1418,7 @@ function ColaboradoresList({
                         )}>Taxa de Devolução</p>
                         <span className={cn(
                           "inline-block text-xs font-medium px-2 py-1 rounded",
-                          taxaDevolucao === "100"
+                          taxaDevolucao === 100
                             ? "bg-green-100 text-green-700" 
                             : "bg-red-100 text-red-700"
                         )}>
@@ -1518,8 +1529,12 @@ function ColaboradoresList({
           
           <div className="flex-1 overflow-y-auto min-h-0 space-y-6 pr-2">
             {colaboradorSelecionado && (() => {
-              const stats = movimentacoesStats[colaboradorSelecionado.id] || { retiradas: 0, devolucoes: 0, pendente: 0 }
-              const taxaDevolucao = stats.pendente > 0 ? "0" : "100"
+              const stats = movimentacoesStats[colaboradorSelecionado.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasNaoEpi: 0, devolucoesNaoEpi: 0 }
+              const retiradasBase = stats.retiradasNaoEpi ?? stats.retiradas
+              const devolucoesBase = stats.devolucoesNaoEpi ?? stats.devolucoes
+              const taxaDevolucao = retiradasBase > 0
+                ? Math.max(0, Math.min(100, Math.round((devolucoesBase / retiradasBase) * 100)))
+                : 100
               const historico = historicoMovimentacoes[colaboradorSelecionado.id] || []
               const loadingHist = loadingHistorico[colaboradorSelecionado.id] || false
 
@@ -1614,12 +1629,12 @@ function ColaboradoresList({
                       </div>
                       <div className={cn(
                         "p-3 rounded-lg",
-                        taxaDevolucao === "100" ? "bg-green-50" : "bg-red-50"
+                        taxaDevolucao === 100 ? "bg-green-50" : "bg-red-50"
                       )}>
                         <p className="text-xs text-zinc-500 mb-1">Taxa de Devolução</p>
                         <p className={cn(
                           "text-2xl font-bold",
-                          taxaDevolucao === "100" ? "text-green-700" : "text-red-700"
+                          taxaDevolucao === 100 ? "text-green-700" : "text-red-700"
                         )}>
                           {taxaDevolucao}%
                         </p>
