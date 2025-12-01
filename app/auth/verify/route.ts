@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
-  
+
   // Capturar todos os parâmetros possíveis que o Supabase pode enviar
   const token = requestUrl.searchParams.get('token')
   const tokenHash = requestUrl.searchParams.get('token_hash')
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const errorDescription = requestUrl.searchParams.get('error_description')
 
   const cookieStore = cookies()
-  
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   // Se houver erro nos parâmetros, redireciona para login com mensagem de erro
   if (error || errorCode) {
     let errorMessage = 'Link de verificação inválido ou expirado.'
-    
+
     if (errorCode === 'otp_expired') {
       errorMessage = 'O link de verificação expirou. Por favor, solicite um novo link de confirmação.'
     } else if (errorDescription) {
@@ -44,181 +44,114 @@ export async function GET(request: Request) {
     } else if (error) {
       errorMessage = decodeURIComponent(error)
     }
-    
+
     return NextResponse.redirect(
       `${requestUrl.origin}/login?error=verification_failed&message=${encodeURIComponent(errorMessage)}`
     )
   }
 
   try {
-    // PRIMEIRO: Sempre verificar se já há uma sessão ativa
-    // (Supabase pode ter processado o token e criado a sessão antes de redirecionar)
-    const { data: { session: existingSession } } = await supabase.auth.getSession()
-    
-    if (existingSession && existingSession.user) {
-      // Verificar se o perfil existe, se não, criar
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', existingSession.user.id)
-        .single()
+    let user = null
+    let session = null
 
-      if (!existingProfile) {
-        await supabase.from('profiles').upsert({
-          id: existingSession.user.id,
-          name: existingSession.user.email?.split('@')[0] || 'Usuário',
-          company_email: existingSession.user.email,
-        }, {
-          onConflict: 'id'
-        })
-      }
+    // 1. Tentar obter sessão existente
+    const { data: sessionData } = await supabase.auth.getSession()
+    session = sessionData.session
+    user = session?.user
 
-      // Verificar status da assinatura
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('subscription_status')
-        .eq('id', existingSession.user.id)
-        .single()
-
-      const activeStatuses = ['active', 'trialing']
-      if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
-        return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
-      }
-      
-      // Sem assinatura - redirecionar para checkout
-      return NextResponse.redirect(`${requestUrl.origin}/subscribe`)
+    // 2. Se não tem sessão, tentar getUser (pode estar autenticado sem sessão persistida ainda)
+    if (!user) {
+      const { data: userData } = await supabase.auth.getUser()
+      user = userData.user
     }
 
-    // SEGUNDO: Se não há sessão, verificar se há usuário autenticado
-    // (pode ter sido autenticado mas a sessão ainda não está nos cookies)
-    const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
-    
-    if (currentUser && !userError) {
-      // Verificar/criar perfil
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', currentUser.id)
-        .single()
-
-      if (!existingProfile) {
-        await supabase.from('profiles').upsert({
-          id: currentUser.id,
-          name: currentUser.email?.split('@')[0] || 'Usuário',
-          company_email: currentUser.email,
-        }, {
-          onConflict: 'id'
-        })
-      }
-
-      // Tentar obter sessão novamente após um breve delay
-      await new Promise(resolve => setTimeout(resolve, 300))
-      const { data: { session: retrySession } } = await supabase.auth.getSession()
-      
-      if (retrySession) {
-        // Verificar assinatura
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('subscription_status')
-          .eq('id', currentUser.id)
-          .single()
-
-        const activeStatuses = ['active', 'trialing']
-        if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
-          return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
-        }
-        return NextResponse.redirect(`${requestUrl.origin}/subscribe`)
-      }
-      
-      // Se ainda não há sessão, redirecionar para login com mensagem de sucesso
-      return NextResponse.redirect(
-        `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado com sucesso! Faça login para continuar.')}`
-      )
-    }
-
-    // TERCEIRO: Se há token na URL, tentar verificar o token
-    if (token || tokenHash) {
-      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+    // 3. Se ainda não tem user, tentar verificar o token OTP
+    if (!user && (token || tokenHash)) {
+      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
         token_hash: tokenHash || token || '',
         type: type as any,
       })
 
       if (verifyError) {
-        let errorMessage = 'Falha ao verificar o email. Por favor, tente novamente.'
-        
-        if (verifyError.message.includes('expired') || verifyError.message.includes('invalid')) {
-          errorMessage = 'O link de verificação expirou ou é inválido. Por favor, solicite um novo link de confirmação.'
-        }
-        
-        return NextResponse.redirect(
-          `${requestUrl.origin}/login?error=verification_failed&message=${encodeURIComponent(errorMessage)}`
-        )
+        throw verifyError
       }
 
-      // Se a verificação foi bem-sucedida
-      if (data?.user) {
-        // Verificar se o email foi realmente confirmado
-        const emailConfirmed = data.user.email_confirmed_at !== null
-        console.log('Verificação OTP bem-sucedida:', {
-          userId: data.user.id,
-          email: data.user.email,
-          emailConfirmed,
-          emailConfirmedAt: data.user.email_confirmed_at,
-          hasSession: !!data.session
-        })
-
-        // Verificar/criar perfil
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', data.user.id)
-          .single()
-
-        if (!existingProfile) {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            name: data.user.email?.split('@')[0] || 'Usuário',
-            company_email: data.user.email,
-          }, {
-            onConflict: 'id'
-          })
-        }
-
-        // Se há sessão, verificar assinatura e redirecionar
-        if (data.session) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('subscription_status')
-            .eq('id', data.user.id)
-            .single()
-
-          const activeStatuses = ['active', 'trialing']
-          if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
-            return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
-          }
-          return NextResponse.redirect(`${requestUrl.origin}/subscribe`)
-        }
-
-        // Se não houver sessão, redireciona para login com mensagem de sucesso
-        // O email já foi confirmado pelo verifyOtp acima
-        return NextResponse.redirect(
-          `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado com sucesso! Faça login para continuar.')}`
-        )
-      }
+      user = verifyData.user
+      session = verifyData.session
     }
 
-    // FALLBACK: Se chegou aqui, não há token, sessão nem usuário autenticado
-    // Isso pode acontecer se o Supabase já processou o token e confirmou o email
-    // mas redirecionou sem criar sessão/cookies. Nesse caso, o email já está confirmado,
-    // então apenas redirecionamos para login sem erro - o usuário pode fazer login normalmente
-    return NextResponse.redirect(
-      `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado! Faça login para continuar.')}`
-    )
+    // Se após tudo isso não tivermos um usuário, falha
+    if (!user) {
+      return NextResponse.redirect(
+        `${requestUrl.origin}/login?success=email_verified&message=${encodeURIComponent('Email verificado! Faça login para continuar.')}`
+      )
+    }
+
+    // --- LÓGICA CENTRALIZADA DE PERFIL E TRIAL ---
+
+    // Verificar/criar perfil
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('subscription_status, trial_start_date, stripe_customer_id')
+      .eq('id', user.id)
+      .single()
+
+    let profile = existingProfile
+
+    // Se não existe perfil, criar com trial
+    if (!profile) {
+      const { data: newProfile } = await supabase.from('profiles').upsert({
+        id: user.id,
+        name: user.email?.split('@')[0] || 'Usuário',
+        company_email: user.email,
+        trial_start_date: new Date().toISOString(),
+      }, {
+        onConflict: 'id'
+      }).select().single()
+
+      profile = newProfile
+    } else if (!profile.trial_start_date && !profile.subscription_status) {
+      // Se existe mas não tem trial nem assinatura, iniciar trial agora
+      // Isso corrige contas antigas ou criadas durante o bug
+      await supabase.from('profiles').update({
+        trial_start_date: new Date().toISOString()
+      }).eq('id', user.id)
+
+      profile.trial_start_date = new Date().toISOString()
+    }
+
+    // Verificar acesso
+    const activeStatuses = ['active', 'trialing']
+    const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
+
+    // Verificar trial
+    let isInTrial = false
+    if (profile?.trial_start_date) {
+      const startDate = new Date(profile.trial_start_date)
+      const now = new Date()
+      const endDate = new Date(startDate)
+      endDate.setDate(endDate.getDate() + 7)
+      isInTrial = now < endDate
+    }
+
+    // Redirecionamento
+    if (hasActiveSubscription || isInTrial) {
+      return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+    }
+
+    // Se acabou o trial e não tem assinatura, vai para subscribe
+    return NextResponse.redirect(`${requestUrl.origin}/subscribe`)
 
   } catch (err: any) {
     console.error('Erro na verificação:', err)
+    let errorMessage = 'Erro ao processar verificação.'
+
+    if (err.message?.includes('expired') || err.message?.includes('invalid')) {
+      errorMessage = 'Link expirado ou inválido.'
+    }
+
     return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=verification_error&message=${encodeURIComponent('Erro ao processar verificação de email. Por favor, tente novamente ou faça login normalmente.')}`
+      `${requestUrl.origin}/login?error=verification_error&message=${encodeURIComponent(errorMessage)}`
     )
   }
 }

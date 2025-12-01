@@ -3,7 +3,7 @@ const nextConfig = {
   // Otimizações de performance
   compress: true,
   poweredByHeader: false,
-  reactStrictMode: true,
+  reactStrictMode: false,
   // Otimização de imagens (se usar no futuro)
   images: {
     remotePatterns: [
@@ -22,6 +22,15 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
     } : false,
+  },
+  // Configurações para melhorar performance de compilação
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
+  },
+  // Reduzir warnings de cache
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
   },
   // Headers para otimizar carregamento de recursos
   async headers() {

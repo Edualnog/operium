@@ -17,48 +17,74 @@ export default function SubscribePage() {
   const [loading, setLoading] = useState(false)
   const [checkingStatus, setCheckingStatus] = useState(true)
   const [error, setError] = useState("")
+  const [warning, setWarning] = useState("")
   const router = useRouter()
   const supabase = createClientComponentClient()
 
   useEffect(() => {
     const checkSubscription = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push("/login")
-        return
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        
+        if (authError) {
+          throw authError
+        }
+
+        if (!user) {
+          router.push("/login")
+          return
+        }
+
+        // Verificar se já tem assinatura ativa, passou pelo checkout ou está no trial
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("subscription_status, stripe_customer_id, trial_start_date")
+          .eq("id", user.id)
+          .single()
+
+        if (profileError) {
+          throw profileError
+        }
+
+        const activeStatuses = ["active", "trialing"]
+        const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
+        const hasStripeCustomer = !!profile?.stripe_customer_id
+        
+        // Verificar se está no período de trial
+        let isInTrial = false
+        if (profile?.trial_start_date) {
+          const startDate = new Date(profile.trial_start_date)
+          const now = new Date()
+          const endDate = new Date(startDate)
+          endDate.setDate(endDate.getDate() + 7) // 7 dias de trial
+          isInTrial = now < endDate
+        }
+        
+        // Se já tem assinatura ativa, passou pelo checkout OU está no trial, vai para dashboard
+        if (hasActiveSubscription || hasStripeCustomer || isInTrial) {
+          router.push("/dashboard")
+          return
+        }
+
+        setCheckingStatus(false)
+      } catch (err: any) {
+        console.error("Erro ao verificar assinatura:", err)
+        setWarning("Não consegui verificar sua assinatura agora. Você pode tentar iniciar o teste novamente.")
+        setCheckingStatus(false)
       }
-
-      // Verificar se já tem assinatura ativa ou passou pelo checkout
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("subscription_status, stripe_customer_id")
-        .eq("id", user.id)
-        .single()
-
-      const activeStatuses = ["active", "trialing"]
-      const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
-      const hasStripeCustomer = !!profile?.stripe_customer_id
-      
-      // Se já tem assinatura ativa OU já passou pelo checkout (tem stripe_customer_id)
-      if (hasActiveSubscription || hasStripeCustomer) {
-        router.push("/dashboard")
-        return
-      }
-
-      setCheckingStatus(false)
     }
 
     checkSubscription()
 
     // Verificar periodicamente se o status mudou (após webhook)
-    const interval = setInterval(checkSubscription, 5000)
+    const interval = setInterval(checkSubscription, 15000)
     return () => clearInterval(interval)
   }, [router, supabase])
 
   const handleCheckout = async () => {
     setLoading(true)
     setError("")
+    setWarning("")
 
     try {
       const response = await fetch("/api/create-checkout", {
@@ -105,6 +131,7 @@ export default function SubscribePage() {
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           <p className="text-slate-600">Verificando sua conta...</p>
+          {warning && <p className="text-sm text-amber-600 text-center max-w-xs">{warning}</p>}
         </div>
       </div>
     )
@@ -166,6 +193,9 @@ export default function SubscribePage() {
             <p className="text-lg text-slate-600">
               Sua conta foi criada com sucesso! Agora ative os <strong>7 dias grátis</strong> para acessar todas as funcionalidades.
             </p>
+            {warning && (
+              <p className="mt-2 text-sm text-amber-700">{warning}</p>
+            )}
           </motion.div>
 
           <motion.div
@@ -260,4 +290,3 @@ export default function SubscribePage() {
     </div>
   )
 }
-

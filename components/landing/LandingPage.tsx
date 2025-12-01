@@ -3,15 +3,15 @@
 import { useState } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { 
-  Package, 
-  BarChart3, 
-  Users, 
-  Wrench, 
-  ArrowRight, 
-  Check, 
-  Zap, 
-  Shield, 
+import {
+  Package,
+  BarChart3,
+  Users,
+  Wrench,
+  ArrowRight,
+  Check,
+  Zap,
+  Shield,
   Clock,
   ChevronDown,
   Mail,
@@ -39,19 +39,19 @@ import {
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
   </svg>
 )
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
   </svg>
 )
 
 const LinkedInIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
   </svg>
 )
 import Link from "next/link"
@@ -80,29 +80,11 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         return
       }
 
-      // Usuário logado - iniciar checkout
-      const response = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
+      // Usuário logado - ir para dashboard (lá verifica se precisa de checkout ou trial)
+      router.push("/dashboard")
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          router.push("/login?redirect=checkout")
-          return
-        }
-        throw new Error(data.error || "Erro ao iniciar checkout")
-      }
-
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        throw new Error("URL de checkout não retornada")
-      }
     } catch (err: any) {
-      setError(err.message || "Erro ao processar checkout")
+      setError(err.message || "Erro ao processar redirecionamento")
       setCheckoutLoading(false)
     }
   }
@@ -150,7 +132,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-900 antialiased">
       {/* Background Pattern */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none opacity-[0.015]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(0 0 0)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
@@ -169,9 +151,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <Link href="/" className="flex items-center gap-2">
               <div className="p-1.5 rounded-xl bg-[#4B6BFB] shadow-lg shadow-blue-500/25">
                 <svg className="h-7 w-7" viewBox="0 0 500 500" fill="none">
-                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
                 </svg>
               </div>
               <span className="font-bold text-xl tracking-tight">Almox Fácil</span>
@@ -188,39 +170,39 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               <a href="#faq" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
                 FAQ
               </a>
-              <a 
-                href="https://www.youtube.com/@almoxfacil" 
-                target="_blank" 
+              <a
+                href="https://www.youtube.com/@almoxfacil"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-slate-600 hover:text-red-500 transition-colors font-medium"
               >
                 <PlayCircle className="h-4 w-4" />
                 Tutoriais
               </a>
-              
+
               {/* Social Icons */}
               <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
-                <a 
-                  href="https://www.youtube.com/@almoxfacil" 
-                  target="_blank" 
+                <a
+                  href="https://www.youtube.com/@almoxfacil"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-red-500 transition-colors"
                   title="YouTube"
                 >
                   <YouTubeIcon className="h-5 w-5" />
                 </a>
-                <a 
-                  href="https://www.instagram.com/almoxfacil" 
-                  target="_blank" 
+                <a
+                  href="https://www.instagram.com/almoxfacil"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-pink-500 transition-colors"
                   title="Instagram"
                 >
                   <InstagramIcon className="h-5 w-5" />
                 </a>
-                <a 
-                  href="https://www.linkedin.com/company/almoxfacil" 
-                  target="_blank" 
+                <a
+                  href="https://www.linkedin.com/company/almoxfacil"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-blue-600 transition-colors"
                   title="LinkedIn"
@@ -235,7 +217,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               {isLoggedIn ? (
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-slate-500">{userEmail}</span>
-                  <Link 
+                  <Link
                     href="/dashboard"
                     className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition-colors"
                   >
@@ -244,13 +226,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 </div>
               ) : (
                 <>
-                  <Link 
+                  <Link
                     href="/login"
                     className="px-4 py-2 rounded-lg text-slate-700 font-medium hover:bg-slate-100 transition-colors"
                   >
                     Entrar
                   </Link>
-                  <Link 
+                  <Link
                     href="/signup"
                     className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25"
                   >
@@ -261,7 +243,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             </div>
 
             {/* Mobile Menu Button */}
-            <button 
+            <button
               className="md:hidden p-2 rounded-lg hover:bg-slate-100"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -271,64 +253,64 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
           {/* Mobile Menu - improved touch targets */}
           {mobileMenuOpen && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="md:hidden py-4 border-t border-slate-200"
             >
               <div className="flex flex-col gap-1">
-                <a 
-                  href="#features" 
+                <a
+                  href="#features"
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
                 >
                   Recursos
                 </a>
-                <a 
-                  href="#pricing" 
+                <a
+                  href="#pricing"
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
                 >
                   Preços
                 </a>
-                <a 
-                  href="#faq" 
+                <a
+                  href="#faq"
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
                 >
                   FAQ
                 </a>
-                <a 
-                  href="https://www.youtube.com/@almoxfacil" 
-                  target="_blank" 
+                <a
+                  href="https://www.youtube.com/@almoxfacil"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-slate-600 hover:text-red-500 active:bg-red-50 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
                 >
                   <PlayCircle className="h-5 w-5" />
                   Tutoriais
                 </a>
-                
+
                 {/* Social Icons Mobile - larger touch targets */}
                 <div className="flex items-center justify-center gap-3 py-4 mt-2 border-t border-slate-100">
-                  <a 
-                    href="https://www.youtube.com/@almoxfacil" 
-                    target="_blank" 
+                  <a
+                    href="https://www.youtube.com/@almoxfacil"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-red-50 active:bg-red-100 transition-colors touch-manipulation"
                   >
                     <YouTubeIcon className="h-5 w-5" />
                   </a>
-                  <a 
-                    href="https://www.instagram.com/almoxfacil" 
-                    target="_blank" 
+                  <a
+                    href="https://www.instagram.com/almoxfacil"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-pink-500 hover:bg-pink-50 active:bg-pink-100 transition-colors touch-manipulation"
                   >
                     <InstagramIcon className="h-5 w-5" />
                   </a>
-                  <a 
-                    href="https://www.linkedin.com/company/almoxfacil" 
-                    target="_blank" 
+                  <a
+                    href="https://www.linkedin.com/company/almoxfacil"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-colors touch-manipulation"
                   >
@@ -338,22 +320,22 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
                 <div className="flex flex-col gap-3 pt-4 border-t border-slate-200">
                   {isLoggedIn ? (
-                    <Link 
-                      href="/dashboard" 
+                    <Link
+                      href="/dashboard"
                       className="px-4 py-3.5 rounded-xl bg-slate-100 text-center font-medium active:bg-slate-200 transition-colors touch-manipulation"
                     >
                       Dashboard
                     </Link>
                   ) : (
                     <>
-                      <Link 
-                        href="/login" 
+                      <Link
+                        href="/login"
                         className="px-4 py-3.5 rounded-xl bg-slate-100 text-center font-medium active:bg-slate-200 transition-colors touch-manipulation"
                       >
                         Entrar
                       </Link>
-                      <Link 
-                        href="/signup" 
+                      <Link
+                        href="/signup"
                         className="px-4 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center font-semibold shadow-lg shadow-blue-500/25 active:from-blue-600 active:to-indigo-700 transition-all touch-manipulation"
                       >
                         Começar grátis
@@ -370,7 +352,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -390,7 +372,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             </h1>
 
             <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Controle seu estoque, ferramentas, colaboradores e movimentações em uma plataforma completa. 
+              Controle seu estoque, ferramentas, colaboradores e movimentações em uma plataforma completa.
               Feito para indústrias que querem resultados.
             </p>
 
@@ -414,7 +396,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 )}
               </button>
 
-              <a 
+              <a
                 href="#all-features"
                 className="w-full sm:w-auto px-8 py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold text-lg hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2"
               >
@@ -439,7 +421,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           </motion.div>
 
           {/* Dashboard Preview */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -485,8 +467,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                     </div>
                     <div className="h-20 sm:h-28 flex items-end gap-1 sm:gap-2">
                       {[40, 65, 45, 80, 55, 90, 70, 85, 60, 75, 95, 82].map((h, i) => (
-                        <div 
-                          key={i} 
+                        <div
+                          key={i}
                           className="flex-1 bg-gradient-to-t from-blue-500 to-indigo-500 rounded-t-sm"
                           style={{ height: `${h}%` }}
                         />
@@ -523,7 +505,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       {/* Features Section */}
       <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -561,7 +543,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       {/* Detailed Features Section */}
       <section id="all-features" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -575,7 +557,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               Tudo que seu almoxarifado precisa
             </h2>
             <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto">
-              Conheça em detalhes todas as funcionalidades que vão transformar 
+              Conheça em detalhes todas as funcionalidades que vão transformar
               a gestão do seu almoxarifado industrial
             </p>
           </motion.div>
@@ -896,7 +878,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       {/* Multi-Platform Section */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-100 to-white overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -910,7 +892,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               Acesse de qualquer lugar
             </h2>
             <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-4 sm:px-0">
-              Desktop, tablet ou celular — seu almoxarifado na palma da mão. 
+              Desktop, tablet ou celular — seu almoxarifado na palma da mão.
               Interface responsiva que se adapta perfeitamente a qualquer dispositivo.
             </p>
           </motion.div>
@@ -924,10 +906,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           >
             {/* Glow effect behind image */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-indigo-400/20 to-purple-400/20 blur-3xl rounded-full transform scale-75" />
-            
-            <Image 
-              src="/images/mockup-devices.png" 
-              alt="Almox Fácil em múltiplos dispositivos - Desktop, Tablet e Mobile" 
+
+            <Image
+              src="/images/mockup-devices.png"
+              alt="Almox Fácil em múltiplos dispositivos - Desktop, Tablet e Mobile"
               width={1200}
               height={800}
               className="relative w-full max-w-4xl mx-auto drop-shadow-2xl"
@@ -988,7 +970,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </div>
 
         <div className="max-w-4xl mx-auto relative">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -1068,7 +1050,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       {/* FAQ Section */}
       <section id="faq" className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -1124,14 +1106,14 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       {/* CTA Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 to-indigo-700 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <div 
+          <div
             className="absolute inset-0"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='white'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
             }}
           />
         </div>
-        
+
         <div className="max-w-4xl mx-auto text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1172,9 +1154,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-xl bg-[#4B6BFB]">
                 <svg className="h-6 w-6" viewBox="0 0 500 500" fill="none">
-                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
                 </svg>
               </div>
               <span className="font-bold text-lg">Almox Fácil</span>
@@ -1191,34 +1173,34 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             </div>
 
             <div className="flex items-center gap-4">
-              <a 
+              <a
                 href="mailto:suporte@alnog.com.br"
                 className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-blue-100 hover:text-blue-600 transition-all"
                 title="Suporte por email"
               >
                 <Mail className="h-5 w-5" />
               </a>
-              <a 
-                href="https://www.youtube.com/@almoxfacil" 
-                target="_blank" 
+              <a
+                href="https://www.youtube.com/@almoxfacil"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-500 transition-all"
                 title="YouTube - Tutoriais"
               >
                 <YouTubeIcon className="h-5 w-5" />
               </a>
-              <a 
-                href="https://www.instagram.com/almoxfacil" 
-                target="_blank" 
+              <a
+                href="https://www.instagram.com/almoxfacil"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-pink-100 hover:text-pink-500 transition-all"
                 title="Instagram"
               >
                 <InstagramIcon className="h-5 w-5" />
               </a>
-              <a 
-                href="https://www.linkedin.com/company/almoxfacil" 
-                target="_blank" 
+              <a
+                href="https://www.linkedin.com/company/almoxfacil"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-blue-100 hover:text-blue-600 transition-all"
                 title="LinkedIn"

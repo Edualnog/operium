@@ -7,15 +7,15 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 export default function CheckoutHandler({ userId }: { userId: string }) {
   const router = useRouter()
   const supabase = createClientComponentClient()
-  const [checked, setChecked] = React.useState(false)
+  const checkedRef = React.useRef(false)
   
   React.useEffect(() => {
     const handleCheckout = async () => {
       const params = new URLSearchParams(window.location.search)
       const sessionId = params.get('session_id')
       
-      if (sessionId && !checked) {
-        setChecked(true)
+      if (sessionId && !checkedRef.current) {
+        checkedRef.current = true
         
         // Aguardar webhook processar
         await new Promise(resolve => setTimeout(resolve, 3000))
@@ -35,7 +35,8 @@ export default function CheckoutHandler({ userId }: { userId: string }) {
     }
     
     handleCheckout()
-  }, [checked, router, supabase, userId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   
   return null
 }

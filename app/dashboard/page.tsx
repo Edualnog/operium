@@ -1,4 +1,4 @@
-import { createServerComponentClient } from "@/lib/supabase-server"
+import { getSupabaseUser } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import dynamic from "next/dynamic"
@@ -25,10 +25,7 @@ const IndustrialDashboard = dynamic(
 export const revalidate = 60 // Revalidar a cada 60 segundos
 
 export default async function DashboardPage() {
-  const supabase = await createServerComponentClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { supabase, user } = await getSupabaseUser()
 
   if (!user) {
     redirect("/login")

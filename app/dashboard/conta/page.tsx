@@ -1,14 +1,11 @@
-import { createServerComponentClient } from "@/lib/supabase-server"
+import { getSupabaseUser } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
 import ContaClient from "@/components/conta/ContaClient"
 
 export const revalidate = 0
 
 async function getAccountData() {
-  const supabase = await createServerComponentClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { supabase, user } = await getSupabaseUser()
 
   if (!user) {
     redirect("/login")
@@ -31,7 +28,7 @@ export default async function ContaPage() {
   const { user, profile } = await getAccountData()
 
   return (
-    <ContaClient 
+    <ContaClient
       user={{
         id: user.id,
         email: user.email || "",

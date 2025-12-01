@@ -1,4 +1,4 @@
-import { createServerComponentClient } from "@/lib/supabase-server"
+import { createServerComponentClient, getSupabaseUser } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import ConsertosList from "@/components/consertos/ConsertosList"
@@ -74,10 +74,7 @@ async function getConsertos(userId: string): Promise<ConsertoItem[]> {
 }
 
 export default async function ConsertosPage() {
-  const supabase = await createServerComponentClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getSupabaseUser()
 
   if (!user) {
     redirect("/login")
