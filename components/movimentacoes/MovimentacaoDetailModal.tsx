@@ -14,12 +14,12 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { 
-  Package, 
-  User, 
-  Calendar, 
-  FileText, 
-  Download, 
+import {
+  Package,
+  User,
+  Calendar,
+  FileText,
+  Download,
   Printer,
   CheckCircle2,
   XCircle,
@@ -123,6 +123,8 @@ export default function MovimentacaoDetailModal({
   const [error, setError] = useState<string | null>(null)
   const [regenerating, setRegenerating] = useState(false)
 
+  const [savedSignature, setSavedSignature] = useState<string | null>(null)
+
   useEffect(() => {
     if (open && movimentacaoId) {
       loadMovimentacao()
@@ -133,6 +135,7 @@ export default function MovimentacaoDetailModal({
   const loadMovimentacao = async () => {
     setLoading(true)
     setError(null)
+    setSavedSignature(null)
 
     try {
       // Buscar movimentação com dados relacionados
@@ -183,13 +186,28 @@ export default function MovimentacaoDetailModal({
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle() // Usar maybeSingle em vez de single para não dar erro se não encontrar
-        
+
         if (!termoError && termoData) {
           termo = termoData
         }
       } catch (termoErr) {
         // Tabela pode não existir ou não ter termo - silenciar erro
         console.log("Termo não encontrado ou tabela não existe")
+      }
+
+      // Se não tem termo, buscar assinatura salva do colaborador
+      if (!termo && colaborador) {
+        try {
+          const sigRes = await fetch(`/api/colaboradores/assinatura?colaboradorId=${colaborador.id}`)
+          if (sigRes.ok) {
+            const sigData = await sigRes.json()
+            if (sigData.signature) {
+              setSavedSignature(sigData.signature)
+            }
+          }
+        } catch (sigErr) {
+          console.error("Erro ao buscar assinatura salva:", sigErr)
+        }
       }
 
       setMovimentacao({
@@ -218,7 +236,7 @@ export default function MovimentacaoDetailModal({
 
   const handleDownloadPDF = async () => {
     if (!movimentacao?.termo?.pdf_url) return
-    
+
     try {
       window.open(movimentacao.termo.pdf_url, "_blank")
     } catch (err) {
@@ -303,8 +321,8 @@ export default function MovimentacaoDetailModal({
                 <div className="bg-zinc-50 rounded-xl p-4">
                   <div className="flex items-start gap-4">
                     {movimentacao.ferramenta?.foto_url ? (
-                      <Image 
-                        src={movimentacao.ferramenta.foto_url} 
+                      <Image
+                        src={movimentacao.ferramenta.foto_url}
                         alt={movimentacao.ferramenta.nome}
                         width={64}
                         height={64}
@@ -322,10 +340,10 @@ export default function MovimentacaoDetailModal({
                       <div className="flex flex-wrap items-center gap-2 mt-1">
                         {movimentacao.ferramenta?.tipo_item && (
                           <Badge variant="outline" className="text-xs">
-                            {movimentacao.ferramenta.tipo_item === "epi" ? "EPI" : 
-                             movimentacao.ferramenta.tipo_item === "ferramenta" ? "Ferramenta" : 
-                             movimentacao.ferramenta.tipo_item === "consumivel" ? "Consumível" : 
-                             movimentacao.ferramenta.tipo_item}
+                            {movimentacao.ferramenta.tipo_item === "epi" ? "EPI" :
+                              movimentacao.ferramenta.tipo_item === "ferramenta" ? "Ferramenta" :
+                                movimentacao.ferramenta.tipo_item === "consumivel" ? "Consumível" :
+                                  movimentacao.ferramenta.tipo_item}
                           </Badge>
                         )}
                         {movimentacao.ferramenta?.categoria && (
@@ -360,8 +378,8 @@ export default function MovimentacaoDetailModal({
                   <div className="bg-zinc-50 rounded-xl p-4">
                     <div className="flex items-center gap-4">
                       {movimentacao.colaborador.foto_url ? (
-                        <Image 
-                          src={movimentacao.colaborador.foto_url} 
+                        <Image
+                          src={movimentacao.colaborador.foto_url}
                           alt={movimentacao.colaborador.nome}
                           width={56}
                           height={56}
@@ -425,14 +443,14 @@ export default function MovimentacaoDetailModal({
                         </span>
                       )}
                     </div>
-                    
+
                     {/* Exibir assinatura */}
                     {(movimentacao.termo.assinatura_base64 || movimentacao.termo.assinatura_url) && (
                       <div className="bg-white rounded-lg p-3 border border-green-200">
                         <p className="text-xs text-zinc-500 mb-2">Assinatura do colaborador:</p>
                         <div className="flex justify-center">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img 
+                          <img
                             src={movimentacao.termo.assinatura_base64 || movimentacao.termo.assinatura_url || ""}
                             alt="Assinatura"
                             className="max-h-24 object-contain"
@@ -448,8 +466,8 @@ export default function MovimentacaoDetailModal({
 
                     {/* Botão para baixar PDF */}
                     {movimentacao.termo.pdf_url && movimentacao.termo.pdf_url !== "local" && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={handleDownloadPDF}
                         className="w-full bg-white hover:bg-green-50 border-green-200 text-green-700"
@@ -469,30 +487,75 @@ export default function MovimentacaoDetailModal({
                     <FileSignature className="h-4 w-4" />
                     Termo de Responsabilidade
                   </h3>
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-amber-100 rounded-full">
-                        <XCircle className="h-5 w-5 text-amber-600" />
+
+                  {savedSignature ? (
+                    // Estado: Assinatura Disponível (Azul/Positivo)
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-full">
+                          <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-blue-800">Assinatura Digital Disponível</p>
+                          <p className="text-xs text-blue-600 mt-0.5">
+                            Uma assinatura salva foi encontrada e pode ser usada neste termo.
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-amber-800">Sem assinatura registrada</p>
-                        <p className="text-xs text-amber-600 mt-0.5">
-                          Esta movimentação não possui termo de responsabilidade assinado
+
+                      <div className="mt-4 bg-white/60 rounded-lg p-3 border border-blue-200/50">
+                        <div className="flex justify-center opacity-90">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={savedSignature}
+                            alt="Assinatura Salva"
+                            className="max-h-16 object-contain"
+                          />
+                        </div>
+                        <p className="text-[10px] text-center text-blue-600 mt-1">
+                          Assinatura de {movimentacao.colaborador.nome}
                         </p>
                       </div>
+
+                      {onReprint && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleReprint}
+                          className="w-full mt-3 bg-white hover:bg-blue-50 border-blue-200 text-blue-700 hover:text-blue-800"
+                        >
+                          <FileSignature className="h-4 w-4 mr-2" />
+                          Gerar Termo com Assinatura Salva
+                        </Button>
+                      )}
                     </div>
-                    {onReprint && (
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        onClick={handleReprint}
-                        className="w-full mt-3 bg-white hover:bg-amber-50 border-amber-200 text-amber-700"
-                      >
-                        <FileSignature className="h-4 w-4 mr-2" />
-                        Gerar Termo de Responsabilidade
-                      </Button>
-                    )}
-                  </div>
+                  ) : (
+                    // Estado: Sem Assinatura (Amarelo/Alerta)
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-amber-100 rounded-full">
+                          <XCircle className="h-5 w-5 text-amber-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-amber-800">Sem assinatura registrada</p>
+                          <p className="text-xs text-amber-600 mt-0.5">
+                            Esta movimentação não possui termo de responsabilidade assinado
+                          </p>
+                        </div>
+                      </div>
+                      {onReprint && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleReprint}
+                          className="w-full mt-3 bg-white hover:bg-amber-50 border-amber-200 text-amber-700"
+                        >
+                          <FileSignature className="h-4 w-4 mr-2" />
+                          Gerar Termo de Responsabilidade
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
