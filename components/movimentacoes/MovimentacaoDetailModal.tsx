@@ -529,47 +529,6 @@ export default function MovimentacaoDetailModal({
                         </Button>
                       )}
                     </div>
-                  {savedSignature ? (
-                    // Estado: Assinatura Disponível (Azul/Positivo)
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-full">
-                          <CheckCircle2 className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-blue-800">Assinatura Digital Disponível</p>
-                          <p className="text-xs text-blue-600 mt-0.5">
-                            Uma assinatura salva foi encontrada e pode ser usada neste termo.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 bg-white/60 rounded-lg p-3 border border-blue-200/50">
-                        <div className="flex justify-center opacity-90">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={savedSignature}
-                            alt="Assinatura Salva"
-                            className="max-h-16 object-contain"
-                          />
-                        </div>
-                        <p className="text-[10px] text-center text-blue-600 mt-1">
-                          Assinatura de {movimentacao.colaborador.nome}
-                        </p>
-                      </div>
-
-                      {onReprint && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleReprint}
-                          className="w-full mt-3 bg-white hover:bg-blue-50 border-blue-200 text-blue-700 hover:text-blue-800"
-                        >
-                          <FileSignature className="h-4 w-4 mr-2" />
-                          Gerar Termo com Assinatura Salva
-                        </Button>
-                      )}
-                    </div>
                   ) : (
                     // Estado: Sem Assinatura (Amarelo/Alerta)
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -597,6 +556,7 @@ export default function MovimentacaoDetailModal({
                       )}
                     </div>
                   )}
+
                 </div>
               )}
 
