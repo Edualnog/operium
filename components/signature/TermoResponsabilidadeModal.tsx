@@ -265,25 +265,29 @@ export default function TermoResponsabilidadeModal({
         doc.save(`Termo_${colaborador.nome.replace(/\s+/g, "_")}_${format(dataAtual, "yyyyMMdd")}.pdf`)
       }
 
-      // Salvar registro do termo no banco (opcional - se a tabela existir)
-      try {
-        await supabase.from("termos_responsabilidade").insert({
-          profile_id: user.id,
-          colaborador_id: colaborador.id,
-          movimentacao_id: movimentacaoId,
-          tipo,
-          itens: itens.map((i) => ({ id: i.id, nome: i.nome, quantidade: i.quantidade })),
-          assinatura_url: publicUrl !== "local" ? publicUrl : null,
-          assinatura_base64: signatureDataUrl, // Salvar assinatura em base64 para visualização rápida
-          pdf_url: publicUrl !== "local" ? publicUrl : null,
-          data_assinatura: dataAtual.toISOString(),
-        })
-      } catch (dbError) {
-        console.warn("Tabela termos_responsabilidade pode não existir:", dbError)
+      // Salvar registro do termo no banco
+      const { error: dbError } = await supabase.from("termos_responsabilidade").insert({
+        profile_id: user.id,
+        colaborador_id: colaborador.id,
+        movimentacao_id: movimentacaoId,
+        tipo,
+        itens: itens.map((i) => ({ id: i.id, nome: i.nome, quantidade: i.quantidade })),
+        assinatura_url: publicUrl !== "local" ? publicUrl : null,
+        assinatura_base64: signatureDataUrl, // Salvar assinatura em base64 para visualização rápida
+        pdf_url: publicUrl !== "local" ? publicUrl : null,
+        data_assinatura: dataAtual.toISOString(),
+      })
+
+      if (dbError) {
+        console.error("Erro ao salvar no banco:", dbError)
+        // Não lançar erro fatal para não impedir o download do PDF, mas avisar
+        setError(`O PDF foi gerado, mas houve um erro ao salvar no sistema: ${dbError.message}. Verifique se a tabela 'termos_responsabilidade' existe.`)
+        // Manter success=true para permitir fechar, mas mostrar o erro
+      } else {
+        setSuccess(true)
       }
 
       setPdfUrl(publicUrl)
-      setSuccess(true)
       onSuccess?.(movimentacaoId || "", publicUrl)
     } catch (err: any) {
       console.error("Erro ao gerar termo:", err)
