@@ -584,7 +584,7 @@ export default function MovimentacoesList({
   }
 
   // Reimprimir termo de responsabilidade
-  const handleReprintTermo = (movimentacao: any) => {
+  const handleReprintTermo = async (movimentacao: any) => {
     if (!movimentacao.colaborador) return
 
     // Buscar dados completos do colaborador
@@ -593,6 +593,18 @@ export default function MovimentacoesList({
     const ferramentaCompleta = ferramentas.find(f => f.id === movimentacao.ferramenta?.id)
 
     if (colaboradorCompleto && movimentacao.ferramenta) {
+      // Buscar assinatura existente
+      let signature = null
+      try {
+        const sigRes = await fetch(`/api/colaboradores/assinatura?colaboradorId=${colaboradorCompleto.id}`)
+        if (sigRes.ok) {
+          const sigData = await sigRes.json()
+          signature = sigData.signature
+        }
+      } catch (err) {
+        console.error("Erro ao buscar assinatura:", err)
+      }
+
       setMovimentacaoParaAssinar({
         id: movimentacao.id,
         colaborador: {
@@ -606,6 +618,7 @@ export default function MovimentacoesList({
           tipo_item: movimentacao.ferramenta.tipo_item || undefined,
         }],
         tipo: movimentacao.tipo as "retirada" | "devolucao",
+        initialSignature: signature,
       })
       setDetailModalOpen(false)
       setTermoModalOpen(true)
