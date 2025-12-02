@@ -48,7 +48,11 @@ function SignupForm() {
 
   React.useEffect(() => {
     setMounted(true)
-  }, [])
+    if (turnstileSiteKey.startsWith("1x0000")) {
+      console.warn("⚠️ Usando chave de teste do Turnstile. Isso falhará em produção se o Supabase esperar uma chave real.")
+      console.warn("Verifique se NEXT_PUBLIC_TURNSTILE_SITE_KEY está configurada no Vercel.")
+    }
+  }, [turnstileSiteKey])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
