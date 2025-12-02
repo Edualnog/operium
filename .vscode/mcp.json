@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "octocode-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "--yes",
+        "octocode-mcp"
+      ]
+    }
+  },
+  "inputs": []
+}
