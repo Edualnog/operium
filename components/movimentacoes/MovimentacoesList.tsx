@@ -81,7 +81,7 @@ export default function MovimentacoesList({
     dataMov: new Date().toISOString().slice(0, 16),
   })
   const [search, setSearch] = useState("")
-  
+
   // Estados para assinatura digital
   const [solicitarAssinatura, setSolicitarAssinatura] = useState(true)
   const [termoModalOpen, setTermoModalOpen] = useState(false)
@@ -90,6 +90,7 @@ export default function MovimentacoesList({
     colaborador: { id: string; nome: string; cargo?: string; cpf?: string }
     itens: { id: string; nome: string; quantidade: number; tipo_item?: string }[]
     tipo: "retirada" | "devolucao"
+    initialSignature?: string | null
   } | null>(null)
   const [openExportDialog, setOpenExportDialog] = useState(false)
   const [exportingCsv, setExportingCsv] = useState(false)
@@ -102,7 +103,7 @@ export default function MovimentacoesList({
     produtoId: "",
     colaboradorId: "",
   })
-  
+
   // Atualizar filtros quando período rápido mudar
   useEffect(() => {
     if (periodoRapido === "hoje") {
@@ -167,7 +168,7 @@ export default function MovimentacoesList({
 
   // Estado para modal de importação
   const [importModalOpen, setImportModalOpen] = useState(false)
-  
+
   // Estado para modal de detalhes da movimentação
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [selectedMovimentacaoId, setSelectedMovimentacaoId] = useState<string | null>(null)
@@ -324,16 +325,16 @@ export default function MovimentacoesList({
   const suggestions = useMemo(() => {
     // Não mostrar sugestões se já há um produto selecionado
     if (form.produtoId) return []
-    
+
     const s = form.produto.toLowerCase()
     if (!s) return []
-    
+
     // Verificar se o texto digitado corresponde exatamente a algum produto selecionado
     const produtoSelecionado = ferramentas.find(f => f.id === form.produtoId)
     if (produtoSelecionado && form.produto.toLowerCase() === produtoSelecionado.nome.toLowerCase()) {
       return []
     }
-    
+
     return ferramentas
       .filter((f) => f.nome.toLowerCase().includes(s))
       .slice(0, 5)
@@ -342,16 +343,16 @@ export default function MovimentacoesList({
   const colabSuggestions = useMemo(() => {
     // Não mostrar sugestões se já há um colaborador selecionado
     if (form.colaboradorId) return []
-    
+
     const s = form.colaboradorNome.toLowerCase()
     if (!s) return []
-    
+
     // Verificar se o texto digitado corresponde exatamente a algum colaborador selecionado
     const colaboradorSelecionado = colaboradores.find(c => c.id === form.colaboradorId)
     if (colaboradorSelecionado && form.colaboradorNome.toLowerCase() === colaboradorSelecionado.nome.toLowerCase()) {
       return []
     }
-    
+
     return colaboradores.filter((c) => c.nome.toLowerCase().includes(s)).slice(0, 5)
   }, [form.colaboradorNome, form.colaboradorId, colaboradores])
 
@@ -384,17 +385,29 @@ export default function MovimentacoesList({
       if (!res.ok) throw new Error(json.error || "Erro ao registrar movimentação")
 
       console.log("✅ Movimentação registrada com sucesso!")
-      
+
       // Verificar se deve abrir modal de assinatura
       const deveAssinar = solicitarAssinatura && (form.tipo === "retirada" || form.tipo === "devolucao")
-      
+
       if (deveAssinar && form.colaboradorId) {
         // Encontrar dados do colaborador
         const colaboradorSelecionado = colaboradores.find(c => c.id === form.colaboradorId)
         // Encontrar dados do produto
         const produtoSelecionado = ferramentas.find(f => f.id === form.produtoId)
-        
+
         if (colaboradorSelecionado && produtoSelecionado) {
+          // Buscar assinatura existente
+          let signature = null
+          try {
+            const sigRes = await fetch(`/api/colaboradores/assinatura?colaboradorId=${colaboradorSelecionado.id}`)
+            if (sigRes.ok) {
+              const sigData = await sigRes.json()
+              signature = sigData.signature
+            }
+          } catch (err) {
+            console.error("Erro ao buscar assinatura:", err)
+          }
+
           setMovimentacaoParaAssinar({
             id: json.id || json.data?.id || "",
             colaborador: {
@@ -408,11 +421,12 @@ export default function MovimentacoesList({
               tipo_item: produtoSelecionado.tipo_item || undefined,
             }],
             tipo: form.tipo as "retirada" | "devolucao",
+            initialSignature: signature,
           })
           setTermoModalOpen(true)
         }
       }
-      
+
       setOpen(false)
       setForm({
         tipo: "entrada",
@@ -424,7 +438,7 @@ export default function MovimentacoesList({
         observacoes: "",
         dataMov: new Date().toISOString().slice(0, 16),
       })
-      
+
       // Forçar revalidação e atualizar a página
       // Usar setTimeout para garantir que o servidor processou a mudança
       setTimeout(() => {
@@ -446,7 +460,7 @@ export default function MovimentacoesList({
     }
     return map[tipo] || "default"
   }
-  
+
   const tipoBadgeClassName = (tipo: string) => {
     if (tipo === "conserto") {
       return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200"
@@ -505,7 +519,7 @@ export default function MovimentacoesList({
 
     return result
   }
-  
+
   // Sincronizar filtros de exportação com filtros da tabela quando o dialog abrir
   useEffect(() => {
     if (openExportDialog) {
@@ -572,12 +586,12 @@ export default function MovimentacoesList({
   // Reimprimir termo de responsabilidade
   const handleReprintTermo = (movimentacao: any) => {
     if (!movimentacao.colaborador) return
-    
+
     // Buscar dados completos do colaborador
     const colaboradorCompleto = colaboradores.find(c => c.id === movimentacao.colaborador.id)
     // Buscar dados completos da ferramenta
     const ferramentaCompleta = ferramentas.find(f => f.id === movimentacao.ferramenta?.id)
-    
+
     if (colaboradorCompleto && movimentacao.ferramenta) {
       setMovimentacaoParaAssinar({
         id: movimentacao.id,
@@ -833,156 +847,156 @@ export default function MovimentacoesList({
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>Nova movimentação</DialogTitle>
-                <DialogDescription>Escolha o tipo, produto e quantidade.</DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-3 py-4">
-                <div className="grid gap-2">
-                  <Label>Tipo</Label>
-                  <Select
-                    value={form.tipo}
-                    onValueChange={(val: any) => setForm((f) => ({ ...f, tipo: val }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="entrada">Entrada</SelectItem>
-                      <SelectItem value="retirada">Saída/Retirada</SelectItem>
-                      <SelectItem value="devolucao">Devolução</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label>Produto</Label>
-                  <Input
-                    placeholder="Digite o nome do produto"
-                    value={form.produto}
-                    onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
-                    className="text-sm md:text-base"
-                  />
-                  {suggestions.length > 0 && (
-                    <div className="border rounded-md divide-y bg-white shadow-sm max-h-48 overflow-auto">
-                      {suggestions.map((s) => (
-                        <button
-                          type="button"
-                          key={s.id}
-                          className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm"
-                          onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
-                        >
-                          <div className="text-sm font-medium text-zinc-900">{s.nome}</div>
-                          <div className="text-xs text-zinc-500">{s.tipo_item || "Produto"}</div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <form onSubmit={handleSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Nova movimentação</DialogTitle>
+                  <DialogDescription>Escolha o tipo, produto e quantidade.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-3 py-4">
                   <div className="grid gap-2">
-                    <Label>Quantidade</Label>
+                    <Label>Tipo</Label>
+                    <Select
+                      value={form.tipo}
+                      onValueChange={(val: any) => setForm((f) => ({ ...f, tipo: val }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="entrada">Entrada</SelectItem>
+                        <SelectItem value="retirada">Saída/Retirada</SelectItem>
+                        <SelectItem value="devolucao">Devolução</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label>Produto</Label>
                     <Input
-                      type="number"
-                      min={form.tipo === "entrada" ? 1 : 1}
-                      value={form.quantidade}
-                      onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
-                      required
+                      placeholder="Digite o nome do produto"
+                      value={form.produto}
+                      onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
+                      className="text-sm md:text-base"
+                    />
+                    {suggestions.length > 0 && (
+                      <div className="border rounded-md divide-y bg-white shadow-sm max-h-48 overflow-auto">
+                        {suggestions.map((s) => (
+                          <button
+                            type="button"
+                            key={s.id}
+                            className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm"
+                            onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
+                          >
+                            <div className="text-sm font-medium text-zinc-900">{s.nome}</div>
+                            <div className="text-xs text-zinc-500">{s.tipo_item || "Produto"}</div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid gap-2">
+                      <Label>Quantidade</Label>
+                      <Input
+                        type="number"
+                        min={form.tipo === "entrada" ? 1 : 1}
+                        value={form.quantidade}
+                        onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
+                        required
+                      />
+                    </div>
+
+                    {(form.tipo === "retirada" || form.tipo === "devolucao") && (
+                      <div className="grid gap-2">
+                        <Label>Colaborador</Label>
+                        <Input
+                          placeholder="Digite o nome do colaborador"
+                          value={form.colaboradorNome}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))
+                          }
+                        />
+                        {colabSuggestions.length > 0 && (
+                          <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
+                            {colabSuggestions.map((c) => (
+                              <button
+                                type="button"
+                                key={c.id}
+                                className="w-full text-left px-3 py-2 hover:bg-zinc-50"
+                                onClick={() =>
+                                  setForm((f) => ({
+                                    ...f,
+                                    colaboradorId: c.id,
+                                    colaboradorNome: c.nome,
+                                  }))
+                                }
+                              >
+                                <div className="text-sm font-medium text-zinc-900">{c.nome}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <div className="text-xs text-zinc-500">
+                          Escolha o colaborador responsável pela retirada/devolução.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label>Data/Hora</Label>
+                    <Input
+                      type="datetime-local"
+                      value={form.dataMov}
+                      onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
+                    />
+                    <div className="text-xs text-zinc-500">Se preferir, ajuste a data/hora. Por padrão usamos agora.</div>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label>Observações</Label>
+                    <Input
+                      placeholder="Opcional"
+                      value={form.observacoes}
+                      onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
                     />
                   </div>
 
+                  {/* Checkbox de assinatura - só aparece para retirada/devolução */}
                   {(form.tipo === "retirada" || form.tipo === "devolucao") && (
-                    <div className="grid gap-2">
-                      <Label>Colaborador</Label>
-                      <Input
-                        placeholder="Digite o nome do colaborador"
-                        value={form.colaboradorNome}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))
-                        }
+                    <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <Checkbox
+                        id="solicitar-assinatura"
+                        checked={solicitarAssinatura}
+                        onCheckedChange={(checked) => setSolicitarAssinatura(checked === true)}
                       />
-                      {colabSuggestions.length > 0 && (
-                        <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
-                          {colabSuggestions.map((c) => (
-                            <button
-                              type="button"
-                              key={c.id}
-                              className="w-full text-left px-3 py-2 hover:bg-zinc-50"
-                              onClick={() =>
-                                setForm((f) => ({
-                                  ...f,
-                                  colaboradorId: c.id,
-                                  colaboradorNome: c.nome,
-                                }))
-                              }
-                            >
-                              <div className="text-sm font-medium text-zinc-900">{c.nome}</div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      <div className="text-xs text-zinc-500">
-                        Escolha o colaborador responsável pela retirada/devolução.
+                      <div className="flex-1">
+                        <label
+                          htmlFor="solicitar-assinatura"
+                          className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2"
+                        >
+                          <FileSignature className="h-4 w-4" />
+                          Solicitar assinatura digital
+                        </label>
+                        <p className="text-xs text-blue-700 mt-0.5">
+                          Gera termo de responsabilidade com assinatura do colaborador
+                        </p>
                       </div>
                     </div>
                   )}
                 </div>
-
-                <div className="grid gap-2">
-                  <Label>Data/Hora</Label>
-                  <Input
-                    type="datetime-local"
-                    value={form.dataMov}
-                    onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
-                  />
-                  <div className="text-xs text-zinc-500">Se preferir, ajuste a data/hora. Por padrão usamos agora.</div>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label>Observações</Label>
-                  <Input
-                    placeholder="Opcional"
-                    value={form.observacoes}
-                    onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
-                  />
-                </div>
-
-                {/* Checkbox de assinatura - só aparece para retirada/devolução */}
-                {(form.tipo === "retirada" || form.tipo === "devolucao") && (
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <Checkbox
-                      id="solicitar-assinatura"
-                      checked={solicitarAssinatura}
-                      onCheckedChange={(checked) => setSolicitarAssinatura(checked === true)}
-                    />
-                    <div className="flex-1">
-                      <label
-                        htmlFor="solicitar-assinatura"
-                        className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2"
-                      >
-                        <FileSignature className="h-4 w-4" />
-                        Solicitar assinatura digital
-                      </label>
-                      <p className="text-xs text-blue-700 mt-0.5">
-                        Gera termo de responsabilidade com assinatura do colaborador
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Salvando..." : "Salvar"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Salvando..." : "Salvar"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -1004,7 +1018,7 @@ export default function MovimentacoesList({
           <div>Data/Hora</div>
           <div>Observações</div>
         </div>
-        
+
         {/* Corpo da tabela */}
         <div className="divide-y divide-zinc-200">
           {filtered.map((m) => (
@@ -1014,45 +1028,45 @@ export default function MovimentacoesList({
                 onClick={() => handleOpenDetail(m.id)}
                 className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-blue-50/50 transition-colors cursor-pointer group"
               >
-              <div className="flex items-center gap-2 min-w-0">
-                <Badge 
-                  variant={tipoBadge(m.tipo)} 
-                  className={cn(
-                    "capitalize shrink-0 text-xs px-2 py-0.5",
-                    tipoBadgeClassName(m.tipo)
-                  )}
-                >
-                  {m.tipo}
-                </Badge>
-                <span className="font-medium text-sm text-zinc-900 truncate group-hover:text-blue-700 transition-colors">
-                  {m.ferramentas?.nome || "Produto"}
-                </span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <Badge
+                    variant={tipoBadge(m.tipo)}
+                    className={cn(
+                      "capitalize shrink-0 text-xs px-2 py-0.5",
+                      tipoBadgeClassName(m.tipo)
+                    )}
+                  >
+                    {m.tipo}
+                  </Badge>
+                  <span className="font-medium text-sm text-zinc-900 truncate group-hover:text-blue-700 transition-colors">
+                    {m.ferramentas?.nome || "Produto"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-center text-sm font-medium text-zinc-700">
+                  {m.quantidade}
+                </div>
+                <div className="flex items-center text-sm text-zinc-700 truncate">
+                  {m.colaboradores?.nome || "-"}
+                </div>
+                <div className="flex items-center text-sm text-zinc-600">
+                  {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-zinc-600 truncate" title={m.observacoes || ""}>
+                  <span className="truncate flex-1">{m.observacoes || "-"}</span>
+                  <span className="opacity-0 group-hover:opacity-100 text-blue-500 text-xs whitespace-nowrap transition-opacity">
+                    Ver detalhes →
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center justify-center text-sm font-medium text-zinc-700">
-                {m.quantidade}
-              </div>
-              <div className="flex items-center text-sm text-zinc-700 truncate">
-                {m.colaboradores?.nome || "-"}
-              </div>
-              <div className="flex items-center text-sm text-zinc-600">
-                {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-zinc-600 truncate" title={m.observacoes || ""}>
-                <span className="truncate flex-1">{m.observacoes || "-"}</span>
-                <span className="opacity-0 group-hover:opacity-100 text-blue-500 text-xs whitespace-nowrap transition-opacity">
-                  Ver detalhes →
-                </span>
-              </div>
-              </div>
-              
+
               {/* Versão Mobile */}
               <div
                 onClick={() => handleOpenDetail(m.id)}
                 className="md:hidden p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <Badge 
-                    variant={tipoBadge(m.tipo)} 
+                  <Badge
+                    variant={tipoBadge(m.tipo)}
                     className={cn(
                       "capitalize shrink-0 text-xs px-2 py-0.5",
                       tipoBadgeClassName(m.tipo)
@@ -1105,6 +1119,7 @@ export default function MovimentacoesList({
           itens={movimentacaoParaAssinar.itens}
           tipo={movimentacaoParaAssinar.tipo}
           movimentacaoId={movimentacaoParaAssinar.id}
+          initialSignature={movimentacaoParaAssinar.initialSignature}
           onSuccess={(termoId, pdfUrl) => {
             console.log("✅ Termo assinado:", termoId, pdfUrl)
             router.refresh()

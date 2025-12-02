@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ interface TermoResponsabilidadeModalProps {
   tipo: "retirada" | "devolucao"
   onSuccess?: (termoId: string, pdfUrl: string) => void
   movimentacaoId?: string
+  initialSignature?: string | null
 }
 
 export default function TermoResponsabilidadeModal({
@@ -47,6 +48,7 @@ export default function TermoResponsabilidadeModal({
   tipo,
   onSuccess,
   movimentacaoId,
+  initialSignature,
 }: TermoResponsabilidadeModalProps) {
   const signaturePadRef = useRef<SignaturePadRef>(null)
   const [isSigning, setIsSigning] = useState(false)
@@ -58,6 +60,17 @@ export default function TermoResponsabilidadeModal({
 
   const supabase = createClientComponentClient()
   const dataAtual = new Date()
+
+  // Carregar assinatura inicial se existir
+  useEffect(() => {
+    if (open && initialSignature && signaturePadRef.current) {
+      // Pequeno delay para garantir que o canvas foi montado
+      setTimeout(() => {
+        signaturePadRef.current?.fromDataURL(initialSignature)
+        setHasSignature(true)
+      }, 100)
+    }
+  }, [open, initialSignature])
 
   const handleClear = () => {
     signaturePadRef.current?.clear()
@@ -391,9 +404,9 @@ export default function TermoResponsabilidadeModal({
             )}
 
             <DialogFooter className="flex-col-reverse sm:flex-row gap-2 mt-4">
-              <Button 
-                variant="outline" 
-                onClick={handleClose} 
+              <Button
+                variant="outline"
+                onClick={handleClose}
                 disabled={isGenerating}
                 className="w-full sm:w-auto min-h-[44px]"
               >
