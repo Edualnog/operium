@@ -29,6 +29,7 @@ import {
   BarChart3,
   Activity,
 } from "lucide-react"
+import { OnboardingChecklist } from "./OnboardingChecklist"
 
 interface IndustrialDashboardProps {
   userId: string
@@ -559,6 +560,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           Mais agilidade e controle nas operações do almoxarifado
         </p>
       </div>
+
+      <OnboardingChecklist userId={userId} />
 
       {/* SESSÃO OVERVIEW - Gráficos principais */}
       <section className="space-y-6 mb-8">
