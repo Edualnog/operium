@@ -269,7 +269,7 @@ export default function TermoResponsabilidadeModal({
       const { error: dbError } = await supabase.from("termos_responsabilidade").insert({
         profile_id: user.id,
         colaborador_id: colaborador.id,
-        movimentacao_id: movimentacaoId,
+        movimentacao_id: movimentacaoId || null, // Converter string vazia para null
         tipo,
         itens: itens.map((i) => ({ id: i.id, nome: i.nome, quantidade: i.quantidade })),
         assinatura_url: publicUrl !== "local" ? publicUrl : null,
