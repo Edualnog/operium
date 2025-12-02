@@ -3,19 +3,19 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder")
 
 export async function POST() {
   try {
     const cookieStore = await cookies()
-    
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return NextResponse.json(
-        { error: "Configuração do servidor inválida." }, 
+        { error: "Configuração do servidor inválida." },
         { status: 500 }
       )
     }
-    
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -46,7 +46,7 @@ export async function POST() {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Não autorizado." }, 
+        { error: "Não autorizado." },
         { status: 401 }
       )
     }
@@ -60,14 +60,14 @@ export async function POST() {
 
     if (!profile?.stripe_customer_id) {
       return NextResponse.json(
-        { error: "Você ainda não possui uma assinatura." }, 
+        { error: "Você ainda não possui uma assinatura." },
         { status: 400 }
       )
     }
 
     // Criar sessão do Customer Portal
     const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    
+
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
       return_url: `${appUrl}/dashboard/conta`,
@@ -78,7 +78,7 @@ export async function POST() {
   } catch (error: any) {
     console.error("Portal session error:", error)
     return NextResponse.json(
-      { error: error.message || "Erro ao criar sessão do portal" }, 
+      { error: error.message || "Erro ao criar sessão do portal" },
       { status: 500 }
     )
   }

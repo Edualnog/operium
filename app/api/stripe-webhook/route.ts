@@ -2,7 +2,7 @@ import Stripe from "stripe"
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse, NextRequest } from "next/server"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder")
 
 // Desabilitar body parsing para esta rota (necessário para webhooks do Stripe)
 export const runtime = 'nodejs'
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   if (!signature) {
     return NextResponse.json(
-      { error: "Missing stripe-signature header" }, 
+      { error: "Missing stripe-signature header" },
       { status: 400 }
     )
   }
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
     console.error("STRIPE_WEBHOOK_SECRET não configurado")
     return NextResponse.json(
-      { error: "Webhook secret not configured" }, 
+      { error: "Webhook secret not configured" },
       { status: 500 }
     )
   }
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("Webhook signature verification failed:", err.message)
     return NextResponse.json(
-      { error: `Webhook error: ${err.message}` }, 
+      { error: `Webhook error: ${err.message}` },
       { status: 400 }
     )
   }
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE) {
     console.error("Supabase environment variables not configured")
     return NextResponse.json(
-      { error: "Server configuration error" }, 
+      { error: "Server configuration error" },
       { status: 500 }
     )
   }
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.created":
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription
-        
+
         // Mapear status do Stripe para nosso status
         let status = "inactive"
         switch (subscription.status) {

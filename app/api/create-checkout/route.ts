@@ -3,27 +3,27 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder")
 
 export async function POST() {
   try {
     const cookieStore = await cookies()
-    
+
     // Verificar variáveis de ambiente obrigatórias
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return NextResponse.json(
-        { error: "Configuração do servidor inválida." }, 
+        { error: "Configuração do servidor inválida." },
         { status: 500 }
       )
     }
 
     if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_PRICE_ID) {
       return NextResponse.json(
-        { error: "Configuração do Stripe inválida." }, 
+        { error: "Configuração do Stripe inválida." },
         { status: 500 }
       )
     }
-    
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -54,7 +54,7 @@ export async function POST() {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Não autorizado. Faça login primeiro.", redirect: "/login?redirect=checkout" }, 
+        { error: "Não autorizado. Faça login primeiro.", redirect: "/login?redirect=checkout" },
         { status: 401 }
       )
     }
@@ -69,7 +69,7 @@ export async function POST() {
     const activeStatuses = ["active", "trialing"]
     if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
       return NextResponse.json(
-        { error: "Você já possui uma assinatura ativa.", redirect: "/dashboard" }, 
+        { error: "Você já possui uma assinatura ativa.", redirect: "/dashboard" },
         { status: 400 }
       )
     }
@@ -127,7 +127,7 @@ export async function POST() {
   } catch (error: any) {
     console.error("Checkout error:", error)
     return NextResponse.json(
-      { error: error.message || "Erro ao criar sessão de checkout" }, 
+      { error: error.message || "Erro ao criar sessão de checkout" },
       { status: 500 }
     )
   }
