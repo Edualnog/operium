@@ -80,6 +80,39 @@ export async function middleware(request: NextRequest) {
       const { data: { user: authUser }, error } = await supabase.auth.getUser()
       if (!error && authUser) {
         user = authUser
+
+        // Verificar status do trial/assinatura para bloqueio
+        // Apenas se estiver tentando acessar dashboard
+        if (request.nextUrl.pathname.startsWith('/dashboard')) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('subscription_status, trial_start_date, stripe_customer_id')
+            .eq('id', authUser.id)
+            .single()
+
+          if (profile) {
+            const activeStatuses = ['active', 'trialing']
+            const hasActiveSubscription = profile.subscription_status && activeStatuses.includes(profile.subscription_status)
+
+            // Verificar trial
+            let isTrialValid = false
+            if (profile.trial_start_date) {
+              const startDate = new Date(profile.trial_start_date)
+              const now = new Date()
+              const endDate = new Date(startDate)
+              endDate.setDate(endDate.getDate() + 7)
+              isTrialValid = now < endDate
+            }
+
+            // Se não tem assinatura ativa E o trial acabou (ou nunca existiu), redirecionar para subscribe
+            // Mas permitir acesso às páginas de conta/configuração para poder assinar
+            const isSubPage = request.nextUrl.pathname.startsWith('/dashboard/conta')
+
+            if (!hasActiveSubscription && !isTrialValid && !isSubPage) {
+              return NextResponse.redirect(new URL('/subscribe', request.url))
+            }
+          }
+        }
       }
     } catch (error) {
       // Ignorar erros de autenticação no middleware

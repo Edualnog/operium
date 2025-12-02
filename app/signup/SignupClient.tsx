@@ -95,6 +95,7 @@ function SignupForm() {
             company_email: companyEmail || email,
             phone: phone || null,
             trial_start_date: new Date().toISOString(),
+            subscription_status: 'trialing',
           })
 
           if (redirectTo === "checkout") {

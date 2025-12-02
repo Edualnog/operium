@@ -125,15 +125,16 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     }
 
     if (hasStripeCustomer) {
-      // Fallback para quem já é cliente mas status não bateu
+      // Se tem customer ID mas não tem status ativo/trialing, provavelmente é um checkout incompleto ou cancelado
+      // Não devemos mostrar como Profissional
       return {
-        label: "Profissional",
-        color: "bg-green-500",
-        textColor: "text-green-700",
-        bgColor: "bg-green-50",
-        borderColor: "border-green-200",
-        icon: Crown,
-        description: "Acesso completo a todas as funcionalidades"
+        label: "Sem Plano",
+        color: "bg-slate-400",
+        textColor: "text-slate-700",
+        bgColor: "bg-slate-50",
+        borderColor: "border-slate-200",
+        icon: User,
+        description: "Assine para acessar todas as funcionalidades"
       }
     }
 
