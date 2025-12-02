@@ -171,7 +171,7 @@ export const MobileSidebar = ({
                 stiffness: 200
               }}
               className={cn(
-                "fixed h-full w-[280px] left-0 top-0 bg-white p-5 z-[100] flex flex-col shadow-2xl safe-area-inset",
+                "fixed h-full w-[280px] left-0 top-0 bg-white p-5 z-[100] flex flex-col shadow-2xl safe-area-inset md:hidden",
                 className
               )}
             >
