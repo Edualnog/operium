@@ -10,6 +10,7 @@ export interface SignaturePadRef {
   isEmpty: () => boolean
   toDataURL: (type?: string) => string
   toBlob: () => Promise<Blob | null>
+  fromDataURL: (dataURL: string) => void
 }
 
 interface SignaturePadProps {
@@ -174,11 +175,26 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
       })
     }
 
+    const fromDataURL = (dataURL: string) => {
+      const canvas = canvasRef.current
+      const ctx = canvas?.getContext("2d")
+      if (!canvas || !ctx) return
+
+      const image = new Image()
+      image.onload = () => {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+        setHasSignature(true)
+        onChange?.(false)
+      }
+      image.src = dataURL
+    }
+
     useImperativeHandle(ref, () => ({
       clear,
       isEmpty,
       toDataURL,
       toBlob,
+      fromDataURL,
     }))
 
     return (
@@ -189,9 +205,9 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
             width={width}
             height={height}
             className="w-full touch-none cursor-crosshair select-none"
-            style={{ 
-              maxWidth: "100%", 
-              height: "auto", 
+            style={{
+              maxWidth: "100%",
+              height: "auto",
               aspectRatio: `${width}/${height}`,
               minHeight: "150px"
             }}

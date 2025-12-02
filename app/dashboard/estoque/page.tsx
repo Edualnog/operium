@@ -1,4 +1,4 @@
-import { createServerComponentClient } from "@/lib/supabase-server"
+import { createServerComponentClient, getSupabaseUser } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import FerramentasList from "@/components/ferramentas/FerramentasList"
@@ -108,13 +108,9 @@ async function getColaboradores(userId: string) {
 
 export default async function EstoquePage() {
   try {
-    const supabase = await createServerComponentClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    const { user } = await getSupabaseUser()
 
-    if (authError || !user) {
+    if (!user) {
       redirect("/login")
     }
 

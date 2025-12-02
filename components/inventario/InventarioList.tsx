@@ -96,7 +96,7 @@ export default function InventarioList() {
 
       const { data, error } = await supabase
         .from("inventarios")
-        .select("*")
+        .select("id, descricao, data_inicio, data_fim, status, responsavel, escopo, categoria_filtro, observacoes, total_itens, itens_contados, total_divergencias, valor_divergencias, created_at")
         .eq("profile_id", user.id)
         .order("created_at", { ascending: false })
 

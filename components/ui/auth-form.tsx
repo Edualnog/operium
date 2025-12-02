@@ -17,6 +17,7 @@ const AuthForm: React.FC = () => {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [info, setInfo] = React.useState("")
+  const isDev = process.env.NODE_ENV === "development"
   const router = useRouter()
   const supabase = createClientComponentClient()
 
@@ -91,36 +92,69 @@ const AuthForm: React.FC = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/verify`,
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/verify`,
           },
         })
 
         if (error) {
-          setError(error.message || "Erro ao criar conta")
+          if (error.message.includes("already registered")) {
+            setError("Este email já está cadastrado. Tente fazer login.")
+          } else if (error.message.toLowerCase().includes("rate limit") || error.message.includes("429")) {
+            setError("Você atingiu o limite de tentativas. Por favor, aguarde alguns minutos e tente novamente.")
+          } else {
+            setError(error.message || "Erro ao criar conta")
+          }
           return
         }
 
         if (data.user) {
-          // Preencher perfil com dados da empresa
-          await supabase.from("profiles").upsert({
-            id: data.user.id,
-            name: companyName || data.user.email,
-            company_name: companyName || null,
-            cnpj: cnpj || null,
-            company_email: companyEmail || email,
-            phone: phone || null,
-          })
-          
           setError("")
-          
-          // Se houver sessão, confirmação de email está desabilitada - redireciona direto
-          if (data.session) {
+
+          const safeName = (companyName && companyName.trim()) || (data.user.email?.split("@")[0] ?? "Usuário")
+
+          if (isDev) {
+            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            })
+
+            if (loginError) {
+              setError(loginError.message || "Erro ao entrar automaticamente após cadastro.")
+              return
+            }
+
+            const userId = loginData.user?.id || data.user.id
+            if (userId) {
+              await supabase.from("profiles").upsert({
+                id: userId,
+                name: safeName,
+                company_name: companyName || null,
+                cnpj: cnpj || null,
+                company_email: companyEmail || email,
+                phone: phone || null,
+              })
+            }
+
             window.location.href = "/dashboard"
-          } else {
-            // Se não houver sessão, confirmação de email está habilitada - mostra mensagem
-            setInfo("Conta criada! Verifique seu email para confirmar e depois faça login.")
-            setIsLogin(true)
+            return
           }
+
+          if (data.session?.user) {
+            await supabase.from("profiles").upsert({
+              id: data.user.id,
+              name: safeName,
+              company_name: companyName || null,
+              cnpj: cnpj || null,
+              company_email: companyEmail || email,
+              phone: phone || null,
+            })
+
+            window.location.href = "/dashboard"
+            return
+          }
+
+          setInfo("Conta criada! Verifique seu e-mail para confirmar.")
+          setIsLogin(true)
         }
       }
     } catch (error: any) {

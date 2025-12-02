@@ -1,0 +1,13 @@
+.next
+node_modules
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+.DS_Store
+.git
+.gitignore
+Dockerfile*
+docker-compose*.yml
+*.log
+supabase/.branches
+supabase/.temp

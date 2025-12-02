@@ -1,13 +1,9 @@
 import { redirect } from "next/navigation"
-import { createServerComponentClient } from "@/lib/supabase-server"
+import { getSupabaseUser } from "@/lib/supabase-server"
 import LandingPage from "@/components/landing/LandingPage"
 
 export default async function MarketingPage() {
-  const supabase = await createServerComponentClient()
-  
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { supabase, user } = await getSupabaseUser()
 
   // Se usuário está logado, verificar status da assinatura
   if (user) {
@@ -30,4 +26,3 @@ export default async function MarketingPage() {
   // Usuário não logado - mostrar landing normal
   return <LandingPage isLoggedIn={false} hasSubscription={false} />
 }
-

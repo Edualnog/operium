@@ -522,6 +522,7 @@ export async function registrarEntrada(
       quantidade_disponivel: novaQuantidadeDisponivel,
     })
     .eq("id", ferramentaId)
+    .eq("profile_id", user.id) // Validação de segurança adicional
 
   if (updateError) throw updateError
 
@@ -597,6 +598,7 @@ export async function registrarRetirada(
         quantidade_disponivel: ferramenta.quantidade_disponivel - quantidade,
       })
       .eq("id", ferramentaId)
+      .eq("profile_id", user.id) // Validação de segurança adicional
 
     if (updateError) throw updateError
 
@@ -670,6 +672,7 @@ export async function registrarDevolucao(
       quantidade_disponivel: novaQuantidadeDisponivel,
     })
     .eq("id", ferramentaId)
+    .eq("profile_id", user.id) // Validação de segurança adicional
 
   if (updateError) throw updateError
 
@@ -739,6 +742,7 @@ export async function registrarEnvioConserto(
       estado: "em_conserto",
     })
     .eq("id", ferramentaId)
+    .eq("profile_id", user.id) // Validação de segurança adicional
 
   if (updateError) throw updateError
 
@@ -893,6 +897,7 @@ export async function registrarRetornoConserto(
     .from("consertos")
     .update(updateData)
     .eq("id", consertoId)
+    .eq("profile_id", user.id) // Validação de segurança adicional
 
   if (updateConsertoError) throw updateConsertoError
 
@@ -905,6 +910,7 @@ export async function registrarRetornoConserto(
       quantidade_disponivel: ferramenta.quantidade_disponivel + quantidade,
     })
     .eq("id", ferramenta.id)
+    .eq("profile_id", user.id) // Validação de segurança adicional
 
   if (updateFerramentaError) throw updateFerramentaError
 

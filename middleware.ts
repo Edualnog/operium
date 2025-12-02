@@ -1,6 +1,19 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+const getAuthCookieName = () => {
+  if (!supabaseUrl) return 'sb-auth-token'
+  try {
+    const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
+    return `sb-${projectRef}-auth-token`
+  } catch {
+    return 'sb-auth-token'
+  }
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
     request: {
@@ -8,9 +21,14 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Se Supabase não está configurado, seguir fluxo padrão sem tentativa de autenticação
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return response
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {
@@ -54,9 +72,53 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const hasSessionCookie = Boolean(request.cookies.get(getAuthCookieName()))
+  let user = null
+
+  if (hasSessionCookie) {
+    try {
+      const { data: { user: authUser }, error } = await supabase.auth.getUser()
+      if (!error && authUser) {
+        user = authUser
+
+        // Verificar status do trial/assinatura para bloqueio
+        // Apenas se estiver tentando acessar dashboard
+        if (request.nextUrl.pathname.startsWith('/dashboard')) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('subscription_status, trial_start_date, stripe_customer_id')
+            .eq('id', authUser.id)
+            .single()
+
+          if (profile) {
+            const activeStatuses = ['active', 'trialing']
+            const hasActiveSubscription = profile.subscription_status && activeStatuses.includes(profile.subscription_status)
+
+            // Verificar trial
+            let isTrialValid = false
+            if (profile.trial_start_date) {
+              const startDate = new Date(profile.trial_start_date)
+              const now = new Date()
+              const endDate = new Date(startDate)
+              endDate.setDate(endDate.getDate() + 7)
+              isTrialValid = now < endDate
+            }
+
+            // Se não tem assinatura ativa E o trial acabou (ou nunca existiu), redirecionar para subscribe
+            // Mas permitir acesso às páginas de conta/configuração para poder assinar
+            const isSubPage = request.nextUrl.pathname.startsWith('/dashboard/conta')
+
+            if (!hasActiveSubscription && !isTrialValid && !isSubPage) {
+              return NextResponse.redirect(new URL('/subscribe', request.url))
+            }
+          }
+        }
+      }
+    } catch (error) {
+      // Ignorar erros de autenticação no middleware
+      user = null
+    }
+  }
 
   const pathname = request.nextUrl.pathname
 

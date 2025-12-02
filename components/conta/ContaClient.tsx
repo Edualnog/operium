@@ -2,12 +2,12 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { 
-  User, 
-  Building2, 
-  CreditCard, 
-  Mail, 
-  Phone, 
+import {
+  User,
+  Building2,
+  CreditCard,
+  Mail,
+  Phone,
   Calendar,
   Crown,
   Zap,
@@ -21,6 +21,10 @@ import { Button } from "@/components/ui/button"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
+
+import { checkTrialStatus } from "@/lib/utils"
+
+// ... imports
 
 interface ContaClientProps {
   user: {
@@ -38,6 +42,7 @@ interface ContaClientProps {
     subscription_status?: string | null
     stripe_customer_id?: string | null
     created_at?: string | null
+    trial_start_date?: string | null
   } | null
 }
 
@@ -54,70 +59,93 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
 
   const subscriptionStatus = profile?.subscription_status || "inactive"
   const hasStripeCustomer = !!profile?.stripe_customer_id
+  const trialStatus = checkTrialStatus(profile?.trial_start_date)
 
   const getStatusInfo = () => {
-    switch (subscriptionStatus) {
-      case "active":
-        return {
-          label: "Profissional",
-          color: "bg-green-500",
-          textColor: "text-green-700",
-          bgColor: "bg-green-50",
-          borderColor: "border-green-200",
-          icon: Crown,
-          description: "Acesso completo a todas as funcionalidades"
-        }
-      case "trialing":
-        return {
-          label: "Teste Grátis",
-          color: "bg-blue-500",
-          textColor: "text-blue-700",
-          bgColor: "bg-blue-50",
-          borderColor: "border-blue-200",
-          icon: Zap,
-          description: "7 dias de acesso completo para experimentar"
-        }
-      case "past_due":
-        return {
-          label: "Pagamento Pendente",
-          color: "bg-amber-500",
-          textColor: "text-amber-700",
-          bgColor: "bg-amber-50",
-          borderColor: "border-amber-200",
-          icon: CreditCard,
-          description: "Atualize sua forma de pagamento"
-        }
-      case "canceled":
-        return {
-          label: "Cancelado",
-          color: "bg-red-500",
-          textColor: "text-red-700",
-          bgColor: "bg-red-50",
-          borderColor: "border-red-200",
-          icon: Shield,
-          description: "Sua assinatura foi cancelada"
-        }
-      default:
-        if (hasStripeCustomer) {
-          return {
-            label: "Profissional",
-            color: "bg-green-500",
-            textColor: "text-green-700",
-            bgColor: "bg-green-50",
-            borderColor: "border-green-200",
-            icon: Crown,
-            description: "Acesso completo a todas as funcionalidades"
-          }
-        }
-        return {
-          label: "Sem Plano",
-          color: "bg-slate-400",
-          textColor: "text-slate-700",
-          bgColor: "bg-slate-50",
-          borderColor: "border-slate-200",
-          icon: User,
-          description: "Assine para acessar todas as funcionalidades"
-        }
+    // Prioridade para status explícito do Stripe
+    if (subscriptionStatus === "active") {
+      return {
+        label: "Profissional",
+        color: "bg-green-500",
+        textColor: "text-green-700",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+        icon: Crown,
+        description: "Acesso completo a todas as funcionalidades"
+      }
+    }
+
+    if (subscriptionStatus === "trialing") {
+      return {
+        label: "Teste Grátis",
+        color: "bg-blue-500",
+        textColor: "text-blue-700",
+        bgColor: "bg-blue-50",
+        borderColor: "border-blue-200",
+        icon: Zap,
+        description: "7 dias de acesso completo para experimentar"
+      }
+    }
+
+    if (subscriptionStatus === "past_due") {
+      return {
+        label: "Pagamento Pendente",
+        color: "bg-amber-500",
+        textColor: "text-amber-700",
+        bgColor: "bg-amber-50",
+        borderColor: "border-amber-200",
+        icon: CreditCard,
+        description: "Atualize sua forma de pagamento"
+      }
+    }
+
+    if (subscriptionStatus === "canceled") {
+      return {
+        label: "Cancelado",
+        color: "bg-red-500",
+        textColor: "text-red-700",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        icon: Shield,
+        description: "Sua assinatura foi cancelada"
+      }
+    }
+
+    // Se não tem status do Stripe, verifica nosso trial interno
+    if (trialStatus.isInTrial) {
+      return {
+        label: "Teste Grátis",
+        color: "bg-blue-500",
+        textColor: "text-blue-700",
+        bgColor: "bg-blue-50",
+        borderColor: "border-blue-200",
+        icon: Zap,
+        description: `Restam ${trialStatus.daysRemaining} dias de acesso gratuito`
+      }
+    }
+
+    if (hasStripeCustomer) {
+      // Se tem customer ID mas não tem status ativo/trialing, provavelmente é um checkout incompleto ou cancelado
+      // Não devemos mostrar como Profissional
+      return {
+        label: "Sem Plano",
+        color: "bg-slate-400",
+        textColor: "text-slate-700",
+        bgColor: "bg-slate-50",
+        borderColor: "border-slate-200",
+        icon: User,
+        description: "Assine para acessar todas as funcionalidades"
+      }
+    }
+
+    return {
+      label: "Sem Plano",
+      color: "bg-slate-400",
+      textColor: "text-slate-700",
+      bgColor: "bg-slate-50",
+      borderColor: "border-slate-200",
+      icon: User,
+      description: "Assine para acessar todas as funcionalidades"
     }
   }
 
@@ -132,17 +160,41 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         headers: { "Content-Type": "application/json" },
       })
       const data = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Erro ao abrir portal")
       }
-      
+
       if (data.url) {
         window.location.href = data.url
       }
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Erro ao abrir gerenciamento de assinatura" })
       setPortalLoading(false)
+    }
+  }
+
+  const [subscribeLoading, setSubscribeLoading] = useState(false)
+
+  const handleSubscribe = async () => {
+    setSubscribeLoading(true)
+    try {
+      const response = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao iniciar checkout")
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (err: any) {
+      setMessage({ type: "error", text: err.message || "Erro ao iniciar assinatura" })
+      setSubscribeLoading(false)
     }
   }
 
@@ -227,7 +279,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             </div>
           </div>
 
-          {profile?.stripe_customer_id && (
+          {profile?.stripe_customer_id && (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? (
             <button
               onClick={handleManageSubscription}
               disabled={portalLoading}
@@ -235,6 +287,15 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             >
               {portalLoading ? "Abrindo..." : "Gerenciar assinatura"}
               <ExternalLink className="h-4 w-4" />
+            </button>
+          ) : (
+            <button
+              onClick={handleSubscribe}
+              disabled={subscribeLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {subscribeLoading ? "Processando..." : "Assinar Agora"}
+              <Crown className="h-4 w-4" />
             </button>
           )}
         </div>
@@ -289,7 +350,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200">
               <Calendar className="h-4 w-4 text-slate-400" />
               <span className="text-slate-700">
-                {user.created_at 
+                {user.created_at
                   ? format(new Date(user.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
                   : "Data não disponível"
                 }
@@ -356,11 +417,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
           </div>
 
           {message && (
-            <div className={`p-3 rounded-lg text-sm ${
-              message.type === "success" 
-                ? "bg-green-50 text-green-700 border border-green-200" 
-                : "bg-red-50 text-red-700 border border-red-200"
-            }`}>
+            <div className={`p-3 rounded-lg text-sm ${message.type === "success"
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-red-50 text-red-700 border border-red-200"
+              }`}>
               {message.text}
             </div>
           )}
