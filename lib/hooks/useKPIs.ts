@@ -136,7 +136,7 @@ export function useKPIs(userId: string) {
             if (ferramenta?.tipo_item !== "ferramenta") {
               return null
             }
-            
+
             // Verificar se foi devolvida
             const quantidadeRetirada = ret.quantidade || 1
 
@@ -280,33 +280,19 @@ export function useKPIs(userId: string) {
             return ferramenta?.tipo_item === "ferramenta"
           })
 
-          // Contabilizar por quantidade (unidades), não apenas por registros
+          // Contabilizar por quantidade (unidades)
           const totalRetiradas = retiradasColab.reduce(
             (acc, r) => acc + (r.quantidade || 1),
             0
           )
 
-          // Devoluções após a data da respectiva retirada
-          let totalDevolucoes = 0
-          retiradasColab.forEach((retirada) => {
-            const devolvidas = devolucoesColab
-              .filter((dev) => {
-                const devFerramenta = dev.ferramentas as any
-                return (
-                  dev.ferramenta_id === retirada.ferramenta_id &&
-                  dev.colaborador_id === retirada.colaborador_id &&
-                  devFerramenta?.tipo_item === "ferramenta" &&
-                  dev.data &&
-                  retirada.data &&
-                  new Date(dev.data) > new Date(retirada.data)
-                )
-              })
-              .reduce((acc, dev) => acc + (dev.quantidade || 1), 0)
-
-            totalDevolucoes += devolvidas
-          })
+          const totalDevolucoes = devolucoesColab.reduce(
+            (acc, d) => acc + (d.quantidade || 1),
+            0
+          )
 
           // Score baseado em unidades devolvidas vs retiradas
+          // Se totalRetiradas for 0, score é 100% (não deve nada)
           const score = totalRetiradas > 0
             ? Math.max(0, Math.min(100, (totalDevolucoes / totalRetiradas) * 100))
             : 100
@@ -316,7 +302,7 @@ export function useKPIs(userId: string) {
             nome: colab.nome,
             score,
             total_retiradas: totalRetiradas,
-            devolucoes_no_prazo: Math.min(totalDevolucoes, totalRetiradas),
+            devolucoes_no_prazo: totalDevolucoes, // Usando total de devoluções para alinhar com a lista
           }
         })
 
