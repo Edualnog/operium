@@ -63,12 +63,19 @@ export default function TermoResponsabilidadeModal({
 
   // Carregar assinatura inicial se existir
   useEffect(() => {
-    if (open && initialSignature && signaturePadRef.current) {
+    console.log("Modal Effect Triggered:", { open, hasInitialSig: !!initialSignature })
+    if (open && initialSignature) {
+      console.log("Tentando carregar assinatura...", initialSignature.substring(0, 50) + "...")
       // Pequeno delay para garantir que o canvas foi montado
       setTimeout(() => {
-        signaturePadRef.current?.fromDataURL(initialSignature)
-        setHasSignature(true)
-      }, 100)
+        if (signaturePadRef.current) {
+          console.log("Ref encontrada, carregando assinatura...")
+          signaturePadRef.current.fromDataURL(initialSignature)
+          setHasSignature(true)
+        } else {
+          console.error("Ref do SignaturePad não encontrada!")
+        }
+      }, 500) // Aumentando delay para 500ms para teste
     }
   }, [open, initialSignature])
 

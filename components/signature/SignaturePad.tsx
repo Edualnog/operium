@@ -186,6 +186,9 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
         setHasSignature(true)
         onChange?.(false)
       }
+      image.onerror = (err) => {
+        console.error("Erro ao carregar imagem da assinatura:", err)
+      }
       image.src = dataURL
     }
 
