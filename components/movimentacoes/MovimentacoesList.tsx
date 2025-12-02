@@ -584,7 +584,7 @@ export default function MovimentacoesList({
   }
 
   // Reimprimir termo de responsabilidade
-  const handleReprintTermo = async (movimentacao: any) => {
+  const handleReprintTermo = async (movimentacao: any, savedSignature?: string | null) => {
     if (!movimentacao.colaborador) return
 
     // Buscar dados completos do colaborador
@@ -593,16 +593,19 @@ export default function MovimentacoesList({
     const ferramentaCompleta = ferramentas.find(f => f.id === movimentacao.ferramenta?.id)
 
     if (colaboradorCompleto && movimentacao.ferramenta) {
-      // Buscar assinatura existente
-      let signature = null
-      try {
-        const sigRes = await fetch(`/api/colaboradores/assinatura?colaboradorId=${colaboradorCompleto.id}`)
-        if (sigRes.ok) {
-          const sigData = await sigRes.json()
-          signature = sigData.signature
+      // Buscar assinatura existente se não foi fornecida
+      let signature = savedSignature || null
+
+      if (!signature) {
+        try {
+          const sigRes = await fetch(`/api/colaboradores/assinatura?colaboradorId=${colaboradorCompleto.id}`)
+          if (sigRes.ok) {
+            const sigData = await sigRes.json()
+            signature = sigData.signature
+          }
+        } catch (err) {
+          console.error("Erro ao buscar assinatura:", err)
         }
-      } catch (err) {
-        console.error("Erro ao buscar assinatura:", err)
       }
 
       setMovimentacaoParaAssinar({

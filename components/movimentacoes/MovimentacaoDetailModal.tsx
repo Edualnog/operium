@@ -75,7 +75,7 @@ interface MovimentacaoDetailModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   movimentacaoId: string
-  onReprint?: (movimentacao: MovimentacaoDetalhada) => void
+  onReprint?: (movimentacao: MovimentacaoDetalhada, savedSignature?: string | null) => void
 }
 
 const tipoConfig = {
@@ -230,7 +230,7 @@ export default function MovimentacaoDetailModal({
 
   const handleReprint = () => {
     if (movimentacao && onReprint) {
-      onReprint(movimentacao)
+      onReprint(movimentacao, savedSignature)
     }
   }
 
