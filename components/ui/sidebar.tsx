@@ -120,7 +120,7 @@ export const MobileSidebar = ({
       {/* Mobile Header Bar */}
       <div
         className={cn(
-          "h-14 px-4 flex flex-row md:hidden items-center justify-between bg-white border-b border-zinc-200 w-full sticky top-0 z-40"
+          "h-14 px-4 flex flex-row md:hidden items-center justify-between bg-white/80 backdrop-blur-md border-b border-zinc-200 w-full sticky top-0 z-40"
         )}
         {...props}
       >
@@ -147,29 +147,47 @@ export const MobileSidebar = ({
 
         <AnimatePresence>
           {open && (
-            <motion.div
-              initial={{ x: "-100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{
-                duration: 0.3,
-                ease: "easeInOut",
-              }}
-              className={cn(
-                "fixed h-full w-full inset-0 bg-white p-5 z-[100] flex flex-col justify-between safe-area-inset",
-                className
-              )}
-            >
-              {/* Close button - larger touch target */}
-              <button
-                className="absolute right-4 top-4 p-2.5 rounded-lg hover:bg-zinc-100 active:bg-zinc-200 transition-colors touch-manipulation z-50"
-                onClick={() => setOpen(!open)}
-                aria-label="Fechar menu"
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-[90] md:hidden backdrop-blur-sm"
+                onClick={() => setOpen(false)}
+              />
+
+              {/* Sidebar Content */}
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 200
+                }}
+                className={cn(
+                  "fixed h-full w-[280px] left-0 top-0 bg-white p-5 z-[100] flex flex-col shadow-2xl safe-area-inset",
+                  className
+                )}
               >
-                <X className="h-6 w-6 text-foreground" />
-              </button>
-              {children}
-            </motion.div>
+                <div className="flex items-center justify-between mb-6">
+                  <span className="font-semibold text-lg">Menu</span>
+                  {/* Close button */}
+                  <button
+                    className="p-2 rounded-lg hover:bg-zinc-100 active:bg-zinc-200 transition-colors touch-manipulation"
+                    onClick={() => setOpen(!open)}
+                    aria-label="Fechar menu"
+                  >
+                    <X className="h-6 w-6 text-foreground" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  {children}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
