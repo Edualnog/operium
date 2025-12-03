@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Upload, X, Package, AlertCircle } from "lucide-react"
+import { Upload, X, Package, AlertCircle, Camera } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { checkBucketExists } from "@/lib/utils/storage"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { CameraCaptureModal } from "@/components/ui/camera-capture-modal"
 
 interface ProductPhotoUploadProps {
   currentPhotoUrl?: string | null
@@ -28,6 +29,7 @@ export function ProductPhotoUpload({
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
   const [verifying, setVerifying] = useState(false)
+  const [showCamera, setShowCamera] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClientComponentClient()
 
@@ -91,6 +93,21 @@ export function ProductPhotoUpload({
     await uploadPhoto(file)
   }
 
+  const handleCameraCapture = async (file: File) => {
+    if (bucketExists === false) {
+      alert(
+        "Bucket 'produtos-fotos' não encontrado no Supabase Storage. Crie o bucket e clique em verificar."
+      )
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => setPreview(reader.result as string)
+    reader.readAsDataURL(file)
+
+    await uploadPhoto(file)
+  }
+
   const uploadPhoto = async (file: File) => {
     try {
       setUploading(true)
@@ -103,7 +120,7 @@ export function ProductPhotoUpload({
 
       // Verificar se o usuário está autenticado
       const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser()
-      
+
       if (authError || !currentUser) {
         throw new Error("Você precisa estar autenticado para fazer upload de fotos. Por favor, faça login novamente.")
       }
@@ -251,8 +268,20 @@ export function ProductPhotoUpload({
               disabled={uploading || bucketExists === false || verifying}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {uploading ? "Enviando..." : preview ? "Alterar" : "Adicionar"}
+              {uploading ? "Enviando..." : preview ? "Alterar" : "Upload"}
             </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCamera(true)}
+              disabled={uploading || bucketExists === false || verifying}
+            >
+              <Camera className="h-4 w-4 mr-2" />
+              Foto
+            </Button>
+
             {preview && (
               <Button type="button" variant="outline" size="sm" onClick={handleRemove} disabled={uploading}>
                 <X className="h-4 w-4 mr-2" />
@@ -270,6 +299,12 @@ export function ProductPhotoUpload({
           className="hidden"
         />
       </div>
+
+      <CameraCaptureModal
+        isOpen={showCamera}
+        onClose={() => setShowCamera(false)}
+        onCapture={handleCameraCapture}
+      />
     </div>
   )
 }
