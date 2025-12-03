@@ -66,8 +66,9 @@ function SubscribeContent() {
           isInTrial = now < endDate
         }
 
-        // Se já tem assinatura ativa, passou pelo checkout OU está no trial, vai para dashboard
-        if (hasActiveSubscription || hasStripeCustomer || isInTrial) {
+        // Se já tem assinatura ativa (não trial), vai para dashboard
+        // Se estiver em trial, PERMITE ficar na página para fazer upgrade/assinar
+        if (hasActiveSubscription && !isInTrial) {
           router.push("/dashboard")
           return
         }
@@ -217,8 +218,8 @@ function SubscribeContent() {
                 <button
                   onClick={() => setPlan("mensal")}
                   className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${plan === "mensal"
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
                     }`}
                 >
                   Mensal
@@ -226,8 +227,8 @@ function SubscribeContent() {
                 <button
                   onClick={() => setPlan("anual")}
                   className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${plan === "anual"
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
                     }`}
                 >
                   Anual
