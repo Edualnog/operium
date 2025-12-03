@@ -43,27 +43,8 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
     checkTrial()
   }, [userId, supabase])
 
-  const handleCheckout = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao iniciar checkout")
-      }
-
-      if (data.url) {
-        window.location.href = data.url
-      }
-    } catch (err: any) {
-      console.error("Erro ao iniciar checkout:", err)
-      setLoading(false)
-    }
+  const handleCheckout = () => {
+    router.push("/subscribe")
   }
 
   // Não mostrar nada se já tem assinatura ativa
