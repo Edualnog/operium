@@ -41,6 +41,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
+import { ThemeToggle } from "@/components/ui/theme-toggle"
+
 export default function DashboardWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -266,26 +268,27 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
 
   return (
     <main
-      className="transition-all duration-300 bg-zinc-50/50 md:bg-white min-h-screen flex flex-col"
+      className="transition-all duration-300 bg-zinc-50/50 md:bg-white min-h-screen flex flex-col dark:bg-zinc-900 md:dark:bg-zinc-950"
       style={{
         marginLeft: isMobile ? "0" : `clamp(0px, ${width}px, 100%)`,
       }}
     >
       {/* Header com notificações */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-zinc-200 px-3 py-2 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-zinc-200 px-3 py-2 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8 dark:bg-zinc-950/95 dark:border-zinc-800">
         <div className="max-w-[1920px] mx-auto flex items-center justify-end gap-3">
+          <ThemeToggle />
           {userId && <NotificationBell userId={userId} />}
         </div>
       </header>
 
       {/* Main content with better mobile padding */}
-      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white md:bg-transparent w-full">
+      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white md:bg-transparent w-full dark:bg-zinc-950 md:dark:bg-transparent">
         {userId && <TrialCheckoutPrompt userId={userId} />}
         {children}
       </div>
 
       {/* Footer - more compact on mobile */}
-      <footer className="border-t border-zinc-200 bg-white py-3 md:py-4 mt-auto">
+      <footer className="border-t border-zinc-200 bg-white py-3 md:py-4 mt-auto dark:bg-zinc-950 dark:border-zinc-800">
         <div className="max-w-[1920px] mx-auto px-3 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 text-sm text-zinc-600">
             {/* Copyright - smaller on mobile */}

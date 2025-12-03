@@ -58,11 +58,13 @@
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-white text-zinc-900;
+    @apply bg-background text-foreground;
   }
+
   html {
-    @apply bg-white;
+    @apply bg-background;
   }
 }
 
@@ -110,4 +112,3 @@
 .rdp-button:active:not([disabled]) {
   background-color: hsl(var(--accent));
 }
-
