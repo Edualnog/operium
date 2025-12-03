@@ -2,26 +2,10 @@ import { NextResponse } from "next/server"
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { revalidatePath } from "next/cache"
+import { normalizeQuantity } from "./validation"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-// Garantir quantidade numérica positiva e normalizada
-export function normalizeQuantity(value: unknown) {
-  const qty = Number(value)
-
-  if (!Number.isFinite(qty) || qty <= 0) {
-    throw new Error("Quantidade deve ser um número maior que zero")
-  }
-
-  const normalized = Math.floor(qty)
-
-  if (normalized <= 0) {
-    throw new Error("Quantidade deve ser um número inteiro maior que zero")
-  }
-
-  return normalized
-}
 
 async function createApiClient() {
   const cookieStore = await cookies()

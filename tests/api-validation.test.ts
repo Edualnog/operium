@@ -1,8 +1,8 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { normalizeQuantity } from "../app/api/movimentacoes/route"
-import { resolveBucketName } from "../app/api/upload-photo/route"
+import { normalizeQuantity } from "../app/api/movimentacoes/validation"
+import { resolveBucketName } from "../app/api/upload-photo/helpers"
 
 test("normalizeQuantity aceita números positivos e arredonda para baixo", () => {
   assert.equal(normalizeQuantity(3.8), 3)
