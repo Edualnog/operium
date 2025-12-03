@@ -18,7 +18,7 @@ import {
   atualizarColaborador,
   deletarColaborador,
 } from "@/lib/actions"
-import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown, Grid3x3, Square, LayoutGrid, Shield, AlertTriangle, ChevronDown, ChevronUp, Download, History, TrendingUp, Upload } from "lucide-react"
+import { Plus, Search, Trash2, Edit, User, Mail, Phone, Calendar, MapPin, FileDown, Grid3x3, Square, LayoutGrid, Shield, AlertTriangle, ChevronDown, ChevronUp, Download, History, TrendingUp, Upload, ChevronLeft, ChevronRight } from "lucide-react"
 import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
@@ -65,6 +65,8 @@ interface EPIAtivo {
   data_retirada?: string
   dias_restantes?: number
 }
+
+const ITEMS_PER_PAGE = 35
 
 function ColaboradoresList({
   colaboradores: initialColaboradores,
@@ -207,6 +209,7 @@ function ColaboradoresList({
     ordenarPor: "nome",
     ordem: "asc",
   })
+  const [currentPage, setCurrentPage] = useState(1)
 
   const debouncedSearch = useDebounce(filters.search, 300)
 
@@ -297,6 +300,17 @@ function ColaboradoresList({
 
     return result
   }, [colaboradores, debouncedSearch, filters])
+
+  const totalPages = Math.ceil(filteredAndSortedColaboradores.length / ITEMS_PER_PAGE)
+  const paginatedColaboradores = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredAndSortedColaboradores.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredAndSortedColaboradores, currentPage])
+
+  // Resetar para página 1 quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch, filters])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -1267,9 +1281,9 @@ function ColaboradoresList({
           cardSize === "medio" && !sidebarOpen && "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
           cardSize === "medio" && sidebarOpen && "md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3",
           cardSize === "grande" && !sidebarOpen && "md:grid-cols-2 lg:grid-cols-3",
-          cardSize === "grande" && sidebarOpen && "md:grid-cols-2 lg:grid-cols-2"
+          cardSize === "grande" && "md:grid-cols-2"
         )}>
-          {filteredAndSortedColaboradores.map((colaborador) => {
+          {paginatedColaboradores.map((colaborador) => {
             const stats = movimentacoesStats[colaborador.id] || { retiradas: 0, devolucoes: 0, pendente: 0, retiradasFerramenta: 0, devolucoesFerramenta: 0 }
             const retiradasBase = stats.retiradasFerramenta ?? stats.retiradas
             const devolucoesBase = stats.devolucoesFerramenta ?? stats.devolucoes
@@ -1511,6 +1525,37 @@ function ColaboradoresList({
               </Card>
             )
           })}
+        </div>
+      )}
+
+      {/* Footer de Paginação */}
+      {filteredAndSortedColaboradores.length > 0 && (
+        <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
+          <div>
+            Mostrando {paginatedColaboradores.length} de {filteredAndSortedColaboradores.length} registros
+            {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
+          </div>
+          <div className="flex gap-1 items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-3 w-3" />
+            </Button>
+            <span className="min-w-[2rem] text-center">{currentPage}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+            >
+              <ChevronRight className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
       )}
 

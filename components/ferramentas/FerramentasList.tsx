@@ -43,6 +43,8 @@ import {
   Square,
   LayoutGrid,
   Upload,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { Card, CardContent } from "@/components/ui/card"
@@ -76,6 +78,8 @@ interface Colaborador {
   nome: string
 }
 
+const ITEMS_PER_PAGE = 35
+
 function FerramentasList({
   ferramentas: initialFerramentas,
   colaboradores,
@@ -97,6 +101,7 @@ function FerramentasList({
     ordenarPor: "nome",
     ordem: "asc",
   })
+  const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(filters.search, 300)
   const [open, setOpen] = useState(false)
   const [actionDialog, setActionDialog] = useState<{
@@ -261,6 +266,17 @@ function FerramentasList({
 
     return result
   }, [ferramentas, debouncedSearch, filters])
+
+  const totalPages = Math.ceil(filteredFerramentas.length / ITEMS_PER_PAGE)
+  const paginatedFerramentas = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredFerramentas.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredFerramentas, currentPage])
+
+  // Resetar para página 1 quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch, filters])
 
   const gerarCodigoLocal = (nome: string, tamanho?: string, cor?: string, tipo?: string) => {
     const tipoMap: Record<string, string> = {
@@ -780,7 +796,7 @@ function FerramentasList({
         cardSize === "medio" && "md:grid-cols-2 lg:grid-cols-3",
         cardSize === "grande" && "md:grid-cols-2"
       )}>
-        {filteredFerramentas.map((ferramenta) => (
+        {paginatedFerramentas.map((ferramenta) => (
           <Card key={ferramenta.id} className={cn(
             cardSize === "pequeno" && "hover:shadow-md transition-shadow",
             cardSize === "medio" && "hover:shadow-lg transition-shadow",
@@ -1031,6 +1047,37 @@ function FerramentasList({
           </Card>
         ))}
       </div>
+
+      {/* Footer de Paginação */}
+      {filteredFerramentas.length > 0 && (
+        <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
+          <div>
+            Mostrando {paginatedFerramentas.length} de {filteredFerramentas.length} registros
+            {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
+          </div>
+          <div className="flex gap-1 items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-3 w-3" />
+            </Button>
+            <span className="min-w-[2rem] text-center">{currentPage}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+            >
+              <ChevronRight className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {filteredFerramentas.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300">
