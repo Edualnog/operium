@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Upload, X, User, AlertCircle } from "lucide-react"
+import { Upload, X, User, AlertCircle, Camera } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { checkBucketExists } from "@/lib/utils/storage"
@@ -12,6 +12,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
+import { CameraCaptureModal } from "@/components/ui/camera-capture-modal"
 
 interface PhotoUploadProps {
   currentPhotoUrl?: string | null
@@ -31,6 +32,7 @@ export function PhotoUpload({
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
   const [verifying, setVerifying] = useState(false)
   const [lastUploadTime, setLastUploadTime] = useState<number>(0)
+  const [showCamera, setShowCamera] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClientComponentClient()
 
@@ -39,11 +41,11 @@ export function PhotoUpload({
     if (!userId) {
       return
     }
-    
+
     try {
       setVerifying(true)
       setBucketExists(null) // Mostrar loading
-      
+
       const exists = await checkBucketExists(supabase, "colaboradores-fotos")
       setBucketExists(exists)
     } catch (error: any) {
@@ -135,17 +137,38 @@ export function PhotoUpload({
     await uploadPhoto(file)
   }
 
+  const handleCameraCapture = async (file: File) => {
+    // Verificar se o bucket existe antes de continuar
+    if (bucketExists === false) {
+      alert(
+        "Bucket 'colaboradores-fotos' não encontrado no Supabase Storage.\n\n" +
+        "Por favor, crie o bucket primeiro seguindo as instruções exibidas acima."
+      )
+      return
+    }
+
+    // Criar preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setPreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    // Upload para Supabase Storage
+    await uploadPhoto(file)
+  }
+
   const uploadPhoto = async (file: File) => {
     // Criar uma nova instância do cliente Supabase para cada upload
     // Isso evita problemas de conexão HTTP/2 reutilizada
     const freshSupabase = createClientComponentClient()
-    
+
     try {
       setUploading(true)
 
       // Verificar se o usuário está autenticado
       const { data: { user: currentUser }, error: authError } = await freshSupabase.auth.getUser()
-      
+
       if (authError || !currentUser) {
         throw new Error("Você precisa estar autenticado para fazer upload de fotos. Por favor, faça login novamente.")
       }
@@ -181,7 +204,7 @@ export function PhotoUpload({
       // Verificar se as variáveis de ambiente estão configuradas
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      
+
       if (!supabaseUrl || !supabaseKey) {
         throw new Error(
           "Configuração do Supabase não encontrada. " +
@@ -241,7 +264,7 @@ export function PhotoUpload({
       } else {
         // Tentar upload direto primeiro
         console.log("Iniciando upload direto da foto...", { filePath, fileName })
-        
+
         try {
           // Upload direto para Supabase Storage (com timeout de 60 segundos - mais generoso)
           // Usar freshSupabase para evitar problemas de conexão HTTP/2 reutilizada
@@ -304,7 +327,7 @@ export function PhotoUpload({
               console.log("Erro HTTP2/CORS detectado, tentando upload via API route...")
               throw new Error("HTTP2_ERROR") // Marca para tentar via API
             }
-            
+
             // Outros erros
             throw uploadError
           }
@@ -318,10 +341,10 @@ export function PhotoUpload({
           setLastUploadTime(Date.now())
         } catch (directUploadError: any) {
           // Se falhou por HTTP2, CORS, timeout ou API route falhou, tentar via API route
-          const shouldTryApiRoute = 
-            directUploadError.message === "HTTP2_ERROR" || 
+          const shouldTryApiRoute =
+            directUploadError.message === "HTTP2_ERROR" ||
             directUploadError.message === "API_ROUTE_FAILED" ||
-            directUploadError.message?.includes("Failed to fetch") || 
+            directUploadError.message?.includes("Failed to fetch") ||
             directUploadError.message?.includes("timeout") ||
             directUploadError.message?.includes("HTTP2") ||
             directUploadError.message?.includes("protocol_error") ||
@@ -331,7 +354,7 @@ export function PhotoUpload({
           if (shouldTryApiRoute) {
             try {
               console.log("Fazendo upload via API route (fallback)...")
-              
+
               const formData = new FormData()
               formData.append("file", file)
               if (colaboradorId) {
@@ -360,7 +383,7 @@ export function PhotoUpload({
             } catch (apiError: any) {
               // Se ambos os métodos falharam, lançar erro
               throw new Error(
-                "Erro ao fazer upload (tentativas via direto e API falharam): " + 
+                "Erro ao fazer upload (tentativas via direto e API falharam): " +
                 (directUploadError.message || apiError?.message || "Erro desconhecido") +
                 "\n\nVerifique:\n" +
                 "1. Se o bucket 'colaboradores-fotos' existe no Supabase\n" +
@@ -384,12 +407,12 @@ export function PhotoUpload({
       console.log("Callback executado com sucesso")
     } catch (error: any) {
       console.error("Erro ao fazer upload:", error)
-      
+
       // Melhorar mensagem de erro baseado no tipo
       let errorMessage = "Erro desconhecido ao fazer upload da foto."
-      
+
       if (error.message?.includes("timeout") || error.message?.includes("Timeout")) {
-        errorMessage = 
+        errorMessage =
           "Upload timeout: A operação demorou muito tempo.\n\n" +
           "Possíveis causas:\n" +
           "1. Conexão de internet lenta\n" +
@@ -399,7 +422,7 @@ export function PhotoUpload({
       } else if (error.message) {
         errorMessage = error.message
       } else if (error.name === "TypeError" && error.message?.includes("fetch")) {
-        errorMessage = 
+        errorMessage =
           "Erro de conexão (Failed to fetch). " +
           "Possíveis causas:\n" +
           "1. CORS não configurado no Supabase (Settings > API > Allowed CORS origins)\n" +
@@ -407,7 +430,7 @@ export function PhotoUpload({
           "3. Problema de rede ou firewall\n" +
           "4. Variáveis de ambiente não configuradas corretamente"
       }
-      
+
       alert(`Erro ao fazer upload da foto: ${errorMessage}`)
       setPreview(null)
       if (fileInputRef.current) {
@@ -431,7 +454,7 @@ export function PhotoUpload({
   return (
     <div className="space-y-2">
       <Label className="text-sm font-medium">Foto do Colaborador</Label>
-      
+
       {/* Alerta se o bucket não existir */}
       {bucketExists === false && (
         <Alert variant="destructive" className="mb-4 border-2 border-red-300">
@@ -509,8 +532,20 @@ export function PhotoUpload({
               title={bucketExists === false ? "Configure o bucket no Supabase primeiro" : verifying ? "Verificando bucket..." : ""}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {uploading ? "Enviando..." : preview ? "Alterar" : "Adicionar Foto"}
+              {uploading ? "Enviando..." : preview ? "Alterar" : "Upload"}
             </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCamera(true)}
+              disabled={uploading || bucketExists === false || verifying}
+            >
+              <Camera className="h-4 w-4 mr-2" />
+              Foto
+            </Button>
+
             {preview && (
               <Button
                 type="button"
@@ -536,6 +571,12 @@ export function PhotoUpload({
           className="hidden"
         />
       </div>
+
+      <CameraCaptureModal
+        isOpen={showCamera}
+        onClose={() => setShowCamera(false)}
+        onCapture={handleCameraCapture}
+      />
     </div>
   )
 }
