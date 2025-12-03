@@ -54,7 +54,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   useEffect(() => {
     async function fetchConsumoPorPeriodo() {
       if (!userId) return
-      
+
       setLoadingConsumo(true)
       try {
         const supabase = createClientComponentClient()
@@ -80,7 +80,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           const ferramenta = mov.ferramentas as any
           // Filtrar apenas consumíveis
           if (ferramenta?.tipo_item !== "consumivel") return
-          
+
           const id = mov.ferramenta_id
           if (!consumoPorItem[id]) {
             consumoPorItem[id] = {
@@ -116,7 +116,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   useEffect(() => {
     async function fetchItensComprarUrgente() {
       if (!userId) return
-      
+
       setLoadingItensUrgente(true)
       try {
         const supabase = createClientComponentClient()
@@ -212,7 +212,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   useEffect(() => {
     async function fetchFerramentasPorPeriodo() {
       if (!userId) return
-      
+
       setLoadingFerramentas(true)
       try {
         const supabase = createClientComponentClient()
@@ -238,7 +238,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           const ferramenta = mov.ferramentas as any
           // Filtrar apenas ferramentas (não consumíveis)
           if (ferramenta?.tipo_item === "consumivel") return
-          
+
           const id = mov.ferramenta_id
           if (!saidasPorFerramenta[id]) {
             saidasPorFerramenta[id] = {
@@ -270,7 +270,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   useEffect(() => {
     async function fetchMovimentacoesMensais() {
       if (!userId) return
-      
+
       setLoadingMovMensais(true)
       try {
         const supabase = createClientComponentClient()
@@ -334,7 +334,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         }
 
         setMovimentacoesMensais(resultado)
-        
+
         // Debug: Log para verificar os dados
         console.log('📊 Movimentações Mensais:', {
           totalMovimentacoes: movimentacoes?.length || 0,
@@ -356,10 +356,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   useEffect(() => {
     async function calcularStatus() {
       if (!userId) return
-      
+
       try {
         const supabase = createClientComponentClient()
-        
+
         // Buscar todas as ferramentas
         const { data: ferramentas, error: ferrError } = await supabase
           .from("ferramentas")
@@ -381,7 +381,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
         // Calcular unidades em conserto por ferramenta (descontando as que já retornaram)
         const unidadesEmConserto: Record<string, number> = {}
-        
+
         if (consertosAtivos && consertosAtivos.length > 0) {
           for (const conserto of consertosAtivos) {
             const dataEnvioRef = conserto.data_envio || new Date().toISOString()
@@ -446,9 +446,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             }
 
             const quantidadeAindaEmConserto = quantidadeEnviada - quantidadeJaRetornada
-            
+
             if (quantidadeAindaEmConserto > 0) {
-              unidadesEmConserto[conserto.ferramenta_id] = 
+              unidadesEmConserto[conserto.ferramenta_id] =
                 (unidadesEmConserto[conserto.ferramenta_id] || 0) + quantidadeAindaEmConserto
             }
           }
@@ -465,9 +465,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           const qtdTotal = f.quantidade_total || 0
           const qtdDisponivel = f.quantidade_disponivel || 0
           const qtdEmConserto = unidadesEmConserto[f.id] || 0
-          
+
           totalUnidades += qtdTotal
-          
+
           // Unidades danificadas (estado = "danificada") - toda a quantidade vai para manutenção
           if (f.estado === "danificada") {
             totalManutencao += qtdTotal
@@ -475,11 +475,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           } else {
             // Unidades em conserto
             totalManutencao += qtdEmConserto
-            
+
             // O restante: quantidade_total - quantidade_disponivel - qtdEmConserto = em uso
             // quantidade_disponivel já descontou as que estão em conserto
             const qtdRealEmUso = qtdTotal - qtdDisponivel - qtdEmConserto
-            
+
             totalDisponiveis += qtdDisponivel
             totalEmUso += Math.max(0, qtdRealEmUso) // Não pode ser negativo
           }
@@ -552,7 +552,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-6 text-center sm:text-left">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">
           Almox Fácil
         </h1>
@@ -616,79 +616,77 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     <div className="w-full h-px bg-zinc-100"></div>
                     <div className="w-full h-px bg-zinc-200 border-t border-zinc-300"></div>
                   </div>
-                  
+
                   <div className="h-48 flex items-end gap-1 sm:gap-2 relative z-10">
-                  {movimentacoesMensais.map((item, index) => {
-                    const maxValue = Math.max(
-                      ...movimentacoesMensais.map(m => Math.max(m.entradas, m.saidas)),
-                      1
-                    )
-                    const heightEntradas = (item.entradas / maxValue) * 100
-                    const heightSaidas = (item.saidas / maxValue) * 100
-                    const totalMovimentacoes = item.entradas + item.saidas
-                    const temDados = totalMovimentacoes > 0
-                    
-                    return (
-                      <div 
-                        key={index} 
-                        className="flex-1 flex flex-col items-center gap-1 h-full group relative animate-in fade-in slide-in-from-bottom-4"
-                        style={{ animationDelay: `${index * 50}ms`, animationDuration: '500ms', animationFillMode: 'backwards' }}
-                      >
-                        {/* Tooltip */}
-                        {temDados && (
-                          <div className="absolute bottom-full mb-2 hidden group-hover:block z-10 pointer-events-none">
-                            <div className="bg-zinc-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                              <div className="font-semibold mb-1.5 border-b border-zinc-700 pb-1.5">{item.mes}</div>
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                  <span>Entradas: <strong>{item.entradas}</strong></span>
+                    {movimentacoesMensais.map((item, index) => {
+                      const maxValue = Math.max(
+                        ...movimentacoesMensais.map(m => Math.max(m.entradas, m.saidas)),
+                        1
+                      )
+                      const heightEntradas = (item.entradas / maxValue) * 100
+                      const heightSaidas = (item.saidas / maxValue) * 100
+                      const totalMovimentacoes = item.entradas + item.saidas
+                      const temDados = totalMovimentacoes > 0
+
+                      return (
+                        <div
+                          key={index}
+                          className="flex-1 flex flex-col items-center gap-1 h-full group relative animate-in fade-in slide-in-from-bottom-4"
+                          style={{ animationDelay: `${index * 50}ms`, animationDuration: '500ms', animationFillMode: 'backwards' }}
+                        >
+                          {/* Tooltip */}
+                          {temDados && (
+                            <div className="absolute bottom-full mb-2 hidden group-hover:block z-10 pointer-events-none">
+                              <div className="bg-zinc-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                                <div className="font-semibold mb-1.5 border-b border-zinc-700 pb-1.5">{item.mes}</div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                    <span>Entradas: <strong>{item.entradas}</strong></span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-rose-500" />
+                                    <span>Saídas: <strong>{item.saidas}</strong></span>
+                                  </div>
+                                  <div className="flex items-center gap-2 pt-1 mt-1 border-t border-zinc-700">
+                                    <span>Total: <strong>{totalMovimentacoes}</strong></span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-rose-500" />
-                                  <span>Saídas: <strong>{item.saidas}</strong></span>
-                                </div>
-                                <div className="flex items-center gap-2 pt-1 mt-1 border-t border-zinc-700">
-                                  <span>Total: <strong>{totalMovimentacoes}</strong></span>
-                                </div>
+                                {/* Seta do tooltip */}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-zinc-900" />
                               </div>
-                              {/* Seta do tooltip */}
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-zinc-900" />
                             </div>
-                          </div>
-                        )}
-                        
-                        <div className="w-full flex flex-col-reverse gap-0.5 justify-end transition-all duration-300" style={{ height: '12rem' }}>
-                          {/* Indicador de "sem dados" */}
-                          {!temDados && (
-                            <div className="w-full h-1 bg-zinc-100 rounded-full opacity-50" />
                           )}
-                          
-                          {/* Barra de Saídas (vermelho) */}
-                          <div 
-                            className={`w-full bg-gradient-to-t from-rose-500 to-rose-400 rounded-t-sm transition-all duration-300 hover:from-rose-600 hover:to-rose-500 hover:shadow-lg hover:scale-105 ${
-                              item.saidas === 0 ? 'opacity-0' : 'opacity-100'
-                            }`}
-                            style={{ height: `${heightSaidas}%` }}
-                          />
-                          {/* Barra de Entradas (verde) */}
-                          <div 
-                            className={`w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm transition-all duration-300 hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:scale-105 ${
-                              item.entradas === 0 ? 'opacity-0' : 'opacity-100'
-                            }`}
-                            style={{ height: `${heightEntradas}%` }}
-                          />
+
+                          <div className="w-full flex flex-col-reverse gap-0.5 justify-end transition-all duration-300" style={{ height: '12rem' }}>
+                            {/* Indicador de "sem dados" */}
+                            {!temDados && (
+                              <div className="w-full h-1 bg-zinc-100 rounded-full opacity-50" />
+                            )}
+
+                            {/* Barra de Saídas (vermelho) */}
+                            <div
+                              className={`w-full bg-gradient-to-t from-rose-500 to-rose-400 rounded-t-sm transition-all duration-300 hover:from-rose-600 hover:to-rose-500 hover:shadow-lg hover:scale-105 ${item.saidas === 0 ? 'opacity-0' : 'opacity-100'
+                                }`}
+                              style={{ height: `${heightSaidas}%` }}
+                            />
+                            {/* Barra de Entradas (verde) */}
+                            <div
+                              className={`w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm transition-all duration-300 hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:scale-105 ${item.entradas === 0 ? 'opacity-0' : 'opacity-100'
+                                }`}
+                              style={{ height: `${heightEntradas}%` }}
+                            />
+                          </div>
+                          <span className={`text-[10px] sm:text-xs transition-colors ${temDados ? 'text-zinc-700 font-medium' : 'text-zinc-400'}`}>
+                            {item.mes}
+                          </span>
                         </div>
-                        <span className={`text-[10px] sm:text-xs transition-colors ${temDados ? 'text-zinc-700 font-medium' : 'text-zinc-400'}`}>
-                          {item.mes}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
-              
+
               {/* Estatísticas do período */}
               {!loadingMovMensais && movimentacoesMensais.length > 0 && (
                 <div className="mt-6 pt-4 border-t border-zinc-100">
@@ -741,7 +739,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <span className="text-zinc-900 font-semibold">{statusFerramentas.disponiveis}%</span>
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-green-500 rounded-full transition-all duration-500"
                     style={{ width: `${statusFerramentas.disponiveis}%` }}
                   />
@@ -755,7 +753,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <span className="text-zinc-900 font-semibold">{statusFerramentas.emUso}%</span>
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-blue-500 rounded-full transition-all duration-500"
                     style={{ width: `${statusFerramentas.emUso}%` }}
                   />
@@ -769,7 +767,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <span className="text-zinc-900 font-semibold">{statusFerramentas.manutencao}%</span>
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-amber-500 rounded-full transition-all duration-500"
                     style={{ width: `${statusFerramentas.manutencao}%` }}
                   />
@@ -907,7 +905,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge 
+                          <Badge
                             variant={index === 0 ? "destructive" : index === 1 ? "default" : "secondary"}
                             className="text-xs font-semibold"
                           >
@@ -927,11 +925,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                           {item.ponto_ressuprimento > 0 && (
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Estoque:</span>
-                              <span className={`text-xs font-medium ${
-                                item.quantidade_disponivel <= item.ponto_ressuprimento 
-                                  ? "text-red-600" 
+                              <span className={`text-xs font-medium ${item.quantidade_disponivel <= item.ponto_ressuprimento
+                                  ? "text-red-600"
                                   : "text-zinc-700"
-                              }`}>
+                                }`}>
                                 {item.quantidade_disponivel} / Mín: {item.ponto_ressuprimento}
                               </span>
                             </div>
@@ -982,10 +979,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <p className="text-sm text-zinc-500">Carregando dados...</p>
                 </div>
               ) : (() => {
-                const itemsFonte = ferramentasPorPeriodo.length > 0 
-                  ? ferramentasPorPeriodo 
+                const itemsFonte = ferramentasPorPeriodo.length > 0
+                  ? ferramentasPorPeriodo
                   : data.topFerramentasUtilizadas.slice(0, 3)
-                
+
                 if (itemsFonte.length === 0) {
                   return (
                     <p className="text-sm text-zinc-500 text-center py-8">
@@ -993,7 +990,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     </p>
                   )
                 }
-                
+
                 return (
                   <div className="space-y-2">
                     {itemsFonte.map((item, index) => (
@@ -1014,8 +1011,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Saídas:</span>
                               <Badge variant="outline" className="font-semibold text-xs">
-                    {item.total_saidas}
-                  </Badge>
+                                {item.total_saidas}
+                              </Badge>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Categoria:</span>
@@ -1071,10 +1068,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             <CardContent className="pt-4">
               {(() => {
                 const rankingItems = data.rankingResponsabilidade.map((item) => ({
-              ...item,
-              id: item.colaborador_id || item.nome,
+                  ...item,
+                  id: item.colaborador_id || item.nome,
                 }))
-                
+
                 // Ordenar e pegar os melhores ou piores
                 const sortedItems = [...rankingItems].sort((a, b) => {
                   if (rankingView === "melhores") {
@@ -1083,9 +1080,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     return a.score - b.score // Menor score primeiro
                   }
                 })
-                
+
                 const displayItems = sortedItems.slice(0, 3)
-                
+
                 if (displayItems.length === 0) {
                   return (
                     <p className="text-sm text-zinc-500 text-center py-8">
@@ -1093,7 +1090,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     </p>
                   )
                 }
-                
+
                 return (
                   <div className="space-y-2">
                     {displayItems.map((item, index) => (
@@ -1113,12 +1110,12 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                           <div className="flex flex-wrap items-center gap-3 mt-2">
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Score:</span>
-                  <Badge
-                    variant={item.score >= 80 ? "default" : item.score >= 60 ? "secondary" : "destructive"}
+                              <Badge
+                                variant={item.score >= 80 ? "default" : item.score >= 60 ? "secondary" : "destructive"}
                                 className="font-semibold text-xs"
-                  >
-                    {item.score.toFixed(0)}%
-                  </Badge>
+                              >
+                                {item.score.toFixed(0)}%
+                              </Badge>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Retiradas:</span>
@@ -1170,9 +1167,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 render: (item) =>
                   item.prazo_devolucao
                     ? formatDistanceToNow(new Date(item.prazo_devolucao), {
-                        addSuffix: true,
-                        locale: ptBR,
-                      })
+                      addSuffix: true,
+                      locale: ptBR,
+                    })
                     : "Sem prazo",
               },
             ]}
@@ -1226,23 +1223,23 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <p className="text-sm text-zinc-500">Carregando dados...</p>
               </div>
             ) : (
-        <KpiChart
+              <KpiChart
                 title=""
                 description=""
                 data={(() => {
                   // Usar dados do período selecionado ou fallback para dados padrão
-                  const dadosFonte = consumoPorPeriodo.length > 0 
+                  const dadosFonte = consumoPorPeriodo.length > 0
                     ? consumoPorPeriodo.map(item => ({
-                        nome: item.nome || "",
-                        consumo_30d: item.consumo || 0,
-                        id: item.id,
-                      }))
+                      nome: item.nome || "",
+                      consumo_30d: item.consumo || 0,
+                      id: item.id,
+                    }))
                     : data.itensMaiorConsumo.map(item => ({
-                        nome: item.nome || "",
-                        consumo_30d: item.consumo_30d || 0,
-                        id: item.id,
-                      }))
-                  
+                      nome: item.nome || "",
+                      consumo_30d: item.consumo_30d || 0,
+                      id: item.id,
+                    }))
+
                   // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
                   const dados = [...dadosFonte]
                   while (dados.length < 10) {
@@ -1254,12 +1251,12 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   }
                   return dados.slice(0, 10)
                 })()}
-          type="bar"
-          dataKey="consumo_30d"
-          xAxisKey="nome"
-          color="#3b82f6"
-          height={320}
-        />
+                type="bar"
+                dataKey="consumo_30d"
+                xAxisKey="nome"
+                color="#3b82f6"
+                height={320}
+              />
             )}
           </CardContent>
         </Card>
@@ -1419,8 +1416,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     item.prioridade === "alta"
                       ? "destructive"
                       : item.prioridade === "media"
-                      ? "secondary"
-                      : "outline"
+                        ? "secondary"
+                        : "outline"
                   }
                   className="font-semibold"
                 >
@@ -1452,7 +1449,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   score: r.score,
                   id: r.id,
                 }))
-              
+
               // Sempre mostrar 10 colunas, preenchendo com itens vazios se necessário
               const dados = [...dadosReais]
               while (dados.length < 10) {

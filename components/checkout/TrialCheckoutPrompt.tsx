@@ -100,13 +100,13 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
   // Mostrar aviso sempre que estiver no trial ou acabou
   return (
     <Alert className={`mb-6 ${alertStyles}`}>
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
         {trialInfo.trialEnded ? (
-          <AlertCircle className={`h-5 w-5 mt-0.5 ${iconStyles}`} />
+          <AlertCircle className={`h-8 w-8 sm:h-5 sm:w-5 mt-0.5 ${iconStyles}`} />
         ) : (
-          <Clock className={`h-5 w-5 mt-0.5 ${iconStyles}`} />
+          <Clock className={`h-8 w-8 sm:h-5 sm:w-5 mt-0.5 ${iconStyles}`} />
         )}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <AlertTitle className={`font-semibold text-lg ${titleStyles}`}>
             {trialInfo.trialEnded
               ? "Seu período de teste grátis acabou"
@@ -115,7 +115,7 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
                 : `Faltam ${trialInfo.daysRemaining} dias do seu teste grátis`}
           </AlertTitle>
           <AlertDescription className={`mt-2 ${descStyles}`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col items-center sm:items-start sm:flex-row sm:justify-between gap-4">
               <p>
                 {trialInfo.trialEnded
                   ? "Para continuar usando todas as funcionalidades, ative sua assinatura agora."
@@ -124,7 +124,7 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
               <Button
                 onClick={handleCheckout}
                 disabled={loading}
-                className={`${buttonStyles} text-white whitespace-nowrap`}
+                className={`${buttonStyles} text-white whitespace-nowrap w-full sm:w-auto`}
                 size="sm"
               >
                 {loading ? (
