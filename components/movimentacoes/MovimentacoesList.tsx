@@ -1118,8 +1118,45 @@ export default function MovimentacoesList({
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          Nenhuma movimentação encontrada
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300">
+          <div className="bg-blue-50 p-4 rounded-full mb-4">
+            <RotateCcw className="h-10 w-10 text-blue-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2">
+            {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
+              ? "Nenhuma movimentação encontrada"
+              : "Nenhuma movimentação registrada"}
+          </h3>
+          <p className="text-zinc-500 max-w-sm mb-6">
+            {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
+              ? "Tente ajustar os filtros ou buscar por outro termo."
+              : "Registre entradas, saídas e devoluções para manter o histórico do seu almoxarifado sempre atualizado."}
+          </p>
+          {!(search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim) && (
+            <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="mr-2 h-4 w-4" />
+              Registrar Movimentação
+            </Button>
+          )}
+          {(search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim) && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearch("")
+                setFilters({
+                  tipo: "todos",
+                  dataInicio: null,
+                  dataFim: null,
+                  produtoId: "",
+                  colaboradorId: "",
+                })
+                setPeriodoRapido(null)
+                setDataSelecionada("")
+              }}
+            >
+              Limpar Filtros
+            </Button>
+          )}
         </div>
       )}
 
