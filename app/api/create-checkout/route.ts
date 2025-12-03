@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     let priceId = process.env.STRIPE_PRICE_ID // Default (mensal ou o que estiver configurado)
 
     if (plan === "anual") {
-      priceId = "price_1SaE6kGzXnyQEqRwIIX19uxm"
+      priceId = "price_1SaFQ9GzXnyQEqRwYtTy0EUF"
     } else if (plan === "mensal") {
       priceId = "price_1SaEi1GzXnyQEqRweQLZoPWp"
     }

@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         // Determinar o tipo de plano
         let planType = "mensal" // Default
         const priceId = subscription.items.data[0]?.price.id
-        if (priceId === "price_1SaE6kGzXnyQEqRwIIX19uxm") {
+        if (priceId === "price_1SaFQ9GzXnyQEqRwYtTy0EUF") {
           planType = "anual"
         } else if (priceId === "price_1SaEi1GzXnyQEqRweQLZoPWp") {
           planType = "mensal"
