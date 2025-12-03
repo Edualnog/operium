@@ -84,7 +84,7 @@ function FerramentasList({
   colaboradores: Colaborador[]
 }) {
   const [ferramentas, setFerramentas] = useState(initialFerramentas)
-  
+
   // Atualizar estado quando initialFerramentas mudar (após router.refresh)
   useEffect(() => {
     setFerramentas(initialFerramentas)
@@ -105,7 +105,7 @@ function FerramentasList({
   } | null>(null)
   const [editing, setEditing] = useState<Ferramenta | null>(null)
   const [loading, setLoading] = useState(false)
-  
+
   // Tamanho dos cards (pequeno, medio, grande)
   const [cardSize, setCardSize] = useState<"pequeno" | "medio" | "grande">(() => {
     if (typeof window !== "undefined") {
@@ -174,16 +174,16 @@ function FerramentasList({
         const row = data[i]
         try {
           const formData = new FormData()
-          
+
           // Se quantidade_disponivel não foi informada, usar quantidade_total
           if (!row.quantidade_disponivel && row.quantidade_total) {
             row.quantidade_disponivel = row.quantidade_total
           }
-          
+
           // Valores padrão
           if (!row.estado) row.estado = "ok"
           if (!row.tipo_item) row.tipo_item = "ferramenta"
-          
+
           Object.entries(row).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== "") {
               formData.append(key, value.toString())
@@ -293,7 +293,7 @@ function FerramentasList({
       const tamanho = formData.get("tamanho")?.toString() || ""
       const cor = formData.get("cor")?.toString() || ""
       const tipo = formData.get("tipo_item")?.toString() || tipoItem || "ferramenta"
-      
+
       // Garantir que os valores dos campos hidden estejam corretos
       formData.set("tipo_item", tipo)
       if (!formData.get("estado")) {
@@ -319,10 +319,10 @@ function FerramentasList({
       setEditing(null)
       setProductPhoto("")
       setProductCode("")
-      
+
       // Forçar atualização da lista
       router.refresh()
-      
+
       // Aguardar um pouco e recarregar novamente para garantir
       setTimeout(() => {
         router.refresh()
@@ -494,7 +494,7 @@ function FerramentasList({
             <FileDown className="mr-2 h-4 w-4" />
             {exportingCsv ? "Gerando CSV..." : "Exportar CSV"}
           </Button>
-          
+
           {/* Seletor de tamanho dos cards */}
           <div className="flex items-center gap-1 border rounded-md p-1 bg-background">
             <button
@@ -540,229 +540,229 @@ function FerramentasList({
             <Upload className="mr-2 h-4 w-4" />
             Importar Excel
           </Button>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setEditing(null)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Produto
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>
-                  {editing ? "Editar Produto" : "Novo Produto"}
-                </DialogTitle>
-                <DialogDescription>
-                  {editing
-                    ? "Atualize as informações do produto"
-                    : "Adicione um novo produto ao estoque"}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
-                <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
-                <input type="hidden" name="estado" value={editing?.estado || "ok"} />
-                
-                {userId && (
-                  <ProductPhotoUpload
-                    currentPhotoUrl={editing?.foto_url || productPhoto}
-                    onPhotoUploaded={setProductPhoto}
-                    userId={userId}
-                    productId={editing?.id}
-                  />
-                )}
-                <div className="grid gap-2">
-                  <Label htmlFor="nome">Nome *</Label>
-                  <Input
-                    id="nome"
-                    name="nome"
-                    defaultValue={editing?.nome || ""}
-                    onBlur={(e) =>
-                      setProductCode(
-                        gerarCodigoLocal(
-                          e.target.value,
-                          (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                          (document.getElementById("cor") as HTMLInputElement)?.value || "",
-                          tipoItem
-                        )
-                      )
-                    }
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="tipo_item">Categoria</Label>
-                  <Select
-                    name="tipo_item"
-                    defaultValue={editing?.tipo_item || tipoItem}
-                    onValueChange={(val: any) => {
-                      setTipoItem(val)
-                      // Atualizar campo hidden
-                      const hiddenInput = document.querySelector('input[name="tipo_item"]') as HTMLInputElement
-                      if (hiddenInput) {
-                        hiddenInput.value = val
-                      }
-                      setProductCode(
-                        gerarCodigoLocal(
-                          (document.getElementById("nome") as HTMLInputElement)?.value || "",
-                          (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                          (document.getElementById("cor") as HTMLInputElement)?.value || "",
-                          val
-                        )
-                      )
-                    }}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ferramenta">Ferramenta</SelectItem>
-                      <SelectItem value="epi">EPI</SelectItem>
-                      <SelectItem value="consumivel">Consumível</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="categoria">Linha/Grupo</Label>
-                    <Input
-                      id="categoria"
-                      name="categoria"
-                      placeholder="Ex: Corte, Segurança"
-                      defaultValue={editing?.categoria || ""}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setEditing(null)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Produto
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
+              <form onSubmit={handleSubmit}>
+                <DialogHeader>
+                  <DialogTitle>
+                    {editing ? "Editar Produto" : "Novo Produto"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {editing
+                      ? "Atualize as informações do produto"
+                      : "Adicione um novo produto ao estoque"}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
+                  <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
+                  <input type="hidden" name="estado" value={editing?.estado || "ok"} />
+
+                  {userId && (
+                    <ProductPhotoUpload
+                      currentPhotoUrl={editing?.foto_url || productPhoto}
+                      onPhotoUploaded={setProductPhoto}
+                      userId={userId}
+                      productId={editing?.id}
                     />
-                  </div>
+                  )}
                   <div className="grid gap-2">
-                    <Label htmlFor="codigo">Código</Label>
+                    <Label htmlFor="nome">Nome *</Label>
                     <Input
-                      id="codigo"
-                      name="codigo"
-                      value={
-                        productCode ||
-                        gerarCodigoLocal(
-                          (document.getElementById("nome") as HTMLInputElement)?.value || editing?.nome || "",
-                          (document.getElementById("tamanho") as HTMLInputElement)?.value || editing?.tamanho || "",
-                          (document.getElementById("cor") as HTMLInputElement)?.value || editing?.cor || "",
-                          tipoItem
-                        )
-                      }
-                      onChange={(e) => setProductCode(e.target.value)}
-                      placeholder="Gerado automaticamente"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="tamanho">Tamanho / Medida</Label>
-                    <Input
-                      id="tamanho"
-                      name="tamanho"
-                      placeholder="Ex: M, 500ml, 10mm"
-                      defaultValue={editing?.tamanho || ""}
+                      id="nome"
+                      name="nome"
+                      defaultValue={editing?.nome || ""}
                       onBlur={(e) =>
                         setProductCode(
                           gerarCodigoLocal(
-                            (document.getElementById("nome") as HTMLInputElement)?.value || "",
                             e.target.value,
+                            (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
                             (document.getElementById("cor") as HTMLInputElement)?.value || "",
                             tipoItem
                           )
                         )
                       }
+                      required
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="cor">Cor</Label>
-                    <Input
-                      id="cor"
-                      name="cor"
-                      placeholder="Ex: Azul, Preto"
-                      defaultValue={editing?.cor || ""}
-                      onBlur={(e) =>
+                    <Label htmlFor="tipo_item">Categoria</Label>
+                    <Select
+                      name="tipo_item"
+                      defaultValue={editing?.tipo_item || tipoItem}
+                      onValueChange={(val: any) => {
+                        setTipoItem(val)
+                        // Atualizar campo hidden
+                        const hiddenInput = document.querySelector('input[name="tipo_item"]') as HTMLInputElement
+                        if (hiddenInput) {
+                          hiddenInput.value = val
+                        }
                         setProductCode(
                           gerarCodigoLocal(
                             (document.getElementById("nome") as HTMLInputElement)?.value || "",
                             (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                            e.target.value,
-                            tipoItem
+                            (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                            val
                           )
                         )
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="quantidade_total">Quantidade Total *</Label>
-                    <Input
-                      id="quantidade_total"
-                      name="quantidade_total"
-                      type="number"
-                      min="0"
-                      defaultValue={editing?.quantidade_total || 0}
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="estado">Estado *</Label>
-                    <Select
-                      name="estado"
-                      defaultValue={editing?.estado || "ok"}
-                      onValueChange={(value) => {
-                        // Atualizar campo hidden
-                        const hiddenInput = document.querySelector('input[name="estado"]') as HTMLInputElement
-                        if (hiddenInput) {
-                          hiddenInput.value = value
-                        }
                       }}
                       required
                     >
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ok">OK</SelectItem>
-                        <SelectItem value="danificada">Danificada</SelectItem>
-                        <SelectItem value="em_conserto">Em Conserto</SelectItem>
+                        <SelectItem value="ferramenta">Ferramenta</SelectItem>
+                        <SelectItem value="epi">EPI</SelectItem>
+                        <SelectItem value="consumivel">Consumível</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="categoria">Linha/Grupo</Label>
+                      <Input
+                        id="categoria"
+                        name="categoria"
+                        placeholder="Ex: Corte, Segurança"
+                        defaultValue={editing?.categoria || ""}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="codigo">Código</Label>
+                      <Input
+                        id="codigo"
+                        name="codigo"
+                        value={
+                          productCode ||
+                          gerarCodigoLocal(
+                            (document.getElementById("nome") as HTMLInputElement)?.value || editing?.nome || "",
+                            (document.getElementById("tamanho") as HTMLInputElement)?.value || editing?.tamanho || "",
+                            (document.getElementById("cor") as HTMLInputElement)?.value || editing?.cor || "",
+                            tipoItem
+                          )
+                        }
+                        onChange={(e) => setProductCode(e.target.value)}
+                        placeholder="Gerado automaticamente"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="tamanho">Tamanho / Medida</Label>
+                      <Input
+                        id="tamanho"
+                        name="tamanho"
+                        placeholder="Ex: M, 500ml, 10mm"
+                        defaultValue={editing?.tamanho || ""}
+                        onBlur={(e) =>
+                          setProductCode(
+                            gerarCodigoLocal(
+                              (document.getElementById("nome") as HTMLInputElement)?.value || "",
+                              e.target.value,
+                              (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                              tipoItem
+                            )
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="cor">Cor</Label>
+                      <Input
+                        id="cor"
+                        name="cor"
+                        placeholder="Ex: Azul, Preto"
+                        defaultValue={editing?.cor || ""}
+                        onBlur={(e) =>
+                          setProductCode(
+                            gerarCodigoLocal(
+                              (document.getElementById("nome") as HTMLInputElement)?.value || "",
+                              (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
+                              e.target.value,
+                              tipoItem
+                            )
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="quantidade_total">Quantidade Total *</Label>
+                      <Input
+                        id="quantidade_total"
+                        name="quantidade_total"
+                        type="number"
+                        min="0"
+                        defaultValue={editing?.quantidade_total || 0}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="estado">Estado *</Label>
+                      <Select
+                        name="estado"
+                        defaultValue={editing?.estado || "ok"}
+                        onValueChange={(value) => {
+                          // Atualizar campo hidden
+                          const hiddenInput = document.querySelector('input[name="estado"]') as HTMLInputElement
+                          if (hiddenInput) {
+                            hiddenInput.value = value
+                          }
+                        }}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ok">OK</SelectItem>
+                          <SelectItem value="danificada">Danificada</SelectItem>
+                          <SelectItem value="em_conserto">Em Conserto</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="ponto_ressuprimento">Estoque Mínimo</Label>
+                    <Input
+                      id="ponto_ressuprimento"
+                      name="ponto_ressuprimento"
+                      type="number"
+                      min="0"
+                      placeholder="Ex: 5 (alerta quando estoque ≤ 5)"
+                      defaultValue={editing?.ponto_ressuprimento || ""}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Quando o estoque atingir este valor, você será alertado no dashboard
+                    </p>
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="ponto_ressuprimento">Estoque Mínimo</Label>
-                  <Input
-                    id="ponto_ressuprimento"
-                    name="ponto_ressuprimento"
-                    type="number"
-                    min="0"
-                    placeholder="Ex: 5 (alerta quando estoque ≤ 5)"
-                    defaultValue={editing?.ponto_ressuprimento || ""}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Quando o estoque atingir este valor, você será alertado no dashboard
-                  </p>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setOpen(false)
-                    setEditing(null)
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Salvando..." : "Salvar"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setOpen(false)
+                      setEditing(null)
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Salvando..." : "Salvar"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -811,22 +811,22 @@ function FerramentasList({
                         cardSize === "grande" && "text-xl"
                       )}>{ferramenta.nome}</h3>
                       {/* Indicador de estoque baixo */}
-                      {ferramenta.ponto_ressuprimento !== null && 
-                       ferramenta.ponto_ressuprimento !== undefined &&
-                       ferramenta.quantidade_disponivel <= ferramenta.ponto_ressuprimento && (
-                        <Badge 
-                          variant="destructive" 
-                          className={cn(
-                            "animate-pulse",
-                            cardSize === "pequeno" && "text-[10px] px-1.5 py-0",
-                            cardSize === "medio" && "text-xs px-2 py-0.5",
-                            cardSize === "grande" && "text-xs px-2 py-0.5"
-                          )}
-                          title={`Estoque baixo! Mínimo: ${ferramenta.ponto_ressuprimento}`}
-                        >
-                          ⚠️
-                        </Badge>
-                      )}
+                      {ferramenta.ponto_ressuprimento !== null &&
+                        ferramenta.ponto_ressuprimento !== undefined &&
+                        ferramenta.quantidade_disponivel <= ferramenta.ponto_ressuprimento && (
+                          <Badge
+                            variant="destructive"
+                            className={cn(
+                              "animate-pulse",
+                              cardSize === "pequeno" && "text-[10px] px-1.5 py-0",
+                              cardSize === "medio" && "text-xs px-2 py-0.5",
+                              cardSize === "grande" && "text-xs px-2 py-0.5"
+                            )}
+                            title={`Estoque baixo! Mínimo: ${ferramenta.ponto_ressuprimento}`}
+                          >
+                            ⚠️
+                          </Badge>
+                        )}
                     </div>
                     <div className={cn(
                       "flex flex-col text-muted-foreground",
@@ -848,7 +848,7 @@ function FerramentasList({
                       {ferramenta.categoria && <span>Categoria: {ferramenta.categoria}</span>}
                     </div>
                   </div>
-                  <Badge 
+                  <Badge
                     variant={getEstadoBadge(ferramenta.estado)}
                     className={cn(
                       cardSize === "pequeno" && "text-xs",
@@ -867,10 +867,10 @@ function FerramentasList({
                     cardSize === "medio" && "h-40",
                     cardSize === "grande" && "h-56"
                   )}>
-                    <Image 
-                      src={ferramenta.foto_url} 
-                      alt={ferramenta.nome} 
-                      fill 
+                    <Image
+                      src={ferramenta.foto_url}
+                      alt={ferramenta.nome}
+                      fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
@@ -909,12 +909,12 @@ function FerramentasList({
                       {ferramenta.quantidade_disponivel}
                     </p>
                   </div>
-              </div>
+                </div>
 
-              <div className={cn(
-                "flex flex-wrap gap-2",
-                cardSize === "pequeno" && "gap-1"
-              )}>
+                <div className={cn(
+                  "flex flex-wrap gap-2",
+                  cardSize === "pequeno" && "gap-1"
+                )}>
                   <Button
                     variant="outline"
                     size={cardSize === "pequeno" ? "sm" : "sm"}
@@ -1033,10 +1033,35 @@ function FerramentasList({
       </div>
 
       {filteredFerramentas.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          {filters.search
-            ? "Nenhuma ferramenta encontrada"
-            : "Nenhuma ferramenta cadastrada"}
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300">
+          <div className="bg-blue-50 p-4 rounded-full mb-4">
+            <Package className="h-10 w-10 text-blue-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2">
+            {filters.search ? "Nenhum item encontrado" : "Seu estoque está vazio"}
+          </h3>
+          <p className="text-zinc-500 max-w-sm mb-6">
+            {filters.search
+              ? "Tente buscar por outro termo ou limpe os filtros."
+              : "Comece cadastrando ferramentas, EPIs e consumíveis para controlar seu almoxarifado com eficiência."}
+          </p>
+          {!filters.search && (
+            <Button
+              onClick={() => {
+                setEditing(null)
+                setOpen(true)
+              }}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Cadastrar Primeiro Item
+            </Button>
+          )}
+          {filters.search && (
+            <Button variant="outline" onClick={() => setFilters({ ...filters, search: "" })}>
+              Limpar Busca
+            </Button>
+          )}
         </div>
       )}
 
@@ -1062,22 +1087,22 @@ function FerramentasList({
               <div className="grid gap-4 py-4">
                 {(actionDialog.type === "retirada" ||
                   actionDialog.type === "devolucao") && (
-                  <div className="grid gap-2">
-                    <Label htmlFor="colaborador_id">Colaborador *</Label>
-                    <Select name="colaborador_id" required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um colaborador" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {colaboradores.map((col) => (
-                          <SelectItem key={col.id} value={col.id}>
-                            {col.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                    <div className="grid gap-2">
+                      <Label htmlFor="colaborador_id">Colaborador *</Label>
+                      <Select name="colaborador_id" required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um colaborador" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {colaboradores.map((col) => (
+                            <SelectItem key={col.id} value={col.id}>
+                              {col.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 <div className="grid gap-2">
                   <Label htmlFor="quantidade">Quantidade *</Label>
                   <Input
@@ -1087,8 +1112,8 @@ function FerramentasList({
                     min="1"
                     max={
                       actionDialog.type === "retirada" ||
-                      actionDialog.type === "devolucao" ||
-                      actionDialog.type === "conserto"
+                        actionDialog.type === "devolucao" ||
+                        actionDialog.type === "conserto"
                         ? actionDialog.ferramenta?.quantidade_disponivel
                         : undefined
                     }
