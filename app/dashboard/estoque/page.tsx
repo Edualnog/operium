@@ -10,36 +10,36 @@ export const dynamic = "force-dynamic"
 async function getFerramentas(userId: string) {
   try {
     const supabase = await createServerComponentClient()
-    
+
     // Primeiro, tentar buscar com todos os campos (se a migration foi executada)
     let query = supabase
       .from("ferramentas")
       .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at, tipo_item, codigo, foto_url, tamanho, cor, ponto_ressuprimento")
       .eq("profile_id", userId)
       .order("nome", { ascending: true })
-    
+
     const { data, error } = await query
-    
+
     if (error) {
       // Se erro for sobre coluna não encontrada, tentar buscar apenas campos básicos
-      if (error.message?.includes("column") || 
-          error.message?.includes("schema cache") || 
-          error.message?.includes("codigo") || 
-          error.message?.includes("foto_url") ||
-          error.message?.includes("tipo_item")) {
+      if (error.message?.includes("column") ||
+        error.message?.includes("schema cache") ||
+        error.message?.includes("codigo") ||
+        error.message?.includes("foto_url") ||
+        error.message?.includes("tipo_item")) {
         console.log("Algumas colunas não existem, buscando apenas campos básicos...")
-        
+
         const { data: basicData, error: basicError } = await supabase
           .from("ferramentas")
           .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at")
           .eq("profile_id", userId)
           .order("nome", { ascending: true })
-        
+
         if (basicError) {
           console.error("Erro ao buscar ferramentas (básico):", basicError)
           return []
         }
-        
+
         // Mapear dados básicos para o formato esperado
         return (basicData || []).map(item => ({
           ...item,
@@ -51,11 +51,11 @@ async function getFerramentas(userId: string) {
           ponto_ressuprimento: null,
         }))
       }
-      
+
       console.error("Erro ao buscar ferramentas:", error)
       return []
     }
-    
+
     // Se chegou aqui, os dados foram retornados (pode ter campos opcionais ou não)
     // Garantir que todos os campos esperados existam
     const mappedData = (data || []).map(item => ({
@@ -67,7 +67,7 @@ async function getFerramentas(userId: string) {
       cor: (item as any).cor || null,
       ponto_ressuprimento: (item as any).ponto_ressuprimento || null,
     }))
-    
+
     // Log para diagnóstico
     console.log("Ferramentas carregadas:", mappedData.length, "itens")
     mappedData.forEach(item => {
@@ -77,7 +77,7 @@ async function getFerramentas(userId: string) {
         console.log(`❌ ${item.nome} não tem foto_url`)
       }
     })
-    
+
     return mappedData
   } catch (error) {
     console.error("Erro ao buscar ferramentas:", error)
@@ -93,12 +93,12 @@ async function getColaboradores(userId: string) {
       .select("id, nome")
       .eq("profile_id", userId)
       .order("nome", { ascending: true })
-    
+
     if (error) {
       console.error("Erro ao buscar colaboradores:", error)
       return []
     }
-    
+
     return data || []
   } catch (error) {
     console.error("Erro ao buscar colaboradores:", error)
@@ -120,29 +120,29 @@ export default async function EstoquePage() {
       getColaboradores(user.id),
     ])
 
-  return (
-    <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Estoque</h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
-          Cadastre e controle ferramentas, EPIs e consumíveis
-        </p>
+    return (
+      <div className="space-y-6 sm:space-y-8">
+        <div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Estoque</h1>
+          <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
+            Cadastre e controle ferramentas, EPIs e consumíveis
+          </p>
+        </div>
+        <Suspense fallback={<ListSkeleton />}>
+          <FerramentasList
+            ferramentas={ferramentas}
+            colaboradores={colaboradores}
+          />
+        </Suspense>
       </div>
-      <Suspense fallback={<ListSkeleton />}>
-        <FerramentasList
-          ferramentas={ferramentas}
-          colaboradores={colaboradores}
-        />
-      </Suspense>
-    </div>
-  )
+    )
   } catch (error) {
     console.error("Erro na página de estoque:", error)
     return (
       <div className="space-y-6 sm:space-y-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Estoque</h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Estoque</h1>
+          <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
             Erro ao carregar dados. Por favor, recarregue a página.
           </p>
         </div>

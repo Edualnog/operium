@@ -146,7 +146,7 @@ function SubscribeContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 relative overflow-hidden">
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.015]"
         style={{
@@ -157,7 +157,7 @@ function SubscribeContent() {
       <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-slate-200/50 dark:border-zinc-800/50">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
@@ -172,7 +172,7 @@ function SubscribeContent() {
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
             >
               <LogOut className="h-4 w-4" />
               Sair
@@ -195,10 +195,10 @@ function SubscribeContent() {
               Falta só um passo!
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4 dark:text-zinc-50">
               Ative seu período de teste
             </h1>
-            <p className="text-lg text-slate-600">
+            <p className="text-lg text-slate-600 dark:text-zinc-400">
               Sua conta foi criada com sucesso! Agora ative os <strong>7 dias grátis</strong> para acessar todas as funcionalidades.
             </p>
             {warning && (
@@ -210,16 +210,16 @@ function SubscribeContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-8"
+            className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-8"
           >
             {/* Plan Toggle */}
             <div className="flex justify-center mb-8">
-              <div className="bg-slate-100 p-1 rounded-xl inline-flex relative">
+              <div className="bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl inline-flex relative">
                 <button
                   onClick={() => setPlan("mensal")}
                   className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${plan === "mensal"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900"
+                    ? "bg-white text-slate-900 shadow-sm dark:bg-zinc-950 dark:text-zinc-50"
+                    : "text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-200"
                     }`}
                 >
                   Mensal
@@ -227,12 +227,12 @@ function SubscribeContent() {
                 <button
                   onClick={() => setPlan("anual")}
                   className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${plan === "anual"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900"
+                    ? "bg-white text-slate-900 shadow-sm dark:bg-zinc-950 dark:text-zinc-50"
+                    : "text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-200"
                     }`}
                 >
                   Anual
-                  <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full">
+                  <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
                     -33%
                   </span>
                 </button>
@@ -249,12 +249,12 @@ function SubscribeContent() {
                 {plan === "anual" ? (
                   <>
                     <span className="text-xl text-slate-400 line-through">R$59,90</span>
-                    <span className="text-5xl font-bold text-slate-900">R$39,90</span>
+                    <span className="text-5xl font-bold text-slate-900 dark:text-zinc-50">R$39,90</span>
                   </>
                 ) : (
-                  <span className="text-5xl font-bold text-slate-900">R$59,90</span>
+                  <span className="text-5xl font-bold text-slate-900 dark:text-zinc-50">R$59,90</span>
                 )}
-                <span className="text-slate-500">/mês</span>
+                <span className="text-slate-500 dark:text-zinc-400">/mês</span>
               </div>
 
               {plan === "anual" && (
@@ -279,7 +279,7 @@ function SubscribeContent() {
                   <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                     <Check className="h-3 w-3 text-green-600" />
                   </div>
-                  <span className="text-sm text-slate-700">{feature}</span>
+                  <span className="text-sm text-slate-700 dark:text-zinc-300">{feature}</span>
                 </div>
               ))}
             </div>
