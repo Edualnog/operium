@@ -112,6 +112,8 @@ export async function POST(req: NextRequest) {
         const priceId = subscription.items.data[0]?.price.id
         if (priceId === "price_1SaE6kGzXnyQEqRwIIX19uxm") {
           planType = "anual"
+        } else if (priceId === "price_1SaEi1GzXnyQEqRweQLZoPWp") {
+          planType = "mensal"
         }
 
         const { error } = await supabase
