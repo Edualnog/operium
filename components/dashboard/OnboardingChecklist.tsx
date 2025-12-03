@@ -91,12 +91,18 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                 const allDone = hasCompany && hasProducts && hasTransactions
                 setCompletedAll(allDone)
 
+                // Check if user has already seen the success message
+                const hasSeen = localStorage.getItem(`onboarding_seen_${userId}`)
+                if (hasSeen) {
+                    setIsVisible(false)
+                }
+
                 // Se já completou tudo há muito tempo, talvez não queira mostrar sempre?
                 // Por enquanto, vamos mostrar sempre que carregar, mas com opção de minimizar ou algo assim no futuro.
                 // O requisito diz "Mostrar visual de progresso", então manteremos visível.
 
-                if (allDone && !completedAll) {
-                    // Trigger confetti only on the transition to completed
+                if (allDone && !completedAll && !hasSeen) {
+                    // Trigger confetti only on the transition to completed AND if not seen before
                     confetti({
                         particleCount: 100,
                         spread: 70,
@@ -113,6 +119,11 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
 
         checkProgress()
     }, [userId, completedAll])
+
+    const handleClose = () => {
+        localStorage.setItem(`onboarding_seen_${userId}`, 'true')
+        setIsVisible(false)
+    }
 
     // Se estiver carregando, mostra skeleton ou nada? Vamos mostrar skeleton básico.
     if (loading) {
@@ -159,7 +170,7 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                             variant="ghost"
                             size="sm"
                             className="text-green-700 hover:text-green-800 hover:bg-green-100"
-                            onClick={() => setIsVisible(false)}
+                            onClick={handleClose}
                         >
                             Fechar
                         </Button>
