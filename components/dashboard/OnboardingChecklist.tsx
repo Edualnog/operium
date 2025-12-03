@@ -175,18 +175,20 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
     return (
         <Card className="mb-8 border-blue-200 bg-white shadow-sm overflow-hidden">
             <CardHeader className="pb-3 border-b border-blue-50 bg-blue-50/30">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 text-center sm:text-left">
                     <div>
-                        <CardTitle className="text-lg font-semibold text-blue-950 flex items-center gap-2">
+                        <CardTitle className="text-lg font-semibold text-blue-950 flex items-center justify-center sm:justify-start gap-2">
                             🚀 Primeiros Passos
                         </CardTitle>
                         <p className="text-sm text-blue-600/80 mt-1">
                             Complete o setup para aproveitar todo o potencial do sistema
                         </p>
                     </div>
-                    <div className="text-right">
-                        <span className="text-2xl font-bold text-blue-600">{Math.round(progress)}%</span>
-                        <p className="text-xs text-blue-400 font-medium uppercase tracking-wider">Concluído</p>
+                    <div className="text-center sm:text-right w-full sm:w-auto bg-white/50 sm:bg-transparent p-2 rounded-lg sm:p-0">
+                        <div className="flex items-center justify-center sm:justify-end gap-2 sm:block">
+                            <span className="text-2xl font-bold text-blue-600">{Math.round(progress)}%</span>
+                            <span className="text-xs text-blue-400 font-medium uppercase tracking-wider sm:block ml-2 sm:ml-0">Concluído</span>
+                        </div>
                     </div>
                 </div>
                 {/* Progress Bar */}
@@ -204,7 +206,7 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                     {steps.map((step) => (
                         <div
                             key={step.id}
-                            className={`p-4 flex items-center gap-4 transition-colors ${step.completed ? "bg-blue-50/10" : "hover:bg-slate-50"
+                            className={`p-4 flex flex-col sm:flex-row items-center sm:items-start gap-4 transition-colors text-center sm:text-left ${step.completed ? "bg-blue-50/10" : "hover:bg-slate-50"
                                 }`}
                         >
                             {/* Icon Status */}
@@ -221,22 +223,22 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 w-full">
                                 <h4 className={`font-medium ${step.completed ? "text-slate-500 line-through decoration-slate-300" : "text-slate-900"}`}>
                                     {step.label}
                                 </h4>
-                                <p className="text-sm text-slate-500 truncate">{step.description}</p>
+                                <p className="text-sm text-slate-500 whitespace-normal sm:truncate">{step.description}</p>
                             </div>
 
                             {/* Action */}
-                            <div className="shrink-0">
+                            <div className="shrink-0 w-full sm:w-auto">
                                 {step.completed ? (
-                                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100">
+                                    <span className="flex items-center justify-center text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100 mx-auto sm:mx-0 w-fit">
                                         Feito
                                     </span>
                                 ) : (
-                                    <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200">
-                                        <Link href={step.actionUrl} className="flex items-center gap-1.5">
+                                    <Button asChild size="sm" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200">
+                                        <Link href={step.actionUrl} className="flex items-center justify-center gap-1.5">
                                             {step.actionLabel} <ArrowRight className="w-3.5 h-3.5" />
                                         </Link>
                                     </Button>

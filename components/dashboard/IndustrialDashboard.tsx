@@ -552,7 +552,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-6 text-center sm:text-left">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">
           Almox Fácil
         </h1>
