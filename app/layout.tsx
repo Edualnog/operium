@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
 import { ThemeProvider } from "@/components/providers/ThemeProvider"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -7,7 +8,7 @@ import OfflineBanner from "@/components/offline/OfflineBanner"
 import { ServiceWorkerRegistration } from "@/components/offline/ServiceWorkerRegistration"
 
 // Otimização de fonte: display swap para melhor performance (evita FOIT - Flash of Invisible Text)
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   display: 'swap',
   fallback: ['system-ui', 'arial'],
@@ -79,6 +80,21 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body className={`${inter.className} bg-white`}>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-T7QX1XRLMJ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-T7QX1XRLMJ');
+          `}
+        </Script>
+
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
