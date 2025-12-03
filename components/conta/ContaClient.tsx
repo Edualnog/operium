@@ -176,26 +176,8 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
 
   const [subscribeLoading, setSubscribeLoading] = useState(false)
 
-  const handleSubscribe = async () => {
-    setSubscribeLoading(true)
-    try {
-      const response = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao iniciar checkout")
-      }
-
-      if (data.url) {
-        window.location.href = data.url
-      }
-    } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Erro ao iniciar assinatura" })
-      setSubscribeLoading(false)
-    }
+  const handleSubscribe = () => {
+    window.location.href = "/subscribe"
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
