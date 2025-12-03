@@ -35,16 +35,16 @@ interface Conserto {
   data_envio?: string | null
   data_retorno?: string | null
   ferramentas:
-    | {
-        id: string
-        nome: string
-        quantidade_disponivel: number
-      }
-    | {
-        id: string
-        nome: string
-        quantidade_disponivel: number
-      }[]
+  | {
+    id: string
+    nome: string
+    quantidade_disponivel: number
+  }
+  | {
+    id: string
+    nome: string
+    quantidade_disponivel: number
+  }[]
   local_conserto?: string | null
   prazo?: string | null
   prioridade?: string | null
@@ -106,11 +106,11 @@ function ConsertosList({
   const produtoSuggestions = useMemo(() => {
     // Não mostrar sugestões se já há um produto selecionado
     if (form.produtoId) return []
-    
+
     const s = form.produto.trim().toLowerCase()
     // Só mostrar sugestões quando o usuário começar a digitar (mínimo 1 caractere)
     if (!s || s.length < 1) return []
-    
+
     // Filtrar produtos que contêm o texto digitado
     return produtos.filter((p) => p.nome.toLowerCase().includes(s)).slice(0, 5)
   }, [form.produto, form.produtoId, produtos])
@@ -132,7 +132,7 @@ function ConsertosList({
   useEffect(() => {
     async function buscarQuantidadeEmConserto() {
       if (!retornoDialog) return
-      
+
       try {
         const ferramenta = parseFerramenta(retornoDialog.ferramentas)
         const dataEnvioRef = retornoDialog.data_envio || new Date().toISOString()
@@ -249,19 +249,19 @@ function ConsertosList({
       alert("Selecione um produto")
       return
     }
-    
+
     const quantidade = Number(form.quantidade)
     if (quantidade < 1) {
       alert("A quantidade deve ser pelo menos 1")
       return
     }
-    
+
     const produtoSelecionado = produtos.find(p => p.id === form.produtoId)
     if (produtoSelecionado && quantidade > produtoSelecionado.quantidade_disponivel) {
       alert(`Quantidade insuficiente. Disponível: ${produtoSelecionado.quantidade_disponivel}`)
       return
     }
-    
+
     setLoading(true)
     try {
       await registrarEnvioConserto(
@@ -455,7 +455,7 @@ function ConsertosList({
       doc.setPage(i)
       const pageHeight = doc.internal.pageSize.height
       const pageWidth = doc.internal.pageSize.width
-      
+
       // Data e página
       doc.setFontSize(8)
       doc.text(
@@ -463,7 +463,7 @@ function ConsertosList({
         14,
         pageHeight - 20
       )
-      
+
       // Rodapé padrão
       doc.setFontSize(7)
       doc.text(
@@ -705,22 +705,22 @@ function ConsertosList({
                     onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "", quantidade: "1" }))}
                   />
                   {produtoSuggestions.length > 0 && (
-                    <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
+                    <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto dark:bg-zinc-900 dark:border-zinc-700 dark:divide-zinc-700">
                       {produtoSuggestions.map((p) => (
                         <button
                           type="button"
                           key={p.id}
-                          className="w-full text-left px-3 py-2 hover:bg-zinc-50"
-                          onClick={() => setForm((f) => ({ 
-                            ...f, 
-                            produto: p.nome, 
+                          className="w-full text-left px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                          onClick={() => setForm((f) => ({
+                            ...f,
+                            produto: p.nome,
                             produtoId: p.id,
                             quantidade: "1" // Resetar quantidade ao selecionar novo produto
                           }))}
                         >
                           <div className="flex items-center justify-between">
-                            <span>{p.nome}</span>
-                            <span className="text-xs text-zinc-500">
+                            <span className="dark:text-zinc-100">{p.nome}</span>
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
                               {p.quantidade_disponivel || 0} disponíveis
                             </span>
                           </div>
@@ -741,7 +741,7 @@ function ConsertosList({
                       placeholder="Quantidade"
                       required
                     />
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       Disponível: {produtos.find(p => p.id === form.produtoId)?.quantidade_disponivel || 0} unidades
                     </p>
                   </div>
@@ -843,8 +843,8 @@ function ConsertosList({
                           Enviado em{" "}
                           {conserto.data_envio
                             ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
-                                locale: ptBR,
-                              })
+                              locale: ptBR,
+                            })
                             : "-"}
                         </p>
                         {conserto.local_conserto && (
@@ -931,8 +931,8 @@ function ConsertosList({
                           Enviado em{" "}
                           {conserto.data_envio
                             ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
-                                locale: ptBR,
-                              })
+                              locale: ptBR,
+                            })
                             : "-"}
                         </p>
                         {conserto.local_conserto && (
@@ -1000,12 +1000,12 @@ function ConsertosList({
         }}>
           <DialogContent>
             <form onSubmit={handleRetorno}>
-                <DialogHeader>
-                  <DialogTitle>Registrar Retorno de Conserto</DialogTitle>
-                  <DialogDescription>
-                    Ferramenta: {parseFerramenta(retornoDialog.ferramentas).nome}
-                  </DialogDescription>
-                </DialogHeader>
+              <DialogHeader>
+                <DialogTitle>Registrar Retorno de Conserto</DialogTitle>
+                <DialogDescription>
+                  Ferramenta: {parseFerramenta(retornoDialog.ferramentas).nome}
+                </DialogDescription>
+              </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="custo">Custo do Conserto (R$)</Label>
@@ -1029,8 +1029,8 @@ function ConsertosList({
                     defaultValue={quantidadeEmConserto > 0 ? quantidadeEmConserto : 1}
                     required
                   />
-                  <p className="text-xs text-zinc-500">
-                    {quantidadeEmConserto > 0 
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {quantidadeEmConserto > 0
                       ? `${quantidadeEmConserto} unidade(s) ainda em conserto`
                       : "Carregando..."}
                   </p>

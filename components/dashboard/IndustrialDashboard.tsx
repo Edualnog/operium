@@ -528,8 +528,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
   if (!data) {
     return (
-      <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg">
-        <p className="text-sm text-zinc-600">Nenhum dado disponível</p>
+      <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg dark:bg-zinc-900 dark:border-zinc-800">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">Nenhum dado disponível</p>
       </div>
     )
   }
@@ -553,10 +553,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="mb-6 text-center sm:text-left">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
           Almox Fácil
         </h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
+        <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
           Mais agilidade e controle nas operações do almoxarifado
         </p>
       </div>
@@ -567,15 +567,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       <section className="space-y-6 mb-8">
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
           {/* Gráfico de Movimentações */}
-          <Card className="lg:col-span-2 border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3 border-b border-zinc-100">
+          <Card className="lg:col-span-2 border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-zinc-800">
+            <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5 text-zinc-600" />
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 flex items-center gap-2 dark:text-zinc-50">
+                    <BarChart3 className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
                     Movimentações
                   </CardTitle>
-                  <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                  <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
                     Últimos 12 meses • Passe o mouse sobre as barras para detalhes
                   </p>
                 </div>
@@ -611,10 +611,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div className="relative">
                   {/* Linha de base e grid */}
                   <div className="absolute inset-0 flex flex-col justify-between pointer-events-none" style={{ height: '12rem' }}>
-                    <div className="w-full h-px bg-zinc-100"></div>
-                    <div className="w-full h-px bg-zinc-100"></div>
-                    <div className="w-full h-px bg-zinc-100"></div>
-                    <div className="w-full h-px bg-zinc-200 border-t border-zinc-300"></div>
+                    <div className="w-full h-px bg-zinc-100 dark:bg-zinc-800"></div>
+                    <div className="w-full h-px bg-zinc-100 dark:bg-zinc-800"></div>
+                    <div className="w-full h-px bg-zinc-100 dark:bg-zinc-800"></div>
+                    <div className="w-full h-px bg-zinc-200 border-t border-zinc-300 dark:bg-zinc-700 dark:border-zinc-600"></div>
                   </div>
 
                   <div className="h-48 flex items-end gap-1 sm:gap-2 relative z-10">
@@ -677,7 +677,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                               style={{ height: `${heightEntradas}%` }}
                             />
                           </div>
-                          <span className={`text-[10px] sm:text-xs transition-colors ${temDados ? 'text-zinc-700 font-medium' : 'text-zinc-400'}`}>
+                          <span className={`text-[10px] sm:text-xs transition-colors ${temDados ? 'text-zinc-700 font-medium dark:text-zinc-300' : 'text-zinc-400 dark:text-zinc-600'}`}>
                             {item.mes}
                           </span>
                         </div>
@@ -722,12 +722,12 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           </Card>
 
           {/* Status das Ferramentas */}
-          <Card className="border border-zinc-200 bg-white shadow-sm">
-            <CardHeader className="pb-3 border-b border-zinc-100">
-              <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+            <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                 Status
               </CardTitle>
-              <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+              <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
                 Situação das ferramentas
               </p>
             </CardHeader>
@@ -735,10 +735,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               {/* Disponível */}
               <div>
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600">Disponível</span>
-                  <span className="text-zinc-900 font-semibold">{statusFerramentas.disponiveis}%</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">Disponível</span>
+                  <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.disponiveis}%</span>
                 </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                   <div
                     className="h-full bg-green-500 rounded-full transition-all duration-500"
                     style={{ width: `${statusFerramentas.disponiveis}%` }}
@@ -749,10 +749,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               {/* Em uso */}
               <div>
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600">Em uso</span>
-                  <span className="text-zinc-900 font-semibold">{statusFerramentas.emUso}%</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">Em uso</span>
+                  <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.emUso}%</span>
                 </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                   <div
                     className="h-full bg-blue-500 rounded-full transition-all duration-500"
                     style={{ width: `${statusFerramentas.emUso}%` }}
@@ -763,10 +763,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               {/* Manutenção */}
               <div>
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600">Manutenção</span>
-                  <span className="text-zinc-900 font-semibold">{statusFerramentas.manutencao}%</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">Manutenção</span>
+                  <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.manutencao}%</span>
                 </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                   <div
                     className="h-full bg-amber-500 rounded-full transition-all duration-500"
                     style={{ width: `${statusFerramentas.manutencao}%` }}
@@ -779,15 +779,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
         {/* Cards de estatísticas rápidas */}
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
-          <Card className="border border-zinc-200 bg-white shadow-sm">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-50">
-                  <Package className="h-5 w-5 text-blue-600" />
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                  <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Itens em Estoque</p>
-                  <p className="text-xl font-bold text-zinc-900">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Itens em Estoque</p>
+                  <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {data.totais?.itensEstoque || 0}
                   </p>
                 </div>
@@ -795,15 +795,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             </CardContent>
           </Card>
 
-          <Card className="border border-zinc-200 bg-white shadow-sm">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-50">
-                  <Users className="h-5 w-5 text-green-600" />
+                <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
+                  <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Colaboradores</p>
-                  <p className="text-xl font-bold text-zinc-900">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Colaboradores</p>
+                  <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {data.totais?.colaboradores || 0}
                   </p>
                 </div>
@@ -811,15 +811,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             </CardContent>
           </Card>
 
-          <Card className="border border-zinc-200 bg-white shadow-sm">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-50">
-                  <Wrench className="h-5 w-5 text-purple-600" />
+                <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                  <Wrench className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Ferramentas</p>
-                  <p className="text-xl font-bold text-zinc-900">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Ferramentas</p>
+                  <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {data.totais?.ferramentas || 0}
                   </p>
                 </div>
@@ -827,15 +827,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             </CardContent>
           </Card>
 
-          <Card className="border border-zinc-200 bg-white shadow-sm">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-50">
-                  <Activity className="h-5 w-5 text-amber-600" />
+                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+                  <Activity className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Movimentações/mês</p>
-                  <p className="text-xl font-bold text-zinc-900">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Movimentações/mês</p>
+                  <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {(() => {
                       // Pegar o mês atual
                       const hoje = new Date()
@@ -854,8 +854,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       {/* SESSÃO 1: FERRAMENTAS */}
       <section className="space-y-6">
         <div className="flex items-center gap-2 mb-4">
-          <Wrench className="h-5 w-5 text-zinc-700" />
-          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900">
+          <Wrench className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             Ferramentas
           </h2>
         </div>
@@ -875,15 +875,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             iconName="AlertTriangle"
             variant={(totalEstragadasUnidades || 0) > 0 ? "destructive" : "default"}
           />
-          <Card className="border border-zinc-200 bg-white shadow-sm">
-            <CardHeader className="pb-3 border-b border-zinc-100">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+            <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-zinc-700" />
-                <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                <ShoppingCart className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+                <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                   Itens para reposição urgente
                 </CardTitle>
               </div>
-              <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+              <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
                 Baseado na demanda interna (mais retirados = maior prioridade)
               </p>
             </CardHeader>
@@ -901,7 +901,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   {itensComprarUrgente.map((item, index) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors"
+                      className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors dark:border-zinc-800 dark:hover:bg-zinc-800/50"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -911,7 +911,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                           >
                             #{index + 1}
                           </Badge>
-                          <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                          <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
                             {item.nome}
                           </h4>
                         </div>
@@ -926,8 +926,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Estoque:</span>
                               <span className={`text-xs font-medium ${item.quantidade_disponivel <= item.ponto_ressuprimento
-                                  ? "text-red-600"
-                                  : "text-zinc-700"
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-zinc-700 dark:text-zinc-300"
                                 }`}>
                                 {item.quantidade_disponivel} / Mín: {item.ponto_ressuprimento}
                               </span>
@@ -945,14 +945,14 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
         {/* Rankings - Ferramentas */}
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-          <Card className="border border-zinc-200 bg-white shadow-sm">
-            <CardHeader className="pb-3 border-b border-zinc-100">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+            <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                     Top Ferramentas Mais Utilizadas
                   </CardTitle>
-                  <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                  <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
                     {loadingFerramentas ? "Carregando..." : `Últimos ${periodoFerramentas} dias`}
                   </p>
                 </div>
@@ -996,7 +996,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     {itemsFonte.map((item, index) => (
                       <div
                         key={item.id || index}
-                        className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors"
+                        className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors dark:border-zinc-800 dark:hover:bg-zinc-800/50"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
@@ -1016,7 +1016,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             </div>
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Categoria:</span>
-                              <span className="text-xs font-medium text-zinc-700">
+                              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                                 {item.categoria || "-"}
                               </span>
                             </div>
@@ -1030,14 +1030,14 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             </CardContent>
           </Card>
 
-          <Card className="border border-zinc-200 bg-white shadow-sm">
-            <CardHeader className="pb-3 border-b border-zinc-100">
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+            <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                     Ranking de Responsabilidade
                   </CardTitle>
-                  <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                  <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
                     Score baseado em devoluções no prazo
                   </p>
                 </div>
@@ -1096,7 +1096,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     {displayItems.map((item, index) => (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors"
+                        className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors dark:border-zinc-800 dark:hover:bg-zinc-800/50"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
@@ -1119,13 +1119,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             </div>
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">Retiradas:</span>
-                              <span className="text-xs font-medium text-zinc-700">
+                              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                                 {item.total_retiradas || 0}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">No Prazo:</span>
-                              <span className="text-xs font-medium text-zinc-700">
+                              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                                 {item.devolucoes_no_prazo || 0}
                               </span>
                             </div>
@@ -1183,20 +1183,20 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       {/* SESSÃO 2: CONSUMÍVEIS */}
       <section className="space-y-6">
         <div className="flex items-center gap-2 mb-4">
-          <ShoppingCart className="h-5 w-5 text-zinc-700" />
-          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900">
+          <ShoppingCart className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             Consumíveis
           </h2>
         </div>
 
-        <Card className="border border-zinc-200 bg-white shadow-sm">
-          <CardHeader className="pb-3 border-b border-zinc-100">
+        <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+          <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+                <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                   Top consumíveis mais retirados
                 </CardTitle>
-                <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
                   {loadingConsumo ? "Carregando..." : `Últimos ${periodoConsumo} dias`}
                 </p>
               </div>
@@ -1316,8 +1316,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       {/* SESSÃO 3: EPIs */}
       <section className="space-y-6">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-5 w-5 text-zinc-700" />
-          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900">EPIs</h2>
+          <Shield className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">EPIs</h2>
         </div>
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
@@ -1376,8 +1376,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       {/* SESSÃO 4: PREVISÕES */}
       <section className="space-y-6">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="h-5 w-5 text-zinc-700" />
-          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900">
+          <Target className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             Previsões e Alertas
           </h2>
         </div>

@@ -27,6 +27,8 @@ interface KpiChartProps {
   height?: number
 }
 
+import { useTheme } from "next-themes"
+
 export function KpiChart({
   title,
   description,
@@ -37,20 +39,31 @@ export function KpiChart({
   color = "#3b82f6",
   height = 300,
 }: KpiChartProps) {
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
+
+  const gridColor = isDark ? "#27272a" : "#e5e7eb" // zinc-800 : zinc-200
+  const axisTextColor = isDark ? "#a1a1aa" : "#6b7280" // zinc-400 : zinc-500
+  const axisLineColor = isDark ? "#3f3f46" : "#d1d5db" // zinc-700 : zinc-300
+  const tooltipBg = isDark ? "rgba(24, 24, 27, 0.98)" : "rgba(255, 255, 255, 0.98)" // zinc-950 : white
+  const tooltipBorder = isDark ? "#27272a" : "#e5e7eb" // zinc-800 : zinc-200
+  const tooltipTextColor = isDark ? "#f4f4f5" : "#111827" // zinc-100 : gray-900
+  const tooltipLabelColor = isDark ? "#a1a1aa" : "#6b7280" // zinc-400 : gray-500
+
   if (!data || data.length === 0) {
     if (title) {
       return (
-        <Card className="border border-zinc-200 bg-white shadow-sm">
-          <CardHeader className="pb-3 border-b border-zinc-100">
-            <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+        <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+          <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
+            <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
               {title}
             </CardTitle>
             {description && (
-              <p className="text-xs sm:text-sm text-zinc-600 mt-1">{description}</p>
+              <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">{description}</p>
             )}
           </CardHeader>
           <CardContent className="pt-4">
-            <p className="text-sm text-zinc-500 text-center py-8">
+            <p className="text-sm text-zinc-500 text-center py-8 dark:text-zinc-500">
               Nenhum dado disponível
             </p>
           </CardContent>
@@ -58,14 +71,14 @@ export function KpiChart({
       )
     }
     return (
-      <p className="text-sm text-zinc-500 text-center py-8">
+      <p className="text-sm text-zinc-500 text-center py-8 dark:text-zinc-500">
         Nenhum dado disponível
       </p>
     )
   }
 
   // Para gráficos de barra, manter todos os dados (incluindo vazios) para sempre mostrar 10 barras
-  const filteredData = type === "bar" 
+  const filteredData = type === "bar"
     ? data // Não filtrar - manter todos os dados para sempre mostrar 10 barras
     : data.filter((item: any) => item[xAxisKey] && item[xAxisKey] !== "" && item[dataKey] != null && item[dataKey] !== 0)
 
@@ -73,8 +86,8 @@ export function KpiChart({
     <div style={{ width: "100%", height: `${height}px` }}>
       <ResponsiveContainer width="100%" height="100%">
         {type === "bar" ? (
-          <BarChart 
-            data={filteredData} 
+          <BarChart
+            data={filteredData}
             margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
             barCategoryGap="10%"
           >
@@ -84,42 +97,42 @@ export function KpiChart({
                 <stop offset="95%" stopColor={color} stopOpacity={0.6} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={0.5} />
             <XAxis
               dataKey={xAxisKey}
-              tick={{ fontSize: 12, fill: "#6b7280" }}
+              tick={{ fontSize: 12, fill: axisTextColor }}
               angle={-45}
               textAnchor="end"
               height={80}
-              stroke="#d1d5db"
+              stroke={axisLineColor}
               tickFormatter={(value) => value || ""}
             />
-            <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
+            <YAxis tick={{ fontSize: 12, fill: axisTextColor }} stroke={axisLineColor} />
             <Tooltip
               content={({ active, payload, label }) => {
                 if (!active || !payload || !payload.length) return null
                 const item = payload[0]?.payload
                 // Não mostrar tooltip para itens vazios
                 if (!item || !item[xAxisKey] || item[xAxisKey] === "" || item[dataKey] === 0 || item[dataKey] == null) return null
-                
+
                 return (
                   <div style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.98)",
-                    border: "1px solid #e5e7eb",
+                    backgroundColor: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
                     borderRadius: "8px",
                     padding: "8px 12px",
                     boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                   }}>
-                    <p style={{ fontWeight: 600, marginBottom: "4px", color: "#111827" }}>
+                    <p style={{ fontWeight: 600, marginBottom: "4px", color: tooltipTextColor }}>
                       {label}
                     </p>
-                    <p style={{ color: "#6b7280", fontSize: "14px" }}>
+                    <p style={{ color: tooltipLabelColor, fontSize: "14px" }}>
                       {payload[0].value}
                     </p>
                   </div>
                 )
               }}
-              cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
+              cursor={{ fill: isDark ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.1)" }}
             />
             <Bar
               dataKey={dataKey}
@@ -139,20 +152,23 @@ export function KpiChart({
           </BarChart>
         ) : type === "line" ? (
           <LineChart data={filteredData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={0.5} />
             <XAxis
               dataKey={xAxisKey}
-              tick={{ fontSize: 12, fill: "#6b7280" }}
-              stroke="#d1d5db"
+              tick={{ fontSize: 12, fill: axisTextColor }}
+              stroke={axisLineColor}
             />
-            <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
+            <YAxis tick={{ fontSize: 12, fill: axisTextColor }} stroke={axisLineColor} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(255, 255, 255, 0.98)",
-                border: "1px solid #e5e7eb",
+                backgroundColor: tooltipBg,
+                border: `1px solid ${tooltipBorder}`,
                 borderRadius: "8px",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                color: tooltipTextColor,
               }}
+              itemStyle={{ color: tooltipTextColor }}
+              labelStyle={{ color: tooltipLabelColor }}
               cursor={{ stroke: color, strokeWidth: 2 }}
             />
             <Line
@@ -171,20 +187,23 @@ export function KpiChart({
                 <stop offset="95%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={0.5} />
             <XAxis
               dataKey={xAxisKey}
-              tick={{ fontSize: 12, fill: "#6b7280" }}
-              stroke="#d1d5db"
+              tick={{ fontSize: 12, fill: axisTextColor }}
+              stroke={axisLineColor}
             />
-            <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
+            <YAxis tick={{ fontSize: 12, fill: axisTextColor }} stroke={axisLineColor} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(255, 255, 255, 0.98)",
-                border: "1px solid #e5e7eb",
+                backgroundColor: tooltipBg,
+                border: `1px solid ${tooltipBorder}`,
                 borderRadius: "8px",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                color: tooltipTextColor,
               }}
+              itemStyle={{ color: tooltipTextColor }}
+              labelStyle={{ color: tooltipLabelColor }}
               cursor={{ stroke: color, strokeWidth: 2 }}
             />
             <Area
@@ -202,13 +221,13 @@ export function KpiChart({
 
   if (title) {
     return (
-      <Card className="border border-zinc-200 bg-white shadow-sm">
-        <CardHeader className="pb-3 border-b border-zinc-100">
-          <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+      <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+        <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
+          <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
             {title}
           </CardTitle>
           {description && (
-            <p className="text-xs sm:text-sm text-zinc-600 mt-1">{description}</p>
+            <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">{description}</p>
           )}
         </CardHeader>
         <CardContent className="pt-4">

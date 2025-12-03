@@ -199,7 +199,7 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
 
     return (
       <div className={cn("flex flex-col gap-2", className)}>
-        <div className="relative border-2 border-dashed border-zinc-300 rounded-lg overflow-hidden bg-slate-50">
+        <div className="relative border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-zinc-900">
           <canvas
             ref={canvasRef}
             width={width}
@@ -221,12 +221,12 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
           />
           {!hasSignature && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <p className="text-zinc-400 text-xs sm:text-sm">Assine aqui</p>
+              <p className="text-zinc-400 dark:text-zinc-500 text-xs sm:text-sm">Assine aqui</p>
             </div>
           )}
         </div>
         <div className="flex justify-between items-center gap-2">
-          <p className="text-[10px] sm:text-xs text-zinc-500 flex-1">
+          <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 flex-1">
             {hasSignature ? "✓ Assinatura capturada" : (
               <>
                 <span className="hidden sm:inline">Use o mouse ou dedo para assinar</span>
@@ -239,7 +239,7 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(
             variant="outline"
             size="sm"
             onClick={clear}
-            className="gap-1.5 min-h-[36px] text-xs sm:text-sm"
+            className="gap-1.5 min-h-[36px] text-xs sm:text-sm dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             <Eraser className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Limpar</span>

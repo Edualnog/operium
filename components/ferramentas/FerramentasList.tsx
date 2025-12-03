@@ -798,6 +798,7 @@ function FerramentasList({
       )}>
         {paginatedFerramentas.map((ferramenta) => (
           <Card key={ferramenta.id} className={cn(
+            "dark:bg-zinc-900 dark:border-zinc-800",
             cardSize === "pequeno" && "hover:shadow-md transition-shadow",
             cardSize === "medio" && "hover:shadow-lg transition-shadow",
             cardSize === "grande" && "hover:shadow-xl transition-shadow"
@@ -878,7 +879,7 @@ function FerramentasList({
 
                 {ferramenta.foto_url ? (
                   <div className={cn(
-                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50",
+                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700",
                     cardSize === "pequeno" && "h-24",
                     cardSize === "medio" && "h-40",
                     cardSize === "grande" && "h-56"
@@ -893,13 +894,13 @@ function FerramentasList({
                   </div>
                 ) : (
                   <div className={cn(
-                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50 flex items-center justify-center",
+                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50 flex items-center justify-center dark:bg-zinc-800 dark:border-zinc-700",
                     cardSize === "pequeno" && "h-24",
                     cardSize === "medio" && "h-40",
                     cardSize === "grande" && "h-56"
                   )}>
                     <Package className={cn(
-                      "text-zinc-400",
+                      "text-zinc-400 dark:text-zinc-500",
                       cardSize === "pequeno" && "h-6 w-6",
                       cardSize === "medio" && "h-12 w-12",
                       cardSize === "grande" && "h-16 w-16"
@@ -1080,14 +1081,14 @@ function FerramentasList({
       )}
 
       {filteredFerramentas.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300">
-          <div className="bg-blue-50 p-4 rounded-full mb-4">
-            <Package className="h-10 w-10 text-blue-500" />
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700">
+          <div className="bg-blue-50 p-4 rounded-full mb-4 dark:bg-blue-900/20">
+            <Package className="h-10 w-10 text-blue-500 dark:text-blue-400" />
           </div>
-          <h3 className="text-lg font-semibold text-zinc-900 mb-2">
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
             {filters.search ? "Nenhum item encontrado" : "Seu estoque está vazio"}
           </h3>
-          <p className="text-zinc-500 max-w-sm mb-6">
+          <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
             {filters.search
               ? "Tente buscar por outro termo ou limpe os filtros."
               : "Comece cadastrando ferramentas, EPIs e consumíveis para controlar seu almoxarifado com eficiência."}

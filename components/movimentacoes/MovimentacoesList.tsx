@@ -629,21 +629,21 @@ export default function MovimentacoesList({
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-100 p-2 rounded-t-lg border border-zinc-200 shadow-sm">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-100 p-2 rounded-t-lg border border-zinc-200 shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
         {/* Left: Actions */}
         <div className="flex items-center gap-1 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" title="Visualizar">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" title="Visualizar">
             <Eye className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" onClick={() => window.print()} title="Imprimir">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => window.print()} title="Imprimir">
             <Printer className="h-4 w-4" />
           </Button>
 
-          <div className="h-4 w-px bg-zinc-300 mx-2" />
+          <div className="h-4 w-px bg-zinc-300 mx-2 dark:bg-zinc-600" />
 
           <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" title="Exportar CSV">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" title="Exportar CSV">
                 <FileDown className="h-4 w-4" />
               </Button>
             </DialogTrigger>
@@ -771,11 +771,11 @@ export default function MovimentacoesList({
             </DialogContent>
           </Dialog>
 
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" onClick={() => setImportModalOpen(true)} title="Importar Excel">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setImportModalOpen(true)} title="Importar Excel">
             <Upload className="h-4 w-4" />
           </Button>
 
-          <div className="h-4 w-px bg-zinc-300 mx-2" />
+          <div className="h-4 w-px bg-zinc-300 mx-2 dark:bg-zinc-600" />
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -822,11 +822,11 @@ export default function MovimentacoesList({
                           <button
                             type="button"
                             key={s.id}
-                            className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm"
+                            className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm dark:hover:bg-zinc-800"
                             onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
                           >
-                            <div className="text-sm font-medium text-zinc-900">{s.nome}</div>
-                            <div className="text-xs text-zinc-500">{s.tipo_item || "Produto"}</div>
+                            <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{s.nome}</div>
+                            <div className="text-xs text-zinc-500 dark:text-zinc-400">{s.tipo_item || "Produto"}</div>
                           </button>
                         ))}
                       </div>
@@ -861,7 +861,7 @@ export default function MovimentacoesList({
                               <button
                                 type="button"
                                 key={c.id}
-                                className="w-full text-left px-3 py-2 hover:bg-zinc-50"
+                                className="w-full text-left px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800"
                                 onClick={() =>
                                   setForm((f) => ({
                                     ...f,
@@ -870,7 +870,7 @@ export default function MovimentacoesList({
                                   }))
                                 }
                               >
-                                <div className="text-sm font-medium text-zinc-900">{c.nome}</div>
+                                <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{c.nome}</div>
                               </button>
                             ))}
                           </div>
@@ -903,7 +903,7 @@ export default function MovimentacoesList({
 
                   {/* Checkbox de assinatura - só aparece para retirada/devolução */}
                   {(form.tipo === "retirada" || form.tipo === "devolucao") && (
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
                       <Checkbox
                         id="solicitar-assinatura"
                         checked={solicitarAssinatura}
@@ -912,12 +912,12 @@ export default function MovimentacoesList({
                       <div className="flex-1">
                         <label
                           htmlFor="solicitar-assinatura"
-                          className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2"
+                          className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2 dark:text-blue-100"
                         >
                           <FileSignature className="h-4 w-4" />
                           Solicitar assinatura digital
                         </label>
-                        <p className="text-xs text-blue-700 mt-0.5">
+                        <p className="text-xs text-blue-700 mt-0.5 dark:text-blue-300">
                           Gera termo de responsabilidade com assinatura do colaborador
                         </p>
                       </div>
@@ -939,12 +939,12 @@ export default function MovimentacoesList({
 
         {/* Right: Search */}
         <div className="relative w-full md:max-w-xs">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
           <Input
             placeholder="Buscar..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 text-sm bg-white border-zinc-300 focus:border-blue-500"
+            className="pl-9 h-9 text-sm bg-white border-zinc-300 focus:border-blue-500 dark:bg-zinc-900 dark:border-zinc-700"
           />
         </div>
       </div>
@@ -957,10 +957,10 @@ export default function MovimentacoesList({
         totalEncontrados={filtered.length}
       />
 
-      <div className="border border-zinc-200 rounded-b-lg overflow-hidden bg-white shadow-sm">
+      <div className="border border-zinc-200 rounded-b-lg overflow-hidden bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
         {/* Header - Desktop */}
-        <div className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 bg-slate-700 text-white font-semibold text-xs uppercase tracking-wider items-center">
-          <div className="flex justify-center"><Checkbox className="border-white/50 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500" /></div>
+        <div className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 bg-slate-700 text-white font-semibold text-xs uppercase tracking-wider items-center dark:bg-slate-900">
+          <div className="flex justify-center"><Checkbox className="border-white/50 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 dark:border-zinc-500" /></div>
           <div className="flex justify-center"><Star className="h-3 w-3" /></div>
           <div className="flex justify-center">Tipo</div>
           <div>ID</div>
@@ -971,36 +971,36 @@ export default function MovimentacoesList({
         </div>
 
         {/* Corpo da tabela */}
-        <div className="divide-y divide-zinc-200">
+        <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
           {paginatedMovimentacoes.map((m) => (
             <Fragment key={m.id}>
               {/* Versão Desktop */}
               <div
                 onClick={() => handleOpenDetail(m.id)}
-                className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 hover:bg-blue-50/50 transition-colors items-center text-sm text-zinc-700 group cursor-pointer"
+                className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 hover:bg-blue-50/50 transition-colors items-center text-sm text-zinc-700 group cursor-pointer dark:text-zinc-300 dark:hover:bg-blue-900/10"
               >
                 <div className="flex justify-center" onClick={e => e.stopPropagation()}><Checkbox /></div>
-                <div className="flex justify-center text-zinc-300 hover:text-yellow-400 cursor-pointer transition-colors" onClick={e => e.stopPropagation()}><Star className="h-4 w-4" /></div>
+                <div className="flex justify-center text-zinc-300 hover:text-yellow-400 cursor-pointer transition-colors dark:text-zinc-600" onClick={e => e.stopPropagation()}><Star className="h-4 w-4" /></div>
                 <div className="flex justify-center" title={m.tipo}>
                   {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600" />}
                   {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
                   {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600" />}
                   {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600" />}
                 </div>
-                <div className="font-mono text-xs text-zinc-500">#{m.id.substring(0, 4)}</div>
-                <div className="font-medium text-zinc-900 truncate flex items-center gap-2">
+                <div className="font-mono text-xs text-zinc-500 dark:text-zinc-400">#{m.id.substring(0, 4)}</div>
+                <div className="font-medium text-zinc-900 truncate flex items-center gap-2 dark:text-zinc-100">
                   <span className="truncate">{m.ferramentas?.nome || "Produto"}</span>
                   {m.quantidade > 1 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{m.quantidade}</Badge>}
                 </div>
                 <div className="truncate text-xs">{m.colaboradores?.nome || "-"}</div>
-                <div className="text-xs text-zinc-500">{m.data ? format(new Date(m.data), "dd/MM/yyyy", { locale: ptBR }) : "-"}</div>
-                <div className="truncate text-xs text-zinc-400">{m.observacoes || "-"}</div>
+                <div className="text-xs text-zinc-500 dark:text-zinc-400">{m.data ? format(new Date(m.data), "dd/MM/yyyy", { locale: ptBR }) : "-"}</div>
+                <div className="truncate text-xs text-zinc-400 dark:text-zinc-500">{m.observacoes || "-"}</div>
               </div>
 
               {/* Versão Mobile */}
               <div
                 onClick={() => handleOpenDetail(m.id)}
-                className="md:hidden p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer"
+                className="md:hidden p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer dark:border-zinc-700 dark:active:bg-zinc-800"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -1015,11 +1015,11 @@ export default function MovimentacoesList({
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-sm text-zinc-900">
+                  <p className="font-medium text-sm text-zinc-900 dark:text-zinc-100">
                     {m.ferramentas?.nome || "Produto"}
                   </p>
                 </div>
-                <div className="flex items-center justify-between text-xs text-zinc-600">
+                <div className="flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-400">
                   <span>Qtd: <strong>{m.quantidade}</strong></span>
                   <span>Resp: <strong>{m.colaboradores?.nome || "-"}</strong></span>
                 </div>
@@ -1030,7 +1030,7 @@ export default function MovimentacoesList({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
+      <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500 dark:text-zinc-400">
         <div>
           Mostrando {paginatedMovimentacoes.length} de {filtered.length} registros
           {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
@@ -1059,16 +1059,16 @@ export default function MovimentacoesList({
       </div>
 
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 mt-4">
-          <div className="bg-blue-50 p-4 rounded-full mb-4">
-            <RotateCcw className="h-10 w-10 text-blue-500" />
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 mt-4 dark:bg-zinc-900 dark:border-zinc-700">
+          <div className="bg-blue-50 p-4 rounded-full mb-4 dark:bg-blue-900/20">
+            <RotateCcw className="h-10 w-10 text-blue-500 dark:text-blue-400" />
           </div>
-          <h3 className="text-lg font-semibold text-zinc-900 mb-2">
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
             {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
               ? "Nenhuma movimentação encontrada"
               : "Nenhuma movimentação registrada"}
           </h3>
-          <p className="text-zinc-500 max-w-sm mb-6">
+          <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
             {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
               ? "Tente ajustar os filtros ou buscar por outro termo."
               : "Registre entradas, saídas e devoluções para manter o histórico do seu almoxarifado sempre atualizado."}

@@ -71,7 +71,7 @@ export default function InventarioList() {
   const [selectedInventario, setSelectedInventario] = useState<Inventario | null>(null)
   const [viewMode, setViewMode] = useState<"list" | "contagem" | "comparativo">("list")
   const [creating, setCreating] = useState(false)
-  
+
   const [newInventario, setNewInventario] = useState({
     descricao: "",
     responsavel: "",
@@ -121,7 +121,7 @@ export default function InventarioList() {
         .not("categoria", "is", null)
 
       if (error) throw error
-      
+
       const uniqueCategorias = Array.from(new Set(data?.map(d => d.categoria).filter(Boolean)))
       setCategorias(uniqueCategorias as string[])
     } catch (error) {
@@ -228,11 +228,11 @@ export default function InventarioList() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "em_andamento":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200"><Clock className="h-3 w-3 mr-1" />Em Andamento</Badge>
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-800"><Clock className="h-3 w-3 mr-1" />Em Andamento</Badge>
       case "finalizado":
-        return <Badge className="bg-green-100 text-green-800 border-green-200"><CheckCircle2 className="h-3 w-3 mr-1" />Finalizado</Badge>
+        return <Badge className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-200 dark:border-green-800"><CheckCircle2 className="h-3 w-3 mr-1" />Finalizado</Badge>
       case "cancelado":
-        return <Badge className="bg-red-100 text-red-800 border-red-200"><XCircle className="h-3 w-3 mr-1" />Cancelado</Badge>
+        return <Badge className="bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-200 dark:border-red-800"><XCircle className="h-3 w-3 mr-1" />Cancelado</Badge>
       default:
         return null
     }
@@ -277,13 +277,13 @@ export default function InventarioList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 flex items-center gap-3 dark:text-zinc-100">
             <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white">
               <ClipboardList className="h-6 w-6" />
             </div>
             Inventário
           </h1>
-          <p className="text-zinc-600 mt-1">Balanço e contagem de estoque</p>
+          <p className="text-zinc-600 mt-1 dark:text-zinc-400">Balanço e contagem de estoque</p>
         </div>
         <Button
           onClick={() => setShowNewModal(true)}
@@ -300,12 +300,12 @@ export default function InventarioList() {
           <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
         </div>
       ) : inventarios.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-2xl border border-zinc-200">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center">
-            <ClipboardList className="h-8 w-8 text-purple-600" />
+        <div className="text-center py-12 bg-white rounded-2xl border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-700">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center dark:bg-purple-900/20">
+            <ClipboardList className="h-8 w-8 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="text-lg font-semibold text-zinc-900 mb-2">Nenhum inventário</h3>
-          <p className="text-zinc-600 mb-6">Crie seu primeiro inventário para começar a contagem</p>
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">Nenhum inventário</h3>
+          <p className="text-zinc-600 mb-6 dark:text-zinc-400">Crie seu primeiro inventário para começar a contagem</p>
           <Button
             onClick={() => setShowNewModal(true)}
             className="gap-2 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700"
@@ -319,16 +319,16 @@ export default function InventarioList() {
           {inventarios.map((inv) => (
             <div
               key={inv.id}
-              className="bg-white rounded-xl border border-zinc-200 p-4 sm:p-6 hover:shadow-lg transition-all"
+              className="bg-white rounded-xl border border-zinc-200 p-4 sm:p-6 hover:shadow-lg transition-all dark:bg-zinc-900 dark:border-zinc-700"
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold text-lg text-zinc-900">{inv.descricao}</h3>
+                    <h3 className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{inv.descricao}</h3>
                     {getStatusBadge(inv.status)}
                   </div>
-                  
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-600 mb-4">
+
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-600 mb-4 dark:text-zinc-400">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       {format(new Date(inv.data_inicio), "dd/MM/yyyy HH:mm", { locale: ptBR })}
@@ -348,10 +348,10 @@ export default function InventarioList() {
                   {/* Barra de progresso */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-sm">
-                      <span className="text-zinc-600">Progresso da contagem</span>
-                      <span className="font-medium">{inv.itens_contados}/{inv.total_itens} ({getProgressPercent(inv)}%)</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">Progresso da contagem</span>
+                      <span className="font-medium dark:text-zinc-200">{inv.itens_contados}/{inv.total_itens} ({getProgressPercent(inv)}%)</span>
                     </div>
-                    <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                       <div
                         className="h-full bg-gradient-to-r from-purple-500 to-violet-600 rounded-full transition-all"
                         style={{ width: `${getProgressPercent(inv)}%` }}
@@ -362,8 +362,8 @@ export default function InventarioList() {
                   {/* Divergências */}
                   {inv.status === "finalizado" && inv.total_divergencias > 0 && (
                     <div className="mt-3 flex items-center gap-2 text-sm">
-                      <AlertTriangle className="h-4 w-4 text-orange-500" />
-                      <span className="text-orange-700">
+                      <AlertTriangle className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+                      <span className="text-orange-700 dark:text-orange-300">
                         {inv.total_divergencias} divergência{inv.total_divergencias !== 1 ? "s" : ""} encontrada{inv.total_divergencias !== 1 ? "s" : ""}
                       </span>
                     </div>
@@ -402,7 +402,7 @@ export default function InventarioList() {
                     onClick={() => handleDeleteInventario(inv.id)}
                     variant="ghost"
                     size="icon"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -418,7 +418,7 @@ export default function InventarioList() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-purple-600" />
+              <ClipboardList className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               Novo Inventário
             </DialogTitle>
             <DialogDescription>
@@ -451,7 +451,7 @@ export default function InventarioList() {
               <Label htmlFor="escopo">Escopo</Label>
               <Select
                 value={newInventario.escopo}
-                onValueChange={(value: "todos" | "categoria" | "selecionados") => 
+                onValueChange={(value: "todos" | "categoria" | "selecionados") =>
                   setNewInventario({ ...newInventario, escopo: value })
                 }
               >
@@ -470,7 +470,7 @@ export default function InventarioList() {
                 <Label htmlFor="categoria">Categoria</Label>
                 <Select
                   value={newInventario.categoria_filtro}
-                  onValueChange={(value) => 
+                  onValueChange={(value) =>
                     setNewInventario({ ...newInventario, categoria_filtro: value })
                   }
                 >
