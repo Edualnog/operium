@@ -58,6 +58,7 @@ interface LandingPageProps {
 export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: LandingPageProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [plan, setPlan] = useState<"mensal" | "anual">("anual")
   const router = useRouter()
 
   const handleStart = () => {
@@ -584,10 +585,50 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 MAIS POPULAR
               </div>
 
-              <div className="mb-8">
-                <span className="text-5xl font-bold text-slate-900">R$ 39,90</span>
+              {/* Plan Toggle */}
+              <div className="flex justify-center mb-8">
+                <div className="bg-slate-100 p-1 rounded-xl inline-flex relative">
+                  <button
+                    onClick={() => setPlan("mensal")}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${plan === "mensal"
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-500 hover:text-slate-900"
+                      }`}
+                  >
+                    Mensal
+                  </button>
+                  <button
+                    onClick={() => setPlan("anual")}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${plan === "anual"
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-500 hover:text-slate-900"
+                      }`}
+                  >
+                    Anual
+                    <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full">
+                      -33%
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-2">
+                {plan === "anual" ? (
+                  <>
+                    <span className="text-xl text-slate-400 line-through mr-2">R$ 59,90</span>
+                    <span className="text-5xl font-bold text-slate-900">R$ 39,90</span>
+                  </>
+                ) : (
+                  <span className="text-5xl font-bold text-slate-900">R$ 59,90</span>
+                )}
                 <span className="text-slate-500">/mês</span>
               </div>
+
+              <p className="text-sm text-slate-500 mb-8">
+                {plan === "anual"
+                  ? "Cobrado anualmente (R$ 478,80)"
+                  : "Cobrado mensalmente"}
+              </p>
 
               <ul className="space-y-4 mb-10 text-left max-w-xs mx-auto">
                 {[
