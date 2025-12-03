@@ -17,8 +17,8 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
     const [steps, setSteps] = useState([
         {
             id: "company",
-            label: "Criar sua empresa",
-            description: "Configure os dados do seu negócio",
+            label: "Crie sua empresa",
+            description: "Personalize o sistema para seu negócio",
             completed: false,
             icon: Building2,
             actionLabel: "Configurações",
@@ -162,8 +162,8 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                                 <CheckCircle2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-green-900 text-lg">Parabéns! Você completou o setup inicial.</h3>
-                                <p className="text-green-700">Sua empresa está pronta para operar com eficiência máxima.</p>
+                                <h3 className="font-semibold text-green-900 text-lg">Parabéns! Seu sistema está pronto.</h3>
+                                <p className="text-green-700">Adicione mais produtos ou registre transações sempre que precisar.</p>
                             </div>
                         </div>
                         <Button
@@ -211,6 +211,9 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     />
                 </div>
+                <p className="text-xs text-blue-400 text-center mt-2 font-medium">
+                    Estamos montando seu ambiente com você
+                </p>
             </CardHeader>
             <CardContent className="p-0">
                 <div className="divide-y divide-blue-50">
