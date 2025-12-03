@@ -23,6 +23,7 @@ function SubscribeContent() {
   const [checkingStatus, setCheckingStatus] = useState(true)
   const [error, setError] = useState("")
   const [warning, setWarning] = useState("")
+  const [plan, setPlan] = useState<"mensal" | "anual">("anual")
   const router = useRouter()
   const supabase = createClientComponentClient()
 
@@ -95,6 +96,7 @@ function SubscribeContent() {
       const response = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
       })
 
       const data = await response.json()
@@ -209,6 +211,33 @@ function SubscribeContent() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-8"
           >
+            {/* Plan Toggle */}
+            <div className="flex justify-center mb-8">
+              <div className="bg-slate-100 p-1 rounded-xl inline-flex relative">
+                <button
+                  onClick={() => setPlan("mensal")}
+                  className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${plan === "mensal"
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
+                    }`}
+                >
+                  Mensal
+                </button>
+                <button
+                  onClick={() => setPlan("anual")}
+                  className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${plan === "anual"
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
+                    }`}
+                >
+                  Anual
+                  <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full">
+                    -33%
+                  </span>
+                </button>
+              </div>
+            </div>
+
             {/* Price */}
             <div className="text-center mb-8 pb-8 border-b border-slate-200">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-4">
@@ -216,17 +245,29 @@ function SubscribeContent() {
                 Plano Profissional
               </div>
               <div className="flex items-baseline justify-center gap-2">
-                <span className="text-xl text-slate-400 line-through">R$69,90</span>
-                <span className="text-5xl font-bold text-slate-900">R$39,90</span>
+                {plan === "anual" ? (
+                  <>
+                    <span className="text-xl text-slate-400 line-through">R$59,90</span>
+                    <span className="text-5xl font-bold text-slate-900">R$39,90</span>
+                  </>
+                ) : (
+                  <span className="text-5xl font-bold text-slate-900">R$59,90</span>
+                )}
                 <span className="text-slate-500">/mês</span>
               </div>
-              <div className="flex items-center justify-center gap-2 mt-2">
-                <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                  43% OFF
-                </span>
-              </div>
+
+              {plan === "anual" && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                    Economize R$ 240/ano
+                  </span>
+                </div>
+              )}
+
               <p className="mt-2 text-slate-500">
-                Após 7 dias de teste grátis
+                {plan === "anual"
+                  ? "Cobrado anualmente (R$ 478,80)"
+                  : "Cobrado mensalmente"}
               </p>
             </div>
 

@@ -5,21 +5,27 @@ import { NextResponse } from 'next/server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder")
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
     const cookieStore = await cookies()
+    // Ler o body para obter o plano
+    const body = await req.json()
+    const { plan } = body
 
-    // Verificar variáveis de ambiente obrigatórias
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return NextResponse.json(
-        { error: "Configuração do servidor inválida." },
-        { status: 500 }
-      )
+    // Definir Price ID com base no plano
+    let priceId = process.env.STRIPE_PRICE_ID // Default (mensal ou o que estiver configurado)
+
+    if (plan === "anual") {
+      priceId = "price_1SaE6kGzXnyQEqRwIIX19uxm"
+    } else if (plan === "mensal") {
+      // Se tiver uma variável específica para mensal, use-a. 
+      // Caso contrário, assume que STRIPE_PRICE_ID é o mensal.
+      priceId = process.env.STRIPE_PRICE_ID_MONTHLY || process.env.STRIPE_PRICE_ID
     }
 
-    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_PRICE_ID) {
+    if (!process.env.STRIPE_SECRET_KEY || !priceId) {
       return NextResponse.json(
-        { error: "Configuração do Stripe inválida." },
+        { error: "Configuração do Stripe inválida (Price ID não encontrado)." },
         { status: 500 }
       )
     }
@@ -104,7 +110,7 @@ export async function POST() {
       customer: customerId,
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID,
+          price: priceId,
           quantity: 1,
         },
       ],
