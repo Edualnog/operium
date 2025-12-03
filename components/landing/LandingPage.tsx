@@ -540,12 +540,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
               Não deixe para depois. O controle que você precisa está a um clique de distância.
             </p>
-            <RainbowButton
+            <button
               onClick={handleStart}
-              className="px-10 py-5 h-auto text-lg font-bold rounded-xl"
+              className="px-10 py-5 rounded-full bg-white text-blue-600 font-bold text-lg hover:bg-blue-50 transition-colors shadow-2xl hover:shadow-white/20"
             >
               Criar conta grátis agora
-            </RainbowButton>
+            </button>
             <p className="mt-6 text-blue-200 text-sm">
               Junte-se a mais de 200 empresas inteligentes
             </p>
