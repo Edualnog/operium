@@ -2,13 +2,33 @@ import Stripe from "stripe"
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse, NextRequest } from "next/server"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder")
+function getStripeClient() {
+  const secretKey = process.env.STRIPE_SECRET_KEY
+
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY não configurada")
+  }
+
+  return new Stripe(secretKey)
+}
 
 // Desabilitar body parsing para esta rota (necessário para webhooks do Stripe)
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
+  let stripe: Stripe
+
+  try {
+    stripe = getStripeClient()
+  } catch (stripeError: any) {
+    console.error("Stripe client error:", stripeError)
+    return NextResponse.json(
+      { error: stripeError.message || "Stripe não configurado" },
+      { status: 500 }
+    )
+  }
+
   // Ler o body como texto raw (necessário para validação do Stripe)
   const rawBody = await req.text()
   const signature = req.headers.get("stripe-signature")
@@ -45,7 +65,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Criar cliente Supabase com service role (bypass RLS)
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE) {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE || process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!process.env.SUPABASE_URL || !serviceRoleKey) {
     console.error("Supabase environment variables not configured")
     return NextResponse.json(
       { error: "Server configuration error" },
@@ -55,7 +77,7 @@ export async function POST(req: NextRequest) {
 
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE
+    serviceRoleKey
   )
 
   try {
@@ -191,4 +213,3 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ received: true })
 }
-

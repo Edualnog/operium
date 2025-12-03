@@ -1,6 +1,26 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { NextRequest, NextResponse } from "next/server"
 
+const ALLOWED_BUCKETS = ["colaboradores-fotos", "produtos-fotos"] as const
+
+export function resolveBucketName(
+  colaboradorId: string | null,
+  productId: string | null,
+  bucketNameParam: string | null
+) {
+  const trimmedBucket = bucketNameParam?.trim()
+
+  if (trimmedBucket) {
+    if (!ALLOWED_BUCKETS.includes(trimmedBucket as (typeof ALLOWED_BUCKETS)[number])) {
+      throw new Error("Bucket não permitido")
+    }
+    return trimmedBucket
+  }
+
+  if (colaboradorId) return "colaboradores-fotos"
+  return "produtos-fotos"
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerComponentClient()
@@ -24,9 +44,17 @@ export async function POST(request: NextRequest) {
     const colaboradorId = formData.get("colaboradorId") as string | null
     const productId = formData.get("productId") as string | null
     const bucketNameParam = formData.get("bucketName") as string | null
-    const bucketName = bucketNameParam && bucketNameParam.trim() !== "" 
-      ? bucketNameParam 
-      : (colaboradorId ? "colaboradores-fotos" : "produtos-fotos")
+
+    let bucketName: string
+
+    try {
+      bucketName = resolveBucketName(colaboradorId, productId, bucketNameParam)
+    } catch (bucketError: any) {
+      return NextResponse.json(
+        { error: bucketError.message || "Bucket inválido" },
+        { status: 400 }
+      )
+    }
 
     if (!file) {
       return NextResponse.json(
@@ -98,4 +126,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

@@ -3,7 +3,8 @@ const nextConfig = {
   // Configuração básica e estável
   compress: true,
   poweredByHeader: false,
-  reactStrictMode: false,
+  // Ativar Strict Mode ajuda a identificar efeitos colaterais em dev
+  reactStrictMode: true,
   swcMinify: true,
   // Otimização de imagens
   images: {

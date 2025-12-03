@@ -3,11 +3,20 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder")
+function getStripeClient() {
+  const secretKey = process.env.STRIPE_SECRET_KEY
+
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY não configurada")
+  }
+
+  return new Stripe(secretKey)
+}
 
 export async function POST() {
   try {
     const cookieStore = await cookies()
+    const stripe = getStripeClient()
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return NextResponse.json(
@@ -83,4 +92,3 @@ export async function POST() {
     )
   }
 }
-
