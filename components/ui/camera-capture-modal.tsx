@@ -28,15 +28,28 @@ export function CameraCaptureModal({
     const [loading, setLoading] = useState(false)
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
+    const streamRef = useRef<MediaStream | null>(null)
+
+    const stopCamera = useCallback(() => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach((track) => track.stop())
+            streamRef.current = null
+            setStream(null)
+        }
+    }, [])
 
     const startCamera = useCallback(async () => {
         setLoading(true)
         setError(null)
+        // Parar stream anterior se existir
+        stopCamera()
+
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment" }, // Prefer rear camera on mobile
                 audio: false,
             })
+            streamRef.current = mediaStream
             setStream(mediaStream)
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream
@@ -49,21 +62,13 @@ export function CameraCaptureModal({
         } finally {
             setLoading(false)
         }
-    }, [])
-
-    const stopCamera = useCallback(() => {
-        if (stream) {
-            stream.getTracks().forEach((track) => track.stop())
-            setStream(null)
-        }
-    }, [stream])
+    }, [stopCamera])
 
     useEffect(() => {
         if (isOpen) {
             startCamera()
-        } else {
-            stopCamera()
         }
+
         return () => {
             stopCamera()
         }
