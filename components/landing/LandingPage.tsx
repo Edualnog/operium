@@ -26,6 +26,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
 import { RainbowButton } from "@/components/ui/rainbow-button"
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -122,6 +123,39 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       content: "O controle de EPIs é sensacional. O sistema avisa antes de vencer, nunca mais paguei multa ou corri risco."
     }
   ]
+
+  const partners = [
+    {
+      id: 1,
+      name: "João Silva",
+      designation: "CEO da TechFix",
+      image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80",
+    },
+    {
+      id: 2,
+      name: "Maria Santos",
+      designation: "Diretora da ConstruMax",
+      image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60",
+    },
+    {
+      id: 3,
+      name: "Pedro Costa",
+      designation: "Gerente da EletroFast",
+      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60",
+    },
+    {
+      id: 4,
+      name: "Ana Oliveira",
+      designation: "Sócia da Mecânica Sul",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGF2YXRhcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60",
+    },
+    {
+      id: 5,
+      name: "Carlos Souza",
+      designation: "Dono da Refrigeração Z",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3540&q=80",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100">
@@ -237,6 +271,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       <p className="text-sm text-slate-500 font-medium">
                         Sem cartão de crédito • Cancele quando quiser
                       </p>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center gap-4 mb-8">
+                      <p className="text-sm text-slate-500 font-medium">Empresas parceiras que confiam no Almox Fácil</p>
+                      <div className="flex flex-row items-center justify-center w-full">
+                        <AnimatedTooltip items={partners} />
+                      </div>
                     </div>
                   </motion.div>
                 </>
