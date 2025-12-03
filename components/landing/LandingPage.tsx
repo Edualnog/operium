@@ -270,7 +270,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                     <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
                   </div>
                   <div className="col-span-12 md:col-span-9 space-y-6">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-4 gap-4">
                       <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
                         <div className="h-8 w-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
                           <Box className="h-4 w-4 text-blue-400" />
@@ -286,6 +286,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
                         <div className="h-8 w-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
                           <AlertTriangle className="h-4 w-4 text-orange-400" />
+                        </div>
+                        <div className="h-2 w-16 bg-slate-700 rounded" />
+                      </div>
+                      <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
+                        <div className="h-8 w-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                          <Users className="h-4 w-4 text-purple-400" />
                         </div>
                         <div className="h-2 w-16 bg-slate-700 rounded" />
                       </div>
