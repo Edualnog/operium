@@ -366,7 +366,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       <Star key={starI} className="h-4 w-4 fill-current" />
                     ))}
                   </div>
-                  <p className="text-slate-300 mb-6 leading-relaxed">"{t.content}"</p>
+                  <p className="text-slate-300 mb-6 leading-relaxed">&quot;{t.content}&quot;</p>
                   <div>
                     <p className="font-bold text-white">{t.name}</p>
                     <p className="text-sm text-slate-500">{t.role}, {t.company}</p>

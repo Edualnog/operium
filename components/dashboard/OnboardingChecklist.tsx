@@ -112,7 +112,7 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
         }
 
         checkProgress()
-    }, [userId])
+    }, [userId, completedAll])
 
     // Se estiver carregando, mostra skeleton ou nada? Vamos mostrar skeleton básico.
     if (loading) {
