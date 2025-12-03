@@ -66,10 +66,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     if (subscriptionStatus === "active") {
       return {
         label: "Profissional",
-        color: "bg-green-500",
-        textColor: "text-green-700",
-        bgColor: "bg-green-50",
-        borderColor: "border-green-200",
+        color: "bg-green-500 dark:bg-green-600",
+        textColor: "text-green-700 dark:text-green-300",
+        bgColor: "bg-green-50 dark:bg-green-900/20",
+        borderColor: "border-green-200 dark:border-green-800",
         icon: Crown,
         description: "Acesso completo a todas as funcionalidades"
       }
@@ -78,10 +78,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     if (subscriptionStatus === "trialing") {
       return {
         label: "Teste Grátis",
-        color: "bg-blue-500",
-        textColor: "text-blue-700",
-        bgColor: "bg-blue-50",
-        borderColor: "border-blue-200",
+        color: "bg-blue-500 dark:bg-blue-600",
+        textColor: "text-blue-700 dark:text-blue-300",
+        bgColor: "bg-blue-50 dark:bg-blue-900/20",
+        borderColor: "border-blue-200 dark:border-blue-800",
         icon: Zap,
         description: "7 dias de acesso completo para experimentar"
       }
@@ -90,10 +90,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     if (subscriptionStatus === "past_due") {
       return {
         label: "Pagamento Pendente",
-        color: "bg-amber-500",
-        textColor: "text-amber-700",
-        bgColor: "bg-amber-50",
-        borderColor: "border-amber-200",
+        color: "bg-amber-500 dark:bg-amber-600",
+        textColor: "text-amber-700 dark:text-amber-300",
+        bgColor: "bg-amber-50 dark:bg-amber-900/20",
+        borderColor: "border-amber-200 dark:border-amber-800",
         icon: CreditCard,
         description: "Atualize sua forma de pagamento"
       }
@@ -102,10 +102,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     if (subscriptionStatus === "canceled") {
       return {
         label: "Cancelado",
-        color: "bg-red-500",
-        textColor: "text-red-700",
-        bgColor: "bg-red-50",
-        borderColor: "border-red-200",
+        color: "bg-red-500 dark:bg-red-600",
+        textColor: "text-red-700 dark:text-red-300",
+        bgColor: "bg-red-50 dark:bg-red-900/20",
+        borderColor: "border-red-200 dark:border-red-800",
         icon: Shield,
         description: "Sua assinatura foi cancelada"
       }
@@ -115,10 +115,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     if (trialStatus.isInTrial) {
       return {
         label: "Teste Grátis",
-        color: "bg-blue-500",
-        textColor: "text-blue-700",
-        bgColor: "bg-blue-50",
-        borderColor: "border-blue-200",
+        color: "bg-blue-500 dark:bg-blue-600",
+        textColor: "text-blue-700 dark:text-blue-300",
+        bgColor: "bg-blue-50 dark:bg-blue-900/20",
+        borderColor: "border-blue-200 dark:border-blue-800",
         icon: Zap,
         description: `Restam ${trialStatus.daysRemaining} dias de acesso gratuito`
       }
@@ -140,10 +140,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
 
     return {
       label: "Sem Plano",
-      color: "bg-slate-400",
-      textColor: "text-slate-700",
-      bgColor: "bg-slate-50",
-      borderColor: "border-slate-200",
+      color: "bg-slate-400 dark:bg-slate-600",
+      textColor: "text-slate-700 dark:text-slate-300",
+      bgColor: "bg-slate-50 dark:bg-zinc-800",
+      borderColor: "border-slate-200 dark:border-zinc-700",
       icon: User,
       description: "Assine para acessar todas as funcionalidades"
     }
@@ -220,10 +220,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     <div className="max-w-4xl space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-zinc-50">
           Minha Conta
         </h1>
-        <p className="text-slate-600 mt-1">
+        <p className="text-slate-600 mt-1 dark:text-zinc-400">
           Gerencie sua assinatura e dados da empresa
         </p>
       </div>
@@ -232,7 +232,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-xl border-2 ${statusInfo.borderColor} ${statusInfo.bgColor} p-6`}
+        className={`rounded-xl border-2 ${statusInfo.borderColor} ${statusInfo.bgColor} p-6 dark:bg-zinc-900 dark:border-zinc-800`}
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-start gap-4">
@@ -241,21 +241,21 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-zinc-50">
                   Plano {statusInfo.label}
                 </h2>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.textColor} ${statusInfo.bgColor} border ${statusInfo.borderColor}`}>
                   Ativo
                 </span>
               </div>
-              <p className="text-slate-600 mt-1">
+              <p className="text-slate-600 mt-1 dark:text-zinc-400">
                 {statusInfo.description}
               </p>
               {(subscriptionStatus === "active" || subscriptionStatus === "trialing" || hasStripeCustomer) && (
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-sm text-slate-400 line-through">R$ 69,90</span>
-                  <span className="text-sm font-semibold text-slate-700">R$ 39,90/mês</span>
-                  <span className="px-1.5 py-0.5 rounded bg-green-100 text-green-700 text-xs font-medium">43% OFF</span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-zinc-200">R$ 39,90/mês</span>
+                  <span className="px-1.5 py-0.5 rounded bg-green-100 text-green-700 text-xs font-medium dark:bg-green-900/30 dark:text-green-400">43% OFF</span>
                 </div>
               )}
             </div>
@@ -265,7 +265,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             <button
               onClick={handleManageSubscription}
               disabled={portalLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-700"
             >
               {portalLoading ? "Abrindo..." : "Gerenciar assinatura"}
               <ExternalLink className="h-4 w-4" />
@@ -284,11 +284,11 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
 
         {/* Features do plano */}
         {(subscriptionStatus === "active" || subscriptionStatus === "trialing" || hasStripeCustomer) && (
-          <div className="mt-6 pt-6 border-t border-slate-200/50">
-            <p className="text-sm font-medium text-slate-700 mb-3">Incluído no seu plano:</p>
+          <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-zinc-800">
+            <p className="text-sm font-medium text-slate-700 mb-3 dark:text-zinc-300">Incluído no seu plano:</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {planFeatures.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm text-slate-600">
+                <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-zinc-400">
                   <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
                   <span>{feature}</span>
                 </div>
@@ -303,24 +303,24 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-xl border border-slate-200 bg-white p-6"
+        className="rounded-xl border border-slate-200 bg-white p-6 dark:bg-zinc-900 dark:border-zinc-800"
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-slate-100">
-            <Mail className="h-5 w-5 text-slate-600" />
+          <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
+            <Mail className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Informações da Conta</h3>
-            <p className="text-sm text-slate-500">Dados vinculados ao seu login</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">Informações da Conta</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">Dados vinculados ao seu login</p>
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label className="text-slate-600">Email</Label>
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200">
+            <Label className="text-slate-600 dark:text-zinc-400">Email</Label>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
               <Mail className="h-4 w-4 text-slate-400" />
-              <span className="text-slate-700">{user.email}</span>
+              <span className="text-slate-700 dark:text-zinc-200">{user.email}</span>
             </div>
             <p className="text-xs text-slate-500">
               Este é o email usado para login e notificações
@@ -328,10 +328,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-slate-600">Membro desde</Label>
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200">
+            <Label className="text-slate-600 dark:text-zinc-400">Membro desde</Label>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
               <Calendar className="h-4 w-4 text-slate-400" />
-              <span className="text-slate-700">
+              <span className="text-slate-700 dark:text-zinc-200">
                 {user.created_at
                   ? format(new Date(user.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
                   : "Data não disponível"
@@ -347,44 +347,44 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-xl border border-slate-200 bg-white p-6"
+        className="rounded-xl border border-slate-200 bg-white p-6 dark:bg-zinc-900 dark:border-zinc-800"
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-slate-100">
-            <Building2 className="h-5 w-5 text-slate-600" />
+          <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
+            <Building2 className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Dados da Empresa</h3>
-            <p className="text-sm text-slate-500">Informações para identificação</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">Dados da Empresa</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">Informações para identificação</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="company_name">Nome da Empresa</Label>
+              <Label htmlFor="company_name" className="dark:text-zinc-300">Nome da Empresa</Label>
               <Input
                 id="company_name"
                 value={form.company_name}
                 onChange={(e) => setForm(f => ({ ...f, company_name: e.target.value }))}
                 placeholder="Sua empresa"
-                className="bg-white"
+                className="bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cnpj">CNPJ</Label>
+              <Label htmlFor="cnpj" className="dark:text-zinc-300">CNPJ</Label>
               <Input
                 id="cnpj"
                 value={form.cnpj}
                 onChange={(e) => setForm(f => ({ ...f, cnpj: e.target.value }))}
                 placeholder="00.000.000/0000-00"
-                className="bg-white"
+                className="bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200"
               />
             </div>
 
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="phone">Telefone</Label>
+              <Label htmlFor="phone" className="dark:text-zinc-300">Telefone</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
@@ -392,7 +392,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
                   value={form.phone}
                   onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
                   placeholder="(00) 00000-0000"
-                  className="bg-white pl-10"
+                  className="bg-white pl-10 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200"
                 />
               </div>
             </div>
@@ -420,22 +420,22 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="rounded-xl border border-slate-200 bg-white p-6"
+        className="rounded-xl border border-slate-200 bg-white p-6 dark:bg-zinc-900 dark:border-zinc-800"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-slate-100">
-            <Shield className="h-5 w-5 text-slate-600" />
+          <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
+            <Shield className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Segurança</h3>
-            <p className="text-sm text-slate-500">Opções de segurança da conta</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">Segurança</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">Opções de segurança da conta</p>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
           <div>
-            <p className="font-medium text-slate-700">Alterar senha</p>
-            <p className="text-sm text-slate-500">Recomendamos alterar sua senha periodicamente</p>
+            <p className="font-medium text-slate-700 dark:text-zinc-200">Alterar senha</p>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">Recomendamos alterar sua senha periodicamente</p>
           </div>
           <Button
             variant="outline"
