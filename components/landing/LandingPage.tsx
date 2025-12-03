@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
 import { RainbowButton } from "@/components/ui/rainbow-button"
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
+import mockupDevices from "@/public/images/mockup-devices.png"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -286,90 +287,106 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 </>
               }
             >
-              <div className="w-full h-full relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
-                <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-20" />
+              <div className="w-full h-full relative">
+                <div className="hidden lg:block w-full h-full relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
+                  <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-20" />
 
-                {/* Header Mockup */}
-                <div className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 relative z-10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <Box className="text-white h-5 w-5" />
+                  {/* Header Mockup */}
+                  <div className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <Box className="text-white h-5 w-5" />
+                      </div>
+                      <div className="w-32 h-4 bg-slate-800 rounded" />
                     </div>
-                    <div className="w-32 h-4 bg-slate-800 rounded" />
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 bg-slate-800 rounded-full" />
+                      <div className="w-8 h-8 bg-slate-800 rounded-full" />
+                    </div>
                   </div>
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 bg-slate-800 rounded-full" />
-                    <div className="w-8 h-8 bg-slate-800 rounded-full" />
-                  </div>
-                </div>
 
-                {/* Content Mockup */}
-                <div className="p-6 grid grid-cols-12 gap-6 relative z-10">
-                  <div className="col-span-3 hidden md:block space-y-4">
-                    <div className="h-10 bg-blue-600/10 border border-blue-600/20 rounded-lg w-full flex items-center px-3 gap-2">
-                      <LayoutDashboard className="h-4 w-4 text-blue-500" />
-                      <div className="h-2 w-20 bg-blue-600/20 rounded" />
+                  {/* Content Mockup */}
+                  <div className="p-6 grid grid-cols-12 gap-6 relative z-10">
+                    <div className="col-span-3 hidden md:block space-y-4">
+                      <div className="h-10 bg-blue-600/10 border border-blue-600/20 rounded-lg w-full flex items-center px-3 gap-2">
+                        <LayoutDashboard className="h-4 w-4 text-blue-500" />
+                        <div className="h-2 w-20 bg-blue-600/20 rounded" />
+                      </div>
+                      <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
+                      <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
+                      <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
                     </div>
-                    <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
-                    <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
-                    <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
-                  </div>
-                  <div className="col-span-12 md:col-span-9 space-y-6">
-                    <div className="grid grid-cols-4 gap-4">
-                      <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                        <div className="h-8 w-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                          <Box className="h-4 w-4 text-blue-400" />
-                        </div>
-                        <div className="h-2 w-16 bg-slate-700 rounded" />
-                      </div>
-                      <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                        <div className="h-8 w-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                          <TrendingUp className="h-4 w-4 text-green-400" />
-                        </div>
-                        <div className="h-2 w-16 bg-slate-700 rounded" />
-                      </div>
-                      <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                        <div className="h-8 w-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                          <AlertTriangle className="h-4 w-4 text-orange-400" />
-                        </div>
-                        <div className="h-2 w-16 bg-slate-700 rounded" />
-                      </div>
-                      <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                        <div className="h-8 w-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                          <Users className="h-4 w-4 text-purple-400" />
-                        </div>
-                        <div className="h-2 w-16 bg-slate-700 rounded" />
-                      </div>
-                    </div>
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 h-64 p-4">
-                      <div className="w-full h-8 bg-slate-800 rounded mb-4 flex items-center justify-between px-2">
-                        <div className="h-3 w-24 bg-slate-700 rounded" />
-                        <div className="h-6 w-20 bg-blue-600 rounded text-[10px] text-white flex items-center justify-center font-bold">Nova Saída</div>
-                      </div>
-                      <div className="space-y-3">
-                        {[1, 2, 3, 4].map(i => (
-                          <div key={i} className="w-full h-10 border-b border-slate-700/50 flex items-center gap-4">
-                            <div className="w-8 h-8 bg-slate-800 rounded flex items-center justify-center">
-                              <Box className="h-4 w-4 text-slate-600" />
-                            </div>
-                            <div className="w-1/3 h-3 bg-slate-700 rounded" />
-                            <div className="w-1/4 h-3 bg-slate-800 rounded ml-auto" />
+                    <div className="col-span-12 md:col-span-9 space-y-6">
+                      <div className="grid grid-cols-4 gap-4">
+                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
+                          <div className="h-8 w-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                            <Box className="h-4 w-4 text-blue-400" />
                           </div>
-                        ))}
+                          <div className="h-2 w-16 bg-slate-700 rounded" />
+                        </div>
+                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
+                          <div className="h-8 w-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                            <TrendingUp className="h-4 w-4 text-green-400" />
+                          </div>
+                          <div className="h-2 w-16 bg-slate-700 rounded" />
+                        </div>
+                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
+                          <div className="h-8 w-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                            <AlertTriangle className="h-4 w-4 text-orange-400" />
+                          </div>
+                          <div className="h-2 w-16 bg-slate-700 rounded" />
+                        </div>
+                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
+                          <div className="h-8 w-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                            <Users className="h-4 w-4 text-purple-400" />
+                          </div>
+                          <div className="h-2 w-16 bg-slate-700 rounded" />
+                        </div>
                       </div>
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 h-64 p-4">
+                        <div className="w-full h-8 bg-slate-800 rounded mb-4 flex items-center justify-between px-2">
+                          <div className="h-3 w-24 bg-slate-700 rounded" />
+                          <div className="h-6 w-20 bg-blue-600 rounded text-[10px] text-white flex items-center justify-center font-bold">Nova Saída</div>
+                        </div>
+                        <div className="space-y-3">
+                          {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="w-full h-10 border-b border-slate-700/50 flex items-center gap-4">
+                              <div className="w-8 h-8 bg-slate-800 rounded flex items-center justify-center">
+                                <Box className="h-4 w-4 text-slate-600" />
+                              </div>
+                              <div className="w-1/3 h-3 bg-slate-700 rounded" />
+                              <div className="w-1/4 h-3 bg-slate-800 rounded ml-auto" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Floating Badge */}
+                  <div className="absolute bottom-8 right-8 bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 animate-bounce z-20">
+                    <div className="bg-green-500/20 p-2 rounded-full">
+                      <Check className="h-5 w-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400">Estoque atualizado</p>
+                      <p className="font-bold text-white">Agora mesmo</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Floating Badge */}
-                <div className="absolute bottom-8 right-8 bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 animate-bounce z-20">
-                  <div className="bg-green-500/20 p-2 rounded-full">
-                    <Check className="h-5 w-5 text-green-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Estoque atualizado</p>
-                    <p className="font-bold text-white">Agora mesmo</p>
-                  </div>
+                {/* Mobile/Tablet: carrega mockup via next/image com lazy load */}
+                <div className="relative h-full w-full overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 lg:hidden">
+                  <Image
+                    src={mockupDevices}
+                    alt="Mockup do Almox Fácil em múltiplos dispositivos"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 1024px"
+                    className="object-cover"
+                    placeholder="blur"
+                    loading="lazy"
+                    priority={false}
+                  />
                 </div>
               </div>
             </ContainerScroll>
