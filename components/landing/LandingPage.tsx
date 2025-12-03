@@ -19,7 +19,9 @@ import {
   Box,
   Users,
   AlertTriangle,
+  Headphones,
   Smartphone,
+  CreditCard,
   BarChart3
 } from "lucide-react"
 import Link from "next/link"
@@ -458,6 +460,52 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features List Section */}
+        <section className="py-24 bg-slate-50">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-12 relative">
+              {/* Connecting Line */}
+              <div className="absolute left-[27px] top-8 bottom-8 w-0.5 bg-slate-200 hidden md:block" />
+
+              <div className="relative flex gap-8 items-start">
+                <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-blue-600/20">
+                  <Headphones className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Suporte com 95% de satisfação</h3>
+                  <p className="text-slate-600 text-lg">
+                    Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative flex gap-8 items-start">
+                <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-blue-600/20">
+                  <Smartphone className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Sistema 100% online</h3>
+                  <p className="text-slate-600 text-lg">
+                    Acesse o Almox Fácil a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative flex gap-8 items-start">
+                <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-blue-600/20">
+                  <CreditCard className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Sem cobranças surpresa</h3>
+                  <p className="text-slate-600 text-lg">
+                    Comece seu teste grátis sem cadastrar cartão de crédito. Escolha seu plano e troque quando quiser.
+                  </p>
                 </div>
               </div>
             </div>
