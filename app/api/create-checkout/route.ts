@@ -18,9 +18,7 @@ export async function POST(req: Request) {
     if (plan === "anual") {
       priceId = "price_1SaE6kGzXnyQEqRwIIX19uxm"
     } else if (plan === "mensal") {
-      // Se tiver uma variável específica para mensal, use-a. 
-      // Caso contrário, assume que STRIPE_PRICE_ID é o mensal.
-      priceId = process.env.STRIPE_PRICE_ID_MONTHLY || process.env.STRIPE_PRICE_ID
+      priceId = "price_1SaEi1GzXnyQEqRweQLZoPWp"
     }
 
     if (!process.env.STRIPE_SECRET_KEY || !priceId) {
