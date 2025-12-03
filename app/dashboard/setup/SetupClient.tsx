@@ -61,13 +61,13 @@ export default function CompanySetupPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-            <Card className="w-full max-w-md shadow-lg border-slate-200">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950 p-4">
+            <Card className="w-full max-w-md shadow-lg border-slate-200 dark:bg-zinc-900 dark:border-zinc-800">
                 <CardHeader className="space-y-1">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600">
                         <Building2 className="w-6 h-6" />
                     </div>
-                    <CardTitle className="text-2xl font-bold text-slate-900">Configure sua empresa</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-slate-900 dark:text-zinc-50">Configure sua empresa</CardTitle>
                     <CardDescription>
                         Adicione os dados do seu negócio para personalizar sua experiência.
                     </CardDescription>
@@ -119,7 +119,7 @@ export default function CompanySetupPage() {
                         <Button
                             type="button"
                             variant="ghost"
-                            className="w-full text-slate-500 hover:text-slate-700"
+                            className="w-full text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                             onClick={handleSkip}
                             disabled={loading}
                         >

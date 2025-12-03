@@ -693,7 +693,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="text-center">
                       <p className="text-xs text-zinc-500 mb-1">Total Movimentações</p>
-                      <p className="text-lg font-bold text-zinc-900">
+                      <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.total, 0)}
                       </p>
                     </div>
@@ -1003,7 +1003,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             <span className="text-xs font-medium text-zinc-400">
                               #{index + 1}
                             </span>
-                            <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                            <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
                               {item.nome}
                             </h4>
                           </div>
@@ -1103,7 +1103,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             <span className="text-xs font-medium text-zinc-400">
                               #{index + 1}
                             </span>
-                            <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                            <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
                               {item.nome}
                             </h4>
                           </div>
