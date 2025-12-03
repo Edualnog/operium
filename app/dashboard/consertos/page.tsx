@@ -44,7 +44,7 @@ async function getConsertos(userId: string): Promise<ConsertoItem[]> {
     `)
     .eq("profile_id", userId)
     .order("data_envio", { ascending: false })
-  
+
   // Transformar ferramentas de array para objeto único
   const normalizados: ConsertoItem[] = (data || []).map((conserto: any) => {
     const ferramentaNormalizada = Array.isArray(conserto.ferramentas)
@@ -85,8 +85,8 @@ export default async function ConsertosPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">Consertos</h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Consertos</h1>
+        <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
           Gerencie as ordens de conserto de ferramentas
         </p>
       </div>

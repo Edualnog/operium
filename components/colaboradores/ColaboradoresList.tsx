@@ -1530,7 +1530,7 @@ function ColaboradoresList({
 
       {/* Footer de Paginação */}
       {filteredAndSortedColaboradores.length > 0 && (
-        <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
+        <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500 dark:text-zinc-300">
           <div>
             Mostrando {paginatedColaboradores.length} de {filteredAndSortedColaboradores.length} registros
             {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
