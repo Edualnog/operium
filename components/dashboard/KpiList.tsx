@@ -42,39 +42,39 @@ export function KpiList({
   const hasMoreItems = items.length > maxItems
 
   return (
-    <Card className="border border-zinc-200 bg-white shadow-sm">
-      <CardHeader className="pb-3 border-b border-zinc-100">
-        <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900">
+    <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+      <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
+        <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
           {title}
         </CardTitle>
         {description && (
-          <p className="text-xs sm:text-sm text-zinc-600 mt-1">{description}</p>
+          <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">{description}</p>
         )}
       </CardHeader>
       <CardContent className="pt-4">
         {displayItems.length === 0 ? (
-          <p className="text-sm text-zinc-500 text-center py-8">{emptyMessage}</p>
+          <p className="text-sm text-zinc-500 text-center py-8 dark:text-zinc-500">{emptyMessage}</p>
         ) : (
           <div className="space-y-2">
             {displayItems.map((item, index) => (
               <div
                 key={item.id || index}
-                className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors"
+                className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors dark:border-zinc-800 dark:hover:bg-zinc-800/50"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-zinc-400">
+                    <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500">
                       #{index + 1}
                     </span>
-                    <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                    <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
                       {item.nome}
                     </h4>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 mt-2">
                     {columns.map((col) => (
                       <div key={col.key} className="flex items-center gap-1.5">
-                        <span className="text-xs text-zinc-500">{col.label}:</span>
-                        <span className="text-xs font-medium text-zinc-700">
+                        <span className="text-xs text-zinc-500 dark:text-zinc-500">{col.label}:</span>
+                        <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                           {col.render
                             ? col.render(item)
                             : String(item[col.key] || "-")}
@@ -88,16 +88,16 @@ export function KpiList({
           </div>
         )}
         {hasMoreItems && !showViewMore && (
-          <p className="text-xs text-zinc-500 text-center mt-4">
+          <p className="text-xs text-zinc-500 text-center mt-4 dark:text-zinc-500">
             Mostrando {maxItems} de {items.length} itens
           </p>
         )}
         {showViewMore && hasMoreItems && viewMoreLink && (
-          <div className="mt-4 pt-4 border-t border-zinc-100">
+          <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
             <Button
               variant="outline"
               size="sm"
-              className="w-full"
+              className="w-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800"
               onClick={() => router.push(viewMoreLink)}
             >
               Ver mais

@@ -41,12 +41,23 @@ interface FerramentaRotatividade {
   dias_restantes?: number
 }
 
+import { useTheme } from "next-themes"
+
 function RotatividadeCharts({ userId }: { userId: string }) {
   const [rotatividade, setRotatividade] = useState<FerramentaRotatividade[]>([])
   const [tendenciaConsumo, setTendenciaConsumo] = useState<any[]>([])
   const [consumoPorCategoria, setConsumoPorCategoria] = useState<any[]>([])
   const [alertasEstoque, setAlertasEstoque] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
+
+  const gridColor = isDark ? "#27272a" : "#e5e7eb" // zinc-800 : zinc-200
+  const axisTextColor = isDark ? "#a1a1aa" : "#6b7280" // zinc-400 : zinc-500
+  const axisLineColor = isDark ? "#3f3f46" : "#d1d5db" // zinc-700 : zinc-300
+  const tooltipBg = isDark ? "rgba(24, 24, 27, 0.98)" : "rgba(255, 255, 255, 0.98)" // zinc-950 : white
+  const tooltipBorder = isDark ? "#27272a" : "#e5e7eb" // zinc-800 : zinc-200
+  const tooltipTextColor = isDark ? "#f4f4f5" : "#111827" // zinc-100 : gray-900
 
   useEffect(() => {
     let cancelled = false
@@ -159,8 +170,8 @@ function RotatividadeCharts({ userId }: { userId: string }) {
               f.dias_restantes && f.dias_restantes < 7
                 ? "urgente"
                 : f.dias_restantes && f.dias_restantes < 15
-                ? "alta"
-                : "média",
+                  ? "alta"
+                  : "média",
           }))
           .sort((a, b) => {
             const diasA = a.dias_restantes || 999
@@ -194,7 +205,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
           const media =
             ultimos3.length > 0
               ? ultimos3.reduce((sum, i) => sum + i.quantidade, 0) /
-                ultimos3.length
+              ultimos3.length
               : item.quantidade
 
           // Previsão para próxima semana (baseada na tendência)
@@ -245,9 +256,9 @@ function RotatividadeCharts({ userId }: { userId: string }) {
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardHeader>
-            <CardTitle>Carregando análises...</CardTitle>
+            <CardTitle className="dark:text-zinc-50">Carregando análises...</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -258,16 +269,16 @@ function RotatividadeCharts({ userId }: { userId: string }) {
     <div className="space-y-6">
       {/* Alertas de Estoque */}
       {alertasEstoque.length > 0 && (
-        <Card className="border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100/50 shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-orange-200/50">
+        <Card className="border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100/50 shadow-sm hover:shadow-md transition-shadow dark:border-orange-900/50 dark:from-orange-950/50 dark:to-orange-900/20">
+          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-orange-200/50 dark:border-orange-900/50">
             <div className="flex items-center justify-between gap-2">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900">
-                <div className="p-1.5 sm:p-2 lg:p-2.5 rounded-lg bg-orange-100 flex-shrink-0">
-                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-orange-600" />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+                <div className="p-1.5 sm:p-2 lg:p-2.5 rounded-lg bg-orange-100 flex-shrink-0 dark:bg-orange-900/50">
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <span className="truncate">Alertas de Estoque</span>
               </CardTitle>
-              <Badge variant="destructive" className="bg-red-600 text-white flex-shrink-0 text-xs sm:text-sm lg:text-base px-2 sm:px-3 py-1 sm:py-1.5">{alertasEstoque.length}</Badge>
+              <Badge variant="destructive" className="bg-red-600 text-white flex-shrink-0 text-xs sm:text-sm lg:text-base px-2 sm:px-3 py-1 sm:py-1.5 dark:bg-red-900 dark:text-red-100">{alertasEstoque.length}</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-4 sm:pt-6 lg:pt-8">
@@ -275,11 +286,11 @@ function RotatividadeCharts({ userId }: { userId: string }) {
               {alertasEstoque.slice(0, 5).map((alerta) => (
                 <div
                   key={alerta.id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 lg:gap-6 rounded-xl border border-orange-200/50 bg-white p-3 sm:p-4 lg:p-5 xl:p-6 shadow-sm hover:shadow-md transition-shadow"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 lg:gap-6 rounded-xl border border-orange-200/50 bg-white p-3 sm:p-4 lg:p-5 xl:p-6 shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-orange-900/30"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm sm:text-base lg:text-lg xl:text-xl text-zinc-900 truncate">{alerta.nome}</p>
-                    <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-0.5 lg:mt-1">
+                    <p className="font-semibold text-sm sm:text-base lg:text-lg xl:text-xl text-zinc-900 truncate dark:text-zinc-100">{alerta.nome}</p>
+                    <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-0.5 lg:mt-1 dark:text-zinc-400">
                       {alerta.categoria} • {alerta.quantidade_disponivel}/
                       {alerta.quantidade_total} disponíveis
                     </p>
@@ -287,21 +298,20 @@ function RotatividadeCharts({ userId }: { userId: string }) {
                   <div className="text-left sm:text-right flex-shrink-0">
                     {alerta.dias_restantes ? (
                       <>
-                        <div className={`inline-flex items-center gap-1 px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-full text-xs sm:text-sm lg:text-base font-bold ${
-                          alerta.dias_restantes < 7
-                            ? "bg-red-100 text-red-700"
+                        <div className={`inline-flex items-center gap-1 px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-full text-xs sm:text-sm lg:text-base font-bold ${alerta.dias_restantes < 7
+                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                             : alerta.dias_restantes < 15
-                            ? "bg-orange-100 text-orange-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}>
+                              ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          }`}>
                           {alerta.dias_restantes} dias
                         </div>
-                        <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+                        <p className="text-xs sm:text-sm text-zinc-500 mt-1 dark:text-zinc-500">
                           até esgotar
                         </p>
                       </>
                     ) : (
-                      <p className="text-xs sm:text-sm lg:text-base text-zinc-600">
+                      <p className="text-xs sm:text-sm lg:text-base text-zinc-600 dark:text-zinc-400">
                         Estoque baixo
                       </p>
                     )}
@@ -315,181 +325,184 @@ function RotatividadeCharts({ userId }: { userId: string }) {
 
       <div className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-1 lg:grid-cols-2">
         {/* Top Ferramentas por Rotatividade */}
-        <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900">
-              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600 flex-shrink-0" />
+        <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-zinc-800">
+          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600 flex-shrink-0 dark:text-blue-400" />
               <span className="truncate">Top Ferramentas por Rotatividade</span>
             </CardTitle>
-            <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2">
+            <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">
               Últimos 90 dias - Saídas por dia
             </p>
           </CardHeader>
           <CardContent className="pt-4 sm:pt-5">
             <div className="w-full h-[280px] sm:h-[300px] lg:h-[320px] xl:h-[340px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={rotatividade.slice(0, 10)}
-                layout="vertical"
-                margin={{ top: 15, right: 35, left: 140, bottom: 15 }}
-              >
-                <defs>
-                  <linearGradient id="colorRotatividade" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.9} />
-                    <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0.6} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
-                <XAxis 
-                  type="number" 
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  stroke="#d1d5db"
-                />
-                <YAxis
-                  dataKey="nome"
-                  type="category"
-                  width={120}
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  stroke="#d1d5db"
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(255, 255, 255, 0.98)",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                  }}
-                  formatter={(value: number) => [
-                    `${value.toFixed(2)} saídas/dia`,
-                    "Rotatividade",
-                  ]}
-                  cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
-                />
-                <Bar dataKey="rotatividade" radius={[0, 8, 8, 0]}>
-                  {rotatividade.slice(0, 10).map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={
-                        entry.dias_restantes && entry.dias_restantes < 15
-                          ? COLORS.danger
-                          : entry.dias_restantes && entry.dias_restantes < 30
-                          ? COLORS.warning
-                          : COLORS.primary
-                      }
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={rotatividade.slice(0, 10)}
+                  layout="vertical"
+                  margin={{ top: 15, right: 35, left: 140, bottom: 15 }}
+                >
+                  <defs>
+                    <linearGradient id="colorRotatividade" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.9} />
+                      <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0.6} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={0.5} />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 12, fill: axisTextColor }}
+                    stroke={axisLineColor}
+                  />
+                  <YAxis
+                    dataKey="nome"
+                    type="category"
+                    width={120}
+                    tick={{ fontSize: 12, fill: axisTextColor }}
+                    stroke={axisLineColor}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: tooltipBg,
+                      border: `1px solid ${tooltipBorder}`,
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      color: tooltipTextColor,
+                    }}
+                    formatter={(value: number) => [
+                      `${value.toFixed(2)} saídas/dia`,
+                      "Rotatividade",
+                    ]}
+                    cursor={{ fill: isDark ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.1)" }}
+                  />
+                  <Bar dataKey="rotatividade" radius={[0, 8, 8, 0]}>
+                    {rotatividade.slice(0, 10).map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          entry.dias_restantes && entry.dias_restantes < 15
+                            ? COLORS.danger
+                            : entry.dias_restantes && entry.dias_restantes < 30
+                              ? COLORS.warning
+                              : COLORS.primary
+                        }
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
         {/* Consumo por Categoria */}
-        <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900">
-              <Package className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600 flex-shrink-0" />
+        <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-zinc-800">
+          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+              <Package className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600 flex-shrink-0 dark:text-green-400" />
               <span>Consumo por Categoria</span>
             </CardTitle>
-            <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2">
+            <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">
               Últimos 30 dias
             </p>
           </CardHeader>
           <CardContent className="pt-4 sm:pt-5">
             <div className="w-full h-[280px] sm:h-[300px] lg:h-[320px] xl:h-[340px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={consumoPorCategoria} margin={{ top: 15, right: 25, left: 5, bottom: 80 }}>
-                <defs>
-                  <linearGradient id="colorCategoria" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={COLORS.success} stopOpacity={0.9} />
-                    <stop offset="95%" stopColor={COLORS.success} stopOpacity={0.6} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
-                <XAxis
-                  dataKey="categoria"
-                  angle={-45}
-                  textAnchor="end"
-                  height={120}
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  stroke="#d1d5db"
-                />
-                <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(255, 255, 255, 0.98)",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                  }}
-                  cursor={{ fill: "rgba(16, 185, 129, 0.1)" }}
-                />
-                <Bar dataKey="quantidade" fill="url(#colorCategoria)" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={consumoPorCategoria} margin={{ top: 15, right: 25, left: 5, bottom: 80 }}>
+                  <defs>
+                    <linearGradient id="colorCategoria" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={COLORS.success} stopOpacity={0.9} />
+                      <stop offset="95%" stopColor={COLORS.success} stopOpacity={0.6} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={0.5} />
+                  <XAxis
+                    dataKey="categoria"
+                    angle={-45}
+                    textAnchor="end"
+                    height={120}
+                    tick={{ fontSize: 12, fill: axisTextColor }}
+                    stroke={axisLineColor}
+                  />
+                  <YAxis tick={{ fontSize: 12, fill: axisTextColor }} stroke={axisLineColor} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: tooltipBg,
+                      border: `1px solid ${tooltipBorder}`,
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      color: tooltipTextColor,
+                    }}
+                    cursor={{ fill: isDark ? "rgba(16, 185, 129, 0.2)" : "rgba(16, 185, 129, 0.1)" }}
+                  />
+                  <Bar dataKey="quantidade" fill="url(#colorCategoria)" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Tendência de Consumo e Previsão */}
-      <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-        <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100">
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900">
-            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600 flex-shrink-0" />
+      <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-zinc-800">
+        <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600 flex-shrink-0 dark:text-purple-400" />
             <span className="truncate">Tendência de Consumo e Previsão</span>
           </CardTitle>
-          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2">
+          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">
             Últimas 4 semanas e previsão para próxima semana
           </p>
         </CardHeader>
         <CardContent className="pt-4 sm:pt-5">
           <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={tendenciaConsumo}>
-              <defs>
-                <linearGradient id="colorConsumo" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.8} />
-                  <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
-              <XAxis dataKey="semana" tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
-              <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} stroke="#d1d5db" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.98)",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                }}
-                cursor={{ stroke: COLORS.primary, strokeWidth: 2 }}
-              />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="quantidade"
-                stroke={COLORS.primary}
-                fillOpacity={1}
-                fill="url(#colorConsumo)"
-                name="Consumo Real"
-                strokeWidth={2}
-              />
-              {tendenciaConsumo.some((item) => item.previsao !== null) && (
-                <Line
-                  type="monotone"
-                  dataKey="previsao"
-                  stroke={COLORS.warning}
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  name="Previsão"
-                  dot={{ fill: COLORS.warning, r: 5 }}
-                  connectNulls={false}
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={tendenciaConsumo}>
+                <defs>
+                  <linearGradient id="colorConsumo" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={0.5} />
+                <XAxis dataKey="semana" tick={{ fontSize: 12, fill: axisTextColor }} stroke={axisLineColor} />
+                <YAxis tick={{ fontSize: 12, fill: axisTextColor }} stroke={axisLineColor} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    color: tooltipTextColor,
+                  }}
+                  cursor={{ stroke: COLORS.primary, strokeWidth: 2 }}
                 />
-              )}
-            </ComposedChart>
-          </ResponsiveContainer>
+                <Legend />
+                <Area
+                  type="monotone"
+                  dataKey="quantidade"
+                  stroke={COLORS.primary}
+                  fillOpacity={1}
+                  fill="url(#colorConsumo)"
+                  name="Consumo Real"
+                  strokeWidth={2}
+                />
+                {tendenciaConsumo.some((item) => item.previsao !== null) && (
+                  <Line
+                    type="monotone"
+                    dataKey="previsao"
+                    stroke={COLORS.warning}
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    name="Previsão"
+                    dot={{ fill: COLORS.warning, r: 5 }}
+                    connectNulls={false}
+                  />
+                )}
+              </ComposedChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

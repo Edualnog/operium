@@ -1106,26 +1106,26 @@ function ColaboradoresList({
 
                     {/* Aviso de colaborador similar */}
                     {!editing && colaboradoresSimilares.length > 0 && (
-                      <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-3 space-y-2">
+                      <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-3 space-y-2 dark:bg-yellow-900/20 dark:border-yellow-700">
                         <div className="flex items-start gap-2">
-                          <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                          <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5 dark:text-yellow-400" />
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-yellow-800">
+                            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
                               Colaborador com nome similar já existe!
                             </p>
-                            <p className="text-xs text-yellow-700 mt-1">
+                            <p className="text-xs text-yellow-700 mt-1 dark:text-yellow-300">
                               Encontrado{colaboradoresSimilares.length > 1 ? "s" : ""}:
                             </p>
                             <ul className="mt-1 space-y-1">
                               {colaboradoresSimilares.slice(0, 3).map((c) => (
-                                <li key={c.id} className="text-sm text-yellow-800 flex items-center gap-2">
+                                <li key={c.id} className="text-sm text-yellow-800 flex items-center gap-2 dark:text-yellow-200">
                                   <User className="h-3 w-3" />
                                   <span className="font-medium">{c.nome}</span>
-                                  {c.cargo && <span className="text-xs text-yellow-600">({c.cargo})</span>}
+                                  {c.cargo && <span className="text-xs text-yellow-600 dark:text-yellow-400">({c.cargo})</span>}
                                 </li>
                               ))}
                               {colaboradoresSimilares.length > 3 && (
-                                <li className="text-xs text-yellow-600">
+                                <li className="text-xs text-yellow-600 dark:text-yellow-400">
                                   ...e mais {colaboradoresSimilares.length - 3} colaborador(es)
                                 </li>
                               )}
@@ -1133,15 +1133,15 @@ function ColaboradoresList({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 pt-2 border-t border-yellow-200">
+                        <div className="flex items-center gap-2 pt-2 border-t border-yellow-200 dark:border-yellow-800">
                           <input
                             type="checkbox"
                             id="confirmar-duplicata"
                             checked={confirmarDuplicata}
                             onChange={(e) => setConfirmarDuplicata(e.target.checked)}
-                            className="h-4 w-4 rounded border-yellow-400 text-yellow-600 focus:ring-yellow-500"
+                            className="h-4 w-4 rounded border-yellow-400 text-yellow-600 focus:ring-yellow-500 dark:border-yellow-600 dark:bg-zinc-800"
                           />
-                          <label htmlFor="confirmar-duplicata" className="text-sm text-yellow-800">
+                          <label htmlFor="confirmar-duplicata" className="text-sm text-yellow-800 dark:text-yellow-200">
                             Confirmo que desejo cadastrar mesmo assim
                           </label>
                         </div>
@@ -1266,7 +1266,7 @@ function ColaboradoresList({
       {/* Cards de colaboradores */}
       {filteredAndSortedColaboradores.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-zinc-500 text-sm">
+          <p className="text-zinc-500 text-sm dark:text-zinc-400">
             {filters.search || filters.cargo || filters.dataAdmissaoInicio || filters.dataAdmissaoFim
               ? "Nenhum colaborador encontrado com os filtros aplicados"
               : "Nenhum colaborador cadastrado"}
@@ -1293,7 +1293,7 @@ function ColaboradoresList({
 
             return (
               <Card key={colaborador.id} className={cn(
-                "overflow-hidden",
+                "overflow-hidden dark:bg-zinc-900 dark:border-zinc-800",
                 cardSize === "pequeno" && "hover:shadow-md transition-shadow",
                 cardSize === "medio" && "hover:shadow-lg transition-shadow",
                 cardSize === "grande" && "hover:shadow-xl transition-shadow"
@@ -1319,7 +1319,7 @@ function ColaboradoresList({
                         cardSize === "pequeno" && "gap-2"
                       )}>
                         <div className={cn(
-                          "relative rounded-full overflow-hidden border-2 border-zinc-200 bg-zinc-100 flex-shrink-0",
+                          "relative rounded-full overflow-hidden border-2 border-zinc-200 bg-zinc-100 flex-shrink-0 dark:border-zinc-700 dark:bg-zinc-800",
                           cardSize === "pequeno" && "w-12 h-12",
                           cardSize === "medio" && "w-16 h-16",
                           cardSize === "grande" && "w-20 h-20"
@@ -1335,7 +1335,7 @@ function ColaboradoresList({
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <User className={cn(
-                                "text-zinc-400",
+                                "text-zinc-400 dark:text-zinc-500",
                                 cardSize === "pequeno" && "h-6 w-6",
                                 cardSize === "medio" && "h-8 w-8",
                                 cardSize === "grande" && "h-10 w-10"
@@ -1433,8 +1433,8 @@ function ColaboradoresList({
                           <span className={cn(
                             "inline-block text-xs font-medium px-2 py-1 rounded",
                             taxaDevolucao === 100
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                           )}>
                             {taxaDevolucao}%
                           </span>

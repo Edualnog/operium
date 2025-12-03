@@ -58,24 +58,24 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
   }
 
   // Definir cores e ícones baseados na urgência
-  let alertStyles = "border-blue-200 bg-blue-50"
-  let iconStyles = "text-blue-600"
-  let titleStyles = "text-blue-900"
-  let descStyles = "text-blue-800"
-  let buttonStyles = "bg-blue-600 hover:bg-blue-700"
+  let alertStyles = "border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800"
+  let iconStyles = "text-blue-600 dark:text-blue-400"
+  let titleStyles = "text-blue-900 dark:text-blue-100"
+  let descStyles = "text-blue-800 dark:text-blue-200"
+  let buttonStyles = "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
 
   if (trialInfo.trialEnded) {
-    alertStyles = "border-red-200 bg-red-50"
-    iconStyles = "text-red-600"
-    titleStyles = "text-red-900"
-    descStyles = "text-red-800"
-    buttonStyles = "bg-red-600 hover:bg-red-700"
+    alertStyles = "border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800"
+    iconStyles = "text-red-600 dark:text-red-400"
+    titleStyles = "text-red-900 dark:text-red-100"
+    descStyles = "text-red-800 dark:text-red-200"
+    buttonStyles = "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500"
   } else if (trialInfo.daysRemaining <= 2) {
-    alertStyles = "border-amber-200 bg-amber-50"
-    iconStyles = "text-amber-600"
-    titleStyles = "text-amber-900"
-    descStyles = "text-amber-800"
-    buttonStyles = "bg-amber-600 hover:bg-amber-700"
+    alertStyles = "border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800"
+    iconStyles = "text-amber-600 dark:text-amber-400"
+    titleStyles = "text-amber-900 dark:text-amber-100"
+    descStyles = "text-amber-800 dark:text-amber-200"
+    buttonStyles = "bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500"
   }
 
   // Mostrar aviso sempre que estiver no trial ou acabou
