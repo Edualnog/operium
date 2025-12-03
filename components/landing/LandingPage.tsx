@@ -128,12 +128,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-100">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-8 w-8">
+            <div className="relative h-8 w-8 rounded-lg overflow-hidden">
               <Image
                 src="/images/logo.png"
                 alt="Logo Almox Fácil"
                 fill
-                className="object-contain"
+                className="object-cover"
               />
             </div>
             <span className="font-bold text-xl tracking-tight text-slate-900">Almox Fácil</span>
@@ -526,12 +526,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       <footer className="bg-slate-50 py-12 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="relative h-6 w-6">
+            <div className="relative h-6 w-6 rounded-md overflow-hidden">
               <Image
                 src="/images/logo.png"
                 alt="Logo Almox Fácil"
                 fill
-                className="object-contain grayscale opacity-50"
+                className="object-cover grayscale opacity-50"
               />
             </div>
             <span className="font-bold text-slate-700">Almox Fácil</span>
