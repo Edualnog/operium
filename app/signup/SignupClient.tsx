@@ -1,8 +1,5 @@
 "use client"
 
-
-
-
 import * as React from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -10,6 +7,7 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 import { Turnstile } from "@marsidev/react-turnstile"
 import { motion } from "framer-motion"
 import { ArrowLeft, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react"
+import { Suspense } from "react"
 
 function BackgroundDecoration() {
   return (
@@ -21,15 +19,10 @@ function BackgroundDecoration() {
   )
 }
 
-import { Suspense } from "react"
-
 function SignupForm() {
+  const [name, setName] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
-  const [companyName, setCompanyName] = React.useState("")
-  const [cnpj, setCnpj] = React.useState("")
-  const [companyEmail, setCompanyEmail] = React.useState("")
-  const [phone, setPhone] = React.useState("")
 
   const [showPassword, setShowPassword] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
@@ -70,6 +63,9 @@ function SignupForm() {
       const signUpOptions: Record<string, any> = {
         emailRedirectTo: `${window.location.origin}/auth/verify`,
         captchaToken,
+        data: {
+          full_name: name,
+        }
       }
 
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -83,37 +79,32 @@ function SignupForm() {
       }
 
       if (data.user) {
-        const safeName = (companyName && companyName.trim()) || (data.user.email?.split("@")[0] ?? "Usuário")
-
         // Se houver sessão (login automático ou dev), cria o perfil
         if (data.session) {
           await supabase.from("profiles").upsert({
             id: data.user.id,
-            name: safeName,
-            company_name: companyName || null,
-            cnpj: cnpj || null,
-            company_email: companyEmail || email,
-            phone: phone || null,
+            name: name || data.user.email?.split("@")[0] || "Usuário",
+            company_name: "Minha Empresa", // Placeholder
+            cnpj: null,
+            company_email: email,
+            phone: null,
             trial_start_date: new Date().toISOString(),
             subscription_status: 'trialing',
           })
 
           if (redirectTo === "checkout") {
             // IGNORAR checkout no cadastro - forçar fluxo de trial
-            router.push("/dashboard")
+            router.push("/dashboard/setup")
           } else {
-            router.push("/dashboard")
+            router.push("/dashboard/setup")
           }
         } else {
           // Sem sessão: email de confirmação enviado
           setInfo("Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro.")
           // Limpar formulário
+          setName("")
           setEmail("")
           setPassword("")
-          setCompanyName("")
-          setCnpj("")
-          setCompanyEmail("")
-          setPhone("")
           setCaptchaToken(null)
           captchaRef.current?.reset()
         }
@@ -166,9 +157,12 @@ function SignupForm() {
         >
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-slate-900">
-              Crie sua conta
+              Crie sua conta grátis
             </h1>
             <p className="mt-2 text-slate-600">
+              Comece a organizar seu almoxarifado em segundos.
+            </p>
+            <p className="mt-1 text-sm text-slate-500">
               Já tem uma conta?{" "}
               <Link href={`/login${redirectTo ? `?redirect=${redirectTo}` : ""}`} className="text-blue-600 hover:underline font-medium">
                 Entre aqui
@@ -190,6 +184,22 @@ function SignupForm() {
           )}
 
           <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Nome completo
+              </label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Seu nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                disabled={loading}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              />
+            </div>
+
             <div className="mb-4">
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
                 Email
@@ -233,62 +243,6 @@ function SignupForm() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Nome da Empresa <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                  placeholder="Sua empresa"
-                  disabled={loading}
-                  required
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  CNPJ <span className="text-slate-400 font-normal">(opcional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={cnpj}
-                  onChange={(e) => setCnpj(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                  placeholder="00.000.000/0000-00"
-                  disabled={loading}
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Email da empresa <span className="text-slate-400 font-normal">(opcional)</span>
-                </label>
-                <input
-                  type="email"
-                  value={companyEmail}
-                  onChange={(e) => setCompanyEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                  placeholder="contato@empresa.com"
-                  disabled={loading}
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Telefone <span className="text-slate-400 font-normal">(opcional)</span>
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                  placeholder="(00) 00000-0000"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
             <div className="mb-5 sm:mb-6 flex justify-center min-h-[65px]">
               {mounted && (
                 <Turnstile
@@ -313,7 +267,7 @@ function SignupForm() {
               disabled={loading || !captchaToken}
               className="w-full rounded-xl bg-[#4B6BFB] px-4 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-600 hover:shadow-blue-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Criando conta..." : "Criar Conta"}
+              {loading ? "Criando conta..." : "Criar Conta Grátis"}
             </button>
           </form>
 

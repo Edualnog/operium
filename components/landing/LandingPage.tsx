@@ -4,37 +4,23 @@ import { useState } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
 import {
-  Package,
-  BarChart3,
-  Users,
-  Wrench,
   ArrowRight,
   Check,
   Zap,
   Shield,
   Clock,
-  ChevronDown,
-  Mail,
-  Globe,
   Menu,
   X,
   Loader2,
   PlayCircle,
-  BookOpen,
-  Bell,
-  FileSignature,
-  FileSpreadsheet,
-  FileDown,
-  AlertTriangle,
-  CalendarClock,
-  Smartphone,
-  ClipboardCheck,
+  Star,
   TrendingUp,
-  Layers,
-  ShieldCheck,
-  Palette,
-  RefreshCw
+  LayoutDashboard,
+  Box,
+  Users
 } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -54,8 +40,6 @@ const LinkedInIcon = ({ className }: { className?: string }) => (
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
   </svg>
 )
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 interface LandingPageProps {
   isLoggedIn: boolean
@@ -66,1152 +50,417 @@ interface LandingPageProps {
 export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: LandingPageProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
-  const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleCheckout = async () => {
+  const handleStart = () => {
     setCheckoutLoading(true)
-    setError("")
-
-    try {
-      // Se não está logado, redirecionar para signup primeiro
-      if (!isLoggedIn) {
-        router.push("/signup?redirect=checkout")
-        return
-      }
-
-      // Usuário logado - ir para dashboard (lá verifica se precisa de checkout ou trial)
+    if (isLoggedIn) {
       router.push("/dashboard")
-
-    } catch (err: any) {
-      setError(err.message || "Erro ao processar redirecionamento")
-      setCheckoutLoading(false)
+    } else {
+      router.push("/signup")
     }
   }
 
-  const features = [
+  const benefits = [
     {
-      icon: Package,
-      title: "Gestão de Estoque",
-      description: "Controle completo do seu almoxarifado com rastreamento em tempo real"
+      icon: TrendingUp,
+      title: "Reduza erros e prejuízos",
+      description: "Chega de perder dinheiro com estoque parado ou compras duplicadas. Tenha controle total do que entra e sai."
     },
     {
-      icon: Users,
-      title: "Colaboradores",
-      description: "Gerencie sua equipe e acompanhe movimentações por responsável"
+      icon: Clock,
+      title: "Automatize tarefas chatas",
+      description: "Deixe o sistema cuidar dos avisos de reposição e validade enquanto você foca em crescer seu negócio."
     },
     {
-      icon: Wrench,
-      title: "Ferramentas & Consertos",
-      description: "Cadastre ferramentas e acompanhe consertos e manutenções"
-    },
-    {
-      icon: BarChart3,
-      title: "Relatórios & KPIs",
-      description: "Dashboards industriais com métricas que importam"
+      icon: LayoutDashboard,
+      title: "Clareza financeira",
+      description: "Saiba exatamente quanto você tem investido em estoque e ferramentas em tempo real, sem planilhas confusas."
     }
   ]
 
-  const benefits = [
-    { icon: Zap, text: "Implementação rápida" },
-    { icon: Shield, text: "Dados seguros na nuvem" },
-    { icon: Clock, text: "Suporte prioritário" }
-  ]
-
-  const pricingFeatures = [
-    "Estoque ilimitado",
-    "Colaboradores ilimitados",
-    "Ferramentas ilimitadas",
-    "Relatórios avançados",
-    "Dashboard industrial",
-    "Movimentações completas",
-    "Gestão de consertos",
-    "Suporte por email"
+  const testimonials = [
+    {
+      name: "Ricardo Silva",
+      role: "Gerente de Operações",
+      company: "Indústria Metalúrgica RS",
+      content: "Antes era um caos saber onde estavam as ferramentas. Com o Almox Fácil, economizamos umas 10 horas por semana só de não ter que procurar coisas."
+    },
+    {
+      name: "Ana Paula",
+      role: "Proprietária",
+      company: "AP Construções",
+      content: "Simples e direto ao ponto. Instalei, cadastrei e comecei a usar. A equipe adorou porque é muito fácil de mexer no celular."
+    },
+    {
+      name: "Carlos Eduardo",
+      role: "Gestor de Estoque",
+      company: "Logística Express",
+      content: "O controle de EPIs salvou a gente de uma multa. O sistema avisa quando vai vencer, é sensacional."
+    }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-900 antialiased">
-      {/* Background Pattern */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.015]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(0 0 0)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
-        }}
-      />
-
-      {/* Gradient Orbs */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100">
 
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="p-1.5 rounded-xl bg-[#4B6BFB] shadow-lg shadow-blue-500/25">
-                <svg className="h-7 w-7" viewBox="0 0 500 500" fill="none">
-                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="font-bold text-xl tracking-tight">Almox Fácil</span>
-            </Link>
-
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
-                Recursos
-              </a>
-              <a href="#pricing" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
-                Preços
-              </a>
-              <a href="#faq" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
-                FAQ
-              </a>
-              <a
-                href="https://www.youtube.com/@almoxfacil"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-slate-600 hover:text-red-500 transition-colors font-medium"
-              >
-                <PlayCircle className="h-4 w-4" />
-                Tutoriais
-              </a>
-
-              {/* Social Icons */}
-              <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
-                <a
-                  href="https://www.youtube.com/@almoxfacil"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-red-500 transition-colors"
-                  title="YouTube"
-                >
-                  <YouTubeIcon className="h-5 w-5" />
-                </a>
-                <a
-                  href="https://www.instagram.com/almoxfacil"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-pink-500 transition-colors"
-                  title="Instagram"
-                >
-                  <InstagramIcon className="h-5 w-5" />
-                </a>
-                <a
-                  href="https://www.linkedin.com/company/almoxfacil"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-blue-600 transition-colors"
-                  title="LinkedIn"
-                >
-                  <LinkedInIcon className="h-5 w-5" />
-                </a>
-              </div>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-100">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-blue-600 shadow-md shadow-blue-500/20">
+              <Box className="h-6 w-6 text-white" />
             </div>
+            <span className="font-bold text-xl tracking-tight text-slate-900">Almox Fácil</span>
+          </Link>
 
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center gap-3">
-              {isLoggedIn ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-500">{userEmail}</span>
-                  <Link
-                    href="/dashboard"
-                    className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition-colors"
-                  >
-                    Dashboard
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="px-4 py-2 rounded-lg text-slate-700 font-medium hover:bg-slate-100 transition-colors"
-                  >
-                    Entrar
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25"
-                  >
-                    Começar grátis
-                  </Link>
-                </>
-              )}
-            </div>
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#beneficios" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Benefícios</a>
+            <a href="#como-funciona" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Como funciona</a>
+            <a href="#depoimentos" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Depoimentos</a>
+          </div>
 
-            {/* Mobile Menu Button */}
+          <div className="hidden md:flex items-center gap-4">
+            {isLoggedIn ? (
+              <Link href="/dashboard" className="text-sm font-medium text-slate-700 hover:text-blue-600">
+                Ir para Dashboard
+              </Link>
+            ) : (
+              <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-blue-600">
+                Entrar
+              </Link>
+            )}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={handleStart}
+              className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              Começar Grátis
             </button>
           </div>
 
-          {/* Mobile Menu - improved touch targets */}
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="md:hidden py-4 border-t border-slate-200"
-            >
-              <div className="flex flex-col gap-1">
-                <a
-                  href="#features"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
-                >
-                  Recursos
-                </a>
-                <a
-                  href="#pricing"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
-                >
-                  Preços
-                </a>
-                <a
-                  href="#faq"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-600 hover:text-slate-900 active:bg-slate-100 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
-                >
-                  FAQ
-                </a>
-                <a
-                  href="https://www.youtube.com/@almoxfacil"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-slate-600 hover:text-red-500 active:bg-red-50 font-medium py-3 px-2 rounded-lg transition-colors touch-manipulation"
-                >
-                  <PlayCircle className="h-5 w-5" />
-                  Tutoriais
-                </a>
-
-                {/* Social Icons Mobile - larger touch targets */}
-                <div className="flex items-center justify-center gap-3 py-4 mt-2 border-t border-slate-100">
-                  <a
-                    href="https://www.youtube.com/@almoxfacil"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-red-500 hover:bg-red-50 active:bg-red-100 transition-colors touch-manipulation"
-                  >
-                    <YouTubeIcon className="h-5 w-5" />
-                  </a>
-                  <a
-                    href="https://www.instagram.com/almoxfacil"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-pink-500 hover:bg-pink-50 active:bg-pink-100 transition-colors touch-manipulation"
-                  >
-                    <InstagramIcon className="h-5 w-5" />
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/company/almoxfacil"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 text-slate-500 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-colors touch-manipulation"
-                  >
-                    <LinkedInIcon className="h-5 w-5" />
-                  </a>
-                </div>
-
-                <div className="flex flex-col gap-3 pt-4 border-t border-slate-200">
-                  {isLoggedIn ? (
-                    <Link
-                      href="/dashboard"
-                      className="px-4 py-3.5 rounded-xl bg-slate-100 text-center font-medium active:bg-slate-200 transition-colors touch-manipulation"
-                    >
-                      Dashboard
-                    </Link>
-                  ) : (
-                    <>
-                      <Link
-                        href="/login"
-                        className="px-4 py-3.5 rounded-xl bg-slate-100 text-center font-medium active:bg-slate-200 transition-colors touch-manipulation"
-                      >
-                        Entrar
-                      </Link>
-                      <Link
-                        href="/signup"
-                        className="px-4 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center font-semibold shadow-lg shadow-blue-500/25 active:from-blue-600 active:to-indigo-700 transition-all touch-manipulation"
-                      >
-                        Começar grátis
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 text-slate-600"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X /> : <Menu />}
+          </button>
         </nav>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-100 p-4 shadow-xl"
+          >
+            <div className="flex flex-col gap-4">
+              <a href="#beneficios" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">Benefícios</a>
+              <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">Como funciona</a>
+              <a href="#depoimentos" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">Depoimentos</a>
+              <hr className="border-slate-100" />
+              <Link href="/login" className="text-slate-600 font-medium">Entrar</Link>
+              <button
+                onClick={handleStart}
+                className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold"
+              >
+                Começar Grátis
+              </button>
+            </div>
+          </motion.div>
+        )}
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-sm font-medium mb-8">
-              <Zap className="h-4 w-4" />
-              7 dias grátis para testar
-            </div>
+      <main>
+        {/* Hero Section */}
+        <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+          <div className="max-w-7xl mx-auto text-center relative">
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Gestão de Almoxarifado
-              <span className="block mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Simples e Poderosa
-              </span>
-            </h1>
+            {/* Background Blobs */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-3xl -z-10" />
 
-            <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Controle seu estoque, ferramentas, colaboradores e movimentações em uma plataforma completa.
-              Feito para indústrias que querem resultados.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button
-                onClick={handleCheckout}
-                disabled={checkoutLoading}
-                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {checkoutLoading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Processando...
-                  </>
-                ) : (
-                  <>
-                    Começar teste grátis
-                    <ArrowRight className="h-5 w-5" />
-                  </>
-                )}
-              </button>
-
-              <a
-                href="#all-features"
-                className="w-full sm:w-auto px-8 py-4 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold text-lg hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2"
-              >
-                Ver todos os recursos
-                <ChevronDown className="h-5 w-5" />
-              </a>
-            </div>
-
-            {error && (
-              <p className="mt-4 text-red-600 text-sm">{error}</p>
-            )}
-
-            {/* Benefits */}
-            <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
-              {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-center gap-2 text-slate-600">
-                  <benefit.icon className="h-5 w-5 text-blue-500" />
-                  <span className="font-medium">{benefit.text}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Dashboard Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-20 relative"
-          >
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-900/10 border border-slate-200 bg-gradient-to-b from-slate-800 to-slate-900">
-              {/* Browser Chrome */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-slate-800 border-b border-slate-700">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="px-4 py-1 rounded-md bg-slate-700 text-slate-400 text-sm">
-                    app.almoxfacil.com.br
-                  </div>
-                </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold mb-6 uppercase tracking-wide">
+                <Zap className="h-3 w-3" />
+                Mais de 200 empresas já organizaram a casa
               </div>
-              {/* Dashboard Mock */}
-              <div className="p-3 sm:p-6 bg-slate-50">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
-                  {[
-                    { label: "Itens em Estoque", value: "1.284" },
-                    { label: "Colaboradores", value: "45" },
-                    { label: "Ferramentas", value: "328" },
-                    { label: "Movimentações/mês", value: "892" }
-                  ].map((stat, i) => (
-                    <div key={i} className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-white shadow-sm border border-slate-200">
-                      <p className="text-xs sm:text-sm text-slate-500 truncate">{stat.label}</p>
-                      <p className="text-lg sm:text-2xl font-bold text-slate-900">{stat.value}</p>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 max-w-4xl mx-auto leading-[1.1]">
+                Organize seu negócio de forma <span className="text-blue-600">simples</span> e <span className="text-indigo-600">inteligente</span>.
+              </h1>
+
+              <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Abandone as planilhas complexas e o caos do estoque. O Almox Fácil é o sistema feito para quem quer controle total sem dor de cabeça.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                <button
+                  onClick={handleStart}
+                  disabled={checkoutLoading}
+                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  {checkoutLoading ? <Loader2 className="animate-spin" /> : "Começar grátis agora"}
+                  {!checkoutLoading && <ArrowRight className="h-5 w-5" />}
+                </button>
+                <p className="text-sm text-slate-500">
+                  Teste grátis por 7 dias • Sem cartão de crédito
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Dashboard Visual */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative mx-auto max-w-5xl"
+            >
+              <div className="rounded-2xl bg-slate-900 p-2 sm:p-3 shadow-2xl shadow-blue-900/20 ring-1 ring-slate-900/10">
+                <div className="rounded-xl bg-slate-800 overflow-hidden">
+                  <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700/50">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                      <div className="w-3 h-3 rounded-full bg-green-500/80" />
                     </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                  <div className="sm:col-span-2 h-36 sm:h-48 rounded-lg sm:rounded-xl bg-white shadow-sm border border-slate-200 p-3 sm:p-4">
-                    <div className="flex items-center justify-between mb-3 sm:mb-4">
-                      <p className="font-semibold text-slate-700 text-sm sm:text-base">Movimentações</p>
-                      <div className="flex gap-1.5 sm:gap-2">
-                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500" />
-                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-indigo-500" />
+                  </div>
+                  {/* Abstract Dashboard UI Representation */}
+                  <div className="p-6 bg-slate-50 min-h-[300px] sm:min-h-[500px] grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {/* Sidebar */}
+                    <div className="hidden sm:block col-span-1 bg-white rounded-xl border border-slate-100 p-4 space-y-3">
+                      <div className="h-8 w-3/4 bg-slate-100 rounded-lg mb-6" />
+                      <div className="h-10 w-full bg-blue-50 rounded-lg border border-blue-100" />
+                      <div className="h-10 w-full bg-white rounded-lg" />
+                      <div className="h-10 w-full bg-white rounded-lg" />
+                      <div className="h-10 w-full bg-white rounded-lg" />
+                    </div>
+                    {/* Main Content */}
+                    <div className="col-span-1 sm:col-span-2 space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                          <div className="h-4 w-1/2 bg-slate-100 rounded mb-2" />
+                          <div className="h-8 w-3/4 bg-slate-800 rounded" />
+                        </div>
+                        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                          <div className="h-4 w-1/2 bg-slate-100 rounded mb-2" />
+                          <div className="h-8 w-3/4 bg-blue-600 rounded" />
+                        </div>
+                      </div>
+                      <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm h-48 flex items-end justify-between gap-2">
+                        {[40, 70, 45, 90, 60, 80, 50].map((h, i) => (
+                          <div key={i} className="w-full bg-blue-100 rounded-t-lg relative group">
+                            <div
+                              className="absolute bottom-0 left-0 right-0 bg-blue-500 rounded-t-lg transition-all duration-500"
+                              style={{ height: `${h}%` }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-100" />
+                          <div className="flex-1">
+                            <div className="h-4 w-1/3 bg-slate-100 rounded mb-1" />
+                            <div className="h-3 w-1/4 bg-slate-50 rounded" />
+                          </div>
+                          <div className="h-8 w-20 bg-green-100 rounded-full" />
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-100" />
+                          <div className="flex-1">
+                            <div className="h-4 w-1/3 bg-slate-100 rounded mb-1" />
+                            <div className="h-3 w-1/4 bg-slate-50 rounded" />
+                          </div>
+                          <div className="h-8 w-20 bg-green-100 rounded-full" />
+                        </div>
                       </div>
                     </div>
-                    <div className="h-20 sm:h-28 flex items-end gap-1 sm:gap-2">
-                      {[40, 65, 45, 80, 55, 90, 70, 85, 60, 75, 95, 82].map((h, i) => (
-                        <div
-                          key={i}
-                          className="flex-1 bg-gradient-to-t from-blue-500 to-indigo-500 rounded-t-sm"
-                          style={{ height: `${h}%` }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="h-36 sm:h-48 rounded-lg sm:rounded-xl bg-white shadow-sm border border-slate-200 p-3 sm:p-4">
-                    <p className="font-semibold text-slate-700 mb-3 sm:mb-4 text-sm sm:text-base">Status</p>
-                    <div className="space-y-2 sm:space-y-3">
-                      {[
-                        { label: "Disponível", pct: 72, color: "bg-green-500" },
-                        { label: "Em uso", pct: 20, color: "bg-blue-500" },
-                        { label: "Manutenção", pct: 8, color: "bg-yellow-500" }
-                      ].map((item, i) => (
-                        <div key={i}>
-                          <div className="flex justify-between text-xs sm:text-sm mb-1">
-                            <span className="text-slate-600">{item.label}</span>
-                            <span className="text-slate-900 font-medium">{item.pct}%</span>
-                          </div>
-                          <div className="h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.pct}%` }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 relative">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Tudo que você precisa
-            </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Uma plataforma completa para gerenciar seu almoxarifado industrial
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group p-6 rounded-2xl bg-white border border-slate-200 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-              >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <feature.icon className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-slate-600">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Detailed Features Section */}
-      <section id="all-features" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-slate-50">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 text-sm font-medium mb-4">
-              <Layers className="h-4 w-4" />
-              Funcionalidades Completas
-            </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
-              Tudo que seu almoxarifado precisa
-            </h2>
-            <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto">
-              Conheça em detalhes todas as funcionalidades que vão transformar
-              a gestão do seu almoxarifado industrial
-            </p>
-          </motion.div>
-
-          {/* Features Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Gestão de Estoque */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.05 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Package className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Gestão de Estoque</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Controle completo de itens consumíveis e não-consumíveis com rastreamento em tempo real.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                  <span>Ponto de ressuprimento automático</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                  <span>Categorização por tipo</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                  <span>Código único por item</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Controle de EPIs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-green-300 hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <ShieldCheck className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Controle de EPIs</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Gerencie equipamentos de proteção individual com controle de validade e conformidade.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  <span>Controle de validade</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  <span>Tamanhos e cores</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  <span>Histórico por colaborador</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Alertas Inteligentes */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.15 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-orange-300 hover:shadow-xl hover:shadow-orange-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Bell className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Alertas Inteligentes</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Sistema de notificações automáticas para nunca perder um prazo importante.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                  <span>Estoque crítico</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                  <span>EPIs próximos do vencimento</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                  <span>Devoluções pendentes</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Assinatura Digital */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-purple-300 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <FileSignature className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Assinatura Digital</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Termo de responsabilidade com assinatura digital para retiradas de EPIs e ferramentas.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                  <span>Termo de responsabilidade automático</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                  <span>PDF para auditorias</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                  <span>Assinatura touch/mouse</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Dashboard Analytics */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.25 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-cyan-300 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Dashboard & KPIs</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Visualize métricas importantes em tempo real com gráficos interativos.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-cyan-500 flex-shrink-0" />
-                  <span>Gráficos de movimentação</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-cyan-500 flex-shrink-0" />
-                  <span>Análise de consumo</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-cyan-500 flex-shrink-0" />
-                  <span>Taxa de devolução</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Importação Excel */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <FileSpreadsheet className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Importação Excel</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Migre seus dados existentes facilmente com importação de planilhas Excel/CSV.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                  <span>Drag & drop de arquivos</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                  <span>Mapeamento de colunas</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                  <span>Validação automática</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Exportação PDF */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.35 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-red-300 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <FileDown className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Exportação PDF</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Gere relatórios profissionais em PDF para apresentações e auditorias.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-red-500 flex-shrink-0" />
-                  <span>Relatórios de estoque</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-red-500 flex-shrink-0" />
-                  <span>Lista de colaboradores</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-red-500 flex-shrink-0" />
-                  <span>Histórico de movimentações</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Gestão de Colaboradores */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Gestão de Colaboradores</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Cadastre sua equipe completa com dados detalhados e histórico de atividades.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-500 flex-shrink-0" />
-                  <span>Dados completos (CPF, cargo, setor)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-500 flex-shrink-0" />
-                  <span>Foto do colaborador</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-500 flex-shrink-0" />
-                  <span>Validação de duplicados</span>
-                </li>
-              </ul>
-            </motion.div>
-
-            {/* Responsivo */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.45 }}
-              className="group p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 hover:border-pink-300 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Smartphone className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">100% Responsivo</h3>
-              <p className="text-slate-600 text-sm sm:text-base mb-4">
-                Acesse de qualquer dispositivo com interface otimizada para touch.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-pink-500 flex-shrink-0" />
-                  <span>Desktop, tablet e mobile</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-pink-500 flex-shrink-0" />
-                  <span>Botões otimizados para toque</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-pink-500 flex-shrink-0" />
-                  <span>Instalável como app (PWA)</span>
-                </li>
-              </ul>
             </motion.div>
           </div>
+        </section>
 
-          {/* CTA dentro da seção */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-12 sm:mt-16 text-center"
-          >
-            <p className="text-slate-600 mb-4">
-              E muito mais! Descubra todas as funcionalidades com o teste grátis.
-            </p>
-            <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
-            >
-              {checkoutLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Processando...
-                </>
-              ) : (
-                <>
-                  Testar grátis por 7 dias
-                  <ArrowRight className="h-5 w-5" />
-                </>
-              )}
-            </button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Multi-Platform Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-100 to-white overflow-hidden">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10 sm:mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium mb-4">
-              <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              Multi-plataforma
-            </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
-              Acesse de qualquer lugar
-            </h2>
-            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-4 sm:px-0">
-              Desktop, tablet ou celular — seu almoxarifado na palma da mão.
-              Interface responsiva que se adapta perfeitamente a qualquer dispositivo.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="relative px-4 sm:px-0"
-          >
-            {/* Glow effect behind image */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-indigo-400/20 to-purple-400/20 blur-3xl rounded-full transform scale-75" />
-
-            <Image
-              src="/images/mockup-devices.png"
-              alt="Almox Fácil em múltiplos dispositivos - Desktop, Tablet e Mobile"
-              width={1200}
-              height={800}
-              className="relative w-full max-w-4xl mx-auto drop-shadow-2xl"
-              priority
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-3 sm:flex sm:flex-wrap justify-center gap-3 sm:gap-8 mt-8 sm:mt-12"
-          >
-            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="text-center sm:text-left">
-                <p className="font-semibold text-slate-900 text-sm sm:text-base">Desktop</p>
-                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Tela completa</p>
-              </div>
+        {/* Benefits Section */}
+        <section id="beneficios" className="py-24 bg-slate-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Por que escolher o Almox Fácil?</h2>
+              <p className="text-slate-600 max-w-2xl mx-auto">
+                Desenvolvemos uma plataforma focada no que realmente importa: resultados e simplicidade para o seu dia a dia.
+              </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="text-center sm:text-left">
-                <p className="font-semibold text-slate-900 text-sm sm:text-base">Tablet</p>
-                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Touch otimizado</p>
-              </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {benefits.map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+                >
+                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mb-6">
+                    <benefit.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">{benefit.title}</h3>
+                  <p className="text-slate-600 leading-relaxed">
+                    {benefit.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it Works */}
+        <section id="como-funciona" className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Simples como deve ser</h2>
+              <p className="text-slate-600">Comece a usar em menos de 5 minutos</p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 bg-white rounded-xl shadow-lg border border-slate-200">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="text-center sm:text-left">
-                <p className="font-semibold text-slate-900 text-sm sm:text-base">Mobile</p>
-                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Sempre disponível</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            <div className="relative">
+              {/* Connector Line */}
+              <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-blue-500 rounded-full blur-[128px]" />
-        </div>
-
-        <div className="max-w-4xl mx-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
-              Preço simples, sem surpresas
-            </h2>
-            <p className="text-base sm:text-lg text-slate-400">
-              Comece com 7 dias grátis. Cancele quando quiser.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-b from-slate-800 to-slate-800/50 rounded-2xl sm:rounded-3xl border border-slate-700 p-5 sm:p-8 lg:p-12"
-          >
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 sm:gap-8">
-              <div className="text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                  <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  Plano Profissional
-                </div>
-                <div className="flex items-baseline justify-center lg:justify-start gap-2 sm:gap-3">
-                  <span className="text-lg sm:text-2xl text-slate-500 line-through">R$69,90</span>
-                  <span className="text-3xl sm:text-5xl font-bold text-white">R$39,90</span>
-                  <span className="text-slate-400 text-sm sm:text-base">/mês</span>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start gap-2 mt-2">
-                  <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">
-                    43% OFF
-                  </span>
-                  <p className="text-slate-400 text-xs sm:text-sm">Por empresa • Inclui tudo</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                {pricingFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-1.5 sm:gap-2">
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-400" />
+              <div className="grid md:grid-cols-3 gap-12 relative z-10">
+                {[
+                  { step: "1", title: "Crie sua conta", desc: "Cadastro rápido, sem cartão de crédito." },
+                  { step: "2", title: "Configure", desc: "Adicione sua empresa e primeiros itens." },
+                  { step: "3", title: "Assuma o controle", desc: "Gerencie tudo pelo computador ou celular." }
+                ].map((item, i) => (
+                  <div key={i} className="text-center bg-white p-4">
+                    <div className="w-16 h-16 mx-auto bg-slate-900 text-white rounded-2xl flex items-center justify-center text-2xl font-bold mb-6 shadow-lg shadow-slate-900/20">
+                      {item.step}
                     </div>
-                    <span className="text-slate-300 text-xs sm:text-sm">{feature}</span>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">{item.title}</h3>
+                    <p className="text-slate-600">{item.desc}</p>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="mt-10 pt-8 border-t border-slate-700">
+        {/* Social Proof */}
+        <section id="depoimentos" className="py-24 bg-slate-900 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold mb-4">Quem usa, recomenda</h2>
+              <p className="text-slate-400">Junte-se a mais de 200 empresas que transformaram sua gestão</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {testimonials.map((t, i) => (
+                <div key={i} className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 backdrop-blur-sm">
+                  <div className="flex gap-1 mb-4 text-yellow-400">
+                    {[...Array(5)].map((_, starI) => (
+                      <Star key={starI} className="h-4 w-4 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-slate-300 mb-6 leading-relaxed">&quot;{t.content}&quot;</p>
+                  <div>
+                    <p className="font-bold text-white">{t.name}</p>
+                    <p className="text-sm text-slate-500">{t.role}, {t.company}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section className="py-24 bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Preço justo, sem surpresas</h2>
+            <p className="text-slate-600 mb-12">
+              Tudo o que você precisa em um único plano.
+            </p>
+
+            <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-12 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+                MAIS POPULAR
+              </div>
+
+              <div className="mb-8">
+                <span className="text-5xl font-bold text-slate-900">R$ 39,90</span>
+                <span className="text-slate-500">/mês</span>
+              </div>
+
+              <ul className="space-y-4 mb-10 text-left max-w-xs mx-auto">
+                {[
+                  "Estoque ilimitado",
+                  "Usuários ilimitados",
+                  "Gestão de ferramentas",
+                  "Controle de EPIs",
+                  "Suporte prioritário"
+                ].map((feat, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-700">
+                    <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    {feat}
+                  </li>
+                ))}
+              </ul>
+
               <button
-                onClick={handleCheckout}
-                disabled={checkoutLoading}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                onClick={handleStart}
+                className="w-full py-4 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors"
               >
-                {checkoutLoading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Processando...
-                  </>
-                ) : (
-                  <>
-                    Começar 7 dias grátis
-                    <ArrowRight className="h-5 w-5" />
-                  </>
-                )}
+                Começar teste grátis de 7 dias
               </button>
-              <p className="text-center text-sm text-slate-500 mt-4">
-                Sem cartão de crédito para começar o trial
+              <p className="text-xs text-slate-500 mt-4">
+                Cancele quando quiser. Sem fidelidade.
               </p>
             </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section id="faq" className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Perguntas frequentes
-            </h2>
-          </motion.div>
-
-          <div className="space-y-4">
-            {[
-              {
-                q: "Quanto tempo dura o período de teste?",
-                a: "Você tem 7 dias grátis para testar todas as funcionalidades da plataforma. Após esse período, a assinatura será ativada automaticamente."
-              },
-              {
-                q: "Posso cancelar a qualquer momento?",
-                a: "Sim! Não há fidelidade. Você pode cancelar sua assinatura quando quiser, sem multas ou taxas adicionais."
-              },
-              {
-                q: "Como funciona o suporte?",
-                a: "Oferecemos suporte por email para todos os clientes. Respondemos em até 24 horas úteis."
-              },
-              {
-                q: "Meus dados estão seguros?",
-                a: "Sim. Usamos infraestrutura de ponta com criptografia de dados em repouso e em trânsito. Seus dados são isolados e backups são feitos automaticamente."
-              },
-              {
-                q: "Quantos usuários posso ter?",
-                a: "O plano inclui colaboradores ilimitados. Você pode cadastrar toda sua equipe sem custo adicional."
-              }
-            ].map((faq, index) => (
-              <motion.details
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                className="group p-6 rounded-2xl bg-white border border-slate-200 hover:border-blue-200 transition-colors"
-              >
-                <summary className="flex items-center justify-between cursor-pointer list-none">
-                  <span className="font-semibold text-lg">{faq.q}</span>
-                  <ChevronDown className="h-5 w-5 text-slate-400 group-open:rotate-180 transition-transform" />
-                </summary>
-                <p className="mt-4 text-slate-600 leading-relaxed">{faq.a}</p>
-              </motion.details>
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 to-indigo-700 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='white'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
-            }}
-          />
-        </div>
-
-        <div className="max-w-4xl mx-auto text-center relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-              Pronto para transformar sua gestão de almoxarifado?
+        {/* Final CTA */}
+        <section className="py-24 bg-blue-600 text-white text-center px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl sm:text-5xl font-bold mb-8">
+              Pronto para organizar sua empresa?
             </h2>
-            <p className="text-xl text-blue-100 mb-10">
-              Comece hoje mesmo com 7 dias grátis. Sem compromisso.
+            <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+              Não deixe para depois. O controle que você precisa está a um clique de distância.
             </p>
             <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="px-8 py-4 rounded-xl bg-white text-blue-600 font-semibold text-lg hover:bg-blue-50 transition-all shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mx-auto"
+              onClick={handleStart}
+              className="px-10 py-5 rounded-full bg-white text-blue-600 font-bold text-lg hover:bg-blue-50 transition-colors shadow-2xl"
             >
-              {checkoutLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Processando...
-                </>
-              ) : (
-                <>
-                  Começar teste grátis
-                  <ArrowRight className="h-5 w-5" />
-                </>
-              )}
+              Criar conta grátis agora
             </button>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-xl bg-[#4B6BFB]">
-                <svg className="h-6 w-6" viewBox="0 0 500 500" fill="none">
-                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="font-bold text-lg">Almox Fácil</span>
-            </div>
-
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-slate-500 text-sm">
-                © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
-              </p>
-              <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <Shield className="h-3.5 w-3.5 text-green-500" />
-                <span>Dados protegidos conforme a <strong className="text-slate-500">LGPD</strong></span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <a
-                href="mailto:suporte@alnog.com.br"
-                className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-blue-100 hover:text-blue-600 transition-all"
-                title="Suporte por email"
-              >
-                <Mail className="h-5 w-5" />
-              </a>
-              <a
-                href="https://www.youtube.com/@almoxfacil"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-500 transition-all"
-                title="YouTube - Tutoriais"
-              >
-                <YouTubeIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://www.instagram.com/almoxfacil"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-pink-100 hover:text-pink-500 transition-all"
-                title="Instagram"
-              >
-                <InstagramIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/almoxfacil"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-blue-100 hover:text-blue-600 transition-all"
-                title="LinkedIn"
-              >
-                <LinkedInIcon className="h-5 w-5" />
-              </a>
-            </div>
+      <footer className="bg-slate-50 py-12 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2">
+            <Box className="h-6 w-6 text-slate-400" />
+            <span className="font-bold text-slate-700">Almox Fácil</span>
+          </div>
+          <div className="flex gap-6 text-sm text-slate-500">
+            <Link href="/terms" className="hover:text-blue-600">Termos de Uso</Link>
+            <Link href="/privacy" className="hover:text-blue-600">Privacidade</Link>
+            <a href="mailto:contato@almoxfacil.com.br" className="hover:text-blue-600">Contato</a>
+          </div>
+          <div className="flex gap-4 text-slate-400">
+            <a href="#" className="hover:text-blue-600"><InstagramIcon className="h-5 w-5" /></a>
+            <a href="#" className="hover:text-blue-600"><YouTubeIcon className="h-5 w-5" /></a>
+            <a href="#" className="hover:text-blue-600"><LinkedInIcon className="h-5 w-5" /></a>
           </div>
         </div>
       </footer>
     </div>
   )
 }
-

@@ -21,6 +21,11 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Bypass explícito para manifest.webmanifest para evitar 401
+  if (request.nextUrl.pathname.includes('manifest.webmanifest')) {
+    return response
+  }
+
   // Se Supabase não está configurado, seguir fluxo padrão sem tentativa de autenticação
   if (!supabaseUrl || !supabaseAnonKey) {
     return response
@@ -144,8 +149,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/login',
-    '/signup',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     * - manifest.webmanifest (PWA manifest)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
