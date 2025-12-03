@@ -166,7 +166,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-8 w-8 rounded-lg overflow-hidden">
               <Image
-                src="/images/logo.png"
+                src="/images/logo-v2.png"
                 alt="Logo Almox Fácil"
                 fill
                 className="object-cover"
@@ -600,7 +600,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="flex items-center gap-2">
             <div className="relative h-6 w-6 rounded-md overflow-hidden">
               <Image
-                src="/images/logo.png"
+                src="/images/logo-v2.png"
                 alt="Logo Almox Fácil"
                 fill
                 className="object-cover grayscale opacity-50"
