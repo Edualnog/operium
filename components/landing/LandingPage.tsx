@@ -391,7 +391,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               </div>
 
               <div className="mb-8">
-                <span className="text-5xl font-bold text-slate-900">R$ 97</span>
+                <span className="text-5xl font-bold text-slate-900">R$ 39,90</span>
                 <span className="text-slate-500">/mês</span>
               </div>
 
