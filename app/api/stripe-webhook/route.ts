@@ -107,10 +107,18 @@ export async function POST(req: NextRequest) {
             status = "inactive"
         }
 
+        // Determinar o tipo de plano
+        let planType = "mensal" // Default
+        const priceId = subscription.items.data[0]?.price.id
+        if (priceId === "price_1SaE6kGzXnyQEqRwIIX19uxm") {
+          planType = "anual"
+        }
+
         const { error } = await supabase
           .from("profiles")
           .update({
             subscription_status: status,
+            plan_type: planType, // Tenta atualizar o tipo de plano
           })
           .eq("stripe_customer_id", subscription.customer as string)
 
