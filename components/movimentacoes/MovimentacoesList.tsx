@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload, FileSignature } from "lucide-react"
+import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload, FileSignature, Eye, Printer, MoreHorizontal, Star, ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Settings, ArrowRight, ArrowLeft } from "lucide-react"
 import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 import { cn } from "@/lib/utils"
@@ -630,99 +630,23 @@ export default function MovimentacoesList({
 
   return (
     <div className="space-y-4">
-      {/* Filtros de Período Rápido */}
-      <div className="flex flex-col md:flex-row md:items-center gap-2 mb-4 pb-4 border-b border-zinc-200">
-        <span className="text-sm font-medium text-zinc-700 whitespace-nowrap">Período:</span>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            type="button"
-            variant={periodoRapido === "hoje" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setPeriodoRapido(periodoRapido === "hoje" ? null : "hoje")}
-            className="text-sm"
-          >
-            Hoje
+      {/* Toolbar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-100 p-2 rounded-t-lg border border-zinc-200 shadow-sm">
+        {/* Left: Actions */}
+        <div className="flex items-center gap-1 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" title="Visualizar">
+            <Eye className="h-4 w-4" />
           </Button>
-          <Button
-            type="button"
-            variant={periodoRapido === "ontem" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setPeriodoRapido(periodoRapido === "ontem" ? null : "ontem")}
-            className="text-sm"
-          >
-            Ontem
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" onClick={() => window.print()} title="Imprimir">
+            <Printer className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant={periodoRapido === "selecionar" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setPeriodoRapido(periodoRapido === "selecionar" ? null : "selecionar")}
-              className="text-sm"
-            >
-              Selecionar
-            </Button>
-            {periodoRapido === "selecionar" && (
-              <Input
-                type="date"
-                value={dataSelecionada}
-                onChange={(e) => {
-                  setDataSelecionada(e.target.value)
-                  if (e.target.value) {
-                    setPeriodoRapido("selecionar")
-                  }
-                }}
-                className="w-auto h-9 text-sm"
-              />
-            )}
-          </div>
-          {periodoRapido && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setPeriodoRapido(null)
-                setDataSelecionada("")
-                setFilters(prev => ({
-                  ...prev,
-                  dataInicio: null,
-                  dataFim: null,
-                }))
-              }}
-              className="text-sm text-zinc-500 hover:text-zinc-700"
-            >
-              Limpar
-            </Button>
-          )}
-        </div>
-      </div>
 
-      {/* Filtros */}
-      <MovimentacoesFilters
-        ferramentas={ferramentas}
-        colaboradores={colaboradores}
-        filters={filters}
-        onFiltersChange={setFilters}
-        totalEncontrados={filtered.length}
-      />
+          <div className="h-4 w-px bg-zinc-300 mx-2" />
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="relative w-full md:max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
-          <Input
-            placeholder="Buscar por produto, colaborador ou tipo"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 text-sm md:text-base"
-          />
-        </div>
-        <div className="flex gap-2 flex-wrap">
           <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
             <DialogTrigger asChild>
-              <Button variant="outline" disabled={exportingCsv || movimentacoes.length === 0}>
-                <Filter className="mr-2 h-4 w-4" />
-                Exportar CSV
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" title="Exportar CSV">
+                <FileDown className="h-4 w-4" />
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -848,18 +772,18 @@ export default function MovimentacoesList({
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <Button
-            variant="outline"
-            onClick={() => setImportModalOpen(true)}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Importar Excel
+
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200" onClick={() => setImportModalOpen(true)} title="Importar Excel">
+            <Upload className="h-4 w-4" />
           </Button>
+
+          <div className="h-4 w-px bg-zinc-300 mx-2" />
+
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => setOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Registrar Movimentação
+              <Button onClick={() => setOpen(true)} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-8">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Novo</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
@@ -1014,65 +938,65 @@ export default function MovimentacoesList({
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Right: Search */}
+        <div className="relative w-full md:max-w-xs">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+          <Input
+            placeholder="Buscar..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9 text-sm bg-white border-zinc-300 focus:border-blue-500"
+          />
+        </div>
       </div>
 
-      {/* Modal de Importação */}
-      {importModalOpen && (
-        <ImportExcel
-          config={importConfig}
-          onClose={() => setImportModalOpen(false)}
-        />
-      )}
+      <MovimentacoesFilters
+        ferramentas={ferramentas}
+        colaboradores={colaboradores}
+        filters={filters}
+        onFiltersChange={setFilters}
+        totalEncontrados={filtered.length}
+      />
 
-      <div className="border rounded-lg overflow-hidden bg-white">
-        {/* Cabeçalho da tabela */}
-        {/* Cabeçalho - Desktop */}
-        <div className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 bg-zinc-50 border-b border-zinc-200 font-semibold text-xs text-zinc-700 uppercase tracking-wide">
+      <div className="border border-zinc-200 rounded-b-lg overflow-hidden bg-white shadow-sm">
+        {/* Header - Desktop */}
+        <div className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 bg-slate-700 text-white font-semibold text-xs uppercase tracking-wider items-center">
+          <div className="flex justify-center"><Checkbox className="border-white/50 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500" /></div>
+          <div className="flex justify-center"><Star className="h-3 w-3" /></div>
+          <div className="flex justify-center">Tipo</div>
+          <div>ID</div>
           <div>Item</div>
-          <div className="text-center">Quantidade</div>
           <div>Responsável</div>
-          <div>Data/Hora</div>
-          <div>Observações</div>
+          <div>Data</div>
+          <div>Obs</div>
         </div>
 
-        {/* Corpo da tabela */}
-        <div className="divide-y divide-zinc-200">
+        {/* Body */}
+        <div className="divide-y divide-zinc-100">
           {filtered.map((m) => (
             <Fragment key={m.id}>
               {/* Versão Desktop */}
               <div
                 onClick={() => handleOpenDetail(m.id)}
-                className="hidden md:grid grid-cols-[2fr_100px_150px_180px_1fr] gap-4 px-4 py-3 hover:bg-blue-50/50 transition-colors cursor-pointer group"
+                className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 hover:bg-blue-50/50 transition-colors items-center text-sm text-zinc-700 group cursor-pointer"
               >
-                <div className="flex items-center gap-2 min-w-0">
-                  <Badge
-                    variant={tipoBadge(m.tipo)}
-                    className={cn(
-                      "capitalize shrink-0 text-xs px-2 py-0.5",
-                      tipoBadgeClassName(m.tipo)
-                    )}
-                  >
-                    {m.tipo}
-                  </Badge>
-                  <span className="font-medium text-sm text-zinc-900 truncate group-hover:text-blue-700 transition-colors">
-                    {m.ferramentas?.nome || "Produto"}
-                  </span>
+                <div className="flex justify-center" onClick={e => e.stopPropagation()}><Checkbox /></div>
+                <div className="flex justify-center text-zinc-300 hover:text-yellow-400 cursor-pointer transition-colors" onClick={e => e.stopPropagation()}><Star className="h-4 w-4" /></div>
+                <div className="flex justify-center" title={m.tipo}>
+                  {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600" />}
+                  {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
+                  {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600" />}
+                  {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600" />}
                 </div>
-                <div className="flex items-center justify-center text-sm font-medium text-zinc-700">
-                  {m.quantidade}
+                <div className="font-mono text-xs text-zinc-500">#{m.id.substring(0, 4)}</div>
+                <div className="font-medium text-zinc-900 truncate flex items-center gap-2">
+                  <span className="truncate">{m.ferramentas?.nome || "Produto"}</span>
+                  {m.quantidade > 1 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{m.quantidade}</Badge>}
                 </div>
-                <div className="flex items-center text-sm text-zinc-700 truncate">
-                  {m.colaboradores?.nome || "-"}
-                </div>
-                <div className="flex items-center text-sm text-zinc-600">
-                  {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-zinc-600 truncate" title={m.observacoes || ""}>
-                  <span className="truncate flex-1">{m.observacoes || "-"}</span>
-                  <span className="opacity-0 group-hover:opacity-100 text-blue-500 text-xs whitespace-nowrap transition-opacity">
-                    Ver detalhes →
-                  </span>
-                </div>
+                <div className="truncate text-xs">{m.colaboradores?.nome || "-"}</div>
+                <div className="text-xs text-zinc-500">{m.data ? format(new Date(m.data), "dd/MM/yyyy", { locale: ptBR }) : "-"}</div>
+                <div className="truncate text-xs text-zinc-400">{m.observacoes || "-"}</div>
               </div>
 
               {/* Versão Mobile */}
@@ -1081,15 +1005,13 @@ export default function MovimentacoesList({
                 className="md:hidden p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <Badge
-                    variant={tipoBadge(m.tipo)}
-                    className={cn(
-                      "capitalize shrink-0 text-xs px-2 py-0.5",
-                      tipoBadgeClassName(m.tipo)
-                    )}
-                  >
-                    {m.tipo}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600" />}
+                    {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
+                    {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600" />}
+                    {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600" />}
+                    <span className="text-xs font-medium capitalize">{m.tipo}</span>
+                  </div>
                   <span className="text-xs text-zinc-500">
                     {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
                   </span>
@@ -1103,22 +1025,23 @@ export default function MovimentacoesList({
                   <span>Qtd: <strong>{m.quantidade}</strong></span>
                   <span>Resp: <strong>{m.colaboradores?.nome || "-"}</strong></span>
                 </div>
-                {m.observacoes && (
-                  <div className="text-xs text-zinc-500 pt-1 border-t border-zinc-100">
-                    {m.observacoes}
-                  </div>
-                )}
-                <div className="text-xs text-blue-500 text-center pt-1">
-                  Toque para ver detalhes
-                </div>
               </div>
             </Fragment>
           ))}
         </div>
       </div>
 
+      {/* Footer */}
+      <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
+        <div>Total de registros: {filtered.length}</div>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" className="h-6 w-6" disabled><ChevronLeft className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-6 w-6" disabled><ChevronRight className="h-3 w-3" /></Button>
+        </div>
+      </div>
+
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300">
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 mt-4">
           <div className="bg-blue-50 p-4 rounded-full mb-4">
             <RotateCcw className="h-10 w-10 text-blue-500" />
           </div>
@@ -1132,32 +1055,15 @@ export default function MovimentacoesList({
               ? "Tente ajustar os filtros ou buscar por outro termo."
               : "Registre entradas, saídas e devoluções para manter o histórico do seu almoxarifado sempre atualizado."}
           </p>
-          {!(search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim) && (
-            <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="mr-2 h-4 w-4" />
-              Registrar Movimentação
-            </Button>
-          )}
-          {(search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim) && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearch("")
-                setFilters({
-                  tipo: "todos",
-                  dataInicio: null,
-                  dataFim: null,
-                  produtoId: "",
-                  colaboradorId: "",
-                })
-                setPeriodoRapido(null)
-                setDataSelecionada("")
-              }}
-            >
-              Limpar Filtros
-            </Button>
-          )}
         </div>
+      )}
+
+      {/* Modal de Importação */}
+      {importModalOpen && (
+        <ImportExcel
+          config={importConfig}
+          onClose={() => setImportModalOpen(false)}
+        />
       )}
 
       {/* Modal de Termo de Responsabilidade */}
