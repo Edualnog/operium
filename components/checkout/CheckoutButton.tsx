@@ -27,7 +27,7 @@ export default function CheckoutButton({
   const router = useRouter()
 
   const handleCheckout = () => {
-    router.push("/subscribe")
+    window.location.href = "/subscribe"
   }
 
   return (

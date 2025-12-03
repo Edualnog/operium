@@ -44,7 +44,7 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
   }, [userId, supabase])
 
   const handleCheckout = () => {
-    router.push("/subscribe")
+    window.location.href = "/subscribe"
   }
 
   // Não mostrar nada se já tem assinatura ativa
