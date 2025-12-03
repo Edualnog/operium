@@ -27,6 +27,7 @@
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "cmdk": "^1.1.1",
     "date-fns": "^3.0.6",
     "framer-motion": "^12.23.24",
     "jspdf": "^3.0.4",
