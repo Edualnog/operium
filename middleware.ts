@@ -21,6 +21,11 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Bypass explícito para manifest.webmanifest para evitar 401
+  if (request.nextUrl.pathname.includes('manifest.webmanifest')) {
+    return response
+  }
+
   // Se Supabase não está configurado, seguir fluxo padrão sem tentativa de autenticação
   if (!supabaseUrl || !supabaseAnonKey) {
     return response
