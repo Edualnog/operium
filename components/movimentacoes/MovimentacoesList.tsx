@@ -1046,7 +1046,7 @@ export default function MovimentacoesList({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500 dark:text-zinc-400">
+      <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500 dark:text-zinc-300">
         <div>
           Mostrando {paginatedMovimentacoes.length} de {filtered.length} registros
           {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
