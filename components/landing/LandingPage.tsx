@@ -531,7 +531,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </section>
 
         {/* Final CTA */}
-        <section className="py-24 bg-blue-600 text-white text-center px-4 relative overflow-hidden">
+        <section className="py-24 bg-slate-900 text-white text-center px-4 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10" />
           <div className="max-w-4xl mx-auto relative z-10">
             <h2 className="text-3xl sm:text-5xl font-bold mb-8">
