@@ -25,6 +25,7 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
+import { RainbowButton } from "@/components/ui/rainbow-button"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -157,12 +158,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 Entrar
               </Link>
             )}
-            <button
+            <RainbowButton
               onClick={handleStart}
-              className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+              className="px-5 py-2.5 h-auto text-sm font-semibold rounded-xl"
             >
               Começar Grátis
-            </button>
+            </RainbowButton>
           </div>
 
           {/* Mobile Menu Button */}
@@ -187,12 +188,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               <a href="#depoimentos" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">Depoimentos</a>
               <hr className="border-slate-100" />
               <Link href="/login" className="text-slate-600 font-medium">Entrar</Link>
-              <button
+              <RainbowButton
                 onClick={handleStart}
-                className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold"
+                className="w-full h-auto py-3 font-semibold rounded-xl"
               >
                 Começar Grátis
-              </button>
+              </RainbowButton>
             </div>
           </motion.div>
         )}
@@ -225,14 +226,14 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                      <button
+                      <RainbowButton
                         onClick={handleStart}
                         disabled={checkoutLoading}
-                        className="w-full sm:w-auto px-8 py-4 rounded-full bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto h-auto px-8 py-4 text-lg font-bold flex items-center justify-center gap-2 rounded-xl"
                       >
                         {checkoutLoading ? <Loader2 className="animate-spin" /> : "Começar teste grátis agora"}
                         {!checkoutLoading && <ArrowRight className="h-5 w-5" />}
-                      </button>
+                      </RainbowButton>
                       <p className="text-sm text-slate-500 font-medium">
                         Sem cartão de crédito • Cancele quando quiser
                       </p>
@@ -516,12 +517,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 ))}
               </ul>
 
-              <button
+              <RainbowButton
                 onClick={handleStart}
-                className="w-full py-4 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors shadow-lg"
+                className="w-full h-auto py-4 font-bold rounded-xl"
               >
                 Começar teste grátis de 7 dias
-              </button>
+              </RainbowButton>
               <p className="text-xs text-slate-500 mt-4">
                 Cancele quando quiser. Sem fidelidade.
               </p>
@@ -539,12 +540,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
               Não deixe para depois. O controle que você precisa está a um clique de distância.
             </p>
-            <button
+            <RainbowButton
               onClick={handleStart}
-              className="px-10 py-5 rounded-full bg-white text-blue-600 font-bold text-lg hover:bg-blue-50 transition-colors shadow-2xl hover:shadow-white/20"
+              className="px-10 py-5 h-auto text-lg font-bold rounded-xl"
             >
               Criar conta grátis agora
-            </button>
+            </RainbowButton>
             <p className="mt-6 text-blue-200 text-sm">
               Junte-se a mais de 200 empresas inteligentes
             </p>
