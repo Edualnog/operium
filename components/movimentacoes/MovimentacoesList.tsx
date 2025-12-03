@@ -56,6 +56,8 @@ interface Colaborador {
   nome: string
 }
 
+const ITEMS_PER_PAGE = 35
+
 export default function MovimentacoesList({
   movimentacoes: initialMovs,
   ferramentas,
@@ -81,6 +83,7 @@ export default function MovimentacoesList({
     dataMov: new Date().toISOString().slice(0, 16),
   })
   const [search, setSearch] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
 
   // Estados para assinatura digital
   const [solicitarAssinatura, setSolicitarAssinatura] = useState(true)
@@ -321,6 +324,17 @@ export default function MovimentacoesList({
 
     return result
   }, [movimentacoes, search, filters, ferramentas, colaboradores])
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
+  const paginatedMovimentacoes = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filtered.slice(start, start + ITEMS_PER_PAGE)
+  }, [filtered, currentPage])
+
+  // Resetar para página 1 quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search, filters, periodoRapido])
 
   const suggestions = useMemo(() => {
     // Não mostrar sugestões se já há um produto selecionado
@@ -972,9 +986,9 @@ export default function MovimentacoesList({
           <div>Obs</div>
         </div>
 
-        {/* Body */}
-        <div className="divide-y divide-zinc-100">
-          {filtered.map((m) => (
+        {/* Corpo da tabela */}
+        <div className="divide-y divide-zinc-200">
+          {paginatedMovimentacoes.map((m) => (
             <Fragment key={m.id}>
               {/* Versão Desktop */}
               <div
@@ -1033,10 +1047,30 @@ export default function MovimentacoesList({
 
       {/* Footer */}
       <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
-        <div>Total de registros: {filtered.length}</div>
-        <div className="flex gap-1">
-          <Button variant="ghost" size="icon" className="h-6 w-6" disabled><ChevronLeft className="h-3 w-3" /></Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6" disabled><ChevronRight className="h-3 w-3" /></Button>
+        <div>
+          Mostrando {paginatedMovimentacoes.length} de {filtered.length} registros
+          {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
+        </div>
+        <div className="flex gap-1 items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-3 w-3" />
+          </Button>
+          <span className="min-w-[2rem] text-center">{currentPage}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages || totalPages === 0}
+          >
+            <ChevronRight className="h-3 w-3" />
+          </Button>
         </div>
       </div>
 
