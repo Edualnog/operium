@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   authors: [{ name: "Almox Fácil" }],
   creator: "Almox Fácil",
   metadataBase: new URL("https://almoxfacil.alnog.com.br"),
+  alternates: {
+    canonical: "https://almoxfacil.alnog.com.br",
+  },
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { revalidatePath } from "next/cache"
+import { normalizeQuantity } from "./validation"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -41,7 +42,14 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { tipo, ferramenta_id, quantidade, colaborador_id, observacoes, data } = body || {}
 
-    if (!ferramenta_id || !quantidade || !tipo) {
+    let normalizedQuantity: number
+    try {
+      normalizedQuantity = normalizeQuantity(quantidade)
+    } catch (validationError: any) {
+      return NextResponse.json({ error: validationError.message || "Quantidade inválida" }, { status: 400 })
+    }
+
+    if (!ferramenta_id || !tipo) {
       return NextResponse.json({ error: "Dados inválidos" }, { status: 400 })
     }
 
@@ -82,8 +90,8 @@ export async function POST(request: Request) {
       const { error: updateError } = await supabase
         .from("ferramentas")
         .update({
-          quantidade_disponivel: ferramenta.quantidade_disponivel + Number(quantidade),
-          quantidade_total: ferramenta.quantidade_total + Number(quantidade),
+          quantidade_disponivel: ferramenta.quantidade_disponivel + normalizedQuantity,
+          quantidade_total: ferramenta.quantidade_total + normalizedQuantity,
         })
         .eq("id", ferramenta_id)
 
@@ -99,7 +107,7 @@ export async function POST(request: Request) {
           profile_id: user.id,
           ferramenta_id,
           tipo: "entrada",
-          quantidade: Number(quantidade),
+          quantidade: normalizedQuantity,
           observacoes,
           data: data ? new Date(data).toISOString() : undefined,
         })
@@ -122,7 +130,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Ferramenta não encontrada" }, { status: 404 })
       }
 
-      if (ferramenta.quantidade_disponivel < Number(quantidade)) {
+      if (ferramenta.quantidade_disponivel < normalizedQuantity) {
         return NextResponse.json(
           { error: "Quantidade insuficiente disponível" },
           { status: 400 }
@@ -133,7 +141,7 @@ export async function POST(request: Request) {
       const { error: updateError } = await supabase
         .from("ferramentas")
         .update({
-          quantidade_disponivel: ferramenta.quantidade_disponivel - Number(quantidade),
+          quantidade_disponivel: ferramenta.quantidade_disponivel - normalizedQuantity,
         })
         .eq("id", ferramenta_id)
 
@@ -150,7 +158,7 @@ export async function POST(request: Request) {
           ferramenta_id,
           colaborador_id,
           tipo: "retirada",
-          quantidade: Number(quantidade),
+          quantidade: normalizedQuantity,
           observacoes,
           data: data ? new Date(data).toISOString() : undefined,
         })
@@ -177,7 +185,7 @@ export async function POST(request: Request) {
       const { error: updateError } = await supabase
         .from("ferramentas")
         .update({
-          quantidade_disponivel: ferramenta.quantidade_disponivel + Number(quantidade),
+          quantidade_disponivel: ferramenta.quantidade_disponivel + normalizedQuantity,
         })
         .eq("id", ferramenta_id)
 
@@ -194,7 +202,7 @@ export async function POST(request: Request) {
           ferramenta_id,
           colaborador_id,
           tipo: "devolucao",
-          quantidade: Number(quantidade),
+          quantidade: normalizedQuantity,
           observacoes,
           data: data ? new Date(data).toISOString() : undefined,
         })
