@@ -128,8 +128,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-100">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-blue-600 shadow-md shadow-blue-500/20">
-              <Box className="h-6 w-6 text-white" />
+            <div className="relative h-8 w-8">
+              <Image
+                src="/images/logo.png"
+                alt="Logo Almox Fácil"
+                fill
+                className="object-contain"
+              />
             </div>
             <span className="font-bold text-xl tracking-tight text-slate-900">Almox Fácil</span>
           </Link>
@@ -521,7 +526,14 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       <footer className="bg-slate-50 py-12 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
-            <Box className="h-6 w-6 text-slate-400" />
+            <div className="relative h-6 w-6">
+              <Image
+                src="/images/logo.png"
+                alt="Logo Almox Fácil"
+                fill
+                className="object-contain grayscale opacity-50"
+              />
+            </div>
             <span className="font-bold text-slate-700">Almox Fácil</span>
           </div>
           <div className="flex gap-6 text-sm text-slate-500">
