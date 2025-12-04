@@ -43,6 +43,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { LanguageSwitcher } from "@/components/ui/language-switcher"
 
 export default function DashboardWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -280,6 +281,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
       {/* Header com notificações */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-zinc-200 px-3 py-2 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8 dark:bg-zinc-950/95 dark:border-zinc-800">
         <div className="max-w-[1920px] mx-auto flex items-center justify-end gap-3">
+          <LanguageSwitcher />
           <ThemeToggle />
           {userId && <NotificationBell userId={userId} />}
         </div>
