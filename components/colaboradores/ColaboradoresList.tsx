@@ -32,6 +32,7 @@ import { ColaboradoresFilters, type FilterState } from "./ColaboradoresFilters"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { useSidebar } from "@/components/ui/sidebar"
+import { useTranslation } from "react-i18next"
 
 interface Colaborador {
   id: string
@@ -99,6 +100,7 @@ function ColaboradoresList({
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { open: sidebarOpen } = useSidebar()
+  const { t } = useTranslation()
 
   // Debounce para verificação de nome duplicado
   const debouncedNome = useDebounce(nomeDigitado, 500)
@@ -1008,7 +1010,7 @@ function ColaboradoresList({
             disabled={exporting || filteredAndSortedColaboradores.length === 0}
           >
             <FileDown className="mr-2 h-4 w-4" />
-            {exporting ? "Gerando PDF..." : "Exportar PDF"}
+            {exporting ? t("common.loading") : t("dashboard.colaboradores.export_button")}
           </Button>
 
           {/* Seletor de tamanho dos cards */}
@@ -1055,25 +1057,25 @@ function ColaboradoresList({
             onClick={() => setImportModalOpen(true)}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Importar Excel
+            {t("dashboard.colaboradores.import_button")}
           </Button>
           <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditing(null)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Novo Colaborador
+                {t("dashboard.colaboradores.new_button")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
               <form onSubmit={handleSubmit}>
                 <DialogHeader>
                   <DialogTitle>
-                    {editing ? "Editar Colaborador" : "Novo Colaborador"}
+                    {editing ? t("dashboard.colaboradores.form.title_edit") : t("dashboard.colaboradores.form.title_new")}
                   </DialogTitle>
                   <DialogDescription>
                     {editing
-                      ? "Atualize as informações do colaborador"
-                      : "Adicione um novo colaborador ao sistema"}
+                      ? t("dashboard.colaboradores.form.desc_edit")
+                      : t("dashboard.colaboradores.form.desc_new")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -1089,7 +1091,7 @@ function ColaboradoresList({
 
                   {/* Nome */}
                   <div className="grid gap-2">
-                    <Label htmlFor="nome">Nome *</Label>
+                    <Label htmlFor="nome">{t("dashboard.colaboradores.form.name")} *</Label>
                     <Input
                       id="nome"
                       name="nome"
@@ -1151,7 +1153,7 @@ function ColaboradoresList({
 
                   {/* Cargo */}
                   <div className="grid gap-2">
-                    <Label htmlFor="cargo">Cargo</Label>
+                    <Label htmlFor="cargo">{t("dashboard.colaboradores.form.role")}</Label>
                     <Input
                       id="cargo"
                       name="cargo"
@@ -1162,7 +1164,7 @@ function ColaboradoresList({
 
                   {/* Data de Admissão */}
                   <div className="grid gap-2">
-                    <Label htmlFor="data_admissao">Data de Admissão</Label>
+                    <Label htmlFor="data_admissao">{t("dashboard.colaboradores.form.admission_date")}</Label>
                     <Input
                       id="data_admissao"
                       name="data_admissao"
@@ -1178,7 +1180,7 @@ function ColaboradoresList({
                   {/* Email e Telefone em linha */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">{t("dashboard.colaboradores.form.email")}</Label>
                       <Input
                         id="email"
                         name="email"
@@ -1188,7 +1190,7 @@ function ColaboradoresList({
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="telefone">Telefone</Label>
+                      <Label htmlFor="telefone">{t("dashboard.colaboradores.form.phone")}</Label>
                       <Input
                         id="telefone"
                         name="telefone"

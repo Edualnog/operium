@@ -33,6 +33,7 @@ import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 import { cn } from "@/lib/utils"
 import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabilidadeModal"
 import MovimentacaoDetailModal from "./MovimentacaoDetailModal"
+import { useTranslation } from "react-i18next"
 
 interface Movimentacao {
   id: string
@@ -69,6 +70,7 @@ export default function MovimentacoesList({
 }) {
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const { t } = useTranslation()
   const [movimentacoes, setMovimentacoes] = useState(initialMovs)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [starredIds, setStarredIds] = useState<string[]>([])

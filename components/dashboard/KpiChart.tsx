@@ -28,6 +28,7 @@ interface KpiChartProps {
 }
 
 import { useTheme } from "next-themes"
+import { useTranslation } from "react-i18next"
 
 export function KpiChart({
   title,
@@ -39,6 +40,7 @@ export function KpiChart({
   color = "#3b82f6",
   height = 300,
 }: KpiChartProps) {
+  const { t } = useTranslation('common')
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
@@ -64,7 +66,7 @@ export function KpiChart({
           </CardHeader>
           <CardContent className="pt-4">
             <p className="text-sm text-zinc-500 text-center py-8 dark:text-zinc-500">
-              Nenhum dado disponível
+              {t('common.no_data')}
             </p>
           </CardContent>
         </Card>
@@ -72,7 +74,7 @@ export function KpiChart({
     }
     return (
       <p className="text-sm text-zinc-500 text-center py-8 dark:text-zinc-500">
-        Nenhum dado disponível
+        {t('common.no_data')}
       </p>
     )
   }

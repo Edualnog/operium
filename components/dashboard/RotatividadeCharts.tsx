@@ -42,8 +42,10 @@ interface FerramentaRotatividade {
 }
 
 import { useTheme } from "next-themes"
+import { useTranslation } from "react-i18next"
 
 function RotatividadeCharts({ userId }: { userId: string }) {
+  const { t } = useTranslation('common')
   const [rotatividade, setRotatividade] = useState<FerramentaRotatividade[]>([])
   const [tendenciaConsumo, setTendenciaConsumo] = useState<any[]>([])
   const [consumoPorCategoria, setConsumoPorCategoria] = useState<any[]>([])
@@ -117,7 +119,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
           rotatividadeMap[ferramenta.id] = {
             id: ferramenta.id,
             nome: ferramenta.nome,
-            categoria: ferramenta.categoria || "Sem categoria",
+            categoria: ferramenta.categoria || t('common.uncategorized'),
             quantidade_total: ferramenta.quantidade_total,
             quantidade_disponivel: ferramenta.quantidade_disponivel,
             total_saidas: 0,
@@ -189,11 +191,11 @@ function RotatividadeCharts({ userId }: { userId: string }) {
           const data = new Date(mov.data)
           // Calcular semana do mês (1-4)
           const diaDoMes = data.getDate()
-          const semana = `Sem ${Math.ceil(diaDoMes / 7)}`
+          const semana = `${t('dashboard.labels.week')} ${Math.ceil(diaDoMes / 7)}`
           porSemana[semana] = (porSemana[semana] || 0) + (mov.quantidade || 0)
         })
 
-        const semanas = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"]
+        const semanas = [1, 2, 3, 4].map(i => `${t('dashboard.labels.week')} ${i}`)
         const tendencia = semanas.map((semana) => ({
           semana,
           quantidade: porSemana[semana] || 0,
@@ -226,7 +228,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
         const porCategoria: Record<string, number> = {}
         movimentacoesCategoria.data.forEach((mov) => {
           const categoria =
-            (mov.ferramentas as any)?.categoria || "Sem categoria"
+            (mov.ferramentas as any)?.categoria || t('common.uncategorized')
           porCategoria[categoria] =
             (porCategoria[categoria] || 0) + mov.quantidade
         })
@@ -258,7 +260,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardHeader>
-            <CardTitle className="dark:text-zinc-50">Carregando análises...</CardTitle>
+            <CardTitle className="dark:text-zinc-50">{t('dashboard.charts.loading_analysis')}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -276,7 +278,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
                 <div className="p-1.5 sm:p-2 lg:p-2.5 rounded-lg bg-orange-100 flex-shrink-0 dark:bg-orange-900/50">
                   <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-orange-600 dark:text-orange-400" />
                 </div>
-                <span className="truncate">Alertas de Estoque</span>
+                <span className="truncate">{t('dashboard.charts.stock_alerts.title')}</span>
               </CardTitle>
               <Badge variant="destructive" className="bg-red-600 text-white flex-shrink-0 text-xs sm:text-sm lg:text-base px-2 sm:px-3 py-1 sm:py-1.5 dark:bg-red-900 dark:text-red-100">{alertasEstoque.length}</Badge>
             </div>
@@ -292,27 +294,27 @@ function RotatividadeCharts({ userId }: { userId: string }) {
                     <p className="font-semibold text-sm sm:text-base lg:text-lg xl:text-xl text-zinc-900 truncate dark:text-zinc-100">{alerta.nome}</p>
                     <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-0.5 lg:mt-1 dark:text-zinc-400">
                       {alerta.categoria} • {alerta.quantidade_disponivel}/
-                      {alerta.quantidade_total} disponíveis
+                      {alerta.quantidade_total} {t('dashboard.labels.available_suffix')}
                     </p>
                   </div>
                   <div className="text-left sm:text-right flex-shrink-0">
                     {alerta.dias_restantes ? (
                       <>
                         <div className={`inline-flex items-center gap-1 px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-full text-xs sm:text-sm lg:text-base font-bold ${alerta.dias_restantes < 7
-                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            : alerta.dias_restantes < 15
-                              ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
-                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                          : alerta.dias_restantes < 15
+                            ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                            : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
                           }`}>
-                          {alerta.dias_restantes} dias
+                          {alerta.dias_restantes} {t('common.days')}
                         </div>
                         <p className="text-xs sm:text-sm text-zinc-500 mt-1 dark:text-zinc-500">
-                          até esgotar
+                          {t('dashboard.labels.until_stockout')}
                         </p>
                       </>
                     ) : (
                       <p className="text-xs sm:text-sm lg:text-base text-zinc-600 dark:text-zinc-400">
-                        Estoque baixo
+                        {t('dashboard.labels.low_stock')}
                       </p>
                     )}
                   </div>
@@ -329,10 +331,10 @@ function RotatividadeCharts({ userId }: { userId: string }) {
           <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600 flex-shrink-0 dark:text-blue-400" />
-              <span className="truncate">Top Ferramentas por Rotatividade</span>
+              <span className="truncate">{t('dashboard.charts.turnover.title')}</span>
             </CardTitle>
             <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">
-              Últimos 90 dias - Saídas por dia
+              {t('dashboard.charts.turnover.subtitle')}
             </p>
           </CardHeader>
           <CardContent className="pt-4 sm:pt-5">
@@ -371,8 +373,8 @@ function RotatividadeCharts({ userId }: { userId: string }) {
                       color: tooltipTextColor,
                     }}
                     formatter={(value: number) => [
-                      `${value.toFixed(2)} saídas/dia`,
-                      "Rotatividade",
+                      `${value.toFixed(2)} ${t('dashboard.labels.outputs_per_day')}`,
+                      t('dashboard.labels.turnover'),
                     ]}
                     cursor={{ fill: isDark ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.1)" }}
                   />
@@ -401,10 +403,10 @@ function RotatividadeCharts({ userId }: { userId: string }) {
           <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
               <Package className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600 flex-shrink-0 dark:text-green-400" />
-              <span>Consumo por Categoria</span>
+              <span>{t('dashboard.charts.category_consumption.title')}</span>
             </CardTitle>
             <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">
-              Últimos 30 dias
+              {t('dashboard.kpi.last_30_days')}
             </p>
           </CardHeader>
           <CardContent className="pt-4 sm:pt-5">
@@ -450,10 +452,10 @@ function RotatividadeCharts({ userId }: { userId: string }) {
         <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600 flex-shrink-0 dark:text-purple-400" />
-            <span className="truncate">Tendência de Consumo e Previsão</span>
+            <span className="truncate">{t('dashboard.charts.consumption_trend.title')}</span>
           </CardTitle>
           <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">
-            Últimas 4 semanas e previsão para próxima semana
+            {t('dashboard.charts.consumption_trend.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="pt-4 sm:pt-5">
@@ -486,7 +488,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
                   stroke={COLORS.primary}
                   fillOpacity={1}
                   fill="url(#colorConsumo)"
-                  name="Consumo Real"
+                  name={t('dashboard.charts.consumption_trend.real')}
                   strokeWidth={2}
                 />
                 {tendenciaConsumo.some((item) => item.previsao !== null) && (
@@ -496,7 +498,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
                     stroke={COLORS.warning}
                     strokeWidth={2}
                     strokeDasharray="5 5"
-                    name="Previsão"
+                    name={t('dashboard.charts.consumption_trend.forecast')}
                     dot={{ fill: COLORS.warning, r: 5 }}
                     connectNulls={false}
                   />

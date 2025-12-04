@@ -24,8 +24,10 @@ import {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
 import { useTheme } from "next-themes"
+import { useTranslation } from "react-i18next"
 
 function DashboardCharts({ userId }: { userId: string }) {
+  const { t } = useTranslation('common')
   const [retiradasPorColaborador, setRetiradasPorColaborador] = useState<any[]>(
     []
   )
@@ -77,7 +79,7 @@ function DashboardCharts({ userId }: { userId: string }) {
         const porColaborador: Record<string, number> = {}
         movimentacoesResult.data.forEach((mov) => {
           const nome =
-            (mov.colaboradores as any)?.nome || "Sem colaborador"
+            (mov.colaboradores as any)?.nome || t('common.no_collaborator')
           porColaborador[nome] = (porColaborador[nome] || 0) + mov.quantidade
         })
         setRetiradasPorColaborador(
@@ -110,7 +112,7 @@ function DashboardCharts({ userId }: { userId: string }) {
       if (ferramentasResult.data) {
         const estados: Record<string, number> = {}
         ferramentasResult.data.forEach((f) => {
-          const estado = f.estado === "em_conserto" ? "Em Conserto" : f.estado === "danificada" ? "Danificada" : "OK"
+          const estado = f.estado === "em_conserto" ? t('dashboard.status.in_repair') : f.estado === "danificada" ? t('dashboard.status.damaged') : t('dashboard.status.ok')
           estados[estado] = (estados[estado] || 0) + 1
         })
         setDistribuicaoEstados(
@@ -138,7 +140,7 @@ function DashboardCharts({ userId }: { userId: string }) {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardHeader>
-            <CardTitle className="dark:text-zinc-50">Carregando gráficos...</CardTitle>
+            <CardTitle className="dark:text-zinc-50">{t('dashboard.charts.loading_charts')}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -150,8 +152,8 @@ function DashboardCharts({ userId }: { userId: string }) {
       {/* Retiradas por Colaborador */}
       <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-zinc-800">
         <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
-          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Retiradas por Colaborador</CardTitle>
-          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">Últimos 30 dias</p>
+          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t('dashboard.charts.withdrawals_by_collaborator.title')}</CardTitle>
+          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">{t('dashboard.kpi.last_30_days')}</p>
         </CardHeader>
         <CardContent className="pt-4 sm:pt-5">
           <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
@@ -200,8 +202,8 @@ function DashboardCharts({ userId }: { userId: string }) {
       {/* Movimentações por Dia */}
       <Card className="border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-zinc-800">
         <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
-          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Movimentações por Dia</CardTitle>
-          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">Últimos 7 dias</p>
+          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t('dashboard.charts.movements_by_day.title')}</CardTitle>
+          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">{t('dashboard.charts.movements_by_day.subtitle')}</p>
         </CardHeader>
         <CardContent className="pt-4 sm:pt-5">
           <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
@@ -254,8 +256,8 @@ function DashboardCharts({ userId }: { userId: string }) {
       {/* Distribuição de Estados */}
       <Card className="lg:col-span-2 border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-zinc-800">
         <CardHeader className="pb-3 sm:pb-4 lg:pb-6 border-b border-zinc-100 dark:border-zinc-800">
-          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Distribuição do Estado das Ferramentas</CardTitle>
-          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">Status atual do inventário</p>
+          <CardTitle className="text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">{t('dashboard.charts.tools_status_distribution.title')}</CardTitle>
+          <p className="text-xs sm:text-sm lg:text-base text-zinc-600 mt-1 lg:mt-2 dark:text-zinc-400">{t('dashboard.charts.tools_status_distribution.subtitle')}</p>
         </CardHeader>
         <CardContent className="pt-4 sm:pt-5">
           <div className="w-full h-[300px] sm:h-[320px] lg:h-[340px] xl:h-[360px]">

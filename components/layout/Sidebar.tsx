@@ -16,12 +16,15 @@ import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/s
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
+import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 
 export default function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { open, animate } = useSidebar()
+  const { t } = useTranslation('common')
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -31,42 +34,42 @@ export default function AppSidebar() {
 
   const links = [
     {
-      label: "Dashboard",
+      label: t('dashboard.sidebar.dashboard'),
       href: "/dashboard",
       icon: (
         <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Movimentações",
+      label: t('dashboard.sidebar.movements'),
       href: "/dashboard/movimentacoes",
       icon: (
         <Package className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Colaboradores",
+      label: t('dashboard.sidebar.collaborators'),
       href: "/dashboard/colaboradores",
       icon: (
         <Users className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Estoque",
+      label: t('dashboard.sidebar.stock'),
       href: "/dashboard/estoque",
       icon: (
         <Wrench className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Consertos",
+      label: t('dashboard.sidebar.repairs'),
       href: "/dashboard/consertos",
       icon: (
         <Hammer className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Inventário",
+      label: t('dashboard.sidebar.inventory'),
       href: "/dashboard/inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
@@ -92,7 +95,10 @@ export default function AppSidebar() {
           </div>
         </div>
         <div className="pt-4 border-t border-border flex-shrink-0">
-          <div className="flex gap-1.5 w-full">
+          <div className="flex gap-1.5 w-full items-center">
+            <div className={cn("flex-shrink-0", !open && "hidden")}>
+              <LanguageSwitcher />
+            </div>
             <Link
               href="/dashboard/conta"
               className={cn(
@@ -115,7 +121,7 @@ export default function AppSidebar() {
                 transition={{ duration: 0.2 }}
                 className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
               >
-                Conta
+                {t('dashboard.sidebar.account')}
               </motion.span>
             </Link>
             <button
@@ -139,7 +145,7 @@ export default function AppSidebar() {
                 transition={{ duration: 0.2 }}
                 className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
               >
-                Sair
+                {t('dashboard.sidebar.logout')}
               </motion.span>
             </button>
           </div>
@@ -157,9 +163,9 @@ const Logo = () => {
     >
       <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
         <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
-          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
-          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
-          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
+          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
+          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
         </svg>
       </div>
       <motion.span
@@ -182,9 +188,9 @@ const LogoIcon = () => {
     >
       <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
         <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
-          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
-          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
-          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
+          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
+          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
         </svg>
       </div>
     </Link>

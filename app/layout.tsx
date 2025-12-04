@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import OfflineBanner from "@/components/offline/OfflineBanner"
 import { ServiceWorkerRegistration } from "@/components/offline/ServiceWorkerRegistration"
 import { CommandMenu } from "@/components/ui/command-menu"
+import I18nProvider from "@/components/I18nProvider"
 
 // Otimização de fonte: display swap para melhor performance (evita FOIT - Flash of Invisible Text)
 const inter = Inter({
@@ -99,16 +100,18 @@ export default function RootLayout({
           `}
         </Script>
 
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          <OfflineBanner />
-          <CommandMenu />
-          {children}
-        </ThemeProvider>
+        <I18nProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            disableTransitionOnChange
+          >
+            <OfflineBanner />
+            <CommandMenu />
+            {children}
+          </ThemeProvider>
+        </I18nProvider>
         <ServiceWorkerRegistration />
         <SpeedInsights />
       </body>

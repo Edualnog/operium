@@ -18,6 +18,7 @@ import {
   Target,
 } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import {
   AreaChart,
   Area,
@@ -70,6 +71,7 @@ export function KPICard({
   miniChart,
   variant = "default",
 }: KPICardProps) {
+  const { i18n } = useTranslation()
   const Icon = iconMap[iconName]
 
   const chartData = useMemo(() => {
@@ -92,8 +94,8 @@ export function KPICard({
           {/* Header com ícone e título */}
           <div className="flex items-start gap-3">
             <div className={`p-2.5 sm:p-3 rounded-xl shadow-sm flex-shrink-0 ${variant === "destructive"
-                ? "bg-gradient-to-br from-red-50 to-red-100 text-red-600 dark:from-red-900/20 dark:to-red-900/10 dark:text-red-400"
-                : "bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 dark:from-blue-900/20 dark:to-blue-900/10 dark:text-blue-400"
+              ? "bg-gradient-to-br from-red-50 to-red-100 text-red-600 dark:from-red-900/20 dark:to-red-900/10 dark:text-red-400"
+              : "bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 dark:from-blue-900/20 dark:to-blue-900/10 dark:text-blue-400"
               }`}>
               <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
@@ -105,12 +107,12 @@ export function KPICard({
           {/* Valor e trend */}
           <div className="flex items-baseline gap-2.5 flex-wrap">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-zinc-50">
-              {typeof value === "number" ? value.toLocaleString("pt-BR") : value}
+              {typeof value === "number" ? value.toLocaleString(i18n.language) : value}
             </h3>
             {trend && (
               <div className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${trend.isPositive
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                  : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
                 }`}>
                 <TrendIcon className="h-3 w-3" />
                 <span>{Math.abs(trend.value).toFixed(1)}%</span>

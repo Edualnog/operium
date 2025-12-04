@@ -30,6 +30,8 @@ import { ContainerScroll } from "@/components/ui/container-scroll-animation"
 import { RainbowButton } from "@/components/ui/rainbow-button"
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
 import mockupDevices from "@/public/images/mockup-devices.png"
+import { useTranslation } from "react-i18next"
+import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -57,6 +59,7 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: LandingPageProps) {
+  const { t } = useTranslation('common')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [plan, setPlan] = useState<"mensal" | "anual">("anual")
@@ -74,57 +77,57 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
   const painPoints = [
     {
       icon: AlertTriangle,
-      title: "Ferramentas que somem",
-      description: "Você compra, usa uma vez e ninguém sabe onde foi parar. O prejuízo é silencioso, mas constante."
+      title: t('landing.pain_points.tools_title'),
+      description: t('landing.pain_points.tools_desc')
     },
     {
       icon: Clock,
-      title: "Planilhas desatualizadas",
-      description: "A planilha nunca bate com o real. Você perde horas contando estoque e ainda assim tem furos."
+      title: t('landing.pain_points.spreadsheets_title'),
+      description: t('landing.pain_points.spreadsheets_desc')
     },
     {
       icon: TrendingUp,
-      title: "Compras de emergência",
-      description: "Acaba o material no meio da obra ou serviço. Você paga mais caro para repor com urgência."
+      title: t('landing.pain_points.emergency_title'),
+      description: t('landing.pain_points.emergency_desc')
     }
   ]
 
   const benefits = [
     {
       icon: Smartphone,
-      title: "Controle na palma da mão",
-      description: "Registre entradas e saídas pelo celular, direto do local de trabalho. Sem burocracia."
+      title: t('landing.solution.mobile_title'),
+      description: t('landing.solution.mobile_desc')
     },
     {
       icon: Shield,
-      title: "Fim da 'ferramenta sumida'",
-      description: "Saiba exatamente quem pegou, quando e se já devolveu. Responsabilize sua equipe."
+      title: t('landing.solution.lost_title'),
+      description: t('landing.solution.lost_desc')
     },
     {
       icon: Zap,
-      title: "Alertas automáticos",
-      description: "O sistema avisa quando o estoque está baixo ou EPIs estão vencendo. Zero surpresas."
+      title: t('landing.solution.alerts_title'),
+      description: t('landing.solution.alerts_desc')
     }
   ]
 
   const testimonials = [
     {
       name: "Ricardo Silva",
-      role: "Dono",
+      role: t('landing.testimonials.t1_role'),
       company: "Mecânica Silva",
-      content: "Eu perdia uns 500 reais por mês só com ferramenta pequena sumindo. O Almox Fácil se pagou na primeira semana."
+      content: t('landing.testimonials.t1_content')
     },
     {
       name: "Ana Paula",
-      role: "Gestora",
+      role: t('landing.testimonials.t2_role'),
       company: "AP Construções",
-      content: "Tentei usar 3 sistemas diferentes, todos muito complicados. Esse aqui minha equipe aprendeu a usar em 10 minutos."
+      content: t('landing.testimonials.t2_content')
     },
     {
       name: "Carlos Eduardo",
-      role: "Sócio",
+      role: t('landing.testimonials.t3_role'),
       company: "Instalações Express",
-      content: "O controle de EPIs é sensacional. O sistema avisa antes de vencer, nunca mais paguei multa ou corri risco."
+      content: t('landing.testimonials.t3_content')
     }
   ]
 
@@ -181,26 +184,27 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#problemas" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Problemas</a>
-            <a href="#solucao" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Solução</a>
-            <a href="#depoimentos" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Depoimentos</a>
+            <a href="#problemas" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">{t('landing.nav.problems')}</a>
+            <a href="#solucao" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">{t('landing.nav.solution')}</a>
+            <a href="#depoimentos" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">{t('landing.nav.testimonials')}</a>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
+            <LanguageSwitcher />
             {isLoggedIn ? (
               <Link href="/dashboard" className="text-sm font-medium text-slate-700 hover:text-blue-600">
-                Ir para Dashboard
+                {t('landing.nav.dashboard')}
               </Link>
             ) : (
               <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-blue-600">
-                Entrar
+                {t('landing.nav.login')}
               </Link>
             )}
             <RainbowButton
               onClick={handleStart}
               className="px-5 py-2.5 h-auto text-sm font-semibold rounded-xl"
             >
-              Começar Grátis
+              {t('landing.nav.start_free')}
             </RainbowButton>
           </div>
 
@@ -221,16 +225,19 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-100 p-4 shadow-xl"
           >
             <div className="flex flex-col gap-4">
-              <a href="#problemas" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">Problemas</a>
-              <a href="#solucao" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">Solução</a>
-              <a href="#depoimentos" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">Depoimentos</a>
+              <a href="#problemas" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">{t('landing.nav.problems')}</a>
+              <a href="#solucao" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">{t('landing.nav.solution')}</a>
+              <a href="#depoimentos" onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-medium">{t('landing.nav.testimonials')}</a>
               <hr className="border-slate-100" />
-              <Link href="/login" className="text-slate-600 font-medium">Entrar</Link>
+              <div className="flex justify-between items-center">
+                <Link href="/login" className="text-slate-600 font-medium">{t('landing.nav.login')}</Link>
+                <LanguageSwitcher />
+              </div>
               <RainbowButton
                 onClick={handleStart}
                 className="w-full h-auto py-3 font-semibold rounded-xl"
               >
-                Começar Grátis
+                {t('landing.nav.start_free')}
               </RainbowButton>
             </div>
           </motion.div>
@@ -252,15 +259,15 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   >
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold mb-8 uppercase tracking-wide">
                       <Star className="h-3 w-3 fill-current" />
-                      Mais de 200 empresas já organizaram a casa
+                      {t('landing.hero.badge')}
                     </div>
 
                     <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
-                      Pare de perder dinheiro com <span className="text-blue-600">ferramentas sumidas</span> e estoque parado.
+                      {t('landing.hero.title_part1')} <span className="text-blue-600">{t('landing.hero.title_part2')}</span> {t('landing.hero.title_part3')}
                     </h1>
 
                     <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                      O sistema de gestão mais simples do Brasil para pequenas empresas organizarem o almoxarifado, controlarem EPIs e acabarem com as planilhas.
+                      {t('landing.hero.description')}
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
@@ -269,16 +276,16 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                         disabled={checkoutLoading}
                         className="w-full sm:w-auto h-auto px-8 py-4 text-lg font-bold flex items-center justify-center gap-2 rounded-xl"
                       >
-                        {checkoutLoading ? <Loader2 className="animate-spin" /> : "Começar teste grátis agora"}
+                        {checkoutLoading ? <Loader2 className="animate-spin" /> : t('landing.hero.cta_button')}
                         {!checkoutLoading && <ArrowRight className="h-5 w-5" />}
                       </RainbowButton>
                       <p className="text-sm text-slate-500 font-medium">
-                        Sem cartão de crédito • Cancele quando quiser
+                        {t('landing.hero.no_card')}
                       </p>
                     </div>
 
                     <div className="flex flex-col items-center justify-center gap-4 mb-8">
-                      <p className="text-sm text-slate-500 font-medium">Empresas parceiras que confiam no Almox Fácil</p>
+                      <p className="text-sm text-slate-500 font-medium">{t('landing.hero.partners')}</p>
                       <div className="flex flex-row items-center justify-center w-full">
                         <AnimatedTooltip items={partners} />
                       </div>
@@ -397,9 +404,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <section id="problemas" className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">Seu estoque é um buraco negro de dinheiro?</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.pain_points.title')}</h2>
               <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-                Se você ainda usa papel ou planilhas, provavelmente está perdendo dinheiro sem perceber.
+                {t('landing.pain_points.subtitle')}
               </p>
             </div>
 
@@ -426,13 +433,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold mb-6 uppercase tracking-wide">
                   <Zap className="h-3 w-3" />
-                  A solução definitiva
+                  {t('landing.solution.badge')}
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-bold mb-6 leading-tight">
-                  Retome o controle total da sua operação
+                  {t('landing.solution.title')}
                 </h2>
                 <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                  O Almox Fácil foi desenhado para quem não tem tempo a perder. Simples, rápido e funciona no celular da sua equipe.
+                  {t('landing.solution.description')}
                 </p>
 
                 <div className="space-y-6">
@@ -496,9 +503,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <Headphones className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Suporte com 95% de satisfação</h3>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">{t('landing.features.support_title')}</h3>
                   <p className="text-slate-600 text-lg">
-                    Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.
+                    {t('landing.features.support_desc')}
                   </p>
                 </div>
               </div>
@@ -508,9 +515,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <Smartphone className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Sistema 100% online</h3>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">{t('landing.features.online_title')}</h3>
                   <p className="text-slate-600 text-lg">
-                    Acesse o Almox Fácil a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.
+                    {t('landing.features.online_desc')}
                   </p>
                 </div>
               </div>
@@ -520,9 +527,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <CreditCard className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Sem cobranças surpresa</h3>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">{t('landing.features.price_title')}</h3>
                   <p className="text-slate-600 text-lg">
-                    Comece seu teste grátis sem cadastrar cartão de crédito. Escolha seu plano e troque quando quiser.
+                    {t('landing.features.price_desc')}
                   </p>
                 </div>
               </div>
@@ -534,16 +541,16 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">Simples como deve ser</h2>
-              <p className="text-slate-600">Comece a usar em menos de 5 minutos</p>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.how_it_works.title')}</h2>
+              <p className="text-slate-600">{t('landing.how_it_works.subtitle')}</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-12 relative">
               <div className="hidden md:block absolute top-12 left-0 right-0 h-0.5 bg-slate-100 z-0" />
               {[
-                { step: "1", title: "Cadastre", desc: "Importe seus produtos ou cadastre em segundos." },
-                { step: "2", title: "Movimente", desc: "Registre entradas e saídas pelo celular." },
-                { step: "3", title: "Controle", desc: "Veja relatórios e saiba onde está cada item." }
+                { step: "1", title: t('landing.how_it_works.step1_title'), desc: t('landing.how_it_works.step1_desc') },
+                { step: "2", title: t('landing.how_it_works.step2_title'), desc: t('landing.how_it_works.step2_desc') },
+                { step: "3", title: t('landing.how_it_works.step3_title'), desc: t('landing.how_it_works.step3_desc') }
               ].map((item, i) => (
                 <div key={i} className="text-center bg-white relative z-10 pt-4">
                   <div className="w-16 h-16 mx-auto bg-white border-4 border-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-sm">
@@ -561,8 +568,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <section id="depoimentos" className="py-24 bg-slate-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">Quem usa, recomenda</h2>
-              <p className="text-slate-600">Junte-se a mais de 200 empresas que transformaram sua gestão</p>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.testimonials.title')}</h2>
+              <p className="text-slate-600">{t('landing.testimonials.subtitle')}</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -592,14 +599,14 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         {/* Pricing */}
         <section className="py-24 bg-white">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Preço justo, sem surpresas</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.pricing.title')}</h2>
             <p className="text-slate-600 mb-12">
-              Tudo o que você precisa em um único plano.
+              {t('landing.pricing.subtitle')}
             </p>
 
             <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-12 relative overflow-hidden transform hover:scale-105 transition-transform duration-300">
               <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-                MAIS POPULAR
+                {t('landing.pricing.most_popular')}
               </div>
 
               {/* Plan Toggle */}
@@ -608,20 +615,20 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <button
                     onClick={() => setPlan("mensal")}
                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${plan === "mensal"
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-slate-500 hover:text-slate-900"
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
                       }`}
                   >
-                    Mensal
+                    {t('landing.pricing.monthly')}
                   </button>
                   <button
                     onClick={() => setPlan("anual")}
                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${plan === "anual"
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-slate-500 hover:text-slate-900"
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
                       }`}
                   >
-                    Anual
+                    {t('landing.pricing.annual')}
                     <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full">
                       -33%
                     </span>
@@ -638,22 +645,22 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 ) : (
                   <span className="text-5xl font-bold text-slate-900">R$ 59,90</span>
                 )}
-                <span className="text-slate-500">/mês</span>
+                <span className="text-slate-500">{t('landing.pricing.per_month')}</span>
               </div>
 
               <p className="text-sm text-slate-500 mb-8">
                 {plan === "anual"
-                  ? "Cobrado anualmente (R$ 478,80)"
-                  : "Cobrado mensalmente"}
+                  ? t('landing.pricing.billed_annually')
+                  : t('landing.pricing.billed_monthly')}
               </p>
 
               <ul className="space-y-4 mb-10 text-left max-w-xs mx-auto">
                 {[
-                  "Estoque ilimitado",
-                  "Usuários ilimitados",
-                  "Gestão de ferramentas",
-                  "Controle de EPIs",
-                  "Suporte prioritário via WhatsApp"
+                  t('landing.pricing.feat_stock'),
+                  t('landing.pricing.feat_users'),
+                  t('landing.pricing.feat_tools'),
+                  t('landing.pricing.feat_epi'),
+                  t('landing.pricing.feat_support')
                 ].map((feat, i) => (
                   <li key={i} className="flex items-center gap-3 text-slate-700">
                     <div className="bg-green-100 p-1 rounded-full">
@@ -668,10 +675,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 onClick={handleStart}
                 className="w-full h-auto py-4 font-bold rounded-xl"
               >
-                Começar teste grátis de 7 dias
+                {t('landing.pricing.cta')}
               </RainbowButton>
               <p className="text-xs text-slate-500 mt-4">
-                Cancele quando quiser. Sem fidelidade.
+                {t('landing.pricing.cancel_anytime')}
               </p>
             </div>
           </div>
@@ -682,19 +689,19 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10" />
           <div className="max-w-4xl mx-auto relative z-10">
             <h2 className="text-3xl sm:text-5xl font-bold mb-8">
-              Pronto para organizar sua empresa?
+              {t('landing.cta_final.title')}
             </h2>
             <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-              Não deixe para depois. O controle que você precisa está a um clique de distância.
+              {t('landing.cta_final.subtitle')}
             </p>
             <button
               onClick={handleStart}
               className="px-10 py-5 rounded-full bg-white text-blue-600 font-bold text-lg hover:bg-blue-50 transition-colors shadow-2xl hover:shadow-white/20"
             >
-              Criar conta grátis agora
+              {t('landing.cta_final.button')}
             </button>
             <p className="mt-6 text-blue-200 text-sm">
-              Junte-se a mais de 200 empresas inteligentes
+              {t('landing.cta_final.join')}
             </p>
           </div>
         </section>
@@ -715,9 +722,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <span className="font-bold text-slate-700">Almox Fácil</span>
           </div>
           <div className="flex gap-6 text-sm text-slate-500">
-            <Link href="/terms" className="hover:text-blue-600">Termos de Uso</Link>
-            <Link href="/privacy" className="hover:text-blue-600">Privacidade</Link>
-            <a href="mailto:contato@almoxfacil.com.br" className="hover:text-blue-600">Contato</a>
+            <Link href="/terms" className="hover:text-blue-600">{t('landing.footer.terms')}</Link>
+            <Link href="/privacy" className="hover:text-blue-600">{t('landing.footer.privacy')}</Link>
+            <a href="mailto:contato@almoxfacil.com.br" className="hover:text-blue-600">{t('landing.footer.contact')}</a>
           </div>
           <div className="flex gap-4 text-slate-400">
             <a href="#" className="hover:text-blue-600"><InstagramIcon className="h-5 w-5" /></a>

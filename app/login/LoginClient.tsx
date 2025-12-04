@@ -10,6 +10,7 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 import { Turnstile } from "@marsidev/react-turnstile"
 import { motion } from "framer-motion"
 import { ArrowLeft, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 function BackgroundDecoration() {
   return (
@@ -29,6 +30,7 @@ function LoginForm() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [info, setInfo] = React.useState("")
+  const { t } = useTranslation('common')
 
   const [captchaToken, setCaptchaToken] = React.useState<string | null>(null)
   const captchaRef = React.useRef<any>(null)
@@ -55,7 +57,7 @@ function LoginForm() {
     setInfo("")
 
     if (!captchaToken) {
-      setError("Por favor, complete a verificação de segurança.")
+      setError(t('auth.errors.captcha_required'))
       setLoading(false)
       return
     }
@@ -84,11 +86,11 @@ function LoginForm() {
     } catch (err: any) {
       console.error("Login error:", err)
       if (err.message.includes("Invalid login credentials")) {
-        setError("Email ou senha incorretos.")
+        setError(t('auth.errors.invalid_credentials'))
       } else if (err.message.includes("Email not confirmed")) {
-        setError("Email não confirmado. Verifique sua caixa de entrada.")
+        setError(t('auth.errors.email_not_confirmed'))
       } else {
-        setError(err.message || "Ocorreu um erro ao entrar. Tente novamente.")
+        setError(err.message || t('auth.errors.generic_login'))
       }
       setCaptchaToken(null)
       captchaRef.current?.reset()
@@ -99,12 +101,12 @@ function LoginForm() {
 
   const handleResetPassword = async () => {
     if (!email) {
-      setError("Digite seu email para recuperar a senha.")
+      setError(t('auth.errors.email_required_reset'))
       return
     }
 
     if (!captchaToken) {
-      setError("Por favor, complete a verificação de segurança para recuperar a senha.")
+      setError(t('auth.errors.captcha_required'))
       return
     }
 
@@ -122,10 +124,10 @@ function LoginForm() {
         throw resetError
       }
 
-      setInfo("Email de recuperação enviado! Verifique sua caixa de entrada.")
+      setInfo(t('auth.success.reset_email_sent'))
     } catch (err: any) {
       console.error("Reset password error:", err)
-      setError(err.message || "Erro ao enviar email de recuperação.")
+      setError(err.message || t('auth.errors.generic_login'))
     } finally {
       setLoading(false)
       setCaptchaToken(null)
@@ -156,7 +158,7 @@ function LoginForm() {
               className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
-              Voltar
+              {t('auth.back')}
             </Link>
           </div>
         </nav>
@@ -171,12 +173,12 @@ function LoginForm() {
         >
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-900">
-              Bem-vindo de volta
+              {t('auth.login.title')}
             </h1>
             <p className="mt-2 text-slate-600 dark:text-slate-600">
-              Não tem uma conta?{" "}
+              {t('auth.login.no_account')}{" "}
               <Link href={`/signup${redirectTo ? `?redirect=${redirectTo}` : ""}`} className="text-blue-600 hover:underline font-medium">
-                Crie agora
+                {t('auth.login.create_now')}
               </Link>
             </p>
           </div>
@@ -197,12 +199,12 @@ function LoginForm() {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                Email
+                {t('auth.fields.email')}
               </label>
               <input
                 id="email"
                 type="email"
-                placeholder="seu@email.com"
+                placeholder={t('auth.placeholders.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -213,13 +215,13 @@ function LoginForm() {
 
             <div className="mb-2">
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                Senha
+                {t('auth.fields.password')}
               </label>
               <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Sua senha"
+                  placeholder={t('auth.placeholders.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -244,7 +246,7 @@ function LoginForm() {
                 className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
                 disabled={loading}
               >
-                Esqueceu a senha?
+                {t('auth.login.forgot_password')}
               </button>
             </div>
 
@@ -272,7 +274,7 @@ function LoginForm() {
               disabled={loading || !captchaToken}
               className="w-full rounded-xl bg-[#4B6BFB] px-4 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-600 hover:shadow-blue-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Entrando..." : "Entrar"}
+              {loading ? t('auth.login.submitting') : t('auth.login.submit')}
             </button>
           </form>
         </motion.div>

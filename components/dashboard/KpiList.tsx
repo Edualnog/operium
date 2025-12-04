@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { ptBR, enUS } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import { ArrowRight } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface KpiListProps {
   title: string
@@ -38,6 +39,7 @@ export function KpiList({
   viewMoreLink,
 }: KpiListProps) {
   const router = useRouter()
+  const { t, i18n } = useTranslation('common')
   const displayItems = items.slice(0, maxItems)
   const hasMoreItems = items.length > maxItems
 
@@ -53,7 +55,7 @@ export function KpiList({
       </CardHeader>
       <CardContent className="pt-4">
         {displayItems.length === 0 ? (
-          <p className="text-sm text-zinc-500 text-center py-8 dark:text-zinc-500">{emptyMessage}</p>
+          <p className="text-sm text-zinc-500 text-center py-8 dark:text-zinc-500">{emptyMessage === "Nenhum item encontrado" ? t('common.no_items_found') : emptyMessage}</p>
         ) : (
           <div className="space-y-2">
             {displayItems.map((item, index) => (
@@ -89,7 +91,7 @@ export function KpiList({
         )}
         {hasMoreItems && !showViewMore && (
           <p className="text-xs text-zinc-500 text-center mt-4 dark:text-zinc-500">
-            Mostrando {maxItems} de {items.length} itens
+            {t('common.showing_items', { count: maxItems, total: items.length })}
           </p>
         )}
         {showViewMore && hasMoreItems && viewMoreLink && (
@@ -100,7 +102,7 @@ export function KpiList({
               className="w-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800"
               onClick={() => router.push(viewMoreLink)}
             >
-              Ver mais
+              {t('common.view_more')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>

@@ -8,6 +8,7 @@ import { Turnstile } from "@marsidev/react-turnstile"
 import { motion } from "framer-motion"
 import { ArrowLeft, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react"
 import { Suspense } from "react"
+import { useTranslation } from "react-i18next"
 
 function BackgroundDecoration() {
   return (
@@ -27,6 +28,7 @@ function SignupForm() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [info, setInfo] = React.useState("")
+  const { t } = useTranslation('common')
 
   const [captchaToken, setCaptchaToken] = React.useState<string | null>(null)
   const captchaRef = React.useRef<any>(null)
@@ -53,7 +55,7 @@ function SignupForm() {
     setInfo("")
 
     if (!captchaToken) {
-      setError("Por favor, complete a verificação de segurança.")
+      setError(t('auth.errors.captcha_required'))
       setLoading(false)
       return
     }
@@ -99,7 +101,7 @@ function SignupForm() {
           }
         } else {
           // Sem sessão: email de confirmação enviado
-          setInfo("Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro.")
+          setInfo(t('auth.success.account_created'))
           // Limpar formulário
           setName("")
           setEmail("")
@@ -110,7 +112,7 @@ function SignupForm() {
       }
     } catch (err: any) {
       console.error("Signup error:", err)
-      setError(err.message || "Ocorreu um erro ao criar a conta. Tente novamente.")
+      setError(err.message || t('auth.errors.generic_signup'))
       setCaptchaToken(null)
       captchaRef.current?.reset()
     } finally {
@@ -141,7 +143,7 @@ function SignupForm() {
               className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
-              Voltar
+              {t('auth.back')}
             </Link>
           </div>
         </nav>
@@ -156,15 +158,15 @@ function SignupForm() {
         >
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-900">
-              Crie sua conta grátis
+              {t('auth.signup.title')}
             </h1>
             <p className="mt-2 text-slate-600 dark:text-slate-600">
-              Comece a organizar seu almoxarifado em segundos.
+              {t('auth.signup.subtitle')}
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              Já tem uma conta?{" "}
+              {t('auth.signup.has_account')}{" "}
               <Link href={`/login${redirectTo ? `?redirect=${redirectTo}` : ""}`} className="text-blue-600 hover:underline font-medium">
-                Entre aqui
+                {t('auth.signup.login_here')}
               </Link>
             </p>
           </div>
@@ -185,12 +187,12 @@ function SignupForm() {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                Nome completo
+                {t('auth.fields.name')}
               </label>
               <input
                 id="name"
                 type="text"
-                placeholder="Seu nome"
+                placeholder={t('auth.placeholders.name')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -201,12 +203,12 @@ function SignupForm() {
 
             <div className="mb-4">
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                Email
+                {t('auth.fields.email')}
               </label>
               <input
                 id="email"
                 type="email"
-                placeholder="seu@email.com"
+                placeholder={t('auth.placeholders.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -217,13 +219,13 @@ function SignupForm() {
 
             <div className="mb-5 sm:mb-6">
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                Senha
+                {t('auth.fields.password')}
               </label>
               <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={t('auth.placeholders.password_min')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -266,18 +268,18 @@ function SignupForm() {
               disabled={loading || !captchaToken}
               className="w-full rounded-xl bg-[#4B6BFB] px-4 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-600 hover:shadow-blue-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Criando conta..." : "Criar Conta Grátis"}
+              {loading ? t('auth.signup.submitting') : t('auth.signup.submit')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-xs text-slate-500">
-            Ao criar sua conta, você concorda com nossos{" "}
+            {t('auth.signup.terms_agreement')}{" "}
             <Link href="/terms" className="text-blue-600 hover:underline">
-              Termos e Condições
+              {t('auth.signup.terms')}
             </Link>{" "}
             e{" "}
             <Link href="/privacy" className="text-blue-600 hover:underline">
-              Política de Privacidade
+              {t('auth.signup.privacy')}
             </Link>
           </p>
         </motion.div>

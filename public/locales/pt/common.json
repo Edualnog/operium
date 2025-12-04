@@ -1,0 +1,610 @@
+{
+    "auth": {
+        "back": "Voltar",
+        "fields": {
+            "email": "Email",
+            "password": "Senha",
+            "name": "Nome completo"
+        },
+        "placeholders": {
+            "email": "seu@email.com",
+            "password": "Sua senha",
+            "name": "Seu nome",
+            "password_min": "Mínimo 6 caracteres"
+        },
+        "login": {
+            "title": "Bem-vindo de volta",
+            "no_account": "Não tem uma conta?",
+            "create_now": "Crie agora",
+            "forgot_password": "Esqueceu a senha?",
+            "submit": "Entrar",
+            "submitting": "Entrando...",
+            "welcome_back": "Bem-vindo de volta"
+        },
+        "signup": {
+            "title": "Crie sua conta grátis",
+            "subtitle": "Comece a organizar seu almoxarifado em segundos.",
+            "has_account": "Já tem uma conta?",
+            "login_here": "Entre aqui",
+            "submit": "Criar Conta Grátis",
+            "submitting": "Criando conta...",
+            "terms_agreement": "Ao criar sua conta, você concorda com nossos",
+            "terms": "Termos e Condições",
+            "privacy": "Política de Privacidade"
+        },
+        "errors": {
+            "captcha_required": "Por favor, complete a verificação de segurança.",
+            "invalid_credentials": "Email ou senha incorretos.",
+            "email_not_confirmed": "Email não confirmado. Verifique sua caixa de entrada.",
+            "generic_login": "Ocorreu um erro ao entrar. Tente novamente.",
+            "email_required_reset": "Digite seu email para recuperar a senha.",
+            "generic_signup": "Ocorreu um erro ao criar a conta. Tente novamente."
+        },
+        "success": {
+            "reset_email_sent": "Email de recuperação enviado! Verifique sua caixa de entrada.",
+            "account_created": "Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro."
+        }
+    },
+    "common": {
+        "loading": "Carregando...",
+        "error": "Ocorreu um erro",
+        "no_data": "Nenhum dado disponível",
+        "loading_data": "Carregando dados...",
+        "no_items_found": "Nenhum item encontrado",
+        "showing_items": "Mostrando {{count}} de {{total}} itens",
+        "view_more": "Ver mais",
+        "error_loading_kpis": "Erro ao carregar KPIs",
+        "close": "Fechar",
+        "done": "Feito",
+        "days": "dias",
+        "uncategorized": "Sem categoria",
+        "no_collaborator": "Sem colaborador",
+        "success": "Sucesso",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "delete": "Excluir",
+        "edit": "Editar",
+        "actions": "Ações",
+        "search": "Buscar..."
+    },
+    "onboarding": {
+        "title": "Primeiros Passos",
+        "subtitle": "Complete o setup para aproveitar todo o potencial do sistema",
+        "completed": "Concluído",
+        "progress_text": "Estamos montando seu ambiente com você",
+        "steps": {
+            "company": {
+                "label": "Crie sua empresa",
+                "desc": "Personalize o sistema para seu negócio",
+                "action": "Configurações"
+            },
+            "products": {
+                "label": "Adicionar produtos",
+                "desc": "Cadastre seus primeiros itens no estoque",
+                "action": "Adicionar"
+            },
+            "transaction": {
+                "label": "Registrar transação",
+                "desc": "Faça sua primeira movimentação de entrada ou saída",
+                "action": "Movimentar"
+            }
+        },
+        "success": {
+            "title": "Parabéns! Seu sistema está pronto.",
+            "desc": "Adicione mais produtos ou registre transações sempre que precisar."
+        }
+    },
+    "dashboard": {
+        "title": "Painel de Controle",
+        "overview": "Visão Geral",
+        "inventory": "Estoque",
+        "settings": "Configurações",
+        "profile": "Perfil",
+        "logout": "Sair",
+        "sidebar": {
+            "dashboard": "Dashboard",
+            "movements": "Movimentações",
+            "collaborators": "Colaboradores",
+            "stock": "Estoque",
+            "repairs": "Consertos",
+            "inventory": "Inventário",
+            "account": "Conta",
+            "logout": "Sair"
+        },
+        "charts": {
+            "movements": {
+                "title": "Movimentações",
+                "subtitle": "Últimos 12 meses • Passe o mouse sobre as barras para detalhes",
+                "in": "Entradas",
+                "out": "Saídas",
+                "empty_title": "Nenhuma movimentação nos últimos 12 meses",
+                "empty_desc": "Comece registrando entradas e saídas de itens",
+                "total_movements": "Total Movimentações",
+                "total_in": "Total Entradas",
+                "total_out": "Total Saídas",
+                "monthly_avg": "Média Mensal"
+            },
+            "status": {
+                "title": "Status",
+                "subtitle": "Situação das ferramentas"
+            },
+            "loading_analysis": "Carregando análises...",
+            "loading_charts": "Carregando gráficos...",
+            "stock_alerts": {
+                "title": "Alertas de Estoque"
+            },
+            "turnover": {
+                "title": "Top Ferramentas por Rotatividade",
+                "subtitle": "Últimos 90 dias - Saídas por dia"
+            },
+            "category_consumption": {
+                "title": "Consumo por Categoria"
+            },
+            "consumption_trend": {
+                "title": "Tendência de Consumo e Previsão",
+                "subtitle": "Últimas 4 semanas e previsão para próxima semana",
+                "real": "Consumo Real",
+                "forecast": "Previsão"
+            },
+            "withdrawals_by_collaborator": {
+                "title": "Retiradas por Colaborador"
+            },
+            "movements_by_day": {
+                "title": "Movimentações por Dia",
+                "subtitle": "Últimos 7 dias"
+            },
+            "tools_status_distribution": {
+                "title": "Distribuição do Estado das Ferramentas",
+                "subtitle": "Status atual do inventário"
+            }
+        },
+        "colaboradores": {
+            "title": "Colaboradores",
+            "subtitle": "Gerencie os colaboradores do seu almoxarifado",
+            "new_button": "Novo Colaborador",
+            "import_button": "Importar Excel",
+            "export_button": "Exportar PDF",
+            "search_placeholder": "Buscar por nome, email, telefone ou CPF...",
+            "filters": {
+                "role": "Cargo",
+                "all_roles": "Todos os Cargos",
+                "admission_date": "Data de Admissão",
+                "start_date": "Data Início",
+                "end_date": "Data Fim",
+                "sort_by": "Ordenar por",
+                "order": "Ordem",
+                "asc": "Crescente",
+                "desc": "Decrescente"
+            },
+            "table": {
+                "name": "Nome",
+                "role": "Cargo",
+                "contact": "Contato",
+                "admission": "Admissão",
+                "status": "Status",
+                "actions": "Ações",
+                "no_role": "Sem cargo",
+                "active": "Ativo",
+                "inactive": "Inativo"
+            },
+            "form": {
+                "title_new": "Novo Colaborador",
+                "title_edit": "Editar Colaborador",
+                "desc_new": "Cadastre um novo colaborador no sistema",
+                "desc_edit": "Atualize os dados do colaborador",
+                "name": "Nome Completo",
+                "role": "Cargo",
+                "email": "Email",
+                "phone": "Telefone",
+                "cpf": "CPF",
+                "address": "Endereço",
+                "admission_date": "Data de Admissão",
+                "observations": "Observações",
+                "photo": "Foto",
+                "upload_photo": "Carregar foto",
+                "remove_photo": "Remover foto",
+                "save": "Salvar Colaborador",
+                "cancel": "Cancelar"
+            },
+            "card": {
+                "withdrawals": "Retiradas",
+                "returns": "Devoluções",
+                "pending": "Pendentes",
+                "return_rate": "Taxa de Devolução",
+                "view_details": "Ver Detalhes"
+            },
+            "details": {
+                "title": "Ficha do Colaborador",
+                "personal_data": "Dados Pessoais",
+                "statistics": "Estatísticas",
+                "active_epis": "EPIs Ativos",
+                "history": "Histórico",
+                "no_active_epis": "Nenhum EPI ativo no momento",
+                "print_file": "Imprimir Ficha"
+            }
+        },
+        "movimentacoes": {
+            "title": "Movimentações",
+            "subtitle": "Registre entradas, saídas e devoluções de produtos",
+            "new_button": "Nova Movimentação",
+            "import_button": "Importar Excel",
+            "export_button": "Exportar CSV",
+            "filters": {
+                "type": "Tipo",
+                "all_types": "Todos os Tipos",
+                "entry": "Entrada",
+                "withdrawal": "Retirada",
+                "return": "Devolução",
+                "repair": "Conserto",
+                "product": "Produto",
+                "collaborator": "Colaborador",
+                "date_range": "Período",
+                "today": "Hoje",
+                "yesterday": "Ontem",
+                "select_date": "Selecionar Data"
+            },
+            "table": {
+                "date": "Data/Hora",
+                "type": "Tipo",
+                "product": "Produto",
+                "quantity": "Quantidade",
+                "collaborator": "Colaborador",
+                "observations": "Observações"
+            },
+            "form": {
+                "title": "Nova Movimentação",
+                "desc": "Registre uma nova movimentação de estoque",
+                "type": "Tipo de Movimentação",
+                "product": "Produto",
+                "quantity": "Quantidade",
+                "collaborator": "Colaborador",
+                "date": "Data/Hora",
+                "observations": "Observações",
+                "request_signature": "Solicitar assinatura digital",
+                "save": "Registrar Movimentação"
+            }
+        },
+        "status": {
+            "available": "Disponível",
+            "in_use": "Em uso",
+            "maintenance": "Manutenção",
+            "in_repair": "Em Conserto",
+            "damaged": "Danificada",
+            "ok": "OK"
+        },
+        "kpi": {
+            "last_30_days": "Últimos 30 dias"
+        },
+        "labels": {
+            "demand": "Demanda:",
+            "withdrawals": "retiradas",
+            "stock": "Estoque:",
+            "min": "Mín:",
+            "outputs": "Saídas:",
+            "category": "Categoria:",
+            "score": "Score:",
+            "withdrawals_count": "Retiradas:",
+            "on_time": "No prazo:",
+            "no_deadline": "Sem prazo",
+            "days_remaining_suffix": "dias restantes",
+            "available_suffix": "disponíveis",
+            "until_stockout": "até ruptura",
+            "low_stock": "Estoque baixo",
+            "outputs_per_day": "saídas/dia",
+            "turnover": "Rotatividade",
+            "week": "Semana"
+        },
+        "conta": {
+            "title": "Minha Conta",
+            "subtitle": "Gerencie sua assinatura e dados da empresa",
+            "plan": {
+                "professional": "Profissional",
+                "free_trial": "Teste Grátis",
+                "pending_payment": "Pagamento Pendente",
+                "canceled": "Cancelado",
+                "no_plan": "Sem Plano",
+                "active": "Ativo",
+                "full_access": "Acesso completo a todas as funcionalidades",
+                "trial_days": "7 dias de acesso completo para experimentar",
+                "trial_remaining": "Restam {{days}} dias de acesso gratuito",
+                "update_payment": "Atualize sua forma de pagamento",
+                "subscription_canceled": "Sua assinatura foi cancelada",
+                "subscribe_full": "Assine para acessar todas as funcionalidades"
+            },
+            "subscription": {
+                "manage": "Gerenciar assinatura",
+                "subscribe_now": "Assinar Agora",
+                "opening": "Abrindo...",
+                "processing": "Processando...",
+                "included": "Incluído no seu plano:"
+            },
+            "features": {
+                "unlimited_stock": "Estoque ilimitado",
+                "unlimited_users": "Usuários ilimitados",
+                "unlimited_tools": "Ferramentas ilimitadas",
+                "full_movements": "Movimentações completas",
+                "advanced_reports": "Relatórios avançados",
+                "industrial_dashboard": "Dashboard industrial",
+                "repair_management": "Gestão de consertos",
+                "email_support": "Suporte por email"
+            },
+            "account_info": {
+                "title": "Informações da Conta",
+                "subtitle": "Dados vinculados ao seu login",
+                "email": "Email",
+                "email_note": "Este é o email usado para login e notificações",
+                "member_since": "Membro desde",
+                "date_unavailable": "Data não disponível"
+            },
+            "company_info": {
+                "title": "Dados da Empresa",
+                "subtitle": "Informações para identificação",
+                "company_name": "Nome da Empresa",
+                "cnpj": "CNPJ",
+                "phone": "Telefone",
+                "save_changes": "Salvar alterações",
+                "saving": "Salvando...",
+                "success": "Dados atualizados com sucesso!",
+                "error": "Erro ao salvar dados"
+            },
+            "security": {
+                "title": "Segurança",
+                "subtitle": "Opções de segurança da conta",
+                "change_password": "Alterar senha",
+                "change_password_note": "Recomendamos alterar sua senha periodicamente",
+                "send_reset_email": "Enviar email de redefinição",
+                "reset_email_sent": "Email de recuperação enviado!"
+            }
+        },
+        "inventario": {
+            "title": "Inventário",
+            "subtitle": "Balanço e contagem de estoque",
+            "new_button": "Novo Inventário",
+            "no_inventory": "Nenhum inventário",
+            "no_inventory_desc": "Crie seu primeiro inventário para começar a contagem",
+            "status": {
+                "in_progress": "Em Andamento",
+                "finished": "Finalizado",
+                "canceled": "Cancelado"
+            },
+            "labels": {
+                "items": "itens",
+                "progress": "Progresso da contagem",
+                "divergences_found": "{{count}} divergência(s) encontrada(s)"
+            },
+            "actions": {
+                "continue": "Continuar",
+                "view_result": "Ver Resultado"
+            },
+            "form": {
+                "title": "Novo Inventário",
+                "desc": "Inicie uma nova contagem de estoque",
+                "description": "Descrição",
+                "description_placeholder": "Ex: Inventário Mensal - Junho/2025",
+                "responsible": "Responsável",
+                "responsible_placeholder": "Nome do responsável pela contagem",
+                "scope": "Escopo",
+                "scope_all": "Todos os itens",
+                "scope_category": "Por categoria",
+                "category": "Categoria",
+                "select_category": "Selecione a categoria",
+                "observations": "Observações",
+                "observations_placeholder": "Observações adicionais (opcional)",
+                "cancel": "Cancelar",
+                "creating": "Criando...",
+                "create_start": "Criar e Iniciar"
+            },
+            "confirm_delete": "Tem certeza que deseja excluir este inventário?"
+        },
+        "consertos": {
+            "title": "Consertos",
+            "subtitle": "Gerencie ordens de conserto",
+            "new_button": "Adicionar Produto para Conserto",
+            "export_pdf": "Exportar PDF",
+            "open_repairs": "Consertos Abertos",
+            "completed_repairs": "Consertos Concluídos",
+            "no_repairs": "Nenhuma ordem de conserto",
+            "status": {
+                "waiting": "Aguardando",
+                "in_progress": "Em Andamento",
+                "completed": "Concluído"
+            },
+            "priority": {
+                "all": "Todas",
+                "high": "Alta",
+                "medium": "Média",
+                "low": "Baixa"
+            },
+            "labels": {
+                "deadline": "Prazo",
+                "sent": "Enviado",
+                "location": "Local",
+                "cost": "Custo",
+                "no_deadline": "Sem prazo"
+            },
+            "actions": {
+                "register_return": "Registrar Retorno",
+                "clear_filters": "Limpar Filtros",
+                "cancel": "Cancelar"
+            },
+            "form": {
+                "title": "Nova Ordem de Conserto",
+                "desc": "Selecione o produto e detalhes do conserto.",
+                "product": "Produto",
+                "product_placeholder": "Digite o nome do produto",
+                "quantity": "Quantidade para Conserto",
+                "available": "Disponível",
+                "units": "unidades",
+                "status": "Status",
+                "location": "Local / Responsável",
+                "location_placeholder": "Oficina, fornecedor, setor",
+                "deadline": "Prazo previsto",
+                "priority": "Prioridade",
+                "description": "Descrição",
+                "description_placeholder": "Detalhes do defeito ou observações",
+                "save": "Criar Ordem de Conserto"
+            },
+            "return": {
+                "title": "Registrar Retorno",
+                "desc": "Item retornando do conserto",
+                "quantity": "Quantidade a retornar",
+                "in_repair": "Em conserto",
+                "cost": "Custo do conserto (R$)",
+                "confirm": "Confirmar Retorno"
+            },
+            "export": {
+                "title": "Filtros de Exportação",
+                "desc": "Selecione os filtros para exportar apenas os consertos desejados. Deixe em branco para exportar todos.",
+                "priority": "Prioridade",
+                "status": "Status",
+                "product": "Produto (Opcional)",
+                "all_products": "Todos os produtos",
+                "location": "Local de Conserto (Opcional)",
+                "location_placeholder": "Digite o local (ex: Oficina, Fornecedor)",
+                "send_period": "Período de Envio",
+                "return_period": "Período de Retorno",
+                "start_date": "Data Início",
+                "end_date": "Data Fim",
+                "total_to_export": "Total de consertos que serão exportados:"
+            }
+        },
+        "ferramentas": {
+            "title": "Estoque",
+            "subtitle": "Gerencie suas ferramentas e produtos",
+            "new_button": "Novo Produto",
+            "import_button": "Importar Excel",
+            "export_button": "Exportar PDF",
+            "search_placeholder": "Buscar produtos...",
+            "filters": {
+                "category": "Categoria",
+                "all_categories": "Todas as Categorias",
+                "status": "Status",
+                "all_status": "Todos os Status"
+            },
+            "table": {
+                "name": "Nome",
+                "category": "Categoria",
+                "quantity": "Quantidade",
+                "min_stock": "Est. Mínimo",
+                "status": "Status",
+                "actions": "Ações"
+            },
+            "form": {
+                "title_new": "Novo Produto",
+                "title_edit": "Editar Produto",
+                "desc_new": "Cadastre um novo produto no estoque",
+                "desc_edit": "Atualize os dados do produto",
+                "name": "Nome",
+                "category": "Categoria",
+                "quantity": "Quantidade Disponível",
+                "min_stock": "Estoque Mínimo",
+                "unit": "Unidade",
+                "expiry_date": "Data de Validade",
+                "ca_number": "Número do CA (EPI)",
+                "observations": "Observações",
+                "save": "Salvar Produto"
+            }
+        },
+        "checkout": {
+            "subscribe_now": "Assinar Agora",
+            "processing": "Processando..."
+        }
+    },
+    "landing": {
+        "nav": {
+            "problems": "Problemas",
+            "solution": "Solução",
+            "testimonials": "Depoimentos",
+            "dashboard": "Ir para Dashboard",
+            "login": "Entrar",
+            "start_free": "Começar Grátis"
+        },
+        "hero": {
+            "badge": "Mais de 200 empresas já organizaram a casa",
+            "title_part1": "Pare de perder dinheiro com",
+            "title_part2": "ferramentas sumidas",
+            "title_part3": "e estoque parado.",
+            "description": "O sistema de gestão mais simples do Brasil para pequenas empresas organizarem o almoxarifado, controlarem EPIs e acabarem com as planilhas.",
+            "cta_button": "Começar teste grátis agora",
+            "no_card": "Sem cartão de crédito • Cancele quando quiser",
+            "partners": "Empresas parceiras que confiam no Almox Fácil"
+        },
+        "pain_points": {
+            "title": "Seu estoque é um buraco negro de dinheiro?",
+            "subtitle": "Se você ainda usa papel ou planilhas, provavelmente está perdendo dinheiro sem perceber.",
+            "tools_title": "Ferramentas que somem",
+            "tools_desc": "Você compra, usa uma vez e ninguém sabe onde foi parar. O prejuízo é silencioso, mas constante.",
+            "spreadsheets_title": "Planilhas desatualizadas",
+            "spreadsheets_desc": "A planilha nunca bate com o real. Você perde horas contando estoque e ainda assim tem furos.",
+            "emergency_title": "Compras de emergência",
+            "emergency_desc": "Acaba o material no meio da obra ou serviço. Você paga mais caro para repor com urgência."
+        },
+        "solution": {
+            "badge": "A solução definitiva",
+            "title": "Retome o controle total da sua operação",
+            "description": "O Almox Fácil foi desenhado para quem não tem tempo a perder. Simples, rápido e funciona no celular da sua equipe.",
+            "mobile_title": "Controle na palma da mão",
+            "mobile_desc": "Registre entradas e saídas pelo celular, direto do local de trabalho. Sem burocracia.",
+            "lost_title": "Fim da 'ferramenta sumida'",
+            "lost_desc": "Saiba exatamente quem pegou, quando e se já devolveu. Responsabilize sua equipe.",
+            "alerts_title": "Alertas automáticos",
+            "alerts_desc": "O sistema avisa quando o estoque está baixo ou EPIs estão vencendo. Zero surpresas."
+        },
+        "features": {
+            "support_title": "Suporte com 95% de satisfação",
+            "support_desc": "Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.",
+            "online_title": "Sistema 100% online",
+            "online_desc": "Acesse o Almox Fácil a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.",
+            "price_title": "Sem cobranças surpresa",
+            "price_desc": "Comece seu teste grátis sem cadastrar cartão de crédito. Escolha seu plano e troque quando quiser."
+        },
+        "how_it_works": {
+            "title": "Simples como deve ser",
+            "subtitle": "Comece a usar em menos de 5 minutos",
+            "step1_title": "Cadastre",
+            "step1_desc": "Importe seus produtos ou cadastre em segundos.",
+            "step2_title": "Movimente",
+            "step2_desc": "Registre entradas e saídas pelo celular.",
+            "step3_title": "Controle",
+            "step3_desc": "Veja relatórios e saiba onde está cada item."
+        },
+        "testimonials": {
+            "title": "Quem usa, recomenda",
+            "subtitle": "Junte-se a mais de 200 empresas que transformaram sua gestão",
+            "t1_content": "Eu perdia uns 500 reais por mês só com ferramenta pequena sumindo. O Almox Fácil se pagou na primeira semana.",
+            "t1_role": "Dono",
+            "t2_content": "Tentei usar 3 sistemas diferentes, todos muito complicados. Esse aqui minha equipe aprendeu a usar em 10 minutos.",
+            "t2_role": "Gestora",
+            "t3_content": "O controle de EPIs é sensacional. O sistema avisa antes de vencer, nunca mais paguei multa ou corri risco.",
+            "t3_role": "Sócio"
+        },
+        "pricing": {
+            "title": "Preço justo, sem surpresas",
+            "subtitle": "Tudo o que você precisa em um único plano.",
+            "most_popular": "MAIS POPULAR",
+            "monthly": "Mensal",
+            "annual": "Anual",
+            "per_month": "/mês",
+            "billed_annually": "Cobrado anualmente (R$ 478,80)",
+            "billed_monthly": "Cobrado mensalmente",
+            "feat_stock": "Estoque ilimitado",
+            "feat_users": "Usuários ilimitados",
+            "feat_tools": "Gestão de ferramentas",
+            "feat_epi": "Controle de EPIs",
+            "feat_support": "Suporte prioritário via WhatsApp",
+            "cta": "Começar teste grátis de 7 dias",
+            "cancel_anytime": "Cancele quando quiser. Sem fidelidade."
+        },
+        "cta_final": {
+            "title": "Pronto para organizar sua empresa?",
+            "subtitle": "Não deixe para depois. O controle que você precisa está a um clique de distância.",
+            "button": "Criar conta grátis agora",
+            "join": "Junte-se a mais de 200 empresas inteligentes"
+        },
+        "footer": {
+            "terms": "Termos de Uso",
+            "privacy": "Privacidade",
+            "contact": "Contato"
+        }
+    }
+}

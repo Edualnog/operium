@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatDistanceToNow } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { ptBR, enUS } from "date-fns/locale"
+import { useTranslation } from "react-i18next"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Wrench,
@@ -36,6 +37,7 @@ interface IndustrialDashboardProps {
 }
 
 export default function IndustrialDashboard({ userId }: IndustrialDashboardProps) {
+  const { t, i18n } = useTranslation('common')
   const { data, loading, error } = useKPIs(userId)
   const [rankingView, setRankingView] = useState<"melhores" | "piores">("melhores")
   const [periodoConsumo, setPeriodoConsumo] = useState<7 | 14 | 30 | 60 | 120>(30)
@@ -521,7 +523,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p className="text-sm text-red-700">Erro ao carregar KPIs: {error}</p>
+        <p className="text-sm text-red-700">{t('common.error_loading_kpis')}: {error}</p>
       </div>
     )
   }
@@ -529,7 +531,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   if (!data) {
     return (
       <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg dark:bg-zinc-900 dark:border-zinc-800">
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Nenhum dado disponível</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">{t('common.no_data')}</p>
       </div>
     )
   }
@@ -554,10 +556,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       {/* Header */}
       <div className="mb-6 text-center sm:text-left">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Almox Fácil
+          {t('dashboard.header.title')}
         </h1>
         <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
-          Mais agilidade e controle nas operações do almoxarifado
+          {t('dashboard.header.subtitle')}
         </p>
       </div>
 
@@ -573,20 +575,20 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div>
                   <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 flex items-center gap-2 dark:text-zinc-50">
                     <BarChart3 className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
-                    Movimentações
+                    {t('dashboard.charts.movements.title')}
                   </CardTitle>
                   <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
-                    Últimos 12 meses • Passe o mouse sobre as barras para detalhes
+                    {t('dashboard.charts.movements.subtitle')}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50">
                     <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                    <span className="text-xs text-emerald-700 font-medium">Entradas</span>
+                    <span className="text-xs text-emerald-700 font-medium">{t('dashboard.charts.movements.in')}</span>
                   </div>
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-50">
                     <div className="w-3 h-3 rounded-full bg-rose-500" />
-                    <span className="text-xs text-rose-700 font-medium">Saídas</span>
+                    <span className="text-xs text-rose-700 font-medium">{t('dashboard.charts.movements.out')}</span>
                   </div>
                 </div>
               </div>
@@ -596,15 +598,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div className="flex items-center justify-center h-48">
                   <div className="flex flex-col items-center gap-3">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-900"></div>
-                    <p className="text-sm text-zinc-500">Carregando dados...</p>
+                    <p className="text-sm text-zinc-500">{t('common.loading_data')}</p>
                   </div>
                 </div>
               ) : movimentacoesMensais.length === 0 ? (
                 <div className="flex items-center justify-center h-48">
                   <div className="text-center">
                     <AlertCircle className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
-                    <p className="text-sm text-zinc-500">Nenhuma movimentação nos últimos 12 meses</p>
-                    <p className="text-xs text-zinc-400 mt-1">Comece registrando entradas e saídas de itens</p>
+                    <p className="text-sm text-zinc-500">{t('dashboard.charts.movements.empty_title')}</p>
+                    <p className="text-xs text-zinc-400 mt-1">{t('dashboard.charts.movements.empty_desc')}</p>
                   </div>
                 </div>
               ) : (
@@ -642,11 +644,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                    <span>Entradas: <strong>{item.entradas}</strong></span>
+                                    <span>{t('dashboard.charts.movements.in')}: <strong>{item.entradas}</strong></span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-rose-500" />
-                                    <span>Saídas: <strong>{item.saidas}</strong></span>
+                                    <span>{t('dashboard.charts.movements.out')}: <strong>{item.saidas}</strong></span>
                                   </div>
                                   <div className="flex items-center gap-2 pt-1 mt-1 border-t border-zinc-700">
                                     <span>Total: <strong>{totalMovimentacoes}</strong></span>
@@ -692,25 +694,25 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div className="mt-6 pt-4 border-t border-zinc-100">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">Total Movimentações</p>
+                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_movements')}</p>
                       <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.total, 0)}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">Total Entradas</p>
+                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_in')}</p>
                       <p className="text-lg font-bold text-emerald-600">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.entradas, 0)}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">Total Saídas</p>
+                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_out')}</p>
                       <p className="text-lg font-bold text-rose-600">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.saidas, 0)}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">Média Mensal</p>
+                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.monthly_avg')}</p>
                       <p className="text-lg font-bold text-blue-600">
                         {Math.round(movimentacoesMensais.reduce((acc, m) => acc + m.total, 0) / 12)}
                       </p>
@@ -725,17 +727,17 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                Status
+                {t('dashboard.charts.status.title')}
               </CardTitle>
               <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
-                Situação das ferramentas
+                {t('dashboard.charts.status.subtitle')}
               </p>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
               {/* Disponível */}
               <div>
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600 dark:text-zinc-400">Disponível</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.available')}</span>
                   <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.disponiveis}%</span>
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
@@ -749,7 +751,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               {/* Em uso */}
               <div>
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600 dark:text-zinc-400">Em uso</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.in_use')}</span>
                   <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.emUso}%</span>
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
@@ -763,7 +765,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               {/* Manutenção */}
               <div>
                 <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600 dark:text-zinc-400">Manutenção</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.maintenance')}</span>
                   <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.manutencao}%</span>
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
@@ -786,7 +788,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Itens em Estoque</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.items_in_stock')}</p>
                   <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {data.totais?.itensEstoque || 0}
                   </p>
@@ -802,7 +804,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Colaboradores</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.collaborators')}</p>
                   <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {data.totais?.colaboradores || 0}
                   </p>
@@ -818,7 +820,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <Wrench className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Ferramentas</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.tools')}</p>
                   <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {data.totais?.ferramentas || 0}
                   </p>
@@ -834,7 +836,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <Activity className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Movimentações/mês</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.movements_month')}</p>
                   <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     {(() => {
                       // Pegar o mês atual
@@ -856,22 +858,22 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         <div className="flex items-center gap-2 mb-4">
           <Wrench className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
           <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Ferramentas
+            {t('dashboard.stats.tools')}
           </h2>
         </div>
 
         {/* KPIs Principais - Ferramentas */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <KPICard
-            title="Ferramentas em Uso Agora"
+            title={t('dashboard.kpi.tools_in_use.title')}
             value={totalEmUsoUnidades}
-            description="Unidades atualmente emprestadas"
+            description={t('dashboard.kpi.tools_in_use.desc')}
             iconName="Activity"
           />
           <KPICard
-            title="Ferramentas Estragadas"
+            title={t('dashboard.kpi.tools_damaged.title')}
             value={totalEstragadasUnidades}
-            description="Em manutenção ou danificadas"
+            description={t('dashboard.kpi.tools_damaged.desc')}
             iconName="AlertTriangle"
             variant={(totalEstragadasUnidades || 0) > 0 ? "destructive" : "default"}
           />
@@ -880,21 +882,21 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               <div className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
                 <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                  Itens para reposição urgente
+                  {t('dashboard.kpi.urgent_restock.title')}
                 </CardTitle>
               </div>
               <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
-                Baseado na demanda interna (mais retirados = maior prioridade)
+                {t('dashboard.kpi.urgent_restock.desc')}
               </p>
             </CardHeader>
             <CardContent className="pt-4">
               {loadingItensUrgente ? (
                 <div className="flex items-center justify-center py-8">
-                  <p className="text-sm text-zinc-500">Carregando...</p>
+                  <p className="text-sm text-zinc-500">{t('common.loading')}</p>
                 </div>
               ) : itensComprarUrgente.length === 0 ? (
                 <p className="text-sm text-zinc-500 text-center py-8">
-                  Nenhum item urgente encontrado
+                  {t('dashboard.kpi.urgent_restock.empty')}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -917,19 +919,19 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                         </div>
                         <div className="flex flex-wrap items-center gap-3 mt-2">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs text-zinc-500">Demanda:</span>
+                            <span className="text-xs text-zinc-500">{t('dashboard.labels.demand')}</span>
                             <Badge variant="outline" className="font-semibold text-xs">
-                              {item.demanda} retiradas
+                              {item.demanda} {t('dashboard.labels.withdrawals')}
                             </Badge>
                           </div>
                           {item.ponto_ressuprimento > 0 && (
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">Estoque:</span>
+                              <span className="text-xs text-zinc-500">{t('dashboard.labels.stock')}</span>
                               <span className={`text-xs font-medium ${item.quantidade_disponivel <= item.ponto_ressuprimento
                                 ? "text-red-600 dark:text-red-400"
                                 : "text-zinc-700 dark:text-zinc-300"
                                 }`}>
-                                {item.quantidade_disponivel} / Mín: {item.ponto_ressuprimento}
+                                {item.quantidade_disponivel} / {t('dashboard.labels.min')} {item.ponto_ressuprimento}
                               </span>
                             </div>
                           )}
@@ -950,10 +952,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
                   <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                    Top Ferramentas Mais Utilizadas
+                    {t('dashboard.kpi.top_tools.title')}
                   </CardTitle>
                   <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
-                    {loadingFerramentas ? "Carregando..." : `Últimos ${periodoFerramentas} dias`}
+                    {loadingFerramentas ? t('common.loading') : t('dashboard.kpi.last_days', { days: periodoFerramentas })}
                   </p>
                 </div>
                 <div className="flex gap-1 border rounded-md p-1 bg-background">
@@ -976,7 +978,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             <CardContent className="pt-4">
               {loadingFerramentas ? (
                 <div className="flex items-center justify-center py-8">
-                  <p className="text-sm text-zinc-500">Carregando dados...</p>
+                  <p className="text-sm text-zinc-500">{t('common.loading_data')}</p>
                 </div>
               ) : (() => {
                 const itemsFonte = ferramentasPorPeriodo.length > 0
@@ -986,7 +988,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 if (itemsFonte.length === 0) {
                   return (
                     <p className="text-sm text-zinc-500 text-center py-8">
-                      Nenhuma ferramenta encontrada
+                      {t('dashboard.kpi.top_tools.empty')}
                     </p>
                   )
                 }
@@ -1009,13 +1011,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                           </div>
                           <div className="flex flex-wrap items-center gap-3 mt-2">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">Saídas:</span>
+                              <span className="text-xs text-zinc-500">{t('dashboard.labels.outputs')}</span>
                               <Badge variant="outline" className="font-semibold text-xs">
                                 {item.total_saidas}
                               </Badge>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">Categoria:</span>
+                              <span className="text-xs text-zinc-500">{t('dashboard.labels.category')}</span>
                               <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                                 {item.categoria || "-"}
                               </span>
@@ -1035,10 +1037,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                    Ranking de Responsabilidade
+                    {t('dashboard.kpi.ranking.title')}
                   </CardTitle>
                   <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
-                    Score baseado em devoluções no prazo
+                    {t('dashboard.kpi.ranking.desc')}
                   </p>
                 </div>
                 <div className="flex gap-1 border rounded-md p-1 bg-background">
@@ -1050,7 +1052,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     className="h-7 px-3 text-xs"
                   >
                     <ArrowUp className="h-3 w-3 mr-1" />
-                    Melhores
+                    {t('dashboard.filters.best')}
                   </Button>
                   <Button
                     type="button"
@@ -1060,7 +1062,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     className="h-7 px-3 text-xs"
                   >
                     <ArrowDown className="h-3 w-3 mr-1" />
-                    Piores
+                    {t('dashboard.filters.worst')}
                   </Button>
                 </div>
               </div>
@@ -1086,7 +1088,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 if (displayItems.length === 0) {
                   return (
                     <p className="text-sm text-zinc-500 text-center py-8">
-                      Nenhum colaborador encontrado
+                      {t('dashboard.kpi.ranking.empty')}
                     </p>
                   )
                 }
@@ -1109,7 +1111,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                           </div>
                           <div className="flex flex-wrap items-center gap-3 mt-2">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">Score:</span>
+                              <span className="text-xs text-zinc-500">{t('dashboard.labels.score')}</span>
                               <Badge
                                 variant={item.score >= 80 ? "default" : item.score >= 60 ? "secondary" : "destructive"}
                                 className="font-semibold text-xs"
@@ -1118,13 +1120,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                               </Badge>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">Retiradas:</span>
+                              <span className="text-xs text-zinc-500">{t('dashboard.labels.withdrawals_count')}</span>
                               <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                                 {item.total_retiradas || 0}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">No Prazo:</span>
+                              <span className="text-xs text-zinc-500">{t('dashboard.labels.on_time')}</span>
                               <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                                 {item.devolucoes_no_prazo || 0}
                               </span>
@@ -1143,34 +1145,34 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         {/* Lista de Ferramentas em Uso */}
         {data.ferramentasEmUso.length > 0 && (
           <KpiList
-            title="Ferramentas Atualmente em Uso"
-            description="Detalhamento das ferramentas emprestadas"
+            title={t('dashboard.kpi.tools_active.title')}
+            description={t('dashboard.kpi.tools_active.desc')}
             items={data.ferramentasEmUso}
             columns={[
               {
                 key: "colaborador",
-                label: "Colaborador",
+                label: t('dashboard.columns.collaborator'),
               },
               {
                 key: "quantidade_em_uso",
-                label: "Qtde",
+                label: t('dashboard.columns.qty'),
                 render: (item) => item.quantidade_em_uso || 0,
               },
               {
                 key: "dias_em_uso",
-                label: "Dias em Uso",
+                label: t('dashboard.columns.days_in_use'),
                 render: (item) => `${item.dias_em_uso} dias`,
               },
               {
                 key: "prazo_devolucao",
-                label: "Prazo",
+                label: t('dashboard.columns.deadline'),
                 render: (item) =>
                   item.prazo_devolucao
                     ? formatDistanceToNow(new Date(item.prazo_devolucao), {
                       addSuffix: true,
-                      locale: ptBR,
+                      locale: i18n.language === 'pt' ? ptBR : enUS,
                     })
-                    : "Sem prazo",
+                    : t('dashboard.labels.no_deadline'),
               },
             ]}
             maxItems={5}
@@ -1185,7 +1187,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         <div className="flex items-center gap-2 mb-4">
           <ShoppingCart className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
           <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Consumíveis
+            {t('dashboard.sections.consumables')}
           </h2>
         </div>
 
@@ -1194,10 +1196,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                  Top consumíveis mais retirados
+                  {t('dashboard.kpi.top_consumables.title')}
                 </CardTitle>
                 <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
-                  {loadingConsumo ? "Carregando..." : `Últimos ${periodoConsumo} dias`}
+                  {loadingConsumo ? t('common.loading') : t('dashboard.kpi.last_days', { days: periodoConsumo })}
                 </p>
               </div>
               <div className="flex gap-1 border rounded-md p-1 bg-background">
@@ -1220,7 +1222,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <CardContent className="pt-4">
             {loadingConsumo ? (
               <div className="flex items-center justify-center h-[320px]">
-                <p className="text-sm text-zinc-500">Carregando dados...</p>
+                <p className="text-sm text-zinc-500">{t('common.loading_data')}</p>
               </div>
             ) : (
               <KpiChart
@@ -1263,21 +1265,21 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <KpiList
-            title="Itens com Estoque Crítico"
-            description="Abaixo do ponto de ressuprimento"
+            title={t('dashboard.kpi.critical_stock.title')}
+            description={t('dashboard.kpi.critical_stock.desc')}
             items={data.itensEstoqueCritico}
             columns={[
               {
                 key: "quantidade_atual",
-                label: "Atual",
+                label: t('dashboard.columns.current'),
               },
               {
                 key: "ponto_ressuprimento",
-                label: "PRD",
+                label: t('dashboard.columns.prd'),
               },
               {
                 key: "deficit",
-                label: "Déficit",
+                label: t('dashboard.columns.deficit'),
                 render: (item) => (
                   <Badge variant="destructive" className="font-semibold">
                     -{item.deficit}
@@ -1289,13 +1291,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           />
 
           <KpiList
-            title="Maior Consumo Recente"
-            description="Últimos 30 dias"
+            title={t('dashboard.kpi.recent_consumption.title')}
+            description={t('dashboard.kpi.last_30_days')}
             items={data.itensMaiorConsumo}
             columns={[
               {
                 key: "consumo_30d",
-                label: "Total 30d",
+                label: t('dashboard.columns.total_30d'),
                 render: (item) => (
                   <Badge variant="outline" className="font-semibold">
                     {item.consumo_30d.toFixed(0)}
@@ -1304,7 +1306,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               },
               {
                 key: "consumo_medio_diario",
-                label: "Média/dia",
+                label: t('dashboard.columns.avg_day'),
                 render: (item) => item.consumo_medio_diario.toFixed(1),
               },
             ]}
@@ -1317,13 +1319,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       <section className="space-y-6">
         <div className="flex items-center gap-2 mb-4">
           <Shield className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
-          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">EPIs</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t('dashboard.sections.epis')}</h2>
         </div>
 
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           <KpiList
-            title="EPIs Ativos por Colaborador"
-            description="Total de EPIs atualmente atribuídos"
+            title={t('dashboard.kpi.epis_active.title')}
+            description={t('dashboard.kpi.epis_active.desc')}
             items={data.episAtivosPorColaborador.map((epi) => ({
               id: epi.colaborador_id,
               nome: epi.colaborador_nome,
@@ -1333,7 +1335,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             columns={[
               {
                 key: "total_epis",
-                label: "Total EPIs",
+                label: t('dashboard.columns.total_epis'),
                 render: (item) => (
                   <Badge variant="outline" className="font-semibold">
                     {item.total_epis}
@@ -1345,13 +1347,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           />
 
           <KpiList
-            title="EPIs Próximos da Validade"
-            description="Vencimento em até 30 dias"
+            title={t('dashboard.kpi.epis_expiring.title')}
+            description={t('dashboard.kpi.epis_expiring.desc')}
             items={data.episProximosValidade}
             columns={[
               {
                 key: "dias_restantes",
-                label: "Dias Restantes",
+                label: t('dashboard.columns.days_remaining'),
                 render: (item) => (
                   <Badge
                     variant={item.dias_restantes <= 7 ? "destructive" : "secondary"}
@@ -1363,9 +1365,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               },
               {
                 key: "validade",
-                label: "Validade",
+                label: t('dashboard.columns.validity'),
                 render: (item) =>
-                  new Date(item.validade).toLocaleDateString("pt-BR"),
+                  new Date(item.validade).toLocaleDateString(i18n.language === 'pt' ? 'pt-BR' : 'en-US'),
               },
             ]}
             maxItems={3}
@@ -1378,7 +1380,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         <div className="flex items-center gap-2 mb-4">
           <Target className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
           <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Previsões e Alertas
+            {t('dashboard.sections.predictions')}
           </h2>
         </div>
 
@@ -1391,7 +1393,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 key={risco.id}
                 title={risco.nome}
                 value={`${risco.score.toFixed(0)}%`}
-                description={`${risco.dias_restantes} dias restantes`}
+                description={`${risco.dias_restantes} ${t('dashboard.labels.days_remaining_suffix')}`}
                 iconName="AlertTriangle"
                 variant={risco.score >= 80 ? "destructive" : "default"}
               />
@@ -1399,17 +1401,17 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         </div>
 
         <KpiList
-          title="Itens Críticos do Dia"
-          description="Itens que requerem atenção imediata"
+          title={t('dashboard.kpi.critical_items_day.title')}
+          description={t('dashboard.kpi.critical_items_day.desc')}
           items={data.itensCriticosDia}
           columns={[
             {
               key: "motivo",
-              label: "Motivo",
+              label: t('dashboard.columns.reason'),
             },
             {
               key: "prioridade",
-              label: "Prioridade",
+              label: t('dashboard.columns.priority'),
               render: (item) => (
                 <Badge
                   variant={
@@ -1427,7 +1429,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             },
             {
               key: "acao_sugerida",
-              label: "Ação",
+              label: t('dashboard.columns.action'),
             },
           ]}
           maxItems={15}
@@ -1436,8 +1438,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         {/* Gráfico de Risco de Ruptura */}
         {data.riscoRuptura.length > 0 && (
           <KpiChart
-            title="Risco de Ruptura por Item"
-            description="O Risco de Ruptura é um indicador que estima a probabilidade de um item consumível acabar o estoque (ruptura de estoque). Score de 0-100 (quanto maior, maior o risco)"
+            title={t('dashboard.kpi.rupture_risk.title')}
+            description={t('dashboard.kpi.rupture_risk.desc')}
             data={(() => {
               // Filtrar e ordenar dados reais
               const dadosReais = data.riscoRuptura

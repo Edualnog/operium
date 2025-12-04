@@ -8,38 +8,40 @@ import { CheckCircle2, Circle, ArrowRight, Building2, Package, TrendingUp, Party
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import confetti from "canvas-confetti"
+import { useTranslation } from "react-i18next"
 
 interface OnboardingChecklistProps {
     userId: string
 }
 
 export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
+    const { t } = useTranslation('common')
     const [steps, setSteps] = useState([
         {
             id: "company",
-            label: "Crie sua empresa",
-            description: "Personalize o sistema para seu negócio",
+            label: t('onboarding.steps.company.label'),
+            description: t('onboarding.steps.company.desc'),
             completed: false,
             icon: Building2,
-            actionLabel: "Configurações",
+            actionLabel: t('onboarding.steps.company.action'),
             actionUrl: "/dashboard/conta",
         },
         {
             id: "products",
-            label: "Adicionar produtos",
-            description: "Cadastre seus primeiros itens no estoque",
+            label: t('onboarding.steps.products.label'),
+            description: t('onboarding.steps.products.desc'),
             completed: false,
             icon: Package,
-            actionLabel: "Adicionar",
+            actionLabel: t('onboarding.steps.products.action'),
             actionUrl: "/dashboard/estoque",
         },
         {
             id: "transaction",
-            label: "Registrar transação",
-            description: "Faça sua primeira movimentação de entrada ou saída",
+            label: t('onboarding.steps.transaction.label'),
+            description: t('onboarding.steps.transaction.desc'),
             completed: false,
             icon: TrendingUp,
-            actionLabel: "Movimentar",
+            actionLabel: t('onboarding.steps.transaction.action'),
             actionUrl: "/dashboard/movimentacoes",
         },
     ])
@@ -162,8 +164,8 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                                 <CheckCircle2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-green-900 text-lg">Parabéns! Seu sistema está pronto.</h3>
-                                <p className="text-green-700">Adicione mais produtos ou registre transações sempre que precisar.</p>
+                                <h3 className="font-semibold text-green-900 text-lg">{t('onboarding.success.title')}</h3>
+                                <p className="text-green-700">{t('onboarding.success.desc')}</p>
                             </div>
                         </div>
                         <Button
@@ -172,7 +174,7 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                             className="text-green-700 hover:text-green-800 hover:bg-green-100"
                             onClick={handleClose}
                         >
-                            Fechar
+                            {t('common.close')}
                         </Button>
                     </CardContent>
                 </Card>
@@ -190,16 +192,16 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                 <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 text-center sm:text-left">
                     <div>
                         <CardTitle className="text-lg font-semibold text-blue-950 flex items-center justify-center sm:justify-start gap-2 dark:text-blue-100">
-                            🚀 Primeiros Passos
+                            🚀 {t('onboarding.title')}
                         </CardTitle>
                         <p className="text-sm text-blue-600/80 mt-1 dark:text-blue-300">
-                            Complete o setup para aproveitar todo o potencial do sistema
+                            {t('onboarding.subtitle')}
                         </p>
                     </div>
                     <div className="text-center sm:text-right w-full sm:w-auto bg-white/50 sm:bg-transparent p-2 rounded-lg sm:p-0 dark:bg-zinc-800/50 sm:dark:bg-transparent">
                         <div className="flex items-center justify-center sm:justify-end gap-2 sm:block">
                             <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{Math.round(progress)}%</span>
-                            <span className="text-xs text-blue-400 font-medium uppercase tracking-wider sm:block ml-2 sm:ml-0 dark:text-blue-500">Concluído</span>
+                            <span className="text-xs text-blue-400 font-medium uppercase tracking-wider sm:block ml-2 sm:ml-0 dark:text-blue-500">{t('onboarding.completed')}</span>
                         </div>
                     </div>
                 </div>
@@ -213,7 +215,7 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                     />
                 </div>
                 <p className="text-xs text-blue-400 text-center mt-2 font-medium dark:text-blue-500">
-                    Estamos montando seu ambiente com você
+                    {t('onboarding.progress_text')}
                 </p>
             </CardHeader>
             <CardContent className="p-0">
@@ -249,7 +251,7 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                             <div className="shrink-0 w-full sm:w-auto">
                                 {step.completed ? (
                                     <span className="flex items-center justify-center text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100 mx-auto sm:mx-0 w-fit dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
-                                        Feito
+                                        {t('common.done')}
                                     </span>
                                 ) : (
                                     <Button asChild size="sm" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200 dark:bg-blue-600 dark:hover:bg-blue-500 dark:shadow-none">
