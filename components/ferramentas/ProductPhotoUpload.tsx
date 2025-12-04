@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Upload, X, Package, AlertCircle, Camera } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
+import { useTranslation } from "react-i18next"
 import { checkBucketExists } from "@/lib/utils/storage"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CameraCaptureModal } from "@/components/ui/camera-capture-modal"
@@ -25,6 +26,7 @@ export function ProductPhotoUpload({
   userId,
   productId,
 }: ProductPhotoUploadProps) {
+  const { t } = useTranslation()
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
@@ -58,8 +60,8 @@ export function ProductPhotoUpload({
   if (!userId) {
     return (
       <div className="space-y-2">
-        <Label className="text-sm font-medium">Foto do Produto</Label>
-        <p className="text-xs text-zinc-500">Carregando...</p>
+        <Label className="text-sm font-medium">{t("dashboard.ferramentas.photo_upload.label")}</Label>
+        <p className="text-xs text-zinc-500">{t("dashboard.ferramentas.photo_upload.loading")}</p>
       </div>
     )
   }
@@ -232,7 +234,7 @@ export function ProductPhotoUpload({
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">Foto do Produto</Label>
+      <Label className="text-sm font-medium">{t("dashboard.ferramentas.photo_upload.label")}</Label>
 
       {bucketExists === false && (
         <Alert variant="destructive" className="mb-2">
@@ -268,7 +270,7 @@ export function ProductPhotoUpload({
               disabled={uploading || bucketExists === false || verifying}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {uploading ? "Enviando..." : preview ? "Alterar" : "Upload"}
+              {uploading ? t("dashboard.ferramentas.photo_upload.uploading") : preview ? t("dashboard.ferramentas.photo_upload.change") : t("dashboard.ferramentas.photo_upload.upload")}
             </Button>
 
             <Button
@@ -279,17 +281,17 @@ export function ProductPhotoUpload({
               disabled={uploading || bucketExists === false || verifying}
             >
               <Camera className="h-4 w-4 mr-2" />
-              Foto
+              {t("dashboard.ferramentas.photo_upload.camera")}
             </Button>
 
             {preview && (
               <Button type="button" variant="outline" size="sm" onClick={handleRemove} disabled={uploading}>
                 <X className="h-4 w-4 mr-2" />
-                Remover
+                {t("dashboard.ferramentas.photo_upload.remove")}
               </Button>
             )}
           </div>
-          <p className="text-xs text-zinc-500">JPG/PNG/WebP até 5MB.</p>
+          <p className="text-xs text-zinc-500">{t("dashboard.ferramentas.photo_upload.help_text")}</p>
         </div>
         <input
           ref={fileInputRef}

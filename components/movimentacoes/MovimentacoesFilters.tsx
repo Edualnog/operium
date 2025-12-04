@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -51,6 +52,7 @@ export function MovimentacoesFilters({
   onFiltersChange,
   totalEncontrados,
 }: MovimentacoesFiltersProps) {
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
 
   const updateFilter = (key: keyof FilterState, value: any) => {
@@ -82,7 +84,7 @@ export function MovimentacoesFilters({
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full sm:w-auto">
                 <Filter className="mr-2 h-4 w-4" />
-                Filtros
+                {t("dashboard.movimentacoes.filters.filters")}
                 {hasActiveFilters && (
                   <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                     {[
@@ -99,7 +101,7 @@ export function MovimentacoesFilters({
             <PopoverContent className="w-80 p-4" align="start">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-sm">Filtros</h4>
+                  <h4 className="font-semibold text-sm">{t("dashboard.movimentacoes.filters.filters")}</h4>
                   {hasActiveFilters && (
                     <Button
                       variant="ghost"
@@ -107,14 +109,14 @@ export function MovimentacoesFilters({
                       onClick={clearFilters}
                       className="h-7 text-xs"
                     >
-                      Limpar
+                      {t("dashboard.movimentacoes.filters.clear")}
                     </Button>
                   )}
                 </div>
 
                 {/* Tipo de Movimentação */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Tipo de Movimentação</Label>
+                  <Label className="text-xs">{t("dashboard.movimentacoes.filters.movement_type")}</Label>
                   <Select
                     value={filters.tipo}
                     onValueChange={(value: any) => updateFilter("tipo", value)}
@@ -123,18 +125,18 @@ export function MovimentacoesFilters({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos os tipos</SelectItem>
-                      <SelectItem value="entrada">Entrada</SelectItem>
-                      <SelectItem value="retirada">Retirada</SelectItem>
-                      <SelectItem value="devolucao">Devolução</SelectItem>
-                      <SelectItem value="conserto">Conserto</SelectItem>
+                      <SelectItem value="todos">{t("dashboard.movimentacoes.filters.all_types")}</SelectItem>
+                      <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
+                      <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
+                      <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
+                      <SelectItem value="conserto">{t("dashboard.movimentacoes.filters.repair")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Produto */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Produto</Label>
+                  <Label className="text-xs">{t("dashboard.movimentacoes.filters.product")}</Label>
                   <Select
                     value={filters.produtoId || "todos"}
                     onValueChange={(value) =>
@@ -145,7 +147,7 @@ export function MovimentacoesFilters({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos os produtos</SelectItem>
+                      <SelectItem value="todos">{t("dashboard.movimentacoes.filters.all_products")}</SelectItem>
                       {ferramentas.map((f) => (
                         <SelectItem key={f.id} value={f.id}>
                           {f.nome}
@@ -157,7 +159,7 @@ export function MovimentacoesFilters({
 
                 {/* Colaborador */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Colaborador</Label>
+                  <Label className="text-xs">{t("dashboard.movimentacoes.filters.collaborator")}</Label>
                   <Select
                     value={filters.colaboradorId || "todos"}
                     onValueChange={(value) =>
@@ -171,7 +173,7 @@ export function MovimentacoesFilters({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos os colaboradores</SelectItem>
+                      <SelectItem value="todos">{t("dashboard.movimentacoes.filters.all_collaborators")}</SelectItem>
                       {colaboradores.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.nome}
@@ -183,7 +185,7 @@ export function MovimentacoesFilters({
 
                 {/* Data Início */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Data Início</Label>
+                  <Label className="text-xs">{t("dashboard.movimentacoes.filters.start_date")}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -199,7 +201,7 @@ export function MovimentacoesFilters({
                             locale: ptBR,
                           })
                         ) : (
-                          <span>Selecione</span>
+                          <span>{t("dashboard.movimentacoes.filters.select")}</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -215,7 +217,7 @@ export function MovimentacoesFilters({
 
                 {/* Data Fim */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Data Fim</Label>
+                  <Label className="text-xs">{t("dashboard.movimentacoes.filters.end_date")}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -231,7 +233,7 @@ export function MovimentacoesFilters({
                             locale: ptBR,
                           })
                         ) : (
-                          <span>Selecione</span>
+                          <span>{t("dashboard.movimentacoes.filters.select")}</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -250,17 +252,17 @@ export function MovimentacoesFilters({
         </div>
 
         <div className="text-sm text-zinc-600">
-          {totalEncontrados} movimentação(ões) encontrada(s)
+          {t("dashboard.movimentacoes.filters.movements_found", { count: totalEncontrados })}
         </div>
       </div>
 
       {/* Badges de filtros ativos */}
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-zinc-500">Filtros ativos:</span>
+          <span className="text-xs text-zinc-500">{t("dashboard.movimentacoes.filters.active_filters")}</span>
           {filters.tipo !== "todos" && (
             <Badge variant="secondary" className="gap-1">
-              Tipo: {filters.tipo}
+              {t("dashboard.movimentacoes.filters.type")}: {filters.tipo}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("tipo", "todos")}
@@ -269,7 +271,7 @@ export function MovimentacoesFilters({
           )}
           {filters.produtoId && (
             <Badge variant="secondary" className="gap-1">
-              Produto: {ferramentas.find((f) => f.id === filters.produtoId)?.nome}
+              {t("dashboard.movimentacoes.filters.product")}: {ferramentas.find((f) => f.id === filters.produtoId)?.nome}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("produtoId", "")}
@@ -278,7 +280,7 @@ export function MovimentacoesFilters({
           )}
           {filters.colaboradorId && (
             <Badge variant="secondary" className="gap-1">
-              Colaborador: {colaboradores.find((c) => c.id === filters.colaboradorId)?.nome}
+              {t("dashboard.movimentacoes.filters.collaborator")}: {colaboradores.find((c) => c.id === filters.colaboradorId)?.nome}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("colaboradorId", "")}
@@ -287,7 +289,7 @@ export function MovimentacoesFilters({
           )}
           {filters.dataInicio && (
             <Badge variant="secondary" className="gap-1">
-              De: {format(filters.dataInicio, "dd/MM/yyyy", { locale: ptBR })}
+              {t("dashboard.movimentacoes.filters.from")}: {format(filters.dataInicio, "dd/MM/yyyy", { locale: i18n.language?.startsWith("pt") ? ptBR : undefined })}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("dataInicio", null)}
@@ -296,7 +298,7 @@ export function MovimentacoesFilters({
           )}
           {filters.dataFim && (
             <Badge variant="secondary" className="gap-1">
-              Até: {format(filters.dataFim, "dd/MM/yyyy", { locale: ptBR })}
+              {t("dashboard.movimentacoes.filters.to")}: {format(filters.dataFim, "dd/MM/yyyy", { locale: i18n.language?.startsWith("pt") ? ptBR : undefined })}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("dataFim", null)}

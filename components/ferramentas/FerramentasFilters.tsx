@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -46,6 +47,7 @@ export function FerramentasFilters({
   onFiltersChange,
   totalEncontrados,
 }: FerramentasFiltersProps) {
+  const { t } = useTranslation()
   const [showFilters, setShowFilters] = useState(false)
 
   const updateFilter = (key: keyof FilterState, value: any) => {
@@ -72,7 +74,7 @@ export function FerramentasFilters({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <Input
-            placeholder="Buscar por nome, código ou categoria..."
+            placeholder={t("dashboard.ferramentas.filters.search_placeholder")}
             value={filters.search}
             onChange={(e) => updateFilter("search", e.target.value)}
             className="pl-10"
@@ -83,7 +85,7 @@ export function FerramentasFilters({
             <PopoverTrigger asChild>
               <Button variant="outline" className="relative">
                 <Filter className="h-4 w-4 mr-2" />
-                Filtros
+                {t("dashboard.ferramentas.filters.filters")}
                 {hasActiveFilters && (
                   <span className="ml-2 h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">
                     {[filters.tipo, filters.estado, filters.categoria].filter(Boolean).length}
@@ -94,62 +96,62 @@ export function FerramentasFilters({
             <PopoverContent className="w-80" align="end">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-sm">Filtros avançados</h4>
+                  <h4 className="font-semibold text-sm">{t("dashboard.ferramentas.filters.advanced_filters")}</h4>
                   {hasActiveFilters && (
                     <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 text-xs">
                       <X className="h-3 w-3 mr-1" />
-                      Limpar
+                      {t("dashboard.ferramentas.filters.clear")}
                     </Button>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs">Tipo</Label>
+                  <Label className="text-xs">{t("dashboard.ferramentas.filters.type")}</Label>
                   <Select
                     value={filters.tipo === "" ? "all" : filters.tipo}
                     onValueChange={(value) => updateFilter("tipo", value === "all" ? "" : value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Todos os tipos" />
+                      <SelectValue placeholder={t("dashboard.ferramentas.filters.all_types")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="ferramenta">Ferramenta</SelectItem>
-                      <SelectItem value="epi">EPI</SelectItem>
-                      <SelectItem value="consumivel">Consumível</SelectItem>
+                      <SelectItem value="all">{t("dashboard.ferramentas.filters.all_types")}</SelectItem>
+                      <SelectItem value="ferramenta">{t("dashboard.ferramentas.filters.tool")}</SelectItem>
+                      <SelectItem value="epi">{t("dashboard.ferramentas.filters.ppe")}</SelectItem>
+                      <SelectItem value="consumivel">{t("dashboard.ferramentas.filters.consumable")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs">Estado</Label>
+                  <Label className="text-xs">{t("dashboard.ferramentas.filters.state")}</Label>
                   <Select
                     value={filters.estado === "" ? "all" : filters.estado}
                     onValueChange={(value) => updateFilter("estado", value === "all" ? "" : value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Todos os estados" />
+                      <SelectValue placeholder={t("dashboard.ferramentas.filters.all_states")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="ok">OK</SelectItem>
-                      <SelectItem value="danificada">Danificada</SelectItem>
-                      <SelectItem value="em_conserto">Em Conserto</SelectItem>
+                      <SelectItem value="all">{t("dashboard.ferramentas.filters.all_states")}</SelectItem>
+                      <SelectItem value="ok">{t("dashboard.ferramentas.filters.ok")}</SelectItem>
+                      <SelectItem value="danificada">{t("dashboard.ferramentas.filters.damaged")}</SelectItem>
+                      <SelectItem value="em_conserto">{t("dashboard.ferramentas.filters.in_repair")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs">Categoria</Label>
+                  <Label className="text-xs">{t("dashboard.ferramentas.filters.category")}</Label>
                   <Select
                     value={filters.categoria === "" ? "all" : filters.categoria}
                     onValueChange={(value) => updateFilter("categoria", value === "all" ? "" : value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Todas as categorias" />
+                      <SelectValue placeholder={t("dashboard.ferramentas.filters.all_categories")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="all">{t("dashboard.ferramentas.filters.all_categories")}</SelectItem>
                       {categorias.map((cat) => (
                         <SelectItem key={cat} value={cat}>
                           {cat}
@@ -160,7 +162,7 @@ export function FerramentasFilters({
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs">Ordenar por</Label>
+                  <Label className="text-xs">{t("dashboard.ferramentas.filters.sort_by")}</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Select
                       value={filters.ordenarPor}
@@ -170,10 +172,10 @@ export function FerramentasFilters({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="nome">Nome</SelectItem>
-                        <SelectItem value="quantidade_disponivel">Disponível</SelectItem>
-                        <SelectItem value="quantidade_total">Quantidade Total</SelectItem>
-                        <SelectItem value="created_at">Data Cadastro</SelectItem>
+                        <SelectItem value="nome">{t("dashboard.ferramentas.filters.name")}</SelectItem>
+                        <SelectItem value="quantidade_disponivel">{t("dashboard.ferramentas.filters.available")}</SelectItem>
+                        <SelectItem value="quantidade_total">{t("dashboard.ferramentas.filters.total_quantity")}</SelectItem>
+                        <SelectItem value="created_at">{t("dashboard.ferramentas.filters.created_at")}</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -188,7 +190,7 @@ export function FerramentasFilters({
                       ) : (
                         <SortDesc className="h-4 w-4 mr-2" />
                       )}
-                      {filters.ordem === "asc" ? "Crescente" : "Decrescente"}
+                      {filters.ordem === "asc" ? t("dashboard.ferramentas.filters.ascending") : t("dashboard.ferramentas.filters.descending")}
                     </Button>
                   </div>
                 </div>
@@ -200,22 +202,22 @@ export function FerramentasFilters({
 
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-zinc-500">Filtros ativos:</span>
+          <span className="text-xs text-zinc-500">{t("dashboard.ferramentas.filters.active_filters")}</span>
           {filters.tipo && (
             <span className="text-xs bg-zinc-100 px-2 py-1 rounded-full flex items-center gap-1">
-              Tipo: {filters.tipo}
+              {t("dashboard.ferramentas.filters.type_label")}: {filters.tipo}
               <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("tipo", "")} />
             </span>
           )}
           {filters.estado && (
             <span className="text-xs bg-zinc-100 px-2 py-1 rounded-full flex items-center gap-1">
-              Estado: {filters.estado}
+              {t("dashboard.ferramentas.filters.state_label")}: {filters.estado}
               <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("estado", "")} />
             </span>
           )}
           {filters.categoria && (
             <span className="text-xs bg-zinc-100 px-2 py-1 rounded-full flex items-center gap-1">
-              Categoria: {filters.categoria}
+              {t("dashboard.ferramentas.filters.category_label")}: {filters.categoria}
               <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilter("categoria", "")} />
             </span>
           )}
@@ -224,8 +226,7 @@ export function FerramentasFilters({
 
       {totalEncontrados > 0 && (
         <div className="text-sm text-zinc-600">
-          {totalEncontrados} produto{totalEncontrados !== 1 ? "s" : ""} encontrado
-          {totalEncontrados !== 1 ? "s" : ""}
+          {totalEncontrados} {totalEncontrados === 1 ? t("dashboard.ferramentas.filters.products_found", { count: totalEncontrados }) : t("dashboard.ferramentas.filters.products_found_plural", { count: totalEncontrados })}
         </div>
       )}
     </div>
