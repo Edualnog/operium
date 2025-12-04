@@ -183,16 +183,16 @@ export default function MovimentacoesList({
 
   // Configuração de importação de Excel para Movimentações
   const importConfig: ImportConfig = {
-    title: "Importar Movimentações",
-    description: "Importe movimentações a partir de uma planilha Excel ou CSV. Use o nome exato do produto e colaborador.",
+    title: t("dashboard.movimentacoes.import.title"),
+    description: t("dashboard.movimentacoes.import.description"),
     templateFileName: "modelo_movimentacoes.xlsx",
     columns: [
-      { excelColumn: "tipo", dbColumn: "tipo", label: "Tipo", required: true, type: "select", options: ["entrada", "retirada", "devolucao", "ajuste"] },
-      { excelColumn: "produto", dbColumn: "produto", label: "Produto (Nome)", required: true, type: "text" },
-      { excelColumn: "quantidade", dbColumn: "quantidade", label: "Quantidade", required: true, type: "number" },
-      { excelColumn: "colaborador", dbColumn: "colaborador", label: "Colaborador (Nome)", required: false, type: "text" },
-      { excelColumn: "observacoes", dbColumn: "observacoes", label: "Observações", required: false, type: "text" },
-      { excelColumn: "data", dbColumn: "data", label: "Data", required: false, type: "date" },
+      { excelColumn: "tipo", dbColumn: "tipo", label: t("dashboard.movimentacoes.filters.type"), required: true, type: "select", options: ["entrada", "retirada", "devolucao", "ajuste"] },
+      { excelColumn: "produto", dbColumn: "produto", label: t("dashboard.movimentacoes.table.product"), required: true, type: "text" },
+      { excelColumn: "quantidade", dbColumn: "quantidade", label: t("dashboard.movimentacoes.table.quantity"), required: true, type: "number" },
+      { excelColumn: "colaborador", dbColumn: "colaborador", label: t("dashboard.movimentacoes.table.collaborator"), required: false, type: "text" },
+      { excelColumn: "observacoes", dbColumn: "observacoes", label: t("dashboard.movimentacoes.table.observations"), required: false, type: "text" },
+      { excelColumn: "data", dbColumn: "data", label: t("dashboard.movimentacoes.table.date"), required: false, type: "date" },
     ],
     onImport: async (data) => {
       let success = 0
@@ -206,7 +206,7 @@ export default function MovimentacoesList({
             f => f.nome.toLowerCase() === row.produto?.toString().toLowerCase()
           )
           if (!ferramenta) {
-            errors.push(`Linha ${i + 2}: Produto "${row.produto}" não encontrado`)
+            errors.push(t("dashboard.movimentacoes.import.product_not_found", { line: i + 2, name: row.produto }))
             continue
           }
 
@@ -217,7 +217,7 @@ export default function MovimentacoesList({
               c => c.nome.toLowerCase() === row.colaborador?.toString().toLowerCase()
             )
             if (!colaborador) {
-              errors.push(`Linha ${i + 2}: Colaborador "${row.colaborador}" não encontrado`)
+              errors.push(t("dashboard.movimentacoes.import.collaborator_not_found", { line: i + 2, name: row.colaborador }))
               continue
             }
             colaboradorId = colaborador.id
@@ -225,7 +225,7 @@ export default function MovimentacoesList({
 
           // Criar movimentação via API
           const { data: { user } } = await supabase.auth.getUser()
-          if (!user) throw new Error("Usuário não autenticado")
+          if (!user) throw new Error(t("dashboard.movimentacoes.import.error_creating", { line: i + 2, error: "User not authenticated" }))
 
           const movData = {
             profile_id: user.id,
@@ -254,7 +254,7 @@ export default function MovimentacoesList({
 
           success++
         } catch (error: any) {
-          errors.push(`Linha ${i + 2}: ${error.message || "Erro ao criar movimentação"}`)
+          errors.push(t("dashboard.movimentacoes.import.error_creating", { line: i + 2, error: error.message }))
         }
       }
 
@@ -409,11 +409,11 @@ export default function MovimentacoesList({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!form.produtoId) {
-      alert("Selecione um produto da lista")
+      alert(t("dashboard.movimentacoes.form.select_product"))
       return
     }
     if (form.tipo !== "entrada" && !form.colaboradorId) {
-      alert("Selecione um colaborador")
+      alert(t("dashboard.movimentacoes.form.select_collaborator"))
       return
     }
 
@@ -432,9 +432,9 @@ export default function MovimentacoesList({
         }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error || "Erro ao registrar movimentação")
+      if (!res.ok) throw new Error(json.error || t("dashboard.movimentacoes.form.error"))
 
-      console.log("✅ Movimentação registrada com sucesso!")
+      console.log("✅ " + t("dashboard.movimentacoes.form.success"))
 
       // Verificar se deve abrir modal de assinatura
       const deveAssinar = solicitarAssinatura && (form.tipo === "retirada" || form.tipo === "devolucao")
@@ -495,7 +495,7 @@ export default function MovimentacoesList({
         router.refresh()
       }, 500)
     } catch (err: any) {
-      alert(err.message || "Erro ao registrar movimentação")
+      alert(err.message || t("dashboard.movimentacoes.form.error"))
     } finally {
       setLoading(false)
     }
@@ -586,7 +586,7 @@ export default function MovimentacoesList({
   const handleExportCSV = () => {
     const filtered = getFilteredMovimentacoes()
     if (filtered.length === 0) {
-      alert("Nenhuma movimentação encontrada com os filtros selecionados")
+      alert(t("dashboard.movimentacoes.actions.no_results_export"))
       return
     }
 
@@ -594,12 +594,12 @@ export default function MovimentacoesList({
     try {
       const escape = (val: any) => `"${(val ?? "").toString().replace(/"/g, '""')}"`
       const headers = [
-        "Data/Hora",
-        "Tipo",
-        "Produto",
-        "Quantidade",
-        "Colaborador",
-        "Observações",
+        t("dashboard.movimentacoes.table.date"),
+        t("dashboard.movimentacoes.table.type"),
+        t("dashboard.movimentacoes.table.product"),
+        t("dashboard.movimentacoes.table.quantity"),
+        t("dashboard.movimentacoes.table.collaborator"),
+        t("dashboard.movimentacoes.table.observations"),
       ]
       const rows = filtered.map((m) => [
         m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
@@ -620,7 +620,7 @@ export default function MovimentacoesList({
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Erro ao exportar CSV:", error)
-      alert("Erro ao exportar CSV")
+      alert(t("dashboard.movimentacoes.actions.export_error"))
     } finally {
       setExportingCsv(false)
       setOpenExportDialog(false)
@@ -703,7 +703,7 @@ export default function MovimentacoesList({
   const handleExportSelected = () => {
     const selectedMovs = movimentacoes.filter((m) => selectedIds.includes(m.id))
     if (selectedMovs.length === 0) {
-      alert("Selecione pelo menos uma movimentação.")
+      alert(t("dashboard.movimentacoes.actions.select_one"))
       return
     }
 
@@ -737,7 +737,7 @@ export default function MovimentacoesList({
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Erro ao exportar selecionados:", error)
-      alert("Erro ao exportar selecionados")
+      alert(t("dashboard.movimentacoes.actions.export_error"))
     } finally {
       setExportingCsv(false)
     }
@@ -757,17 +757,17 @@ export default function MovimentacoesList({
               showStarredOnly && "text-yellow-600 dark:text-yellow-400"
             )}
             onClick={() => setShowStarredOnly((v) => !v)}
-            title={showStarredOnly ? "Mostrar todas as movimentações" : "Mostrar apenas favoritas"}
+            title={showStarredOnly ? t("dashboard.movimentacoes.actions.show_all") : t("dashboard.movimentacoes.actions.show_starred")}
           >
             <Star className="h-4 w-4" fill={showStarredOnly ? "currentColor" : "none"} />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={handleExportSelected} title="Exportar selecionados">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={handleExportSelected} title={t("dashboard.movimentacoes.actions.export_selected")}>
             <FileDown className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setSelectedIds([])} title="Limpar seleção">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setSelectedIds([])} title={t("dashboard.movimentacoes.actions.clear_selection")}>
             <RotateCcw className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => window.print()} title="Imprimir">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => window.print()} title={t("dashboard.movimentacoes.actions.print")}>
             <Printer className="h-4 w-4" />
           </Button>
 
@@ -775,20 +775,20 @@ export default function MovimentacoesList({
 
           <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" title="Exportar CSV">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" title={t("dashboard.movimentacoes.actions.export_csv")}>
                 <FileDown className="h-4 w-4" />
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Filtros de Exportação</DialogTitle>
+                <DialogTitle>{t("dashboard.movimentacoes.actions.export_filters_title")}</DialogTitle>
                 <DialogDescription>
-                  Selecione os filtros para exportar as movimentações em CSV
+                  {t("dashboard.movimentacoes.actions.export_filters_desc")}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
-                  <Label>Tipo de Movimentação</Label>
+                  <Label>{t("dashboard.movimentacoes.filters.type")}</Label>
                   <Select
                     value={exportFilters.tipo}
                     onValueChange={(val: any) =>
@@ -799,17 +799,17 @@ export default function MovimentacoesList({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos os tipos</SelectItem>
-                      <SelectItem value="entrada">Entrada</SelectItem>
-                      <SelectItem value="retirada">Retirada</SelectItem>
-                      <SelectItem value="devolucao">Devolução</SelectItem>
-                      <SelectItem value="conserto">Conserto</SelectItem>
+                      <SelectItem value="todos">{t("dashboard.movimentacoes.filters.all_types")}</SelectItem>
+                      <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
+                      <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
+                      <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
+                      <SelectItem value="conserto">{t("dashboard.movimentacoes.filters.repair")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>Produto</Label>
+                  <Label>{t("dashboard.movimentacoes.table.product")}</Label>
                   <Select
                     value={exportFilters.produtoId || "todos"}
                     onValueChange={(val) =>
@@ -820,7 +820,7 @@ export default function MovimentacoesList({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos os produtos</SelectItem>
+                      <SelectItem value="todos">{t("dashboard.ferramentas.filters.all_categories")}</SelectItem>
                       {ferramentas.map((f) => (
                         <SelectItem key={f.id} value={f.id}>
                           {f.nome}
@@ -831,7 +831,7 @@ export default function MovimentacoesList({
                 </div>
 
                 <div className="grid gap-2">
-                  <Label>Colaborador</Label>
+                  <Label>{t("dashboard.movimentacoes.table.collaborator")}</Label>
                   <Select
                     value={exportFilters.colaboradorId || "todos"}
                     onValueChange={(val) =>
@@ -842,7 +842,7 @@ export default function MovimentacoesList({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos os colaboradores</SelectItem>
+                      <SelectItem value="todos">{t("dashboard.ferramentas.actions.select_collaborator")}</SelectItem>
                       {colaboradores.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.nome}
@@ -854,7 +854,7 @@ export default function MovimentacoesList({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="grid gap-2">
-                    <Label>Data Início</Label>
+                    <Label>{t("dashboard.movimentacoes.filters.start_date")}</Label>
                     <Input
                       type="date"
                       value={exportFilters.dataInicio}
@@ -865,7 +865,7 @@ export default function MovimentacoesList({
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label>Data Fim</Label>
+                    <Label>{t("dashboard.movimentacoes.filters.end_date")}</Label>
                     <Input
                       type="date"
                       value={exportFilters.dataFim}
@@ -878,7 +878,7 @@ export default function MovimentacoesList({
                 </div>
 
                 <div className="text-sm text-muted-foreground">
-                  {getFilteredMovimentacoes().length} movimentação(ões) serão exportadas
+                  {t("dashboard.movimentacoes.actions.export_count", { count: getFilteredMovimentacoes().length })}
                 </div>
               </div>
               <DialogFooter>
@@ -894,16 +894,16 @@ export default function MovimentacoesList({
                     })
                   }}
                 >
-                  Limpar Filtros
+                  {t("dashboard.ferramentas.filters.clear")}
                 </Button>
                 <Button onClick={handleExportCSV} disabled={getFilteredMovimentacoes().length === 0}>
-                  {exportingCsv ? "Exportando..." : "Exportar CSV"}
+                  {exportingCsv ? t("dashboard.ferramentas.actions.exporting") : t("dashboard.movimentacoes.actions.export_csv")}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setImportModalOpen(true)} title="Importar Excel">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setImportModalOpen(true)} title={t("dashboard.movimentacoes.import_button")}>
             <Upload className="h-4 w-4" />
           </Button>
 
@@ -913,18 +913,18 @@ export default function MovimentacoesList({
             <DialogTrigger asChild>
               <Button onClick={() => setOpen(true)} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-8">
                 <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Novo</span>
+                <span className="hidden sm:inline">{t("dashboard.movimentacoes.new_button")}</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
               <form onSubmit={handleSubmit}>
                 <DialogHeader>
-                  <DialogTitle>Nova movimentação</DialogTitle>
-                  <DialogDescription>Escolha o tipo, produto e quantidade.</DialogDescription>
+                  <DialogTitle>{t("dashboard.movimentacoes.form.title")}</DialogTitle>
+                  <DialogDescription>{t("dashboard.movimentacoes.form.desc")}</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-3 py-4">
                   <div className="grid gap-2">
-                    <Label>Tipo</Label>
+                    <Label>{t("dashboard.movimentacoes.form.type")}</Label>
                     <Select
                       value={form.tipo}
                       onValueChange={(val: any) => setForm((f) => ({ ...f, tipo: val }))}
@@ -933,17 +933,17 @@ export default function MovimentacoesList({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="entrada">Entrada</SelectItem>
-                        <SelectItem value="retirada">Saída/Retirada</SelectItem>
-                        <SelectItem value="devolucao">Devolução</SelectItem>
+                        <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
+                        <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
+                        <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="grid gap-2">
-                    <Label>Produto</Label>
+                    <Label>{t("dashboard.movimentacoes.form.product")}</Label>
                     <Input
-                      placeholder="Digite o nome do produto"
+                      placeholder={t("dashboard.movimentacoes.form.select_product")}
                       value={form.produto}
                       onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
                       className="text-sm md:text-base"
@@ -958,7 +958,7 @@ export default function MovimentacoesList({
                             onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
                           >
                             <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{s.nome}</div>
-                            <div className="text-xs text-zinc-500 dark:text-zinc-400">{s.tipo_item || "Produto"}</div>
+                            <div className="text-xs text-zinc-500 dark:text-zinc-400">{s.tipo_item || t("dashboard.ferramentas.form.tool")}</div>
                           </button>
                         ))}
                       </div>
@@ -967,7 +967,7 @@ export default function MovimentacoesList({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="grid gap-2">
-                      <Label>Quantidade</Label>
+                      <Label>{t("dashboard.movimentacoes.form.quantity")}</Label>
                       <Input
                         type="number"
                         min={form.tipo === "entrada" ? 1 : 1}
@@ -979,9 +979,9 @@ export default function MovimentacoesList({
 
                     {(form.tipo === "retirada" || form.tipo === "devolucao") && (
                       <div className="grid gap-2">
-                        <Label>Colaborador</Label>
+                        <Label>{t("dashboard.movimentacoes.form.collaborator")}</Label>
                         <Input
-                          placeholder="Digite o nome do colaborador"
+                          placeholder={t("dashboard.movimentacoes.form.select_collaborator")}
                           value={form.colaboradorNome}
                           onChange={(e) =>
                             setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))
@@ -1008,26 +1008,26 @@ export default function MovimentacoesList({
                           </div>
                         )}
                         <div className="text-xs text-zinc-500">
-                          Escolha o colaborador responsável pela retirada/devolução.
+                          {t("dashboard.movimentacoes.form.collaborator_hint")}
                         </div>
                       </div>
                     )}
                   </div>
 
                   <div className="grid gap-2">
-                    <Label>Data/Hora</Label>
+                    <Label>{t("dashboard.movimentacoes.form.date")}</Label>
                     <Input
                       type="datetime-local"
                       value={form.dataMov}
                       onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
                     />
-                    <div className="text-xs text-zinc-500">Se preferir, ajuste a data/hora. Por padrão usamos agora.</div>
+                    <div className="text-xs text-zinc-500">{t("dashboard.movimentacoes.form.date_hint")}</div>
                   </div>
 
                   <div className="grid gap-2">
-                    <Label>Observações</Label>
+                    <Label>{t("dashboard.movimentacoes.form.observations")}</Label>
                     <Input
-                      placeholder="Opcional"
+                      placeholder={t("dashboard.ferramentas.actions.optional")}
                       value={form.observacoes}
                       onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
                     />
@@ -1047,7 +1047,7 @@ export default function MovimentacoesList({
                           className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2 dark:text-blue-100"
                         >
                           <FileSignature className="h-4 w-4" />
-                          Solicitar assinatura digital
+                          {t("dashboard.movimentacoes.form.request_signature")}
                         </label>
                         <p className="text-xs text-blue-700 mt-0.5 dark:text-blue-300">
                           Gera termo de responsabilidade com assinatura do colaborador
@@ -1061,7 +1061,7 @@ export default function MovimentacoesList({
                     Cancelar
                   </Button>
                   <Button type="submit" disabled={loading}>
-                    {loading ? "Salvando..." : "Salvar"}
+                    {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
                   </Button>
                 </DialogFooter>
               </form>
@@ -1082,7 +1082,7 @@ export default function MovimentacoesList({
           </div>
           {selectedIds.length > 0 && (
             <Badge variant="secondary" className="whitespace-nowrap text-xs">
-              {selectedIds.length} selecionada{selectedIds.length > 1 ? "s" : ""}
+              {t("dashboard.movimentacoes.actions.selected_count", { count: selectedIds.length })}
             </Badge>
           )}
         </div>
@@ -1115,12 +1115,12 @@ export default function MovimentacoesList({
             />
           </div>
           <div className="flex justify-center"><Star className="h-3 w-3" /></div>
-          <div className="flex justify-center">Tipo</div>
+          <div className="flex justify-center">{t("dashboard.movimentacoes.table.type")}</div>
           <div>ID</div>
-          <div>Item</div>
-          <div>Responsável</div>
-          <div>Data</div>
-          <div>Obs</div>
+          <div>{t("dashboard.movimentacoes.table.product")}</div>
+          <div>{t("dashboard.movimentacoes.table.collaborator")}</div>
+          <div>{t("dashboard.movimentacoes.table.date")}</div>
+          <div>{t("dashboard.movimentacoes.table.observations")}</div>
         </div>
 
         {/* Corpo da tabela */}
@@ -1152,7 +1152,7 @@ export default function MovimentacoesList({
                     e.stopPropagation()
                     toggleStar(m.id)
                   }}
-                  aria-label={starredIds.includes(m.id) ? "Remover dos favoritos" : "Favoritar movimentação"}
+                  aria-label={starredIds.includes(m.id) ? t("dashboard.movimentacoes.actions.remove_favorite") : t("dashboard.movimentacoes.actions.add_favorite")}
                 >
                   <Star className="h-4 w-4" fill={starredIds.includes(m.id) ? "currentColor" : "none"} />
                 </button>
@@ -1164,7 +1164,7 @@ export default function MovimentacoesList({
                 </div>
                 <div className="font-mono text-xs text-zinc-500 dark:text-zinc-400">#{m.id.substring(0, 4)}</div>
                 <div className="font-medium text-zinc-900 truncate flex items-center gap-2 dark:text-zinc-100">
-                  <span className="truncate">{m.ferramentas?.nome || "Produto"}</span>
+                  <span className="truncate">{m.ferramentas?.nome || t("dashboard.movimentacoes.table.product")}</span>
                   {m.quantidade > 1 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{m.quantidade}</Badge>}
                 </div>
                 <div className="truncate text-xs">{m.colaboradores?.nome || "-"}</div>
@@ -1207,8 +1207,8 @@ export default function MovimentacoesList({
       {/* Footer */}
       <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500 dark:text-zinc-300">
         <div>
-          Mostrando {paginatedMovimentacoes.length} de {filtered.length} registros
-          {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
+          {t("dashboard.ferramentas.pagination.showing", { count: paginatedMovimentacoes.length, total: filtered.length })}
+          {totalPages > 1 && ` (${t("dashboard.ferramentas.pagination.page", { current: currentPage, total: totalPages })})`}
         </div>
         <div className="flex gap-1 items-center">
           <Button
@@ -1240,13 +1240,13 @@ export default function MovimentacoesList({
           </div>
           <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
             {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
-              ? "Nenhuma movimentação encontrada"
-              : "Nenhuma movimentação registrada"}
+              ? t("dashboard.movimentacoes.empty.no_results")
+              : t("dashboard.movimentacoes.empty.no_records")}
           </h3>
           <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
             {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
-              ? "Tente ajustar os filtros ou buscar por outro termo."
-              : "Registre entradas, saídas e devoluções para manter o histórico do seu almoxarifado sempre atualizado."}
+              ? t("dashboard.movimentacoes.empty.adjust_filters")
+              : t("dashboard.movimentacoes.empty.start_registering")}
           </p>
         </div>
       )}

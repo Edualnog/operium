@@ -15,6 +15,7 @@ import {
   ChevronUp,
   Trash2
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 export interface ColumnMapping {
   excelColumn: string
@@ -39,6 +40,7 @@ interface ImportExcelProps {
 }
 
 export default function ImportExcel({ config, onClose }: ImportExcelProps) {
+  const { t } = useTranslation()
   const [step, setStep] = useState<"upload" | "preview" | "importing" | "result">("upload")
   const [file, setFile] = useState<File | null>(null)
   const [rawData, setRawData] = useState<Record<string, any>[]>([])
@@ -56,12 +58,12 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
       if (col.type === "number") return "0"
       if (col.type === "date") return "2024-01-01"
       if (col.options) return col.options[0]
-      return `Exemplo ${col.label}`
+      return `${t("import.example")} ${col.label}`
     })
 
     const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow])
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, "Dados")
+    XLSX.utils.book_append_sheet(wb, ws, t("import.data_sheet_name"))
 
     // Ajustar largura das colunas
     const colWidths = headers.map(h => ({ wch: Math.max(h.length + 5, 15) }))
@@ -84,7 +86,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
         const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { raw: false })
 
         if (jsonData.length === 0) {
-          setErrors(["A planilha está vazia ou não possui dados válidos."])
+          setErrors([t("import.errors.empty_sheet")])
           return
         }
 
@@ -101,7 +103,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
 
             // Validar campos obrigatórios
             if (col.required && (!value || value.toString().trim() === "")) {
-              rowErrors.push(`Linha ${rowIndex + 2}: Campo "${col.label}" é obrigatório`)
+              rowErrors.push(t("import.errors.required_field", { row: rowIndex + 2, field: col.label }))
             }
 
             // Converter tipos
@@ -120,7 +122,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
 
             // Validar opções (select)
             if (col.options && value && !col.options.includes(value.toString())) {
-              rowErrors.push(`Linha ${rowIndex + 2}: Valor "${value}" inválido para "${col.label}". Opções: ${col.options.join(", ")}`)
+              rowErrors.push(t("import.errors.invalid_value", { row: rowIndex + 2, value, field: col.label, options: col.options.join(", ") }))
             }
 
             mappedRow[col.dbColumn] = value
@@ -137,7 +139,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
         setStep("preview")
       } catch (error) {
         console.error("Erro ao processar arquivo:", error)
-        setErrors(["Erro ao processar o arquivo. Verifique se é um arquivo Excel válido."])
+        setErrors([t("import.errors.process_error")])
       }
     }
 
@@ -163,7 +165,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
     if (droppedFile && (droppedFile.name.endsWith(".xlsx") || droppedFile.name.endsWith(".xls") || droppedFile.name.endsWith(".csv"))) {
       processFile(droppedFile)
     } else {
-      setErrors(["Por favor, selecione um arquivo Excel (.xlsx, .xls) ou CSV (.csv)"])
+      setErrors([t("import.errors.invalid_file_type")])
     }
   }, [processFile])
 
@@ -192,7 +194,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
       setStep("result")
     } catch (error) {
       console.error("Erro na importação:", error)
-      setErrors(["Erro ao importar dados. Tente novamente."])
+      setErrors([t("import.errors.process_error")])
       setStep("preview")
     }
   }, [config, mappedData])
@@ -263,10 +265,10 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                     <FileSpreadsheet className="w-8 h-8 text-blue-500" />
                     <div>
                       <p className="font-medium text-slate-900 dark:text-white">
-                        Baixe o modelo de planilha
+                        {t("import.download_template.title")}
                       </p>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Use o template para garantir que os dados estejam no formato correto
+                        {t("import.download_template.description")}
                       </p>
                     </div>
                   </div>
@@ -275,7 +277,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                   >
                     <Download className="w-4 h-4" />
-                    Download
+                    {t("import.download_template.button")}
                   </button>
                 </div>
 
@@ -302,13 +304,13 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                   />
                   <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragging ? "text-blue-500" : "text-slate-400"}`} />
                   <p className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-                    Arraste e solte seu arquivo aqui
+                    {t("import.drag_drop.title")}
                   </p>
                   <p className="text-slate-500 dark:text-slate-400">
-                    ou clique para selecionar
+                    {t("import.drag_drop.subtitle")}
                   </p>
                   <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">
-                    Formatos aceitos: .xlsx, .xls, .csv
+                    {t("import.drag_drop.formats")}
                   </p>
                 </div>
 
@@ -317,7 +319,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                   <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl">
                     <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-2">
                       <AlertCircle className="w-5 h-5" />
-                      <span className="font-medium">Erros encontrados:</span>
+                      <span className="font-medium">{t("import.errors.title")}</span>
                     </div>
                     <ul className="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-1">
                       {errors.map((error, i) => (
@@ -330,17 +332,16 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                 {/* Campos esperados */}
                 <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
                   <p className="font-medium text-slate-900 dark:text-white mb-3">
-                    Campos esperados na planilha:
+                    {t("import.expected_fields")}
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {config.columns.map(col => (
                       <div
                         key={col.dbColumn}
-                        className={`px-3 py-2 rounded-lg text-sm ${
-                          col.required
+                        className={`px-3 py-2 rounded-lg text-sm ${col.required
                             ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                             : "bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300"
-                        }`}
+                          }`}
                       >
                         {col.label}
                         {col.required && <span className="text-red-500 ml-1">*</span>}
@@ -348,7 +349,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                     ))}
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    * Campos obrigatórios
+                    {t("import.required_fields_note")}
                   </p>
                 </div>
               </motion.div>
@@ -372,7 +373,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                         {file?.name}
                       </p>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {mappedData.length} registro(s) encontrado(s)
+                        {t("import.preview.records_found_plural", { count: mappedData.length })}
                       </p>
                     </div>
                   </div>
@@ -380,7 +381,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                     onClick={reset}
                     className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                   >
-                    Trocar arquivo
+                    {t("import.preview.change_file")}
                   </button>
                 </div>
 
@@ -389,14 +390,14 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                   <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
                     <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 mb-2">
                       <AlertCircle className="w-5 h-5" />
-                      <span className="font-medium">Avisos ({errors.length}):</span>
+                      <span className="font-medium">{t("import.preview.warnings", { count: errors.length })}</span>
                     </div>
                     <ul className="list-disc list-inside text-sm text-yellow-600 dark:text-yellow-400 space-y-1 max-h-32 overflow-auto">
                       {errors.slice(0, 10).map((error, i) => (
                         <li key={i}>{error}</li>
                       ))}
                       {errors.length > 10 && (
-                        <li>... e mais {errors.length - 10} avisos</li>
+                        <li>{t("import.preview.more_warnings", { count: errors.length - 10 })}</li>
                       )}
                     </ul>
                   </div>
@@ -457,12 +458,12 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                       {showAllRows ? (
                         <>
                           <ChevronUp className="w-4 h-4" />
-                          Mostrar menos
+                          {t("import.preview.show_less")}
                         </>
                       ) : (
                         <>
                           <ChevronDown className="w-4 h-4" />
-                          Mostrar todos ({mappedData.length - 5} mais)
+                          {t("import.preview.show_more", { count: mappedData.length - 5 })}
                         </>
                       )}
                     </button>
@@ -482,10 +483,10 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
               >
                 <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
                 <p className="text-lg font-medium text-slate-900 dark:text-white">
-                  Importando dados...
+                  {t("import.importing.title")}
                 </p>
                 <p className="text-slate-500 dark:text-slate-400">
-                  Aguarde enquanto processamos {mappedData.length} registro(s)
+                  {t("import.importing.description", { count: mappedData.length })}
                 </p>
               </motion.div>
             )}
@@ -507,7 +508,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                     </div>
                     <div>
                       <p className="text-lg font-medium text-green-700 dark:text-green-300">
-                        {importResult.success} registro(s) importado(s) com sucesso!
+                        {t("import.result.success_plural", { count: importResult.success })}
                       </p>
                     </div>
                   </div>
@@ -519,7 +520,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                     <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-2">
                       <AlertCircle className="w-5 h-5" />
                       <span className="font-medium">
-                        {importResult.errors.length} erro(s) durante a importação:
+                        {t("import.result.errors_plural", { count: importResult.errors.length })}
                       </span>
                     </div>
                     <ul className="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-1 max-h-48 overflow-auto">
@@ -541,7 +542,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
               onClick={onClose}
               className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
             >
-              Cancelar
+              {t("dashboard.ferramentas.form.cancel")}
             </button>
           )}
 
@@ -551,7 +552,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                 onClick={reset}
                 className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
-                Voltar
+                {t("import.actions.back")}
               </button>
               <button
                 onClick={executeImport}
@@ -559,7 +560,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                 className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Upload className="w-4 h-4" />
-                Importar {mappedData.length} registro(s)
+                {t("import.actions.import_count_plural", { count: mappedData.length })}
               </button>
             </>
           )}
@@ -570,13 +571,13 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                 onClick={reset}
                 className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
-                Importar mais
+                {t("import.actions.import_more")}
               </button>
               <button
                 onClick={onClose}
                 className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
-                Concluir
+                {t("import.actions.finish")}
               </button>
             </>
           )}

@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { ptBR } from "date-fns/locale/pt-BR"
+import { ptBR, enUS } from "date-fns/locale"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { createClientComponentClient } from "@/lib/supabase-client"
@@ -57,12 +57,14 @@ function ConsertosList({
   consertos: Conserto[]
 }) {
   const supabase = createClientComponentClient()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const dateLocale = i18n.language === "pt" ? ptBR : enUS
+
   const parseFerramenta = (ferramentas: Conserto["ferramentas"]) => {
     const f = Array.isArray(ferramentas) ? ferramentas[0] : ferramentas
     return {
       id: f?.id || "",
-      nome: f?.nome || "Sem nome",
+      nome: f?.nome || t("dashboard.consertos.no_name"),
       quantidade_disponivel: Number(f?.quantidade_disponivel || 0),
     }
   }
@@ -197,13 +199,13 @@ function ConsertosList({
     const quantidade = Number(formData.get("quantidade"))
 
     if (quantidade < 1) {
-      alert("A quantidade deve ser pelo menos 1")
+      alert(t("dashboard.consertos.errors.min_quantity"))
       setLoading(false)
       return
     }
 
     if (quantidade > quantidadeEmConserto) {
-      alert(`Quantidade inválida. Ainda em conserto: ${quantidadeEmConserto}`)
+      alert(t("dashboard.consertos.errors.invalid_quantity", { count: quantidadeEmConserto }))
       setLoading(false)
       return
     }
@@ -214,7 +216,7 @@ function ConsertosList({
       setQuantidadeEmConserto(0)
       router.refresh()
     } catch (error: any) {
-      alert(error.message || "Erro ao registrar retorno")
+      alert(error.message || t("dashboard.consertos.errors.register_return"))
     } finally {
       setLoading(false)
     }
@@ -227,7 +229,7 @@ function ConsertosList({
       setConsertos((prev) => prev.map((c) => (c.id === consertoId ? { ...c, status } : c)))
       router.refresh()
     } catch (error: any) {
-      alert(error.message || "Erro ao atualizar status")
+      alert(error.message || t("dashboard.consertos.errors.update_status"))
     } finally {
       setStatusLoadingId(null)
     }
@@ -248,19 +250,19 @@ function ConsertosList({
   const handleNovaOrdem = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!form.produtoId) {
-      alert("Selecione um produto")
+      alert(t("dashboard.consertos.errors.select_product"))
       return
     }
 
     const quantidade = Number(form.quantidade)
     if (quantidade < 1) {
-      alert("A quantidade deve ser pelo menos 1")
+      alert(t("dashboard.consertos.errors.min_quantity"))
       return
     }
 
     const produtoSelecionado = produtos.find(p => p.id === form.produtoId)
     if (produtoSelecionado && quantidade > produtoSelecionado.quantidade_disponivel) {
-      alert(`Quantidade insuficiente. Disponível: ${produtoSelecionado.quantidade_disponivel}`)
+      alert(t("dashboard.consertos.errors.insufficient_quantity", { count: produtoSelecionado.quantidade_disponivel }))
       return
     }
 
@@ -288,7 +290,7 @@ function ConsertosList({
       })
       router.refresh()
     } catch (err: any) {
-      alert(err.message || "Erro ao criar ordem de conserto")
+      alert(err.message || t("dashboard.consertos.errors.create_order"))
     } finally {
       setLoading(false)
     }
@@ -374,31 +376,31 @@ function ConsertosList({
     const filteredConsertos = getFilteredConsertos()
 
     if (filteredConsertos.length === 0) {
-      alert("Nenhum conserto encontrado com os filtros selecionados.")
+      alert(t("dashboard.consertos.actions.no_results_export"))
       return
     }
 
     const doc = new jsPDF()
     doc.setFontSize(14)
-    doc.text("Relatório de Consertos", 14, 16)
+    doc.text(t("dashboard.consertos.export.report_title"), 14, 16)
     doc.setFontSize(10)
-    doc.text(`Gerado em ${format(new Date(), "dd/MM/yyyy HH:mm", { locale: ptBR })}`, 14, 22)
+    doc.text(t("dashboard.consertos.export.generated_at", { date: format(new Date(), "dd/MM/yyyy HH:mm", { locale: dateLocale }) }), 14, 22)
 
     // Adicionar informações dos filtros aplicados
     let yPos = 28
     const filtersApplied: string[] = []
     if (exportFilters.prioridade !== "todas") {
-      filtersApplied.push(`Prioridade: ${exportFilters.prioridade}`)
+      filtersApplied.push(t("dashboard.consertos.export.filter_priority", { value: t(`dashboard.consertos.priority.${exportFilters.prioridade}`) }))
     }
     if (exportFilters.status !== "todos") {
-      filtersApplied.push(`Status: ${getStatusLabel(exportFilters.status)}`)
+      filtersApplied.push(t("dashboard.consertos.export.filter_status", { value: getStatusLabel(exportFilters.status) }))
     }
     if (exportFilters.produtoId) {
       const produto = produtos.find((p) => p.id === exportFilters.produtoId)
-      if (produto) filtersApplied.push(`Produto: ${produto.nome}`)
+      if (produto) filtersApplied.push(t("dashboard.consertos.export.filter_product", { value: produto.nome }))
     }
     if (exportFilters.local.trim()) {
-      filtersApplied.push(`Local: ${exportFilters.local}`)
+      filtersApplied.push(t("dashboard.consertos.export.filter_location", { value: exportFilters.local }))
     }
     if (exportFilters.dataEnvioInicio || exportFilters.dataEnvioFim) {
       const inicio = exportFilters.dataEnvioInicio
@@ -407,7 +409,7 @@ function ConsertosList({
       const fim = exportFilters.dataEnvioFim
         ? format(new Date(exportFilters.dataEnvioFim), "dd/MM/yyyy")
         : "..."
-      filtersApplied.push(`Data Envio: ${inicio} a ${fim}`)
+      filtersApplied.push(t("dashboard.consertos.export.filter_send_date", { start: inicio, end: fim }))
     }
     if (exportFilters.dataRetornoInicio || exportFilters.dataRetornoFim) {
       const inicio = exportFilters.dataRetornoInicio
@@ -416,12 +418,12 @@ function ConsertosList({
       const fim = exportFilters.dataRetornoFim
         ? format(new Date(exportFilters.dataRetornoFim), "dd/MM/yyyy")
         : "..."
-      filtersApplied.push(`Data Retorno: ${inicio} a ${fim}`)
+      filtersApplied.push(t("dashboard.consertos.export.filter_return_date", { start: inicio, end: fim }))
     }
 
     if (filtersApplied.length > 0) {
       doc.setFontSize(8)
-      doc.text(`Filtros: ${filtersApplied.join(" | ")}`, 14, yPos)
+      doc.text(t("dashboard.consertos.export.filters_applied", { filters: filtersApplied.join(" | ") }), 14, yPos)
       yPos += 6
     }
 
@@ -441,7 +443,16 @@ function ConsertosList({
 
     autoTable(doc, {
       startY: yPos + 4,
-      head: [["Produto", "Status", "Prioridade", "Local", "Prazo", "Data Envio", "Data Retorno", "Custo"]],
+      head: [[
+        t("dashboard.consertos.export.headers.product"),
+        t("dashboard.consertos.export.headers.status"),
+        t("dashboard.consertos.export.headers.priority"),
+        t("dashboard.consertos.export.headers.location"),
+        t("dashboard.consertos.export.headers.deadline"),
+        t("dashboard.consertos.export.headers.send_date"),
+        t("dashboard.consertos.export.headers.return_date"),
+        t("dashboard.consertos.export.headers.cost")
+      ]],
       body: rows,
       styles: { fontSize: 8 },
       headStyles: { fillColor: [17, 24, 39] },
@@ -461,7 +472,7 @@ function ConsertosList({
       // Data e página
       doc.setFontSize(8)
       doc.text(
-        `Gerado em ${format(agora, "dd/MM/yyyy HH:mm", { locale: ptBR })} - Página ${i} de ${pageCount}`,
+        t("dashboard.consertos.export.footer_page", { date: format(agora, "dd/MM/yyyy HH:mm", { locale: dateLocale }), current: i, total: pageCount }),
         14,
         pageHeight - 20
       )
@@ -469,7 +480,7 @@ function ConsertosList({
       // Rodapé padrão
       doc.setFontSize(7)
       doc.text(
-        "Gerado por Almox Fácil",
+        t("dashboard.consertos.export.footer_generated_by"),
         pageWidth / 2,
         pageHeight - 15,
         { align: "center" }
@@ -490,9 +501,9 @@ function ConsertosList({
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      aguardando: "Aguardando",
-      em_andamento: "Em Andamento",
-      concluido: "Concluído",
+      aguardando: t("dashboard.consertos.status.waiting"),
+      em_andamento: t("dashboard.consertos.status.in_progress"),
+      concluido: t("dashboard.consertos.status.completed"),
     }
     return labels[status] || status
   }
@@ -513,13 +524,13 @@ function ConsertosList({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
           <DialogTrigger asChild>
-            <Button variant="outline">Exportar PDF</Button>
+            <Button variant="outline">{t("dashboard.consertos.export_pdf")}</Button>
           </DialogTrigger>
           <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Filtros de Exportação</DialogTitle>
+              <DialogTitle>{t("dashboard.consertos.export.title")}</DialogTitle>
               <DialogDescription>
-                Selecione os filtros para exportar apenas os consertos desejados. Deixe em branco para exportar todos.
+                {t("dashboard.consertos.export.desc")}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -536,10 +547,10 @@ function ConsertosList({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todas">Todas</SelectItem>
-                      <SelectItem value="alta">Alta</SelectItem>
-                      <SelectItem value="media">Média</SelectItem>
-                      <SelectItem value="baixa">Baixa</SelectItem>
+                      <SelectItem value="todas">{t("dashboard.consertos.priority.all")}</SelectItem>
+                      <SelectItem value="alta">{t("dashboard.consertos.priority.high")}</SelectItem>
+                      <SelectItem value="media">{t("dashboard.consertos.priority.medium")}</SelectItem>
+                      <SelectItem value="baixa">{t("dashboard.consertos.priority.low")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -556,17 +567,17 @@ function ConsertosList({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="aguardando">Aguardando</SelectItem>
-                      <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                      <SelectItem value="concluido">Concluído</SelectItem>
+                      <SelectItem value="todos">{t("dashboard.consertos.status.all")}</SelectItem>
+                      <SelectItem value="aguardando">{t("dashboard.consertos.status.waiting")}</SelectItem>
+                      <SelectItem value="em_andamento">{t("dashboard.consertos.status.in_progress")}</SelectItem>
+                      <SelectItem value="concluido">{t("dashboard.consertos.status.completed")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="grid gap-2">
-                <Label>Produto (Opcional)</Label>
+                <Label>{t("dashboard.consertos.export.product")}</Label>
                 <Select
                   value={exportFilters.produtoId || "todos"}
                   onValueChange={(val: string) =>
@@ -574,10 +585,10 @@ function ConsertosList({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione um produto (opcional)" />
+                    <SelectValue placeholder={t("dashboard.consertos.export.product_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="todos">Todos os produtos</SelectItem>
+                    <SelectItem value="todos">{t("dashboard.consertos.export.all_products")}</SelectItem>
                     {produtos.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
                         {p.nome}
@@ -588,9 +599,9 @@ function ConsertosList({
               </div>
 
               <div className="grid gap-2">
-                <Label>Local de Conserto (Opcional)</Label>
+                <Label>{t("dashboard.consertos.export.location")}</Label>
                 <Input
-                  placeholder="Digite o local (ex: Oficina, Fornecedor)"
+                  placeholder={t("dashboard.consertos.export.location_placeholder")}
                   value={exportFilters.local}
                   onChange={(e) =>
                     setExportFilters((f) => ({ ...f, local: e.target.value }))
@@ -599,10 +610,10 @@ function ConsertosList({
               </div>
 
               <div className="grid gap-2">
-                <Label className="text-sm font-semibold">Período de Envio</Label>
+                <Label className="text-sm font-semibold">{t("dashboard.consertos.export.send_period")}</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="grid gap-1">
-                    <Label className="text-xs text-muted-foreground">Data Início</Label>
+                    <Label className="text-xs text-muted-foreground">{t("dashboard.consertos.export.start_date")}</Label>
                     <Input
                       type="date"
                       value={exportFilters.dataEnvioInicio}
@@ -627,10 +638,10 @@ function ConsertosList({
               </div>
 
               <div className="grid gap-2">
-                <Label className="text-sm font-semibold">Período de Retorno</Label>
+                <Label className="text-sm font-semibold">{t("dashboard.consertos.export.return_period")}</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="grid gap-1">
-                    <Label className="text-xs text-muted-foreground">Data Início</Label>
+                    <Label className="text-xs text-muted-foreground">{t("dashboard.consertos.export.start_date")}</Label>
                     <Input
                       type="date"
                       value={exportFilters.dataRetornoInicio}
@@ -656,7 +667,7 @@ function ConsertosList({
 
               <div className="bg-muted p-3 rounded-md">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Total de consertos que serão exportados:</strong> {getFilteredConsertos().length}
+                  <strong>{t("dashboard.consertos.export.total_to_export")}</strong> {getFilteredConsertos().length}
                 </p>
               </div>
             </div>
@@ -677,32 +688,33 @@ function ConsertosList({
                   })
                 }}
               >
-                Limpar Filtros
+
+                {t("dashboard.consertos.actions.clear_filters")}
               </Button>
               <Button type="button" variant="outline" onClick={() => setOpenExportDialog(false)}>
-                Cancelar
+                {t("dashboard.consertos.actions.cancel")}
               </Button>
               <Button onClick={handleExportPDF} disabled={getFilteredConsertos().length === 0}>
-                Exportar PDF
+                {t("dashboard.consertos.export_pdf")}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
         <Dialog open={openNew} onOpenChange={setOpenNew}>
           <DialogTrigger asChild>
-            <Button onClick={() => setOpenNew(true)}>Adicionar Produto para Conserto</Button>
+            <Button onClick={() => setOpenNew(true)}>{t("dashboard.consertos.new_button")}</Button>
           </DialogTrigger>
           <DialogContent>
             <form onSubmit={handleNovaOrdem}>
               <DialogHeader>
-                <DialogTitle>Nova Ordem de Conserto</DialogTitle>
-                <DialogDescription>Selecione o produto e detalhes do conserto.</DialogDescription>
+                <DialogTitle>{t("dashboard.consertos.form.title")}</DialogTitle>
+                <DialogDescription>{t("dashboard.consertos.form.desc")}</DialogDescription>
               </DialogHeader>
               <div className="grid gap-3 py-4">
                 <div className="grid gap-2">
-                  <Label>Produto</Label>
+                  <Label>{t("dashboard.consertos.form.product")}</Label>
                   <Input
-                    placeholder="Digite o nome do produto"
+                    placeholder={t("dashboard.consertos.form.product_placeholder")}
                     value={form.produto}
                     onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "", quantidade: "1" }))}
                   />
@@ -723,7 +735,7 @@ function ConsertosList({
                           <div className="flex items-center justify-between">
                             <span className="dark:text-zinc-100">{p.nome}</span>
                             <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                              {p.quantidade_disponivel || 0} disponíveis
+                              {t("dashboard.consertos.form.available", { count: p.quantidade_disponivel || 0 })}
                             </span>
                           </div>
                         </button>
@@ -733,44 +745,44 @@ function ConsertosList({
                 </div>
                 {form.produtoId && (
                   <div className="grid gap-2">
-                    <Label>Quantidade para Conserto</Label>
+                    <Label>{t("dashboard.consertos.form.quantity")}</Label>
                     <Input
                       type="number"
                       min="1"
                       max={produtos.find(p => p.id === form.produtoId)?.quantidade_disponivel || 1}
                       value={form.quantidade}
                       onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
-                      placeholder="Quantidade"
+                      placeholder={t("dashboard.consertos.form.quantity")}
                       required
                     />
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Disponível: {produtos.find(p => p.id === form.produtoId)?.quantidade_disponivel || 0} unidades
+                      {t("dashboard.consertos.form.units", { count: produtos.find(p => p.id === form.produtoId)?.quantidade_disponivel || 0 })}
                     </p>
                   </div>
                 )}
                 <div className="grid gap-2">
-                  <Label>Status</Label>
+                  <Label>{t("dashboard.consertos.form.status")}</Label>
                   <Select value={form.status} onValueChange={(val: any) => setForm((f) => ({ ...f, status: val }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="aguardando">Aguardando</SelectItem>
-                      <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                      <SelectItem value="concluido">Concluído</SelectItem>
+                      <SelectItem value="aguardando">{t("dashboard.consertos.status.waiting")}</SelectItem>
+                      <SelectItem value="em_andamento">{t("dashboard.consertos.status.in_progress")}</SelectItem>
+                      <SelectItem value="concluido">{t("dashboard.consertos.status.completed")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label>Local / Responsável</Label>
+                  <Label>{t("dashboard.consertos.form.location")}</Label>
                   <Input
-                    placeholder="Oficina, fornecedor, setor"
+                    placeholder={t("dashboard.consertos.form.location_placeholder")}
                     value={form.local}
                     onChange={(e) => setForm((f) => ({ ...f, local: e.target.value }))}
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label>Prazo previsto</Label>
+                  <Label>{t("dashboard.consertos.form.deadline")}</Label>
                   <Input
                     type="date"
                     value={form.prazo}
@@ -778,7 +790,7 @@ function ConsertosList({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label>Prioridade</Label>
+                  <Label>{t("dashboard.consertos.form.priority")}</Label>
                   <Select
                     value={form.prioridade}
                     onValueChange={(val: any) => setForm((f) => ({ ...f, prioridade: val }))}
@@ -787,16 +799,16 @@ function ConsertosList({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="baixa">Baixa</SelectItem>
-                      <SelectItem value="media">Média</SelectItem>
-                      <SelectItem value="alta">Alta</SelectItem>
+                      <SelectItem value="baixa">{t("dashboard.consertos.priority.low")}</SelectItem>
+                      <SelectItem value="media">{t("dashboard.consertos.priority.medium")}</SelectItem>
+                      <SelectItem value="alta">{t("dashboard.consertos.priority.high")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label>Descrição</Label>
+                  <Label>{t("dashboard.consertos.form.description")}</Label>
                   <Input
-                    placeholder="Detalhes do defeito ou observações"
+                    placeholder={t("dashboard.consertos.form.description_placeholder")}
                     value={form.descricao}
                     onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))}
                   />
@@ -804,10 +816,10 @@ function ConsertosList({
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpenNew(false)}>
-                  Cancelar
+                  {t("dashboard.consertos.actions.cancel")}
                 </Button>
                 <Button type="submit" disabled={loading || !form.produtoId}>
-                  {loading ? "Salvando..." : "Salvar"}
+                  {loading ? t("dashboard.consertos.actions.processing") : t("dashboard.consertos.form.save")}
                 </Button>
               </DialogFooter>
             </form>
@@ -817,7 +829,7 @@ function ConsertosList({
       {/* Consertos Abertos */}
       {consertosAbertos.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Consertos em Aberto</h2>
+          <h2 className="text-xl font-semibold">{t("dashboard.consertos.open_repairs")}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
             {consertosAbertos.map((conserto) => (
               <Card key={conserto.id} className="flex h-full flex-col">
@@ -881,7 +893,7 @@ function ConsertosList({
                           disabled={statusLoadingId === conserto.id}
                           onClick={() => handleAtualizarStatus(conserto.id, "em_andamento")}
                         >
-                          {statusLoadingId === conserto.id ? "Atualizando..." : "Marcar em andamento"}
+                          {statusLoadingId === conserto.id ? t("dashboard.consertos.actions.processing") : t("dashboard.consertos.actions.mark_in_progress")}
                         </Button>
                       )}
 
@@ -890,7 +902,7 @@ function ConsertosList({
                           className="w-full"
                           onClick={() => setRetornoDialog(conserto)}
                         >
-                          Registrar Retorno
+                          {t("dashboard.consertos.actions.register_return")}
                         </Button>
                       )}
                     </div>
@@ -905,7 +917,7 @@ function ConsertosList({
       {/* Consertos Concluídos */}
       {consertosConcluidos.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Consertos Concluídos</h2>
+          <h2 className="text-xl font-semibold">{t("dashboard.consertos.completed_repairs")}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
             {consertosConcluidos.map((conserto) => (
               <Card key={conserto.id} className="flex h-full flex-col">
@@ -949,9 +961,9 @@ function ConsertosList({
                         )}
                         {conserto.data_retorno && (
                           <p className="text-sm text-muted-foreground">
-                            Retornou em{" "}
+                            {t("dashboard.consertos.labels.returned_at")}{" "}
                             {format(new Date(conserto.data_retorno), "dd/MM/yyyy", {
-                              locale: ptBR,
+                              locale: dateLocale,
                             })}
                           </p>
                         )}
@@ -972,7 +984,7 @@ function ConsertosList({
 
                     {conserto.custo && (
                       <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-auto">
-                        <span className="text-sm font-medium">Custo:</span>
+                        <span className="text-sm font-medium">{t("dashboard.consertos.labels.cost")}:</span>
                         <span className="text-sm font-semibold">
                           R$ {conserto.custo.toFixed(2)}
                         </span>
@@ -988,7 +1000,7 @@ function ConsertosList({
 
       {consertos.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          Nenhum conserto registrado
+          {t("dashboard.consertos.no_repairs")}
         </div>
       )}
 
@@ -1003,14 +1015,14 @@ function ConsertosList({
           <DialogContent>
             <form onSubmit={handleRetorno}>
               <DialogHeader>
-                <DialogTitle>Registrar Retorno de Conserto</DialogTitle>
+                <DialogTitle>{t("dashboard.consertos.return.title")}</DialogTitle>
                 <DialogDescription>
-                  Ferramenta: {parseFerramenta(retornoDialog.ferramentas).nome}
+                  {t("dashboard.consertos.return.tool_label", { name: parseFerramenta(retornoDialog.ferramentas).nome })}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="custo">Custo do Conserto (R$)</Label>
+                  <Label htmlFor="custo">{t("dashboard.consertos.return.cost")}</Label>
                   <Input
                     id="custo"
                     name="custo"
@@ -1021,7 +1033,7 @@ function ConsertosList({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="quantidade">Quantidade Retornada</Label>
+                  <Label htmlFor="quantidade">{t("dashboard.consertos.return.quantity")}</Label>
                   <Input
                     id="quantidade"
                     name="quantidade"
@@ -1033,8 +1045,8 @@ function ConsertosList({
                   />
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     {quantidadeEmConserto > 0
-                      ? `${quantidadeEmConserto} unidade(s) ainda em conserto`
-                      : "Carregando..."}
+                      ? t("dashboard.consertos.return.in_repair_count", { count: quantidadeEmConserto })
+                      : t("dashboard.consertos.actions.loading")}
                   </p>
                 </div>
               </div>
@@ -1044,10 +1056,10 @@ function ConsertosList({
                   variant="outline"
                   onClick={() => setRetornoDialog(null)}
                 >
-                  Cancelar
+                  {t("dashboard.consertos.actions.cancel")}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Processando..." : "Confirmar Retorno"}
+                  {loading ? t("dashboard.consertos.actions.processing") : t("dashboard.consertos.return.confirm")}
                 </Button>
               </DialogFooter>
             </form>

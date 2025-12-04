@@ -56,6 +56,7 @@ import { ProductPhotoUpload } from "./ProductPhotoUpload"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { FerramentasFilters, type FilterState } from "./FerramentasFilters"
+import { useTranslation } from "react-i18next"
 
 interface Ferramenta {
   id: string
@@ -87,6 +88,7 @@ function FerramentasList({
   ferramentas: Ferramenta[]
   colaboradores: Colaborador[]
 }) {
+  const { t } = useTranslation()
   const [ferramentas, setFerramentas] = useState(initialFerramentas)
 
   // Atualizar estado quando initialFerramentas mudar (após router.refresh)
@@ -483,12 +485,12 @@ function FerramentasList({
   }
 
   const getEstadoLabel = (estado: string) => {
-    const labels: Record<string, string> = {
-      ok: "OK",
-      danificada: "Danificada",
-      em_conserto: "Em Conserto",
+    const keys: Record<string, string> = {
+      ok: "dashboard.ferramentas.status.ok",
+      danificada: "dashboard.ferramentas.status.damaged",
+      em_conserto: "dashboard.ferramentas.status.in_repair",
     }
-    return labels[estado] || estado
+    return t(keys[estado] || estado)
   }
 
   return (
@@ -508,7 +510,7 @@ function FerramentasList({
             disabled={exportingCsv || filteredFerramentas.length === 0}
           >
             <FileDown className="mr-2 h-4 w-4" />
-            {exportingCsv ? "Gerando CSV..." : "Exportar CSV"}
+            {exportingCsv ? t("dashboard.ferramentas.generating_csv") : t("dashboard.ferramentas.export_csv")}
           </Button>
 
           {/* Seletor de tamanho dos cards */}
@@ -554,25 +556,25 @@ function FerramentasList({
             onClick={() => setImportModalOpen(true)}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Importar Excel
+            {t("dashboard.ferramentas.import_button")}
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditing(null)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Novo Produto
+                {t("dashboard.ferramentas.new_button")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
               <form onSubmit={handleSubmit}>
                 <DialogHeader>
                   <DialogTitle>
-                    {editing ? "Editar Produto" : "Novo Produto"}
+                    {editing ? t("dashboard.ferramentas.form.title_edit") : t("dashboard.ferramentas.form.title_new")}
                   </DialogTitle>
                   <DialogDescription>
                     {editing
-                      ? "Atualize as informações do produto"
-                      : "Adicione um novo produto ao estoque"}
+                      ? t("dashboard.ferramentas.form.desc_edit")
+                      : t("dashboard.ferramentas.form.desc_new")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -589,7 +591,7 @@ function FerramentasList({
                     />
                   )}
                   <div className="grid gap-2">
-                    <Label htmlFor="nome">Nome *</Label>
+                    <Label htmlFor="nome">{t("dashboard.ferramentas.form.name")} *</Label>
                     <Input
                       id="nome"
                       name="nome"
@@ -608,7 +610,7 @@ function FerramentasList({
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="tipo_item">Categoria</Label>
+                    <Label htmlFor="tipo_item">{t("dashboard.ferramentas.form.type")}</Label>
                     <Select
                       name="tipo_item"
                       defaultValue={editing?.tipo_item || tipoItem}
@@ -631,27 +633,27 @@ function FerramentasList({
                       required
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
+                        <SelectValue placeholder={t("dashboard.ferramentas.form.select_type")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ferramenta">Ferramenta</SelectItem>
-                        <SelectItem value="epi">EPI</SelectItem>
-                        <SelectItem value="consumivel">Consumível</SelectItem>
+                        <SelectItem value="ferramenta">{t("dashboard.ferramentas.form.tool")}</SelectItem>
+                        <SelectItem value="epi">{t("dashboard.ferramentas.form.ppe")}</SelectItem>
+                        <SelectItem value="consumivel">{t("dashboard.ferramentas.form.consumable")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="categoria">Linha/Grupo</Label>
+                      <Label htmlFor="categoria">{t("dashboard.ferramentas.form.line_group")}</Label>
                       <Input
                         id="categoria"
                         name="categoria"
-                        placeholder="Ex: Corte, Segurança"
+                        placeholder={t("dashboard.ferramentas.form.line_placeholder")}
                         defaultValue={editing?.categoria || ""}
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="codigo">Código</Label>
+                      <Label htmlFor="codigo">{t("dashboard.ferramentas.form.code")}</Label>
                       <Input
                         id="codigo"
                         name="codigo"
@@ -665,17 +667,17 @@ function FerramentasList({
                           )
                         }
                         onChange={(e) => setProductCode(e.target.value)}
-                        placeholder="Gerado automaticamente"
+                        placeholder={t("dashboard.ferramentas.form.auto_generated")}
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="tamanho">Tamanho / Medida</Label>
+                      <Label htmlFor="tamanho">{t("dashboard.ferramentas.form.size")}</Label>
                       <Input
                         id="tamanho"
                         name="tamanho"
-                        placeholder="Ex: M, 500ml, 10mm"
+                        placeholder={t("dashboard.ferramentas.form.size_placeholder")}
                         defaultValue={editing?.tamanho || ""}
                         onBlur={(e) =>
                           setProductCode(
@@ -690,11 +692,11 @@ function FerramentasList({
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="cor">Cor</Label>
+                      <Label htmlFor="cor">{t("dashboard.ferramentas.form.color")}</Label>
                       <Input
                         id="cor"
                         name="cor"
-                        placeholder="Ex: Azul, Preto"
+                        placeholder={t("dashboard.ferramentas.form.color_placeholder")}
                         defaultValue={editing?.cor || ""}
                         onBlur={(e) =>
                           setProductCode(
@@ -711,7 +713,7 @@ function FerramentasList({
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="quantidade_total">Quantidade Total *</Label>
+                      <Label htmlFor="quantidade_total">{t("dashboard.ferramentas.form.quantity_total")} *</Label>
                       <Input
                         id="quantidade_total"
                         name="quantidade_total"
@@ -722,7 +724,7 @@ function FerramentasList({
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="estado">Estado *</Label>
+                      <Label htmlFor="estado">{t("dashboard.ferramentas.form.status")} *</Label>
                       <Select
                         name="estado"
                         defaultValue={editing?.estado || "ok"}
@@ -739,25 +741,25 @@ function FerramentasList({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ok">OK</SelectItem>
-                          <SelectItem value="danificada">Danificada</SelectItem>
-                          <SelectItem value="em_conserto">Em Conserto</SelectItem>
+                          <SelectItem value="ok">{t("dashboard.ferramentas.status.ok")}</SelectItem>
+                          <SelectItem value="danificada">{t("dashboard.ferramentas.status.damaged")}</SelectItem>
+                          <SelectItem value="em_conserto">{t("dashboard.ferramentas.status.in_repair")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="ponto_ressuprimento">Estoque Mínimo</Label>
+                    <Label htmlFor="ponto_ressuprimento">{t("dashboard.ferramentas.form.min_stock")}</Label>
                     <Input
                       id="ponto_ressuprimento"
                       name="ponto_ressuprimento"
                       type="number"
                       min="0"
-                      placeholder="Ex: 5 (alerta quando estoque ≤ 5)"
+                      placeholder={t("dashboard.ferramentas.form.min_stock_placeholder")}
                       defaultValue={editing?.ponto_ressuprimento || ""}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Quando o estoque atingir este valor, você será alertado no dashboard
+                      {t("dashboard.ferramentas.form.min_stock_hint")}
                     </p>
                   </div>
                 </div>
@@ -770,10 +772,10 @@ function FerramentasList({
                       setEditing(null)
                     }}
                   >
-                    Cancelar
+                    {t("dashboard.ferramentas.form.cancel")}
                   </Button>
                   <Button type="submit" disabled={loading}>
-                    {loading ? "Salvando..." : "Salvar"}
+                    {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
                   </Button>
                 </DialogFooter>
               </form>
@@ -851,18 +853,18 @@ function FerramentasList({
                       cardSize === "medio" && "text-sm",
                       cardSize === "grande" && "text-sm"
                     )}>
-                      {ferramenta.codigo && <span>Código: {ferramenta.codigo}</span>}
+                      {ferramenta.codigo && <span>{t("dashboard.ferramentas.cards.code")}: {ferramenta.codigo}</span>}
                       {ferramenta.tipo_item && (
                         <span>
-                          Tipo:{" "}
+                          {t("dashboard.ferramentas.cards.type")}:{" "}
                           {ferramenta.tipo_item === "consumivel"
-                            ? "Consumível"
+                            ? t("dashboard.ferramentas.form.consumable")
                             : ferramenta.tipo_item === "epi"
-                              ? "EPI"
-                              : "Ferramenta"}
+                              ? t("dashboard.ferramentas.form.ppe")
+                              : t("dashboard.ferramentas.form.tool")}
                         </span>
                       )}
-                      {ferramenta.categoria && <span>Categoria: {ferramenta.categoria}</span>}
+                      {ferramenta.categoria && <span>{t("dashboard.ferramentas.cards.category")}: {ferramenta.categoria}</span>}
                     </div>
                   </div>
                   <Badge
@@ -915,13 +917,13 @@ function FerramentasList({
                   cardSize === "grande" && "text-sm"
                 )}>
                   <div>
-                    <p className="text-muted-foreground">Total</p>
+                    <p className="text-muted-foreground">{t("dashboard.ferramentas.cards.total")}</p>
                     <p className="font-semibold">
                       {ferramenta.quantidade_total}
                     </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Disponível</p>
+                    <p className="text-muted-foreground">{t("dashboard.ferramentas.cards.available")}</p>
                     <p className="font-semibold">
                       {ferramenta.quantidade_disponivel}
                     </p>
@@ -949,7 +951,7 @@ function FerramentasList({
                       cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
                       cardSize !== "pequeno" && "mr-1"
                     )} />
-                    {cardSize !== "pequeno" && "Entrada"}
+                    {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.entry")}
                   </Button>
                   {ferramenta.quantidade_disponivel > 0 && (
                     <>
@@ -970,7 +972,7 @@ function FerramentasList({
                           cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
                           cardSize !== "pequeno" && "mr-1"
                         )} />
-                        {cardSize !== "pequeno" && "Retirar"}
+                        {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.withdraw")}
                       </Button>
                       <Button
                         variant="outline"
@@ -989,7 +991,7 @@ function FerramentasList({
                           cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
                           cardSize !== "pequeno" && "mr-1"
                         )} />
-                        {cardSize !== "pequeno" && "Devolver"}
+                        {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.return")}
                       </Button>
                     </>
                   )}
@@ -1011,7 +1013,7 @@ function FerramentasList({
                         cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
                         cardSize !== "pequeno" && "mr-1"
                       )} />
-                      {cardSize !== "pequeno" && "Conserto"}
+                      {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.repair")}
                     </Button>
                   )}
                   <Button
@@ -1053,8 +1055,8 @@ function FerramentasList({
       {filteredFerramentas.length > 0 && (
         <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
           <div>
-            Mostrando {paginatedFerramentas.length} de {filteredFerramentas.length} registros
-            {totalPages > 1 && ` (Página ${currentPage} de ${totalPages})`}
+            {t("dashboard.ferramentas.pagination.showing", { count: paginatedFerramentas.length, total: filteredFerramentas.length })}
+            {totalPages > 1 && ` (${t("dashboard.ferramentas.pagination.page", { current: currentPage, total: totalPages })})`}
           </div>
           <div className="flex gap-1 items-center">
             <Button
@@ -1086,12 +1088,12 @@ function FerramentasList({
             <Package className="h-10 w-10 text-blue-500 dark:text-blue-400" />
           </div>
           <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
-            {filters.search ? "Nenhum item encontrado" : "Seu estoque está vazio"}
+            {filters.search ? t("dashboard.ferramentas.empty.no_items_title") : t("dashboard.ferramentas.empty.stock_empty_title")}
           </h3>
           <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
             {filters.search
-              ? "Tente buscar por outro termo ou limpe os filtros."
-              : "Comece cadastrando ferramentas, EPIs e consumíveis para controlar seu almoxarifado com eficiência."}
+              ? t("dashboard.ferramentas.empty.no_items_search")
+              : t("dashboard.ferramentas.empty.stock_empty_desc")}
           </p>
           {!filters.search && (
             <Button
@@ -1102,12 +1104,12 @@ function FerramentasList({
               className="bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Cadastrar Primeiro Item
+              {t("dashboard.ferramentas.empty.first_item")}
             </Button>
           )}
           {filters.search && (
             <Button variant="outline" onClick={() => setFilters({ ...filters, search: "" })}>
-              Limpar Busca
+              {t("dashboard.ferramentas.empty.clear_search")}
             </Button>
           )}
         </div>
@@ -1123,23 +1125,23 @@ function FerramentasList({
             <form onSubmit={handleAction}>
               <DialogHeader>
                 <DialogTitle>
-                  {actionDialog.type === "entrada" && "Registrar Entrada"}
-                  {actionDialog.type === "retirada" && "Registrar Retirada"}
-                  {actionDialog.type === "devolucao" && "Registrar Devolução"}
-                  {actionDialog.type === "conserto" && "Enviar para Conserto"}
+                  {actionDialog.type === "entrada" && t("dashboard.ferramentas.actions.register_entry")}
+                  {actionDialog.type === "retirada" && t("dashboard.ferramentas.actions.register_withdrawal")}
+                  {actionDialog.type === "devolucao" && t("dashboard.ferramentas.actions.register_return")}
+                  {actionDialog.type === "conserto" && t("dashboard.ferramentas.actions.send_to_repair")}
                 </DialogTitle>
                 <DialogDescription>
-                  Ferramenta: {actionDialog.ferramenta?.nome}
+                  {t("dashboard.ferramentas.actions.tool")}: {actionDialog.ferramenta?.nome}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 {(actionDialog.type === "retirada" ||
                   actionDialog.type === "devolucao") && (
                     <div className="grid gap-2">
-                      <Label htmlFor="colaborador_id">Colaborador *</Label>
+                      <Label htmlFor="colaborador_id">{t("dashboard.ferramentas.actions.collaborator")} *</Label>
                       <Select name="colaborador_id" required>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione um colaborador" />
+                          <SelectValue placeholder={t("dashboard.ferramentas.actions.select_collaborator")} />
                         </SelectTrigger>
                         <SelectContent>
                           {colaboradores.map((col) => (
@@ -1152,7 +1154,7 @@ function FerramentasList({
                     </div>
                   )}
                 <div className="grid gap-2">
-                  <Label htmlFor="quantidade">Quantidade *</Label>
+                  <Label htmlFor="quantidade">{t("dashboard.ferramentas.actions.quantity")} *</Label>
                   <Input
                     id="quantidade"
                     name="quantidade"
@@ -1172,47 +1174,47 @@ function FerramentasList({
                 {actionDialog.type === "conserto" && (
                   <>
                     <div className="grid gap-2">
-                      <Label htmlFor="status_conserto">Status</Label>
+                      <Label htmlFor="status_conserto">{t("dashboard.ferramentas.actions.status")}</Label>
                       <Select name="status_conserto" defaultValue="aguardando">
                         <SelectTrigger>
-                          <SelectValue placeholder="Status do conserto" />
+                          <SelectValue placeholder={t("dashboard.ferramentas.actions.repair_status_placeholder")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="aguardando">Aguardando</SelectItem>
-                          <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                          <SelectItem value="concluido">Concluído</SelectItem>
+                          <SelectItem value="aguardando">{t("dashboard.consertos.status.waiting")}</SelectItem>
+                          <SelectItem value="em_andamento">{t("dashboard.consertos.status.in_progress")}</SelectItem>
+                          <SelectItem value="concluido">{t("dashboard.consertos.status.completed")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="local_conserto">Local / Responsável</Label>
-                      <Input id="local_conserto" name="local_conserto" placeholder="Ex: Oficina interna, Fornecedor X" />
+                      <Label htmlFor="local_conserto">{t("dashboard.ferramentas.actions.location")}</Label>
+                      <Input id="local_conserto" name="local_conserto" placeholder={t("dashboard.ferramentas.actions.location_placeholder")} />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="prazo_conserto">Prazo previsto</Label>
+                      <Label htmlFor="prazo_conserto">{t("dashboard.ferramentas.actions.deadline")}</Label>
                       <Input id="prazo_conserto" name="prazo_conserto" type="date" />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="prioridade_conserto">Prioridade</Label>
+                      <Label htmlFor="prioridade_conserto">{t("dashboard.ferramentas.actions.priority")}</Label>
                       <Select name="prioridade_conserto" defaultValue="media">
                         <SelectTrigger>
-                          <SelectValue placeholder="Prioridade" />
+                          <SelectValue placeholder={t("dashboard.ferramentas.actions.priority")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="baixa">Baixa</SelectItem>
-                          <SelectItem value="media">Média</SelectItem>
-                          <SelectItem value="alta">Alta</SelectItem>
+                          <SelectItem value="baixa">{t("dashboard.ferramentas.actions.priority_low")}</SelectItem>
+                          <SelectItem value="media">{t("dashboard.ferramentas.actions.priority_medium")}</SelectItem>
+                          <SelectItem value="alta">{t("dashboard.ferramentas.actions.priority_high")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </>
                 )}
                 <div className="grid gap-2">
-                  <Label htmlFor="observacoes">Observações</Label>
+                  <Label htmlFor="observacoes">{t("dashboard.ferramentas.actions.observations")}</Label>
                   <Input
                     id="observacoes"
                     name="observacoes"
-                    placeholder="Opcional"
+                    placeholder={t("dashboard.ferramentas.actions.optional")}
                   />
                 </div>
               </div>
@@ -1222,10 +1224,10 @@ function FerramentasList({
                   variant="outline"
                   onClick={() => setActionDialog(null)}
                 >
-                  Cancelar
+                  {t("dashboard.ferramentas.form.cancel")}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Processando..." : "Confirmar"}
+                  {loading ? t("dashboard.ferramentas.actions.processing") : t("dashboard.ferramentas.actions.confirm")}
                 </Button>
               </DialogFooter>
             </form>

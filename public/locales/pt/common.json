@@ -271,67 +271,121 @@
         },
         "colaboradores": {
             "title": "Colaboradores",
-            "subtitle": "Gerencie os colaboradores do seu almoxarifado",
+            "subtitle": "Gerencie sua equipe e controle a distribuição de EPIs",
             "new_button": "Novo Colaborador",
             "import_button": "Importar Excel",
-            "export_button": "Exportar PDF",
-            "search_placeholder": "Buscar por nome, email, telefone ou CPF...",
+            "export_button": "Exportar CSV",
             "filters": {
+                "search_placeholder": "Buscar...",
                 "role": "Cargo",
                 "all_roles": "Todos os Cargos",
-                "admission_date": "Data de Admissão",
-                "start_date": "Data Início",
-                "end_date": "Data Fim",
-                "sort_by": "Ordenar por",
-                "order": "Ordem",
-                "asc": "Crescente",
-                "desc": "Decrescente"
+                "admission_start": "Início Admissão",
+                "admission_end": "Fim Admissão",
+                "clear": "Limpar Filtros",
+                "advanced_filters": "Filtros Avançados",
+                "active_filters": "Filtros ativos:",
+                "from": "De",
+                "to": "Até",
+                "created_at": "Data Cadastro",
+                "found_count": "{{count}} colaborador encontrado",
+                "found_count_plural": "{{count}} colaboradores encontrados"
             },
             "table": {
                 "name": "Nome",
                 "role": "Cargo",
-                "contact": "Contato",
-                "admission": "Admissão",
+                "email": "Email",
+                "phone": "Telefone",
                 "status": "Status",
-                "actions": "Ações",
-                "no_role": "Sem cargo",
-                "active": "Ativo",
-                "inactive": "Inativo"
+                "actions": "Ações"
             },
             "form": {
                 "title_new": "Novo Colaborador",
                 "title_edit": "Editar Colaborador",
-                "desc_new": "Cadastre um novo colaborador no sistema",
-                "desc_edit": "Atualize os dados do colaborador",
-                "name": "Nome Completo",
-                "role": "Cargo",
-                "email": "Email",
-                "phone": "Telefone",
-                "cpf": "CPF",
-                "address": "Endereço",
+                "desc": "Preencha os dados do colaborador.",
+                "personal_info": "Informações Pessoais",
+                "name_placeholder": "Digite o nome completo",
+                "role_placeholder": "Digite o cargo",
+                "contact": "Contato",
+                "email_placeholder": "Digite o email",
+                "phone_placeholder": "Digite o telefone",
+                "docs_address": "Documentos e Endereço",
+                "cpf_placeholder": "Digite o CPF",
+                "address_placeholder": "Digite o endereço completo",
                 "admission_date": "Data de Admissão",
                 "observations": "Observações",
-                "photo": "Foto",
-                "upload_photo": "Carregar foto",
-                "remove_photo": "Remover foto",
-                "save": "Salvar Colaborador",
-                "cancel": "Cancelar"
+                "photo": "Foto do Perfil",
+                "photo_hint": "Clique para alterar",
+                "save": "Salvar",
+                "saving": "Salvando...",
+                "cancel": "Cancelar",
+                "duplicate_title": "Este nome já existe ou é muito similar a:",
+                "duplicate_confirm": "Deseja cadastrar mesmo assim?",
+                "duplicate_yes": "Sim, cadastrar duplicado",
+                "duplicate_no": "Não, cancelar",
+                "error_save": "Erro ao salvar colaborador"
             },
             "card": {
                 "withdrawals": "Retiradas",
                 "returns": "Devoluções",
                 "pending": "Pendentes",
                 "return_rate": "Taxa de Devolução",
-                "view_details": "Ver Detalhes"
+                "view_details": "Ver Detalhes",
+                "edit": "Editar",
+                "delete": "Excluir",
+                "confirm_delete": "Tem certeza que deseja excluir este colaborador?",
+                "error_delete": "Erro ao excluir colaborador"
             },
             "details": {
                 "title": "Ficha do Colaborador",
-                "personal_data": "Dados Pessoais",
-                "statistics": "Estatísticas",
-                "active_epis": "EPIs Ativos",
-                "history": "Histórico",
-                "no_active_epis": "Nenhum EPI ativo no momento",
-                "print_file": "Imprimir Ficha"
+                "personal_data": "DADOS PESSOAIS",
+                "statistics": "ESTATÍSTICAS",
+                "active_epis": "EPIS EM POSSE (ATIVOS)",
+                "history": "HISTÓRICO RECENTE",
+                "no_active_epis": "Nenhum EPI em posse no momento",
+                "no_history": "Nenhuma movimentação registrada",
+                "print_file": "Baixar PDF",
+                "close": "Fechar",
+                "generated_at": "Gerado em:",
+                "file_title": "Ficha de Colaborador - {{name}}",
+                "error_pdf": "Erro ao gerar PDF",
+                "generating_pdf": "Gerando PDF...",
+                "no_date": "Sem data",
+                "table": {
+                    "item": "Item",
+                    "qty": "Qtd",
+                    "withdrawal": "Retirada",
+                    "validity": "Validade",
+                    "status": "Status",
+                    "date": "Data/Hora",
+                    "type": "Tipo",
+                    "obs": "Observação"
+                },
+                "stats": {
+                    "total_withdrawals": "Total de Retiradas",
+                    "total_returns": "Total de Devoluções",
+                    "pending_items": "Itens Pendentes",
+                    "return_rate": "Taxa de Devolução",
+                    "metric": "Métrica",
+                    "value": "Valor",
+                    "field": "Campo"
+                }
+            },
+            "actions": {
+                "selected_count": "{{count}} selecionada(s)",
+                "export_selected": "Exportar selecionados",
+                "clear_selection": "Limpar seleção",
+                "print": "Imprimir"
+            },
+            "empty": {
+                "no_results": "Nenhum colaborador encontrado",
+                "no_records": "Nenhum colaborador cadastrado",
+                "adjust_filters": "Tente ajustar os filtros ou buscar por outro termo.",
+                "start_registering": "Cadastre seus colaboradores para controlar retiradas e devoluções."
+            },
+            "import": {
+                "title": "Importar Colaboradores",
+                "description": "Importe colaboradores a partir de uma planilha Excel ou CSV",
+                "error_creating": "Linha {{line}}: {{error}}"
             }
         },
         "movimentacoes": {
@@ -372,7 +426,43 @@
                 "date": "Data/Hora",
                 "observations": "Observações",
                 "request_signature": "Solicitar assinatura digital",
-                "save": "Registrar Movimentação"
+                "save": "Registrar Movimentação",
+                "select_product": "Selecione um produto da lista",
+                "select_collaborator": "Selecione um colaborador",
+                "success": "Movimentação registrada com sucesso!",
+                "error": "Erro ao registrar movimentação",
+                "collaborator_hint": "Escolha o colaborador responsável pela retirada/devolução.",
+                "date_hint": "Se preferir, ajuste a data/hora. Por padrão usamos agora."
+            },
+            "actions": {
+                "show_all": "Mostrar todas as movimentações",
+                "show_starred": "Mostrar apenas favoritas",
+                "export_selected": "Exportar selecionados",
+                "clear_selection": "Limpar seleção",
+                "print": "Imprimir",
+                "export_csv": "Exportar CSV",
+                "export_filters_title": "Filtros de Exportação",
+                "export_filters_desc": "Selecione os filtros para exportar as movimentações em CSV",
+                "no_results_export": "Nenhuma movimentação encontrada com os filtros selecionados",
+                "select_one": "Selecione pelo menos uma movimentação.",
+                "export_error": "Erro ao exportar CSV",
+                "export_count": "{{count}} movimentação(ões) serão exportadas",
+                "selected_count": "{{count}} selecionada(s)",
+                "add_favorite": "Favoritar movimentação",
+                "remove_favorite": "Remover dos favoritos"
+            },
+            "empty": {
+                "no_results": "Nenhuma movimentação encontrada",
+                "no_records": "Nenhuma movimentação registrada",
+                "adjust_filters": "Tente ajustar os filtros ou buscar por outro termo.",
+                "start_registering": "Registre entradas, saídas e devoluções para manter o histórico do seu almoxarifado sempre atualizado."
+            },
+            "import": {
+                "title": "Importar Movimentações",
+                "description": "Importe movimentações a partir de uma planilha Excel ou CSV. Use o nome exato do produto e colaborador.",
+                "product_not_found": "Linha {{line}}: Produto \"{{name}}\" não encontrado",
+                "collaborator_not_found": "Linha {{line}}: Colaborador \"{{name}}\" não encontrado",
+                "error_creating": "Linha {{line}}: {{error}}"
             }
         },
         "conta": {
@@ -501,12 +591,15 @@
                 "sent": "Enviado",
                 "location": "Local",
                 "cost": "Custo",
-                "no_deadline": "Sem prazo"
+                "no_deadline": "Sem prazo",
+                "returned_at": "Retornou em"
             },
             "actions": {
                 "register_return": "Registrar Retorno",
                 "clear_filters": "Limpar Filtros",
-                "cancel": "Cancelar"
+                "cancel": "Cancelar",
+                "mark_in_progress": "Marcar em andamento",
+                "loading": "Carregando..."
             },
             "form": {
                 "title": "Nova Ordem de Conserto",
@@ -528,10 +621,21 @@
             "return": {
                 "title": "Registrar Retorno",
                 "desc": "Item retornando do conserto",
-                "quantity": "Quantidade a retornar",
+                "quantity": "Quantidade retornando",
                 "in_repair": "Em conserto",
                 "cost": "Custo do conserto (R$)",
-                "confirm": "Confirmar Retorno"
+                "confirm": "Confirmar Retorno",
+                "tool_label": "Ferramenta: {{name}}",
+                "in_repair_count": "{{count}} unidade(s) ainda em conserto"
+            },
+            "errors": {
+                "min_quantity": "A quantidade deve ser pelo menos 1",
+                "invalid_quantity": "Quantidade inválida. Ainda em conserto: {{count}}",
+                "register_return": "Erro ao registrar retorno",
+                "update_status": "Erro ao atualizar status",
+                "select_product": "Selecione um produto",
+                "insufficient_quantity": "Quantidade insuficiente. Disponível: {{count}}",
+                "create_order": "Erro ao criar ordem de conserto"
             },
             "export": {
                 "title": "Filtros de Exportação",
@@ -546,7 +650,28 @@
                 "return_period": "Período de Retorno",
                 "start_date": "Data Início",
                 "end_date": "Data Fim",
-                "total_to_export": "Total de consertos que serão exportados:"
+                "total_to_export": "Total de consertos que serão exportados:",
+                "report_title": "Relatório de Consertos",
+                "generated_at": "Gerado em {{date}}",
+                "filter_priority": "Prioridade: {{value}}",
+                "filter_status": "Status: {{value}}",
+                "filter_product": "Produto: {{value}}",
+                "filter_location": "Local: {{value}}",
+                "filter_send_date": "Data Envio: {{start}} a {{end}}",
+                "filter_return_date": "Data Retorno: {{start}} a {{end}}",
+                "filters_applied": "Filtros: {{filters}}",
+                "headers": {
+                    "product": "Produto",
+                    "status": "Status",
+                    "priority": "Prioridade",
+                    "location": "Local",
+                    "deadline": "Prazo",
+                    "send_date": "Data Envio",
+                    "return_date": "Data Retorno",
+                    "cost": "Custo"
+                },
+                "footer_page": "Gerado em {{date}} - Página {{current}} de {{total}}",
+                "footer_generated_by": "Gerado por Almox Fácil"
             }
         },
         "ferramentas": {
@@ -554,7 +679,8 @@
             "subtitle": "Gerencie suas ferramentas e produtos",
             "new_button": "Novo Produto",
             "import_button": "Importar Excel",
-            "export_button": "Exportar PDF",
+            "export_csv": "Exportar CSV",
+            "generating_csv": "Gerando CSV...",
             "search_placeholder": "Buscar produtos...",
             "filters": {
                 "category": "Categoria",
@@ -573,23 +699,139 @@
             "form": {
                 "title_new": "Novo Produto",
                 "title_edit": "Editar Produto",
-                "desc_new": "Cadastre um novo produto no estoque",
-                "desc_edit": "Atualize os dados do produto",
+                "desc_new": "Adicione um novo produto ao estoque",
+                "desc_edit": "Atualize as informações do produto",
                 "name": "Nome",
-                "category": "Categoria",
-                "quantity": "Quantidade Disponível",
+                "type": "Categoria",
+                "select_type": "Selecione o tipo",
+                "tool": "Ferramenta",
+                "ppe": "EPI",
+                "consumable": "Consumível",
+                "line_group": "Linha/Grupo",
+                "line_placeholder": "Ex: Corte, Segurança",
+                "code": "Código",
+                "auto_generated": "Gerado automaticamente",
+                "size": "Tamanho / Medida",
+                "size_placeholder": "Ex: M, 500ml, 10mm",
+                "color": "Cor",
+                "color_placeholder": "Ex: Azul, Preto",
+                "quantity_total": "Quantidade Total",
+                "status": "Estado",
                 "min_stock": "Estoque Mínimo",
-                "unit": "Unidade",
-                "expiry_date": "Data de Validade",
-                "ca_number": "Número do CA (EPI)",
+                "min_stock_placeholder": "Ex: 5 (alerta quando estoque ≤ 5)",
+                "min_stock_hint": "Quando o estoque atingir este valor, você será alertado no dashboard",
                 "observations": "Observações",
-                "save": "Salvar Produto"
+                "cancel": "Cancelar",
+                "save": "Salvar",
+                "saving": "Salvando..."
+            },
+            "status": {
+                "ok": "OK",
+                "damaged": "Danificada",
+                "in_repair": "Em Conserto"
+            },
+            "cards": {
+                "code": "Código",
+                "type": "Tipo",
+                "category": "Categoria",
+                "total": "Total",
+                "available": "Disponível",
+                "low_stock": "Estoque baixo! Mínimo: {{min}}"
+            },
+            "actions": {
+                "entry": "Entrada",
+                "withdraw": "Retirar",
+                "return": "Devolver",
+                "repair": "Conserto",
+                "register_entry": "Registrar Entrada",
+                "register_withdrawal": "Registrar Retirada",
+                "register_return": "Registrar Devolução",
+                "send_to_repair": "Enviar para Conserto",
+                "tool": "Ferramenta",
+                "collaborator": "Colaborador",
+                "select_collaborator": "Selecione um colaborador",
+                "quantity": "Quantidade",
+                "status": "Status",
+                "repair_status_placeholder": "Status do conserto",
+                "location": "Local / Responsável",
+                "location_placeholder": "Ex: Oficina interna, Fornecedor X",
+                "deadline": "Prazo previsto",
+                "priority": "Prioridade",
+                "priority_low": "Baixa",
+                "priority_medium": "Média",
+                "priority_high": "Alta",
+                "observations": "Observações",
+                "optional": "Opcional",
+                "confirm": "Confirmar",
+                "processing": "Processando..."
+            },
+            "pagination": {
+                "showing": "Mostrando {{count}} de {{total}} registros",
+                "page": "Página {{current}} de {{total}}"
+            },
+            "empty": {
+                "no_items_title": "Nenhum item encontrado",
+                "no_items_search": "Tente buscar por outro termo ou limpe os filtros.",
+                "stock_empty_title": "Seu estoque está vazio",
+                "stock_empty_desc": "Comece cadastrando ferramentas, EPIs e consumíveis para controlar seu almoxarifado com eficiência.",
+                "first_item": "Cadastrar Primeiro Item",
+                "clear_search": "Limpar Busca"
             },
             "error": "Erro ao carregar dados. Por favor, recarregue a página."
         },
         "checkout": {
             "subscribe_now": "Assinar Agora",
             "processing": "Processando..."
+        }
+    },
+    "import": {
+        "example": "Exemplo",
+        "data_sheet_name": "Dados",
+        "errors": {
+            "empty_sheet": "A planilha está vazia ou não possui dados válidos.",
+            "required_field": "Linha {{row}}: Campo \"{{field}}\" é obrigatório",
+            "invalid_value": "Linha {{row}}: Valor \"{{value}}\" inválido para \"{{field}}\". Opções: {{options}}",
+            "process_error": "Erro ao processar o arquivo. Verifique se é um arquivo Excel válido.",
+            "invalid_file_type": "Por favor, selecione um arquivo Excel (.xlsx, .xls) ou CSV (.csv)",
+            "title": "Erros encontrados:"
+        },
+        "download_template": {
+            "title": "Baixe o modelo de planilha",
+            "description": "Use o template para garantir que os dados estejam no formato correto",
+            "button": "Download"
+        },
+        "drag_drop": {
+            "title": "Arraste e solte seu arquivo aqui",
+            "subtitle": "ou clique para selecionar",
+            "formats": "Formatos aceitos: .xlsx, .xls, .csv"
+        },
+        "expected_fields": "Campos esperados na planilha:",
+        "required_fields_note": "* Campos obrigatórios",
+        "preview": {
+            "records_found": "{{count}} registro encontrado",
+            "records_found_plural": "{{count}} registros encontrados",
+            "change_file": "Trocar arquivo",
+            "warnings": "Avisos ({{count}}):",
+            "more_warnings": "... e mais {{count}} avisos",
+            "show_less": "Mostrar menos",
+            "show_more": "Mostrar todos ({{count}} mais)"
+        },
+        "importing": {
+            "title": "Importando dados...",
+            "description": "Aguarde enquanto processamos {{count}} registro(s)"
+        },
+        "result": {
+            "success": "{{count}} registro importado com sucesso!",
+            "success_plural": "{{count}} registros importados com sucesso!",
+            "errors": "{{count}} erro durante a importação:",
+            "errors_plural": "{{count}} erros durante a importação:"
+        },
+        "actions": {
+            "import_count": "Importar {{count}} registro",
+            "import_count_plural": "Importar {{count}} registros",
+            "import_more": "Importar mais",
+            "finish": "Concluir",
+            "back": "Voltar"
         }
     },
     "landing": {

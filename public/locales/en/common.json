@@ -287,54 +287,113 @@
                 "end_date": "End Date",
                 "sort_by": "Sort by",
                 "order": "Order",
-                "asc": "Ascending",
-                "desc": "Descending"
+                "admission_start": "Admission Start",
+                "admission_end": "Admission End",
+                "clear": "Clear Filters",
+                "advanced_filters": "Advanced Filters",
+                "active_filters": "Active filters:",
+                "from": "From",
+                "to": "To",
+                "created_at": "Created At",
+                "found_count": "{{count}} collaborator found",
+                "found_count_plural": "{{count}} collaborators found"
             },
             "table": {
                 "name": "Name",
                 "role": "Role",
-                "contact": "Contact",
-                "admission": "Admission",
+                "email": "Email",
+                "phone": "Phone",
                 "status": "Status",
-                "actions": "Actions",
-                "no_role": "No role",
-                "active": "Active",
-                "inactive": "Inactive"
+                "actions": "Actions"
             },
             "form": {
                 "title_new": "New Collaborator",
                 "title_edit": "Edit Collaborator",
-                "desc_new": "Register a new collaborator in the system",
-                "desc_edit": "Update collaborator data",
-                "name": "Full Name",
-                "role": "Role",
-                "email": "Email",
-                "phone": "Phone",
-                "cpf": "CPF",
-                "address": "Address",
+                "desc": "Fill in the collaborator's data.",
+                "personal_info": "Personal Information",
+                "name_placeholder": "Enter full name",
+                "role_placeholder": "Enter role",
+                "contact": "Contact",
+                "email_placeholder": "Enter email",
+                "phone_placeholder": "Enter phone",
+                "docs_address": "Documents and Address",
+                "cpf_placeholder": "Enter CPF",
+                "address_placeholder": "Enter full address",
                 "admission_date": "Admission Date",
                 "observations": "Observations",
-                "photo": "Photo",
-                "upload_photo": "Upload photo",
-                "remove_photo": "Remove photo",
-                "save": "Save Collaborator",
-                "cancel": "Cancel"
+                "photo": "Profile Photo",
+                "photo_hint": "Click to change",
+                "save": "Save",
+                "saving": "Saving...",
+                "cancel": "Cancel",
+                "duplicate_title": "This name already exists or is very similar to:",
+                "duplicate_confirm": "Do you want to register anyway?",
+                "duplicate_yes": "Yes, register duplicate",
+                "duplicate_no": "No, cancel",
+                "error_save": "Error saving collaborator"
             },
             "card": {
                 "withdrawals": "Withdrawals",
                 "returns": "Returns",
                 "pending": "Pending",
                 "return_rate": "Return Rate",
-                "view_details": "View Details"
+                "view_details": "View Details",
+                "edit": "Edit",
+                "delete": "Delete",
+                "confirm_delete": "Are you sure you want to delete this collaborator?",
+                "error_delete": "Error deleting collaborator"
             },
             "details": {
                 "title": "Collaborator File",
-                "personal_data": "Personal Data",
-                "statistics": "Statistics",
-                "active_epis": "Active PPEs",
-                "history": "History",
-                "no_active_epis": "No active PPEs at the moment",
-                "print_file": "Print File"
+                "personal_data": "PERSONAL DATA",
+                "statistics": "STATISTICS",
+                "active_epis": "active PPEs (IN POSSESSION)",
+                "history": "RECENT HISTORY",
+                "no_active_epis": "No PPE in possession at the moment",
+                "no_history": "No movements registered",
+                "print_file": "Download PDF",
+                "close": "Close",
+                "generated_at": "Generated at:",
+                "file_title": "Collaborator File - {{name}}",
+                "error_pdf": "Error generating PDF",
+                "generating_pdf": "Generating PDF...",
+                "no_date": "No date",
+                "table": {
+                    "item": "Item",
+                    "qty": "Qty",
+                    "withdrawal": "Withdrawal",
+                    "validity": "Validity",
+                    "status": "Status",
+                    "date": "Date/Time",
+                    "type": "Type",
+                    "obs": "Observation"
+                },
+                "stats": {
+                    "total_withdrawals": "Total Withdrawals",
+                    "total_returns": "Total Returns",
+                    "pending_items": "Pending Items",
+                    "return_rate": "Return Rate",
+                    "metric": "Metric",
+                    "value": "Value",
+                    "field": "Field"
+                }
+            },
+            "actions": {
+                "selected_count": "{{count}} selected",
+                "export_selected": "Export selected",
+                "clear_selection": "Clear selection",
+                "print": "Print"
+            },
+            "empty": {
+                "no_results": "No collaborators found",
+                "no_records": "No collaborators registered",
+                "adjust_filters": "Try adjusting filters or searching for another term.",
+                "start_registering": "Register your collaborators to control withdrawals and returns."
+            },
+            "import": {
+                "title": "Import Collaborators",
+                "description": "Import collaborators from an Excel or CSV file",
+                "error_creating": "Line {{line}}: {{error}}"
             }
         },
         "movimentacoes": {
@@ -375,7 +434,43 @@
                 "date": "Date/Time",
                 "observations": "Observations",
                 "request_signature": "Request digital signature",
-                "save": "Register Movement"
+                "save": "Register Movement",
+                "select_product": "Select a product from the list",
+                "select_collaborator": "Select a collaborator",
+                "success": "Movement registered successfully!",
+                "error": "Error registering movement",
+                "collaborator_hint": "Choose the collaborator responsible for the withdrawal/return.",
+                "date_hint": "If you prefer, adjust the date/time. By default we use now."
+            },
+            "actions": {
+                "show_all": "Show all movements",
+                "show_starred": "Show starred only",
+                "export_selected": "Export selected",
+                "clear_selection": "Clear selection",
+                "print": "Print",
+                "export_csv": "Export CSV",
+                "export_filters_title": "Export Filters",
+                "export_filters_desc": "Select filters to export movements to CSV",
+                "no_results_export": "No movements found with selected filters",
+                "select_one": "Select at least one movement.",
+                "export_error": "Error exporting CSV",
+                "export_count": "{{count}} movement(s) will be exported",
+                "selected_count": "{{count}} selected",
+                "add_favorite": "Add to favorites",
+                "remove_favorite": "Remove from favorites"
+            },
+            "empty": {
+                "no_results": "No movements found",
+                "no_records": "No movements registered",
+                "adjust_filters": "Try adjusting filters or searching for another term.",
+                "start_registering": "Register entries, withdrawals and returns to keep your stock history always up to date."
+            },
+            "import": {
+                "title": "Import Movements",
+                "description": "Import movements from an Excel or CSV file. Use exact product and collaborator names.",
+                "product_not_found": "Line {{line}}: Product \"{{name}}\" not found",
+                "collaborator_not_found": "Line {{line}}: Collaborator \"{{name}}\" not found",
+                "error_creating": "Line {{line}}: {{error}}"
             }
         },
         "conta": {
@@ -504,12 +599,15 @@
                 "sent": "Sent",
                 "location": "Location",
                 "cost": "Cost",
-                "no_deadline": "No deadline"
+                "no_deadline": "No deadline",
+                "returned_at": "Returned at"
             },
             "actions": {
                 "register_return": "Register Return",
                 "clear_filters": "Clear Filters",
-                "cancel": "Cancel"
+                "cancel": "Cancel",
+                "mark_in_progress": "Mark as in progress",
+                "loading": "Loading..."
             },
             "form": {
                 "title": "New Repair Order",
@@ -534,7 +632,18 @@
                 "quantity": "Quantity to return",
                 "in_repair": "In repair",
                 "cost": "Repair cost (R$)",
-                "confirm": "Confirm Return"
+                "confirm": "Confirm Return",
+                "tool_label": "Tool: {{name}}",
+                "in_repair_count": "{{count}} unit(s) still in repair"
+            },
+            "errors": {
+                "min_quantity": "The quantity must be at least 1",
+                "invalid_quantity": "Invalid quantity. Still in repair: {{count}}",
+                "register_return": "Error registering return",
+                "update_status": "Error updating status",
+                "select_product": "Select a product",
+                "insufficient_quantity": "Insufficient quantity. Available: {{count}}",
+                "create_order": "Error creating repair order"
             },
             "export": {
                 "title": "Export Filters",
@@ -549,7 +658,28 @@
                 "return_period": "Return Period",
                 "start_date": "Start Date",
                 "end_date": "End Date",
-                "total_to_export": "Total repairs to be exported:"
+                "total_to_export": "Total repairs to be exported:",
+                "report_title": "Repairs Report",
+                "generated_at": "Generated at {{date}}",
+                "filter_priority": "Priority: {{value}}",
+                "filter_status": "Status: {{value}}",
+                "filter_product": "Product: {{value}}",
+                "filter_location": "Location: {{value}}",
+                "filter_send_date": "Send Date: {{start}} to {{end}}",
+                "filter_return_date": "Return Date: {{start}} to {{end}}",
+                "filters_applied": "Filters: {{filters}}",
+                "headers": {
+                    "product": "Product",
+                    "status": "Status",
+                    "priority": "Priority",
+                    "location": "Location",
+                    "deadline": "Deadline",
+                    "send_date": "Send Date",
+                    "return_date": "Return Date",
+                    "cost": "Cost"
+                },
+                "footer_page": "Generated at {{date}} - Page {{current}} of {{total}}",
+                "footer_generated_by": "Generated by Almox Fácil"
             }
         },
         "ferramentas": {
@@ -557,7 +687,8 @@
             "subtitle": "Manage your tools and products",
             "new_button": "New Product",
             "import_button": "Import Excel",
-            "export_button": "Export PDF",
+            "export_csv": "Export CSV",
+            "generating_csv": "Generating CSV...",
             "search_placeholder": "Search products...",
             "filters": {
                 "category": "Category",
@@ -576,23 +707,139 @@
             "form": {
                 "title_new": "New Product",
                 "title_edit": "Edit Product",
-                "desc_new": "Register a new product in stock",
-                "desc_edit": "Update product data",
+                "desc_new": "Add a new product to stock",
+                "desc_edit": "Update product information",
                 "name": "Name",
-                "category": "Category",
-                "quantity": "Available Quantity",
+                "type": "Category",
+                "select_type": "Select type",
+                "tool": "Tool",
+                "ppe": "PPE",
+                "consumable": "Consumable",
+                "line_group": "Line/Group",
+                "line_placeholder": "Ex: Cutting, Safety",
+                "code": "Code",
+                "auto_generated": "Auto-generated",
+                "size": "Size / Measure",
+                "size_placeholder": "Ex: M, 500ml, 10mm",
+                "color": "Color",
+                "color_placeholder": "Ex: Blue, Black",
+                "quantity_total": "Total Quantity",
+                "status": "Status",
                 "min_stock": "Minimum Stock",
-                "unit": "Unit",
-                "expiry_date": "Expiry Date",
-                "ca_number": "CA Number (PPE)",
+                "min_stock_placeholder": "Ex: 5 (alert when stock ≤ 5)",
+                "min_stock_hint": "When stock reaches this value, you will be alerted on the dashboard",
                 "observations": "Observations",
-                "save": "Save Product"
+                "cancel": "Cancel",
+                "save": "Save",
+                "saving": "Saving..."
+            },
+            "status": {
+                "ok": "OK",
+                "damaged": "Damaged",
+                "in_repair": "In Repair"
+            },
+            "cards": {
+                "code": "Code",
+                "type": "Type",
+                "category": "Category",
+                "total": "Total",
+                "available": "Available",
+                "low_stock": "Low stock! Minimum: {{min}}"
+            },
+            "actions": {
+                "entry": "Entry",
+                "withdraw": "Withdraw",
+                "return": "Return",
+                "repair": "Repair",
+                "register_entry": "Register Entry",
+                "register_withdrawal": "Register Withdrawal",
+                "register_return": "Register Return",
+                "send_to_repair": "Send to Repair",
+                "tool": "Tool",
+                "collaborator": "Collaborator",
+                "select_collaborator": "Select a collaborator",
+                "quantity": "Quantity",
+                "status": "Status",
+                "repair_status_placeholder": "Repair status",
+                "location": "Location / Responsible",
+                "location_placeholder": "Ex: Internal workshop, Vendor X",
+                "deadline": "Expected deadline",
+                "priority": "Priority",
+                "priority_low": "Low",
+                "priority_medium": "Medium",
+                "priority_high": "High",
+                "observations": "Observations",
+                "optional": "Optional",
+                "confirm": "Confirm",
+                "processing": "Processing..."
+            },
+            "pagination": {
+                "showing": "Showing {{count}} of {{total}} records",
+                "page": "Page {{current}} of {{total}}"
+            },
+            "empty": {
+                "no_items_title": "No items found",
+                "no_items_search": "Try searching for another term or clear filters.",
+                "stock_empty_title": "Your stock is empty",
+                "stock_empty_desc": "Start by registering tools, PPEs and consumables to efficiently control your warehouse.",
+                "first_item": "Register First Item",
+                "clear_search": "Clear Search"
             },
             "error": "Error loading data. Please reload the page."
         },
         "checkout": {
             "subscribe_now": "Subscribe Now",
             "processing": "Processing..."
+        }
+    },
+    "import": {
+        "example": "Example",
+        "data_sheet_name": "Data",
+        "errors": {
+            "empty_sheet": "The spreadsheet is empty or has no valid data.",
+            "required_field": "Row {{row}}: Field \"{{field}}\" is required",
+            "invalid_value": "Row {{row}}: Invalid value \"{{value}}\" for \"{{field}}\". Options: {{options}}",
+            "process_error": "Error processing file. Please check if it is a valid Excel file.",
+            "invalid_file_type": "Please select an Excel (.xlsx, .xls) or CSV (.csv) file",
+            "title": "Errors found:"
+        },
+        "download_template": {
+            "title": "Download spreadsheet template",
+            "description": "Use the template to ensure data is in the correct format",
+            "button": "Download"
+        },
+        "drag_drop": {
+            "title": "Drag and drop your file here",
+            "subtitle": "or click to select",
+            "formats": "Accepted formats: .xlsx, .xls, .csv"
+        },
+        "expected_fields": "Expected fields in spreadsheet:",
+        "required_fields_note": "* Required fields",
+        "preview": {
+            "records_found": "{{count}} record found",
+            "records_found_plural": "{{count}} records found",
+            "change_file": "Change file",
+            "warnings": "Warnings ({{count}}):",
+            "more_warnings": "... and {{count}} more warnings",
+            "show_less": "Show less",
+            "show_more": "Show all ({{count}} more)"
+        },
+        "importing": {
+            "title": "Importing data...",
+            "description": "Please wait while we process {{count}} record(s)"
+        },
+        "result": {
+            "success": "{{count}} record imported successfully!",
+            "success_plural": "{{count}} records imported successfully!",
+            "errors": "{{count}} error during import:",
+            "errors_plural": "{{count}} errors during import:"
+        },
+        "actions": {
+            "import_count": "Import {{count}} record",
+            "import_count_plural": "Import {{count}} records",
+            "import_more": "Import more",
+            "finish": "Finish",
+            "back": "Back"
         }
     },
     "landing": {

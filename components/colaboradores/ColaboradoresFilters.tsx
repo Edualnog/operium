@@ -30,6 +30,7 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import "react-day-picker/dist/style.css"
+import { useTranslation } from "react-i18next"
 
 export interface FilterState {
   search: string
@@ -53,6 +54,7 @@ export function ColaboradoresFilters({
   onFiltersChange,
   totalEncontrados,
 }: ColaboradoresFiltersProps) {
+  const { t } = useTranslation()
   const [showFilters, setShowFilters] = useState(false)
 
   const updateFilter = (key: keyof FilterState, value: any) => {
@@ -82,7 +84,7 @@ export function ColaboradoresFilters({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <Input
-            placeholder="Buscar por nome, email, telefone ou CPF..."
+            placeholder={t("dashboard.colaboradores.filters.search_placeholder")}
             value={filters.search}
             onChange={(e) => updateFilter("search", e.target.value)}
             className="pl-10"
@@ -95,7 +97,7 @@ export function ColaboradoresFilters({
             <PopoverTrigger asChild>
               <Button variant="outline" className="relative">
                 <Filter className="h-4 w-4 mr-2" />
-                Filtros
+                {t("dashboard.colaboradores.filters.advanced_filters")}
                 {hasActiveFilters && (
                   <span className="ml-2 h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">
                     {[
@@ -110,7 +112,7 @@ export function ColaboradoresFilters({
             <PopoverContent className="w-80" align="end">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-sm">Filtros Avançados</h4>
+                  <h4 className="font-semibold text-sm">{t("dashboard.colaboradores.filters.advanced_filters")}</h4>
                   {hasActiveFilters && (
                     <Button
                       variant="ghost"
@@ -119,23 +121,23 @@ export function ColaboradoresFilters({
                       className="h-7 text-xs"
                     >
                       <X className="h-3 w-3 mr-1" />
-                      Limpar
+                      {t("dashboard.colaboradores.filters.clear")}
                     </Button>
                   )}
                 </div>
 
                 {/* Filtro por Cargo */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Cargo</Label>
+                  <Label className="text-xs">{t("dashboard.colaboradores.filters.role")}</Label>
                   <Select
                     value={filters.cargo === "" ? "all" : filters.cargo}
                     onValueChange={(value) => updateFilter("cargo", value === "all" ? "" : value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Todos os cargos" />
+                      <SelectValue placeholder={t("dashboard.colaboradores.filters.all_roles")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos os cargos</SelectItem>
+                      <SelectItem value="all">{t("dashboard.colaboradores.filters.all_roles")}</SelectItem>
                       {cargos.map((cargo) => (
                         <SelectItem key={cargo} value={cargo}>
                           {cargo}
@@ -147,7 +149,7 @@ export function ColaboradoresFilters({
 
                 {/* Filtro por Data de Admissão */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Data de Admissão</Label>
+                  <Label className="text-xs">{t("dashboard.colaboradores.form.admission_date")}</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
@@ -164,7 +166,7 @@ export function ColaboradoresFilters({
                               locale: ptBR,
                             })
                           ) : (
-                            <span>De</span>
+                            <span>{t("dashboard.colaboradores.filters.from")}</span>
                           )}
                         </Button>
                       </PopoverTrigger>
@@ -194,7 +196,7 @@ export function ColaboradoresFilters({
                               locale: ptBR,
                             })
                           ) : (
-                            <span>Até</span>
+                            <span>{t("dashboard.colaboradores.filters.to")}</span>
                           )}
                         </Button>
                       </PopoverTrigger>
@@ -213,7 +215,7 @@ export function ColaboradoresFilters({
 
                 {/* Ordenação */}
                 <div className="space-y-2">
-                  <Label className="text-xs">Ordenar por</Label>
+                  <Label className="text-xs">{t("dashboard.colaboradores.filters.sort_by")}</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Select
                       value={filters.ordenarPor}
@@ -225,12 +227,12 @@ export function ColaboradoresFilters({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="nome">Nome</SelectItem>
-                        <SelectItem value="cargo">Cargo</SelectItem>
+                        <SelectItem value="nome">{t("dashboard.colaboradores.table.name")}</SelectItem>
+                        <SelectItem value="cargo">{t("dashboard.colaboradores.filters.role")}</SelectItem>
                         <SelectItem value="data_admissao">
-                          Data Admissão
+                          {t("dashboard.colaboradores.form.admission_date")}
                         </SelectItem>
-                        <SelectItem value="created_at">Data Cadastro</SelectItem>
+                        <SelectItem value="created_at">{t("dashboard.colaboradores.filters.created_at")}</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -250,7 +252,7 @@ export function ColaboradoresFilters({
                       ) : (
                         <SortDesc className="h-4 w-4 mr-2" />
                       )}
-                      {filters.ordem === "asc" ? "Crescente" : "Decrescente"}
+                      {filters.ordem === "asc" ? t("dashboard.colaboradores.filters.asc") : t("dashboard.colaboradores.filters.desc")}
                     </Button>
                   </div>
                 </div>
@@ -264,10 +266,10 @@ export function ColaboradoresFilters({
       {/* Badges de filtros ativos */}
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-zinc-500">Filtros ativos:</span>
+          <span className="text-xs text-zinc-500">{t("dashboard.colaboradores.filters.active_filters")}</span>
           {filters.cargo && (
             <Badge variant="secondary" className="gap-1">
-              Cargo: {filters.cargo}
+              {t("dashboard.colaboradores.filters.role")}: {filters.cargo}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("cargo", "")}
@@ -276,7 +278,7 @@ export function ColaboradoresFilters({
           )}
           {filters.dataAdmissaoInicio && (
             <Badge variant="secondary" className="gap-1">
-              De: {format(filters.dataAdmissaoInicio, "dd/MM/yyyy", { locale: ptBR })}
+              {t("dashboard.colaboradores.filters.from")}: {format(filters.dataAdmissaoInicio, "dd/MM/yyyy", { locale: ptBR })}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("dataAdmissaoInicio", null)}
@@ -285,7 +287,7 @@ export function ColaboradoresFilters({
           )}
           {filters.dataAdmissaoFim && (
             <Badge variant="secondary" className="gap-1">
-              Até: {format(filters.dataAdmissaoFim, "dd/MM/yyyy", { locale: ptBR })}
+              {t("dashboard.colaboradores.filters.to")}: {format(filters.dataAdmissaoFim, "dd/MM/yyyy", { locale: ptBR })}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => updateFilter("dataAdmissaoFim", null)}
@@ -299,8 +301,7 @@ export function ColaboradoresFilters({
       {totalEncontrados > 0 && (
         <div className="text-sm text-zinc-600">
           <span>
-            {totalEncontrados} colaborador{totalEncontrados !== 1 ? "es" : ""}{" "}
-            encontrado{totalEncontrados !== 1 ? "s" : ""}
+            {t("dashboard.colaboradores.filters.found_count_plural", { count: totalEncontrados })}
           </span>
         </div>
       )}
