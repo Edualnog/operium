@@ -315,7 +315,18 @@
                 "phone": "Telefone",
                 "phone_placeholder": "Digite o telefone",
                 "docs_address": "Documentos e Endereço",
+                "cpf": "CPF",
                 "cpf_placeholder": "Digite o CPF",
+                "photo_upload": {
+                    "label": "Foto do Colaborador",
+                    "upload": "Upload",
+                    "change": "Alterar",
+                    "camera": "Foto",
+                    "remove": "Remover",
+                    "uploading": "Enviando...",
+                    "help_text": "JPG, PNG ou GIF. Máximo 5MB",
+                    "loading": "Carregando..."
+                },
                 "address": "Endereço",
                 "address_placeholder": "Digite o endereço completo",
                 "admission_date": "Data de Admissão",

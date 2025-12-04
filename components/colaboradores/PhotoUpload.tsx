@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Upload, X, User, AlertCircle, Camera } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
+import { useTranslation } from "react-i18next"
 import { checkBucketExists } from "@/lib/utils/storage"
 import {
   Alert,
@@ -27,6 +28,7 @@ export function PhotoUpload({
   userId,
   colaboradorId,
 }: PhotoUploadProps) {
+  const { t } = useTranslation()
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
@@ -80,8 +82,8 @@ export function PhotoUpload({
   if (!userId) {
     return (
       <div className="space-y-2">
-        <Label className="text-sm font-medium">Foto do Colaborador</Label>
-        <p className="text-xs text-zinc-500">Carregando...</p>
+        <Label className="text-sm font-medium">{t("dashboard.colaboradores.form.photo_upload.label")}</Label>
+        <p className="text-xs text-zinc-500">{t("dashboard.colaboradores.form.photo_upload.loading")}</p>
       </div>
     )
   }
@@ -453,7 +455,7 @@ export function PhotoUpload({
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">Foto do Colaborador</Label>
+      <Label className="text-sm font-medium">{t("dashboard.colaboradores.form.photo_upload.label")}</Label>
 
       {/* Alerta se o bucket não existir */}
       {bucketExists === false && (
@@ -532,7 +534,7 @@ export function PhotoUpload({
               title={bucketExists === false ? "Configure o bucket no Supabase primeiro" : verifying ? "Verificando bucket..." : ""}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {uploading ? "Enviando..." : preview ? "Alterar" : "Upload"}
+              {uploading ? t("dashboard.colaboradores.form.photo_upload.uploading") : preview ? t("dashboard.colaboradores.form.photo_upload.change") : t("dashboard.colaboradores.form.photo_upload.upload")}
             </Button>
 
             <Button
@@ -543,7 +545,7 @@ export function PhotoUpload({
               disabled={uploading || bucketExists === false || verifying}
             >
               <Camera className="h-4 w-4 mr-2" />
-              Foto
+              {t("dashboard.colaboradores.form.photo_upload.camera")}
             </Button>
 
             {preview && (
@@ -555,12 +557,12 @@ export function PhotoUpload({
                 disabled={uploading}
               >
                 <X className="h-4 w-4 mr-2" />
-                Remover
+                {t("dashboard.colaboradores.form.photo_upload.remove")}
               </Button>
             )}
           </div>
           <p className="text-xs text-zinc-500">
-            JPG, PNG ou GIF. Máximo 5MB
+            {t("dashboard.colaboradores.form.photo_upload.help_text")}
           </p>
         </div>
         <input

@@ -1211,7 +1211,7 @@ function ColaboradoresList({
 
                   {/* CPF */}
                   <div className="grid gap-2">
-                    <Label htmlFor="cpf">CPF</Label>
+                    <Label htmlFor="cpf">{t("dashboard.colaboradores.form.cpf")}</Label>
                     <Input
                       id="cpf"
                       name="cpf"
