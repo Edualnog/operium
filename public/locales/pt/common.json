@@ -101,6 +101,10 @@
         "settings": "Configurações",
         "profile": "Perfil",
         "logout": "Sair",
+        "header": {
+            "title": "Dashboard Industrial",
+            "subtitle": "Visão completa do seu almoxarifado em tempo real"
+        },
         "sidebar": {
             "dashboard": "Dashboard",
             "movements": "Movimentações",

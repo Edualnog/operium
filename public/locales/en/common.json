@@ -104,6 +104,10 @@
         "settings": "Settings",
         "profile": "Profile",
         "logout": "Logout",
+        "header": {
+            "title": "Industrial Dashboard",
+            "subtitle": "Complete overview of your warehouse in real time"
+        },
         "sidebar": {
             "dashboard": "Dashboard",
             "movements": "Movements",
