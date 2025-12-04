@@ -231,6 +231,12 @@
             "best": "Best",
             "worst": "Worst"
         },
+        "stats": {
+            "items_in_stock": "Items in Stock",
+            "collaborators": "Collaborators",
+            "tools": "Tools",
+            "movements_month": "Movements this Month"
+        },
         "trial": {
             "days_remaining": "{{days}} days left in your free trial",
             "last_day": "Last day of your free trial!",

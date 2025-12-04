@@ -228,6 +228,12 @@
             "best": "Melhores",
             "worst": "Piores"
         },
+        "stats": {
+            "items_in_stock": "Itens em Estoque",
+            "collaborators": "Colaboradores",
+            "tools": "Ferramentas",
+            "movements_month": "Movimentações do Mês"
+        },
         "trial": {
             "days_remaining": "Faltam {{days}} dias do seu teste grátis",
             "last_day": "Último dia do seu teste grátis!",
