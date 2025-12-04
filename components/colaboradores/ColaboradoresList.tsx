@@ -1803,12 +1803,12 @@ function ColaboradoresList({
           <div className="flex-1 overflow-y-auto min-h-0">
             {loadingEpis ? (
               <div className="flex items-center justify-center py-12">
-                <p className="text-sm text-zinc-500">Carregando EPIs...</p>
+                <p className="text-sm text-zinc-500">{t("dashboard.colaboradores.details.loading_epis")}</p>
               </div>
             ) : episAtivos.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Shield className="h-12 w-12 text-zinc-300 mb-4" />
-                <p className="text-sm text-zinc-500">Nenhum EPI ativo encontrado</p>
+                <p className="text-sm text-zinc-500">{t("dashboard.colaboradores.details.no_active_epis_found")}</p>
               </div>
             ) : (
               <div className="space-y-2 pr-2">
@@ -1839,12 +1839,12 @@ function ColaboradoresList({
                               {epi.data_retirada && (
                                 <div className="flex items-center gap-1.5 text-zinc-600">
                                   <Calendar className="h-3 w-3 flex-shrink-0" />
-                                  <span className="truncate">Retirado em: {format(new Date(epi.data_retirada), "dd/MM/yyyy", { locale: ptBR })}</span>
+                                  <span className="truncate">{t("dashboard.colaboradores.details.withdrawn_at")}: {format(new Date(epi.data_retirada), "dd/MM/yyyy", { locale: ptBR })}</span>
                                 </div>
                               )}
                               {epi.quantidade > 1 && (
                                 <div className="flex items-center gap-1.5 text-zinc-600">
-                                  <span className="truncate">Quantidade retirada: {epi.quantidade} unidade(s)</span>
+                                  <span className="truncate">{t("dashboard.colaboradores.details.qty_withdrawn")}: {epi.quantidade} unidade(s)</span>
                                 </div>
                               )}
 
@@ -1854,21 +1854,21 @@ function ColaboradoresList({
                                     <>
                                       <AlertTriangle className="h-3 w-3 text-red-600 flex-shrink-0" />
                                       <span className="text-red-600 font-medium text-xs truncate">
-                                        Vencido há {Math.abs(epi.dias_restantes || 0)} dias
+                                        {t("dashboard.colaboradores.details.expired_ago", { days: Math.abs(epi.dias_restantes || 0) })}
                                       </span>
                                     </>
                                   ) : isProximoVencimento ? (
                                     <>
                                       <AlertTriangle className="h-3 w-3 text-yellow-600 flex-shrink-0" />
                                       <span className="text-yellow-700 font-medium text-xs truncate">
-                                        Vence em {epi.dias_restantes} dias ({format(new Date(epi.validade), "dd/MM/yyyy", { locale: ptBR })})
+                                        {t("dashboard.colaboradores.details.expires_in", { days: epi.dias_restantes })} ({format(new Date(epi.validade), "dd/MM/yyyy", { locale: ptBR })})
                                       </span>
                                     </>
                                   ) : (
                                     <>
                                       <Calendar className="h-3 w-3 text-zinc-600 flex-shrink-0" />
                                       <span className="text-zinc-600 text-xs truncate">
-                                        Validade: {format(new Date(epi.validade), "dd/MM/yyyy", { locale: ptBR })} ({epi.dias_restantes} dias restantes)
+                                        {t("dashboard.colaboradores.details.validity")}: {format(new Date(epi.validade), "dd/MM/yyyy", { locale: ptBR })} ({epi.dias_restantes} dias restantes)
                                       </span>
                                     </>
                                   )}
@@ -1876,7 +1876,7 @@ function ColaboradoresList({
                               ) : (
                                 <div className="flex items-center gap-1.5 text-zinc-500">
                                   <Calendar className="h-3 w-3 flex-shrink-0" />
-                                  <span className="text-xs">Sem validade cadastrada</span>
+                                  <span className="text-xs">{t("dashboard.colaboradores.details.no_validity")}</span>
                                 </div>
                               )}
                             </div>
@@ -1884,12 +1884,12 @@ function ColaboradoresList({
 
                           {isVencido && (
                             <Badge variant="destructive" className="flex-shrink-0">
-                              Vencido
+                              {t("dashboard.colaboradores.details.expired")}
                             </Badge>
                           )}
                           {isProximoVencimento && !isVencido && (
                             <Badge variant="secondary" className="flex-shrink-0 bg-yellow-100 text-yellow-800">
-                              Atenção
+                              {t("dashboard.colaboradores.details.attention")}
                             </Badge>
                           )}
                         </div>
@@ -1903,7 +1903,7 @@ function ColaboradoresList({
 
           <DialogFooter className="flex-shrink-0 border-t pt-4 mt-4">
             <Button variant="outline" onClick={() => setEpisDialogOpen(false)}>
-              Fechar
+              {t("dashboard.colaboradores.details.close")}
             </Button>
           </DialogFooter>
         </DialogContent>
