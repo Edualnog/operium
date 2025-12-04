@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
+import { useTranslation } from "react-i18next"
 import {
   LayoutDashboard,
   Users,
@@ -66,44 +67,46 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     router.refresh()
   }
 
+  const { t } = useTranslation('common')
+
   const links = [
     {
-      label: "Dashboard",
+      label: t('dashboard.sidebar.dashboard'),
       href: "/dashboard",
       icon: (
         <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Movimentações",
+      label: t('dashboard.sidebar.movements'),
       href: "/dashboard/movimentacoes",
       icon: (
         <Package className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Colaboradores",
+      label: t('dashboard.sidebar.collaborators'),
       href: "/dashboard/colaboradores",
       icon: (
         <Users className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Estoque",
+      label: t('dashboard.sidebar.stock'),
       href: "/dashboard/estoque",
       icon: (
         <Wrench className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Consertos",
+      label: t('dashboard.sidebar.repairs'),
       href: "/dashboard/consertos",
       icon: (
         <Hammer className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Inventário",
+      label: t('dashboard.sidebar.inventory'),
       href: "/dashboard/inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
@@ -132,6 +135,7 @@ function SidebarContent({
   pathname: string
   onLogout: () => void
 }) {
+  const { t } = useTranslation('common')
   const { open, animate, setOpen } = useSidebar()
 
   // Fechar menu mobile ao navegar
@@ -190,7 +194,7 @@ function SidebarContent({
               transition={{ duration: 0.2 }}
               className="text-base md:text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap overflow-hidden"
             >
-              Conta
+              {t('dashboard.sidebar.account')}
             </motion.span>
           </Link>
           {/* Mobile: Always show logout button */}
@@ -210,7 +214,7 @@ function SidebarContent({
               <LogOut className="h-5 w-5 flex-shrink-0" />
             </span>
             <span className="text-base font-medium">
-              Sair
+              {t('dashboard.sidebar.logout')}
             </span>
           </button>
           {/* Desktop: Animated logout button */}
@@ -233,7 +237,7 @@ function SidebarContent({
                   <LogOut className="h-5 w-5 flex-shrink-0" />
                 </span>
                 <span className="text-sm font-medium group-hover/sidebar:translate-x-1 transition duration-150 whitespace-nowrap">
-                  Sair
+                  {t('dashboard.sidebar.logout')}
                 </span>
               </motion.button>
             )}

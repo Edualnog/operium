@@ -228,7 +228,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
           {t("dashboard.conta.title")}
         </h1>
         <p className="text-slate-600 mt-1 dark:text-zinc-400">
-          Gerencie sua assinatura e dados da empresa
+          {t("dashboard.conta.subtitle")}
         </p>
       </div>
 
@@ -246,10 +246,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-zinc-50">
-                  Plano {statusInfo.label}
+                  {statusInfo.label}
                 </h2>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.textColor} ${statusInfo.bgColor} border ${statusInfo.borderColor}`}>
-                  Ativo
+                  {t("dashboard.conta.plan.active")}
                 </span>
               </div>
               <p className="text-slate-600 mt-1 dark:text-zinc-400">
@@ -271,7 +271,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
               disabled={portalLoading}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-700"
             >
-              {portalLoading ? "Abrindo..." : "Gerenciar assinatura"}
+              {portalLoading ? t("dashboard.conta.subscription.opening") : t("dashboard.conta.subscription.manage")}
               <ExternalLink className="h-4 w-4" />
             </button>
           ) : (
@@ -280,7 +280,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
               disabled={subscribeLoading}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {subscribeLoading ? "Processando..." : "Assinar Agora"}
+              {subscribeLoading ? t("dashboard.conta.subscription.processing") : t("dashboard.conta.subscription.subscribe_now")}
               <Crown className="h-4 w-4" />
             </button>
           )}
@@ -289,7 +289,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         {/* Features do plano */}
         {(subscriptionStatus === "active" || subscriptionStatus === "trialing" || hasStripeCustomer) && (
           <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-zinc-800">
-            <p className="text-sm font-medium text-slate-700 mb-3 dark:text-zinc-300">Incluído no seu plano:</p>
+            <p className="text-sm font-medium text-slate-700 mb-3 dark:text-zinc-300">{t("dashboard.conta.subscription.included")}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {planFeatures.map((feature, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-zinc-400">
@@ -314,8 +314,8 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             <Mail className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">Informações da Conta</h3>
-            <p className="text-sm text-slate-500 dark:text-zinc-400">Dados vinculados ao seu login</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">{t("dashboard.conta.account_info.title")}</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{t("dashboard.conta.account_info.subtitle")}</p>
           </div>
         </div>
 
@@ -327,18 +327,18 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
               <span className="text-slate-700 dark:text-zinc-200">{user.email}</span>
             </div>
             <p className="text-xs text-slate-500">
-              Este é o email usado para login e notificações
+              {t("dashboard.conta.account_info.email_note")}
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-slate-600 dark:text-zinc-400">Membro desde</Label>
+            <Label className="text-slate-600 dark:text-zinc-400">{t("dashboard.conta.account_info.member_since")}</Label>
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
               <Calendar className="h-4 w-4 text-slate-400" />
               <span className="text-slate-700 dark:text-zinc-200">
                 {user.created_at
-                  ? format(new Date(user.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                  : "Data não disponível"
+                  ? format(new Date(user.created_at), "PPP", { locale: dateLocale })
+                  : t("dashboard.conta.account_info.date_unavailable")
                 }
               </span>
             </div>
@@ -358,26 +358,26 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             <Building2 className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">Dados da Empresa</h3>
-            <p className="text-sm text-slate-500 dark:text-zinc-400">Informações para identificação</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">{t("dashboard.conta.company_info.title")}</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{t("dashboard.conta.company_info.subtitle")}</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="company_name" className="dark:text-zinc-300">Nome da Empresa</Label>
+              <Label htmlFor="company_name" className="dark:text-zinc-300">{t("dashboard.conta.company_info.company_name")}</Label>
               <Input
                 id="company_name"
                 value={form.company_name}
                 onChange={(e) => setForm(f => ({ ...f, company_name: e.target.value }))}
-                placeholder="Sua empresa"
+                placeholder={t("dashboard.conta.company_info.company_name")}
                 className="bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cnpj" className="dark:text-zinc-300">CNPJ</Label>
+              <Label htmlFor="cnpj" className="dark:text-zinc-300">{t("dashboard.conta.company_info.cnpj")}</Label>
               <Input
                 id="cnpj"
                 value={form.cnpj}
@@ -388,7 +388,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             </div>
 
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="phone" className="dark:text-zinc-300">Telefone</Label>
+              <Label htmlFor="phone" className="dark:text-zinc-300">{t("dashboard.conta.company_info.phone")}</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
@@ -413,7 +413,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
 
           <div className="flex justify-end pt-2">
             <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar alterações"}
+              {loading ? t("dashboard.conta.company_info.saving") : t("dashboard.conta.company_info.save_changes")}
             </Button>
           </div>
         </form>
@@ -431,15 +431,15 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             <Shield className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">Segurança</h3>
-            <p className="text-sm text-slate-500 dark:text-zinc-400">Opções de segurança da conta</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">{t("dashboard.conta.security.title")}</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{t("dashboard.conta.security.subtitle")}</p>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
           <div>
-            <p className="font-medium text-slate-700 dark:text-zinc-200">Alterar senha</p>
-            <p className="text-sm text-slate-500 dark:text-zinc-400">Recomendamos alterar sua senha periodicamente</p>
+            <p className="font-medium text-slate-700 dark:text-zinc-200">{t("dashboard.conta.security.change_password")}</p>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{t("dashboard.conta.security.change_password_note")}</p>
           </div>
           <Button
             variant="outline"
@@ -447,10 +447,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
               await supabase.auth.resetPasswordForEmail(user.email, {
                 redirectTo: `${window.location.origin}/auth/reset-password`,
               })
-              setMessage({ type: "success", text: "Email de recuperação enviado!" })
+              setMessage({ type: "success", text: t("dashboard.conta.security.reset_email_sent") })
             }}
           >
-            Enviar email de redefinição
+            {t("dashboard.conta.security.send_reset_email")}
           </Button>
         </div>
       </motion.div>
