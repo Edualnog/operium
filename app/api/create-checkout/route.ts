@@ -13,12 +13,14 @@ export async function POST(req: Request) {
     const { plan } = body
 
     // Definir Price ID com base no plano
-    let priceId = process.env.STRIPE_PRICE_ID // Default (mensal ou o que estiver configurado)
+    let priceId = process.env.STRIPE_PRICE_ID // Default
 
     if (plan === "anual") {
-      priceId = "price_1SaFQ9GzXnyQEqRwYtTy0EUF"
+      priceId = "price_1SahXHGzXnyQEqRwi5p6sy27" // U$139/R$597 annual
+    } else if (plan === "trimestral") {
+      priceId = "price_1SajrSGzXnyQEqRwwHy4QCIu" // U$45/R$189.90 quarterly
     } else if (plan === "mensal") {
-      priceId = "price_1SaEi1GzXnyQEqRweQLZoPWp"
+      priceId = "price_1SahVCGzXnyQEqRwYIYHH3yb" // U$17/R$69.90 monthly
     }
 
     if (!process.env.STRIPE_SECRET_KEY || !priceId) {
