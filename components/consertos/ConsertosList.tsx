@@ -25,6 +25,7 @@ import autoTable from "jspdf-autotable"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { registrarEnvioConserto } from "@/lib/actions"
+import { useTranslation } from "react-i18next"
 
 interface Conserto {
   id: string
@@ -56,6 +57,7 @@ function ConsertosList({
   consertos: Conserto[]
 }) {
   const supabase = createClientComponentClient()
+  const { t } = useTranslation()
   const parseFerramenta = (ferramentas: Conserto["ferramentas"]) => {
     const f = Array.isArray(ferramentas) ? ferramentas[0] : ferramentas
     return {

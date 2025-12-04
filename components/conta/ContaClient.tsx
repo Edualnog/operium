@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
+import { enUS } from "date-fns/locale/en-US"
+import { useTranslation } from "react-i18next"
 
 import { checkTrialStatus } from "@/lib/utils"
 
@@ -60,67 +62,69 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
   const subscriptionStatus = profile?.subscription_status || "inactive"
   const hasStripeCustomer = !!profile?.stripe_customer_id
   const trialStatus = checkTrialStatus(profile?.trial_start_date)
+  const { t, i18n } = useTranslation()
+  const dateLocale = i18n.language === 'pt' ? ptBR : enUS
 
   const getStatusInfo = () => {
     // Prioridade para status explícito do Stripe
     if (subscriptionStatus === "active") {
       return {
-        label: "Profissional",
+        label: t("dashboard.conta.plan.professional"),
         color: "bg-green-500 dark:bg-green-600",
         textColor: "text-green-700 dark:text-green-300",
         bgColor: "bg-green-50 dark:bg-green-900/20",
         borderColor: "border-green-200 dark:border-green-800",
         icon: Crown,
-        description: "Acesso completo a todas as funcionalidades"
+        description: t("dashboard.conta.plan.full_access")
       }
     }
 
     if (subscriptionStatus === "trialing") {
       return {
-        label: "Teste Grátis",
+        label: t("dashboard.conta.plan.free_trial"),
         color: "bg-blue-500 dark:bg-blue-600",
         textColor: "text-blue-700 dark:text-blue-300",
         bgColor: "bg-blue-50 dark:bg-blue-900/20",
         borderColor: "border-blue-200 dark:border-blue-800",
         icon: Zap,
-        description: "7 dias de acesso completo para experimentar"
+        description: t("dashboard.conta.plan.trial_days")
       }
     }
 
     if (subscriptionStatus === "past_due") {
       return {
-        label: "Pagamento Pendente",
+        label: t("dashboard.conta.plan.pending_payment"),
         color: "bg-amber-500 dark:bg-amber-600",
         textColor: "text-amber-700 dark:text-amber-300",
         bgColor: "bg-amber-50 dark:bg-amber-900/20",
         borderColor: "border-amber-200 dark:border-amber-800",
         icon: CreditCard,
-        description: "Atualize sua forma de pagamento"
+        description: t("dashboard.conta.plan.update_payment")
       }
     }
 
     if (subscriptionStatus === "canceled") {
       return {
-        label: "Cancelado",
+        label: t("dashboard.conta.plan.canceled"),
         color: "bg-red-500 dark:bg-red-600",
         textColor: "text-red-700 dark:text-red-300",
         bgColor: "bg-red-50 dark:bg-red-900/20",
         borderColor: "border-red-200 dark:border-red-800",
         icon: Shield,
-        description: "Sua assinatura foi cancelada"
+        description: t("dashboard.conta.plan.subscription_canceled")
       }
     }
 
     // Se não tem status do Stripe, verifica nosso trial interno
     if (trialStatus.isInTrial) {
       return {
-        label: "Teste Grátis",
+        label: t("dashboard.conta.plan.free_trial"),
         color: "bg-blue-500 dark:bg-blue-600",
         textColor: "text-blue-700 dark:text-blue-300",
         bgColor: "bg-blue-50 dark:bg-blue-900/20",
         borderColor: "border-blue-200 dark:border-blue-800",
         icon: Zap,
-        description: `Restam ${trialStatus.daysRemaining} dias de acesso gratuito`
+        description: t("dashboard.conta.plan.trial_remaining", { days: trialStatus.daysRemaining })
       }
     }
 
@@ -128,24 +132,24 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
       // Se tem customer ID mas não tem status ativo/trialing, provavelmente é um checkout incompleto ou cancelado
       // Não devemos mostrar como Profissional
       return {
-        label: "Sem Plano",
+        label: t("dashboard.conta.plan.no_plan"),
         color: "bg-slate-400",
         textColor: "text-slate-700",
         bgColor: "bg-slate-50",
         borderColor: "border-slate-200",
         icon: User,
-        description: "Assine para acessar todas as funcionalidades"
+        description: t("dashboard.conta.plan.subscribe_full")
       }
     }
 
     return {
-      label: "Sem Plano",
+      label: t("dashboard.conta.plan.no_plan"),
       color: "bg-slate-400 dark:bg-slate-600",
       textColor: "text-slate-700 dark:text-slate-300",
       bgColor: "bg-slate-50 dark:bg-zinc-800",
       borderColor: "border-slate-200 dark:border-zinc-700",
       icon: User,
-      description: "Assine para acessar todas as funcionalidades"
+      description: t("dashboard.conta.plan.subscribe_full")
     }
   }
 
@@ -197,23 +201,23 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         .eq("id", user.id)
 
       if (error) throw error
-      setMessage({ type: "success", text: "Dados atualizados com sucesso!" })
+      setMessage({ type: "success", text: t("dashboard.conta.company_info.success") })
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Erro ao salvar dados" })
+      setMessage({ type: "error", text: err.message || t("dashboard.conta.company_info.error") })
     } finally {
       setLoading(false)
     }
   }
 
   const planFeatures = [
-    "Estoque ilimitado",
-    "Colaboradores ilimitados",
-    "Ferramentas ilimitadas",
-    "Movimentações completas",
-    "Relatórios avançados",
-    "Dashboard industrial",
-    "Gestão de consertos",
-    "Suporte por email"
+    t("dashboard.conta.features.unlimited_stock"),
+    t("dashboard.conta.features.unlimited_users"),
+    t("dashboard.conta.features.unlimited_tools"),
+    t("dashboard.conta.features.full_movements"),
+    t("dashboard.conta.features.advanced_reports"),
+    t("dashboard.conta.features.industrial_dashboard"),
+    t("dashboard.conta.features.repair_management"),
+    t("dashboard.conta.features.email_support")
   ]
 
   return (
@@ -221,7 +225,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-zinc-50">
-          Minha Conta
+          {t("dashboard.conta.title")}
         </h1>
         <p className="text-slate-600 mt-1 dark:text-zinc-400">
           Gerencie sua assinatura e dados da empresa

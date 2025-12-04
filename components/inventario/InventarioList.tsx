@@ -40,6 +40,8 @@ import {
 } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { enUS } from "date-fns/locale/en-US"
+import { useTranslation } from "react-i18next"
 import InventarioContagem from "./InventarioContagem"
 import InventarioComparativo from "./InventarioComparativo"
 
@@ -71,6 +73,8 @@ export default function InventarioList() {
   const [selectedInventario, setSelectedInventario] = useState<Inventario | null>(null)
   const [viewMode, setViewMode] = useState<"list" | "contagem" | "comparativo">("list")
   const [creating, setCreating] = useState(false)
+  const { t, i18n } = useTranslation()
+  const dateLocale = i18n.language === 'pt' ? ptBR : enUS
 
   const [newInventario, setNewInventario] = useState({
     descricao: "",
@@ -228,11 +232,11 @@ export default function InventarioList() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "em_andamento":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-800"><Clock className="h-3 w-3 mr-1" />Em Andamento</Badge>
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-800"><Clock className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.in_progress")}</Badge>
       case "finalizado":
-        return <Badge className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-200 dark:border-green-800"><CheckCircle2 className="h-3 w-3 mr-1" />Finalizado</Badge>
+        return <Badge className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-200 dark:border-green-800"><CheckCircle2 className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.finished")}</Badge>
       case "cancelado":
-        return <Badge className="bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-200 dark:border-red-800"><XCircle className="h-3 w-3 mr-1" />Cancelado</Badge>
+        return <Badge className="bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-200 dark:border-red-800"><XCircle className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.canceled")}</Badge>
       default:
         return null
     }
@@ -281,16 +285,16 @@ export default function InventarioList() {
             <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white">
               <ClipboardList className="h-6 w-6" />
             </div>
-            Inventário
+            {t("dashboard.inventario.title")}
           </h1>
-          <p className="text-zinc-600 mt-1 dark:text-zinc-400">Balanço e contagem de estoque</p>
+          <p className="text-zinc-600 mt-1 dark:text-zinc-400">{t("dashboard.inventario.subtitle")}</p>
         </div>
         <Button
           onClick={() => setShowNewModal(true)}
           className="gap-2 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700"
         >
           <Plus className="h-4 w-4" />
-          Novo Inventário
+          {t("dashboard.inventario.new_button")}
         </Button>
       </div>
 
@@ -304,14 +308,14 @@ export default function InventarioList() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center dark:bg-purple-900/20">
             <ClipboardList className="h-8 w-8 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">Nenhum inventário</h3>
-          <p className="text-zinc-600 mb-6 dark:text-zinc-400">Crie seu primeiro inventário para começar a contagem</p>
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">{t("dashboard.inventario.no_inventory")}</h3>
+          <p className="text-zinc-600 mb-6 dark:text-zinc-400">{t("dashboard.inventario.no_inventory_desc")}</p>
           <Button
             onClick={() => setShowNewModal(true)}
             className="gap-2 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700"
           >
             <Plus className="h-4 w-4" />
-            Novo Inventário
+            {t("dashboard.inventario.new_button")}
           </Button>
         </div>
       ) : (
