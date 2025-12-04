@@ -70,6 +70,9 @@ export default function MovimentacoesList({
   const router = useRouter()
   const supabase = createClientComponentClient()
   const [movimentacoes, setMovimentacoes] = useState(initialMovs)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [starredIds, setStarredIds] = useState<string[]>([])
+  const [showStarredOnly, setShowStarredOnly] = useState(false)
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
@@ -264,6 +267,33 @@ export default function MovimentacoesList({
     setMovimentacoes(initialMovs)
   }, [initialMovs])
 
+  // Carregar favoritos do localStorage (cliente) e manter somente IDs ainda presentes
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const stored = localStorage.getItem("movimentacoes_starred_v1")
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) {
+          setStarredIds(parsed.filter((id) => initialMovs.some((m) => m.id === id)))
+        }
+      } catch {
+        // ignora
+      }
+    }
+  }, [initialMovs])
+
+  // Persistir favoritos no localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    localStorage.setItem("movimentacoes_starred_v1", JSON.stringify(starredIds))
+  }, [starredIds])
+
+  // Limpar seleção de IDs removidos ao atualizar lista
+  useEffect(() => {
+    setSelectedIds((prev) => prev.filter((id) => initialMovs.some((m) => m.id === id)))
+  }, [initialMovs])
+
   const filtered = useMemo(() => {
     let result = [...movimentacoes]
 
@@ -322,8 +352,12 @@ export default function MovimentacoesList({
       })
     }
 
+    if (showStarredOnly) {
+      result = result.filter((m) => starredIds.includes(m.id))
+    }
+
     return result
-  }, [movimentacoes, search, filters, ferramentas, colaboradores])
+  }, [movimentacoes, search, filters, ferramentas, colaboradores, showStarredOnly, starredIds])
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
   const paginatedMovimentacoes = useMemo(() => {
@@ -642,14 +676,94 @@ export default function MovimentacoesList({
     }
   }
 
+  const toggleSelect = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      if (checked) return prev.includes(id) ? prev : [...prev, id]
+      return prev.filter((item) => item !== id)
+    })
+  }
+
+  const toggleSelectPage = (checked: boolean) => {
+    const pageIds = paginatedMovimentacoes.map((m) => m.id)
+    setSelectedIds((prev) => {
+      if (checked) {
+        const merged = new Set([...prev, ...pageIds])
+        return Array.from(merged)
+      }
+      return prev.filter((id) => !pageIds.includes(id))
+    })
+  }
+
+  const toggleStar = (id: string) => {
+    setStarredIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+  }
+
+  const handleExportSelected = () => {
+    const selectedMovs = movimentacoes.filter((m) => selectedIds.includes(m.id))
+    if (selectedMovs.length === 0) {
+      alert("Selecione pelo menos uma movimentação.")
+      return
+    }
+
+    setExportingCsv(true)
+    try {
+      const escape = (val: any) => `"${(val ?? "").toString().replace(/"/g, '""')}"`
+      const headers = [
+        "Data/Hora",
+        "Tipo",
+        "Produto",
+        "Quantidade",
+        "Colaborador",
+        "Observações",
+      ]
+      const rows = selectedMovs.map((m) => [
+        m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+        m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1),
+        m.ferramentas?.nome || "-",
+        m.quantidade,
+        m.colaboradores?.nome || "-",
+        m.observacoes || "",
+      ])
+      const csv = [headers.map(escape).join(","), ...rows.map((r) => r.map(escape).join(","))].join("\n")
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      const stamp = new Date().toISOString().replace(/[:.-]/g, "").slice(0, 15)
+      a.download = `movimentacoes_selecionadas_${stamp}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Erro ao exportar selecionados:", error)
+      alert("Erro ao exportar selecionados")
+    } finally {
+      setExportingCsv(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-100 p-2 rounded-t-lg border border-zinc-200 shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
         {/* Left: Actions */}
         <div className="flex items-center gap-1 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" title="Visualizar">
-            <Eye className="h-4 w-4" />
+          <Button
+            variant={showStarredOnly ? "default" : "ghost"}
+            size="icon"
+            className={cn(
+              "h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800",
+              showStarredOnly && "text-yellow-600 dark:text-yellow-400"
+            )}
+            onClick={() => setShowStarredOnly((v) => !v)}
+            title={showStarredOnly ? "Mostrar todas as movimentações" : "Mostrar apenas favoritas"}
+          >
+            <Star className="h-4 w-4" fill={showStarredOnly ? "currentColor" : "none"} />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={handleExportSelected} title="Exportar selecionados">
+            <FileDown className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setSelectedIds([])} title="Limpar seleção">
+            <RotateCcw className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => window.print()} title="Imprimir">
             <Printer className="h-4 w-4" />
@@ -954,14 +1068,21 @@ export default function MovimentacoesList({
         </div>
 
         {/* Right: Search */}
-        <div className="relative w-full md:max-w-xs">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
-          <Input
-            placeholder="Buscar..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 text-sm bg-white border-zinc-300 focus:border-blue-500 dark:bg-zinc-900 dark:border-zinc-700"
-          />
+        <div className="relative w-full md:max-w-xs flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+            <Input
+              placeholder="Buscar..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9 text-sm bg-white border-zinc-300 focus:border-blue-500 dark:bg-zinc-900 dark:border-zinc-700"
+            />
+          </div>
+          {selectedIds.length > 0 && (
+            <Badge variant="secondary" className="whitespace-nowrap text-xs">
+              {selectedIds.length} selecionada{selectedIds.length > 1 ? "s" : ""}
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -976,7 +1097,21 @@ export default function MovimentacoesList({
       <div className="border border-zinc-200 rounded-b-lg overflow-hidden bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
         {/* Header - Desktop */}
         <div className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 bg-slate-700 text-white font-semibold text-xs uppercase tracking-wider items-center dark:bg-slate-900">
-          <div className="flex justify-center"><Checkbox className="border-white/50 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 dark:border-zinc-500" /></div>
+          <div className="flex justify-center">
+            <Checkbox
+              className="border-white/50 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 dark:border-zinc-500"
+              checked={
+                paginatedMovimentacoes.length === 0
+                  ? false
+                  : paginatedMovimentacoes.every((m) => selectedIds.includes(m.id))
+                    ? true
+                    : paginatedMovimentacoes.some((m) => selectedIds.includes(m.id))
+                      ? "indeterminate"
+                      : false
+              }
+              onCheckedChange={(checked) => toggleSelectPage(checked === true)}
+            />
+          </div>
           <div className="flex justify-center"><Star className="h-3 w-3" /></div>
           <div className="flex justify-center">Tipo</div>
           <div>ID</div>
@@ -993,10 +1128,32 @@ export default function MovimentacoesList({
               {/* Versão Desktop */}
               <div
                 onClick={() => handleOpenDetail(m.id)}
-                className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 hover:bg-blue-50/50 transition-colors items-center text-sm text-zinc-700 group cursor-pointer dark:text-zinc-300 dark:hover:bg-blue-900/10"
+                className={cn(
+                  "hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 hover:bg-blue-50/50 transition-colors items-center text-sm text-zinc-700 group cursor-pointer dark:text-zinc-300 dark:hover:bg-blue-900/10",
+                  selectedIds.includes(m.id) && "bg-blue-50/80 dark:bg-blue-900/20",
+                  starredIds.includes(m.id) && "ring-1 ring-amber-200 dark:ring-amber-500/50"
+                )}
               >
-                <div className="flex justify-center" onClick={e => e.stopPropagation()}><Checkbox /></div>
-                <div className="flex justify-center text-zinc-300 hover:text-yellow-400 cursor-pointer transition-colors dark:text-zinc-600" onClick={e => e.stopPropagation()}><Star className="h-4 w-4" /></div>
+                <div className="flex justify-center" onClick={e => e.stopPropagation()}>
+                  <Checkbox
+                    checked={selectedIds.includes(m.id)}
+                    onCheckedChange={(checked) => toggleSelect(m.id, checked === true)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className={cn(
+                    "flex justify-center text-zinc-300 hover:text-yellow-400 transition-colors dark:text-zinc-600",
+                    starredIds.includes(m.id) && "text-yellow-400 dark:text-yellow-300"
+                  )}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleStar(m.id)
+                  }}
+                  aria-label={starredIds.includes(m.id) ? "Remover dos favoritos" : "Favoritar movimentação"}
+                >
+                  <Star className="h-4 w-4" fill={starredIds.includes(m.id) ? "currentColor" : "none"} />
+                </button>
                 <div className="flex justify-center" title={m.tipo}>
                   {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600" />}
                   {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
