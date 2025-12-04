@@ -166,7 +166,78 @@
             }
         },
         "kpi": {
-            "last_30_days": "Last 30 days"
+            "last_30_days": "Last 30 days",
+            "last_days": "Last {{days}} days",
+            "tools_in_use": {
+                "title": "Tools in Use",
+                "desc": "Currently withdrawn by collaborators"
+            },
+            "tools_damaged": {
+                "title": "Damaged Tools",
+                "desc": "Require attention or replacement"
+            },
+            "urgent_restock": {
+                "title": "Urgent Restock",
+                "desc": "Items below minimum stock",
+                "empty": "No items require urgent restocking"
+            },
+            "top_tools": {
+                "title": "Top Requested Tools",
+                "empty": "No tool requests in this period"
+            },
+            "ranking": {
+                "title": "Collaborator Ranking",
+                "desc": "By number of withdrawals",
+                "empty": "No withdrawals in this period"
+            },
+            "tools_active": {
+                "title": "Active Tools",
+                "desc": "Currently registered tools"
+            },
+            "top_consumables": {
+                "title": "Top Consumables"
+            },
+            "critical_stock": {
+                "title": "Critical Stock",
+                "desc": "Items that need restocking"
+            },
+            "recent_consumption": {
+                "title": "Recent Consumption"
+            },
+            "epis_active": {
+                "title": "Active PPEs",
+                "desc": "PPEs currently in use"
+            },
+            "epis_expiring": {
+                "title": "Expiring PPEs",
+                "desc": "PPEs expiring soon"
+            },
+            "critical_items_day": {
+                "title": "Items at Daily Risk",
+                "desc": "Requires immediate attention"
+            },
+            "rupture_risk": {
+                "title": "Stock Rupture Risk",
+                "desc": "Projected to run out"
+            }
+        },
+        "sections": {
+            "tools": "Tools",
+            "consumables": "Consumables",
+            "epis": "PPE (Personal Protective Equipment)",
+            "predictions": "Predictions and Alerts"
+        },
+        "filters": {
+            "best": "Best",
+            "worst": "Worst"
+        },
+        "trial": {
+            "days_remaining": "{{days}} days left in your free trial",
+            "last_day": "Last day of your free trial!",
+            "trial_ended": "Your free trial has ended",
+            "use_all_features": "Take advantage to test all system features.",
+            "activate_to_continue": "To continue using all features, activate your subscription now.",
+            "activate_subscription": "Activate Subscription Now"
         },
         "status": {
             "available": "Available",

@@ -7,6 +7,7 @@ import { checkTrialStatus } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Loader2, AlertCircle, Clock, CreditCard } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface TrialCheckoutPromptProps {
   userId: string
@@ -15,6 +16,7 @@ interface TrialCheckoutPromptProps {
 export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps) {
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const { t } = useTranslation()
   const [loading, setLoading] = React.useState(false)
   const [trialInfo, setTrialInfo] = React.useState<{
     isInTrial: boolean
@@ -90,17 +92,17 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
         <div className="flex-1 w-full">
           <AlertTitle className={`font-semibold text-lg ${titleStyles}`}>
             {trialInfo.trialEnded
-              ? "Seu período de teste grátis acabou"
+              ? t("dashboard.trial.trial_ended")
               : trialInfo.daysRemaining === 1
-                ? "Último dia do seu teste grátis!"
-                : `Faltam ${trialInfo.daysRemaining} dias do seu teste grátis`}
+                ? t("dashboard.trial.last_day")
+                : t("dashboard.trial.days_remaining", { days: trialInfo.daysRemaining })}
           </AlertTitle>
           <AlertDescription className={`mt-2 ${descStyles}`}>
             <div className="flex flex-col items-center sm:items-start sm:flex-row sm:justify-between gap-4">
               <p>
                 {trialInfo.trialEnded
-                  ? "Para continuar usando todas as funcionalidades, ative sua assinatura agora."
-                  : "Aproveite para testar todas as funcionalidades do sistema."}
+                  ? t("dashboard.trial.activate_to_continue")
+                  : t("dashboard.trial.use_all_features")}
               </p>
               <Button
                 onClick={handleCheckout}
@@ -111,12 +113,12 @@ export default function TrialCheckoutPrompt({ userId }: TrialCheckoutPromptProps
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processando...
+                    {t("common.loading")}
                   </>
                 ) : (
                   <>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Ativar Assinatura Agora
+                    {t("dashboard.trial.activate_subscription")}
                   </>
                 )}
               </Button>

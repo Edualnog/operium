@@ -162,6 +162,107 @@
                 "subtitle": "Status atual do inventário"
             }
         },
+        "kpi": {
+            "last_30_days": "Últimos 30 dias",
+            "last_days": "Últimos {{days}} dias",
+            "tools_in_use": {
+                "title": "Ferramentas em Uso",
+                "desc": "Atualmente retiradas por colaboradores"
+            },
+            "tools_damaged": {
+                "title": "Ferramentas Danificadas",
+                "desc": "Requerem atenção ou substituição"
+            },
+            "urgent_restock": {
+                "title": "Reposição Urgente",
+                "desc": "Itens abaixo do estoque mínimo",
+                "empty": "Nenhum item precisa de reposição urgente"
+            },
+            "top_tools": {
+                "title": "Ferramentas Mais Solicitadas",
+                "empty": "Nenhuma solicitação de ferramenta neste período"
+            },
+            "ranking": {
+                "title": "Ranking de Colaboradores",
+                "desc": "Por número de retiradas",
+                "empty": "Nenhuma retirada neste período"
+            },
+            "tools_active": {
+                "title": "Ferramentas Ativas",
+                "desc": "Ferramentas atualmente cadastradas"
+            },
+            "top_consumables": {
+                "title": "Top Consumíveis"
+            },
+            "critical_stock": {
+                "title": "Estoque Crítico",
+                "desc": "Itens que precisam de reposição"
+            },
+            "recent_consumption": {
+                "title": "Consumo Recente"
+            },
+            "epis_active": {
+                "title": "EPIs Ativos",
+                "desc": "EPIs atualmente em uso"
+            },
+            "epis_expiring": {
+                "title": "EPIs Vencendo",
+                "desc": "EPIs com validade próxima"
+            },
+            "critical_items_day": {
+                "title": "Itens em Risco Diário",
+                "desc": "Requer atenção imediata"
+            },
+            "rupture_risk": {
+                "title": "Risco de Ruptura de Estoque",
+                "desc": "Projetado para acabar"
+            }
+        },
+        "sections": {
+            "tools": "Ferramentas",
+            "consumables": "Consumíveis",
+            "epis": "EPIs (Equipamentos de Proteção Individual)",
+            "predictions": "Previsões e Alertas"
+        },
+        "filters": {
+            "best": "Melhores",
+            "worst": "Piores"
+        },
+        "trial": {
+            "days_remaining": "Faltam {{days}} dias do seu teste grátis",
+            "last_day": "Último dia do seu teste grátis!",
+            "trial_ended": "Seu período de teste grátis acabou",
+            "use_all_features": "Aproveite para testar todas as funcionalidades do sistema.",
+            "activate_to_continue": "Para continuar usando todas as funcionalidades, ative sua assinatura agora.",
+            "activate_subscription": "Ativar Assinatura Agora"
+        },
+        "status": {
+            "available": "Disponível",
+            "in_use": "Em uso",
+            "maintenance": "Manutenção",
+            "in_repair": "Em Conserto",
+            "damaged": "Danificada",
+            "ok": "OK"
+        },
+        "labels": {
+            "demand": "Demanda:",
+            "withdrawals": "retiradas",
+            "stock": "Estoque:",
+            "min": "Mín:",
+            "outputs": "Saídas:",
+            "category": "Categoria:",
+            "score": "Score:",
+            "withdrawals_count": "Retiradas:",
+            "on_time": "No prazo:",
+            "no_deadline": "Sem prazo",
+            "days_remaining_suffix": "dias restantes",
+            "available_suffix": "disponíveis",
+            "until_stockout": "até ruptura",
+            "low_stock": "Estoque baixo",
+            "outputs_per_day": "saídas/dia",
+            "turnover": "Rotatividade",
+            "week": "Semana"
+        },
         "colaboradores": {
             "title": "Colaboradores",
             "subtitle": "Gerencie os colaboradores do seu almoxarifado",
@@ -267,36 +368,6 @@
                 "request_signature": "Solicitar assinatura digital",
                 "save": "Registrar Movimentação"
             }
-        },
-        "status": {
-            "available": "Disponível",
-            "in_use": "Em uso",
-            "maintenance": "Manutenção",
-            "in_repair": "Em Conserto",
-            "damaged": "Danificada",
-            "ok": "OK"
-        },
-        "kpi": {
-            "last_30_days": "Últimos 30 dias"
-        },
-        "labels": {
-            "demand": "Demanda:",
-            "withdrawals": "retiradas",
-            "stock": "Estoque:",
-            "min": "Mín:",
-            "outputs": "Saídas:",
-            "category": "Categoria:",
-            "score": "Score:",
-            "withdrawals_count": "Retiradas:",
-            "on_time": "No prazo:",
-            "no_deadline": "Sem prazo",
-            "days_remaining_suffix": "dias restantes",
-            "available_suffix": "disponíveis",
-            "until_stockout": "até ruptura",
-            "low_stock": "Estoque baixo",
-            "outputs_per_day": "saídas/dia",
-            "turnover": "Rotatividade",
-            "week": "Semana"
         },
         "conta": {
             "title": "Minha Conta",
