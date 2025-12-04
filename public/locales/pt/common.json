@@ -1006,6 +1006,16 @@
             "terms": "Termos de Uso",
             "privacy": "Privacidade",
             "contact": "Contato"
+        },
+        "mockup": {
+            "new_exit": "Nova Saída",
+            "stock_updated": "Estoque atualizado",
+            "just_now": "Agora mesmo",
+            "new_movement": "Nova Movimentação",
+            "product": "Produto",
+            "quantity": "Quantidade",
+            "responsible": "Responsável",
+            "confirm_exit": "Confirmar Saída"
         }
     }
 }

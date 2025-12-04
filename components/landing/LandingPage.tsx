@@ -353,7 +353,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 h-64 p-4">
                         <div className="w-full h-8 bg-slate-800 rounded mb-4 flex items-center justify-between px-2">
                           <div className="h-3 w-24 bg-slate-700 rounded" />
-                          <div className="h-6 w-20 bg-blue-600 rounded text-[10px] text-white flex items-center justify-center font-bold">Nova Saída</div>
+                          <div className="h-6 w-20 bg-blue-600 rounded text-[10px] text-white flex items-center justify-center font-bold">{t('landing.mockup.new_exit')}</div>
                         </div>
                         <div className="space-y-3">
                           {[1, 2, 3, 4].map(i => (
@@ -376,8 +376,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       <Check className="h-5 w-5 text-green-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400">Estoque atualizado</p>
-                      <p className="font-bold text-white">Agora mesmo</p>
+                      <p className="text-xs text-slate-400">{t('landing.mockup.stock_updated')}</p>
+                      <p className="font-bold text-white">{t('landing.mockup.just_now')}</p>
                     </div>
                   </div>
                 </div>
@@ -463,24 +463,24 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   {/* Mobile Interface Mockup */}
                   <div className="bg-slate-900 rounded-xl overflow-hidden border border-slate-700 aspect-[9/16] max-w-xs mx-auto relative">
                     <div className="absolute top-0 left-0 right-0 h-14 bg-slate-800 flex items-center justify-center border-b border-slate-700">
-                      <span className="text-white font-bold">Nova Movimentação</span>
+                      <span className="text-white font-bold">{t('landing.mockup.new_movement')}</span>
                     </div>
                     <div className="p-6 mt-14 space-y-4">
                       <div className="space-y-2">
-                        <div className="text-xs text-slate-400">Produto</div>
+                        <div className="text-xs text-slate-400">{t('landing.mockup.product')}</div>
                         <div className="h-10 bg-slate-800 rounded border border-slate-700" />
                       </div>
                       <div className="space-y-2">
-                        <div className="text-xs text-slate-400">Quantidade</div>
+                        <div className="text-xs text-slate-400">{t('landing.mockup.quantity')}</div>
                         <div className="h-10 bg-slate-800 rounded border border-slate-700" />
                       </div>
                       <div className="space-y-2">
-                        <div className="text-xs text-slate-400">Responsável</div>
+                        <div className="text-xs text-slate-400">{t('landing.mockup.responsible')}</div>
                         <div className="h-10 bg-slate-800 rounded border border-slate-700" />
                       </div>
                       <div className="pt-4">
                         <div className="h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-                          Confirmar Saída
+                          {t('landing.mockup.confirm_exit')}
                         </div>
                       </div>
                     </div>

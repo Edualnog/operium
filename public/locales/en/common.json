@@ -1014,6 +1014,16 @@
             "terms": "Terms of Use",
             "privacy": "Privacy",
             "contact": "Contact"
+        },
+        "mockup": {
+            "new_exit": "New Exit",
+            "stock_updated": "Stock updated",
+            "just_now": "Just now",
+            "new_movement": "New Movement",
+            "product": "Product",
+            "quantity": "Quantity",
+            "responsible": "Responsible",
+            "confirm_exit": "Confirm Exit"
         }
     }
 }
