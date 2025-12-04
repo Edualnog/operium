@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import ConsertosList from "@/components/consertos/ConsertosList"
 import { ListSkeleton } from "@/components/loading/PageSkeleton"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 export const revalidate = 60 // Revalidar a cada 60 segundos
 
@@ -84,12 +85,10 @@ export default async function ConsertosPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Consertos</h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
-          Gerencie as ordens de conserto de ferramentas
-        </p>
-      </div>
+      <PageHeader
+        titleKey="dashboard.consertos.title"
+        subtitleKey="dashboard.consertos.subtitle"
+      />
       <Suspense fallback={<ListSkeleton />}>
         <ConsertosList consertos={consertos} />
       </Suspense>

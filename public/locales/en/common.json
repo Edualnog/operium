@@ -587,7 +587,8 @@
                 "ca_number": "CA Number (PPE)",
                 "observations": "Observations",
                 "save": "Save Product"
-            }
+            },
+            "error": "Error loading data. Please reload the page."
         },
         "checkout": {
             "subscribe_now": "Subscribe Now",

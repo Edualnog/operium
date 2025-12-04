@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import ColaboradoresList from "@/components/colaboradores/ColaboradoresList"
 import { ListSkeleton } from "@/components/loading/PageSkeleton"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 export const revalidate = 60 // Revalidar a cada 60 segundos
 
@@ -113,12 +114,10 @@ export default async function ColaboradoresPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Colaboradores</h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
-          Gerencie os colaboradores do seu almoxarifado
-        </p>
-      </div>
+      <PageHeader
+        titleKey="dashboard.colaboradores.title"
+        subtitleKey="dashboard.colaboradores.subtitle"
+      />
       <Suspense fallback={<ListSkeleton />}>
         <ColaboradoresList colaboradores={colaboradores} movimentacoesStats={movimentacoesStats} />
       </Suspense>

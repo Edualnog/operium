@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import MovimentacoesList from "@/components/movimentacoes/MovimentacoesList"
 import { ListSkeleton } from "@/components/loading/PageSkeleton"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 // Removido revalidate para permitir atualização imediata após registrar movimentações
 
@@ -114,14 +115,10 @@ export default async function MovimentacoesPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Movimentações
-        </h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
-          Registre entradas, saídas e devoluções de produtos
-        </p>
-      </div>
+      <PageHeader
+        titleKey="dashboard.movimentacoes.title"
+        subtitleKey="dashboard.movimentacoes.subtitle"
+      />
       <Suspense fallback={<ListSkeleton />}>
         <MovimentacoesList
           movimentacoes={movimentacoes}

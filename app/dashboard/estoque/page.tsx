@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import FerramentasList from "@/components/ferramentas/FerramentasList"
 import { ListSkeleton } from "@/components/loading/PageSkeleton"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 // Página precisa ser dinâmica pois depende de cookies/sessão
 export const dynamic = "force-dynamic"
@@ -122,12 +123,10 @@ export default async function EstoquePage() {
 
     return (
       <div className="space-y-6 sm:space-y-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Estoque</h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
-            Cadastre e controle ferramentas, EPIs e consumíveis
-          </p>
-        </div>
+        <PageHeader
+          titleKey="dashboard.ferramentas.title"
+          subtitleKey="dashboard.ferramentas.subtitle"
+        />
         <Suspense fallback={<ListSkeleton />}>
           <FerramentasList
             ferramentas={ferramentas}
@@ -140,12 +139,10 @@ export default async function EstoquePage() {
     console.error("Erro na página de estoque:", error)
     return (
       <div className="space-y-6 sm:space-y-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Estoque</h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
-            Erro ao carregar dados. Por favor, recarregue a página.
-          </p>
-        </div>
+        <PageHeader
+          titleKey="dashboard.ferramentas.title"
+          subtitleKey="dashboard.ferramentas.error"
+        />
       </div>
     )
   }

@@ -584,7 +584,8 @@
                 "ca_number": "Número do CA (EPI)",
                 "observations": "Observações",
                 "save": "Salvar Produto"
-            }
+            },
+            "error": "Erro ao carregar dados. Por favor, recarregue a página."
         },
         "checkout": {
             "subscribe_now": "Assinar Agora",
