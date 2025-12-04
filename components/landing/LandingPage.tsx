@@ -22,7 +22,8 @@ import {
   Headphones,
   Smartphone,
   CreditCard,
-  BarChart3
+  BarChart3,
+  Crown
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -62,7 +63,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
   const { t } = useTranslation('common')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
-  const [plan, setPlan] = useState<"mensal" | "anual">("anual")
+  const [plan, setPlan] = useState<"mensal" | "trimestral" | "anual">("trimestral")
   const router = useRouter()
 
   const handleStart = () => {
@@ -598,63 +599,93 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
         {/* Pricing */}
         <section className="py-24 bg-white">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.pricing.title')}</h2>
             <p className="text-slate-600 mb-12">
               {t('landing.pricing.subtitle')}
             </p>
 
-            <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-12 relative overflow-hidden transform hover:scale-105 transition-transform duration-300">
-              <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-                {t('landing.pricing.most_popular')}
-              </div>
-
-              {/* Plan Toggle */}
-              <div className="flex justify-center mb-8">
-                <div className="bg-slate-100 p-1 rounded-xl inline-flex relative">
-                  <button
-                    onClick={() => setPlan("mensal")}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${plan === "mensal"
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                      }`}
-                  >
-                    {t('landing.pricing.monthly')}
-                  </button>
-                  <button
-                    onClick={() => setPlan("anual")}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${plan === "anual"
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                      }`}
-                  >
-                    {t('landing.pricing.annual')}
-                    <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full">
-                      -33%
-                    </span>
-                  </button>
+            {/* Pricing Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {/* Monthly */}
+              <div
+                onClick={() => setPlan("mensal")}
+                className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200 bg-white hover:border-slate-300
+                  ${plan === "mensal" ? "border-blue-500 scale-[1.02] shadow-xl shadow-blue-500/20" : "border-slate-200"}
+                `}
+              >
+                <div className="text-center pt-2">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.monthly')}</h3>
+                  <div className="mb-2">
+                    <span className="text-3xl font-bold text-slate-900">R$69,90</span>
+                    <span className="text-slate-500 text-sm">/mês</span>
+                  </div>
+                  <div className="text-sm text-slate-500 mb-4">≈ R$69,90/mês</div>
+                  <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "mensal" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
+                    {plan === "mensal" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
+                  </div>
                 </div>
               </div>
 
-              <div className="mb-2">
-                {plan === "anual" ? (
-                  <>
-                    <span className="text-xl text-slate-400 line-through mr-2">R$ 59,90</span>
-                    <span className="text-5xl font-bold text-slate-900">R$ 39,90</span>
-                  </>
-                ) : (
-                  <span className="text-5xl font-bold text-slate-900">R$ 59,90</span>
-                )}
-                <span className="text-slate-500">{t('landing.pricing.per_month')}</span>
+              {/* Quarterly - Most Popular */}
+              <div
+                onClick={() => setPlan("trimestral")}
+                className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200 bg-white
+                  ${plan === "trimestral" ? "border-blue-500 scale-[1.02] shadow-xl shadow-blue-500/20" : "border-slate-200 hover:border-slate-300"}
+                  ring-2 ring-blue-500 ring-offset-2
+                `}
+              >
+                {/* Badge */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 bg-blue-500 text-white">
+                  <Star className="h-3 w-3" />
+                  {t('landing.pricing.most_popular')}
+                </div>
+                {/* Discount */}
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">-12%</div>
+                <div className="text-center pt-2">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.quarterly')}</h3>
+                  <div className="mb-2">
+                    <span className="text-3xl font-bold text-slate-900">R$189,90</span>
+                    <span className="text-slate-500 text-sm">/trimestre</span>
+                  </div>
+                  <div className="text-sm text-slate-500 mb-4">≈ R$63,30/mês</div>
+                  <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "trimestral" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
+                    {plan === "trimestral" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
+                  </div>
+                </div>
               </div>
 
-              <p className="text-sm text-slate-500 mb-8">
-                {plan === "anual"
-                  ? t('landing.pricing.billed_annually')
-                  : t('landing.pricing.billed_monthly')}
-              </p>
+              {/* Annual - Best Value */}
+              <div
+                onClick={() => setPlan("anual")}
+                className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200 bg-white hover:border-slate-300
+                  ${plan === "anual" ? "border-blue-500 scale-[1.02] shadow-xl shadow-blue-500/20" : "border-slate-200"}
+                `}
+              >
+                {/* Badge */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white">
+                  <Crown className="h-3 w-3" />
+                  {t('landing.pricing.best_value')}
+                </div>
+                {/* Discount */}
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">-32%</div>
+                <div className="text-center pt-2">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.annual')}</h3>
+                  <div className="mb-2">
+                    <span className="text-3xl font-bold text-slate-900">R$597,00</span>
+                    <span className="text-slate-500 text-sm">/ano</span>
+                  </div>
+                  <div className="text-sm text-slate-500 mb-4">≈ R$49,75/mês</div>
+                  <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "anual" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
+                    {plan === "anual" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              <ul className="space-y-4 mb-10 text-left max-w-xs mx-auto">
+            {/* Features and CTA */}
+            <div className="bg-slate-50 rounded-2xl p-8 max-w-lg mx-auto">
+              <ul className="space-y-4 mb-8 text-left">
                 {[
                   t('landing.pricing.feat_stock'),
                   t('landing.pricing.feat_users'),
