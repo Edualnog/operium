@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     Upload,
@@ -118,6 +118,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
         }
     }
 
+    const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
     const [isCameraOpen, setIsCameraOpen] = useState(false)
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -127,9 +128,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment" }
             })
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream
-            }
+            setMediaStream(stream)
             setIsCameraOpen(true)
             setStep("camera")
         } catch (err) {
@@ -138,15 +137,32 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
         }
     }
 
-    const stopCamera = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream
-            stream.getTracks().forEach(track => track.stop())
-            videoRef.current.srcObject = null
+    const stopCamera = useCallback(() => {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop())
+            setMediaStream(null)
         }
         setIsCameraOpen(false)
-        setStep("upload")
-    }
+        if (step === "camera") {
+            setStep("upload")
+        }
+    }, [mediaStream, step])
+
+    // Anexar stream ao vídeo quando o elemento estiver pronto
+    useEffect(() => {
+        if (step === "camera" && videoRef.current && mediaStream) {
+            videoRef.current.srcObject = mediaStream
+        }
+    }, [step, mediaStream])
+
+    // Cleanup ao desmontar
+    useEffect(() => {
+        return () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop())
+            }
+        }
+    }, [mediaStream])
 
     const capturePhoto = () => {
         if (videoRef.current && canvasRef.current) {
@@ -178,7 +194,12 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={(e) => e.target === e.currentTarget && onClose()}
+            onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                    stopCamera()
+                    onClose()
+                }
+            }}
         >
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
