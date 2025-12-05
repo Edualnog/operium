@@ -304,6 +304,60 @@ function FerramentasList({
       .join("-")
   }
 
+  const handleAutoFill = async (targetField: 'categoria' | 'codigo' | 'ponto_ressuprimento', btn: HTMLButtonElement) => {
+    const nomeInput = document.getElementById("nome") as HTMLInputElement
+    const nome = nomeInput?.value
+
+    if (!nome) {
+      toast.error("Preencha o nome do produto primeiro")
+      return
+    }
+
+    const originalContent = btn.innerHTML
+    btn.innerHTML = '<svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'
+    btn.disabled = true
+
+    try {
+      // Coletar contexto atual do formulário
+      const context = {
+        nome,
+        categoria: (document.getElementById("categoria") as HTMLInputElement)?.value,
+        tipo_item: tipoItem,
+        tamanho: (document.getElementById("tamanho") as HTMLInputElement)?.value,
+        cor: (document.getElementById("cor") as HTMLInputElement)?.value,
+      }
+
+      const res = await fetch("/api/ai/autofill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ context, targetField })
+      })
+
+      if (!res.ok) throw new Error("Erro na IA")
+
+      const data = await res.json()
+
+      if (data.suggestion) {
+        if (targetField === 'categoria') {
+          const input = document.getElementById("categoria") as HTMLInputElement
+          if (input) input.value = data.suggestion
+        } else if (targetField === 'codigo') {
+          setProductCode(data.suggestion)
+        } else if (targetField === 'ponto_ressuprimento') {
+          const input = document.getElementById("ponto_ressuprimento") as HTMLInputElement
+          if (input) input.value = data.suggestion
+        }
+        toast.success("Sugestão aplicada!")
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("Erro ao gerar sugestão")
+    } finally {
+      btn.innerHTML = originalContent
+      btn.disabled = false
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
@@ -637,86 +691,22 @@ function FerramentasList({
                   )}
                   <div className="grid gap-2">
                     <Label htmlFor="nome">{t("dashboard.ferramentas.form.name")} *</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="nome"
-                        name="nome"
-                        defaultValue={editing?.nome || ""}
-                        onBlur={(e) =>
-                          setProductCode(
-                            gerarCodigoLocal(
-                              e.target.value,
-                              (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                              (document.getElementById("cor") as HTMLInputElement)?.value || "",
-                              tipoItem
-                            )
+                    <Input
+                      id="nome"
+                      name="nome"
+                      defaultValue={editing?.nome || ""}
+                      onBlur={(e) =>
+                        setProductCode(
+                          gerarCodigoLocal(
+                            e.target.value,
+                            (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
+                            (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                            tipoItem
                           )
-                        }
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        title="Preencher com IA"
-                        onClick={async () => {
-                          const nomeInput = document.getElementById("nome") as HTMLInputElement
-                          const nome = nomeInput?.value
-                          if (!nome) {
-                            toast.error("Digite o nome do produto primeiro")
-                            return
-                          }
-
-                          const btn = document.activeElement as HTMLButtonElement
-                          const originalContent = btn.innerHTML
-                          btn.innerHTML = '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'
-                          btn.disabled = true
-
-                          try {
-                            const res = await fetch("/api/ai/autofill", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ nome })
-                            })
-
-                            if (!res.ok) throw new Error("Erro na IA")
-
-                            const data = await res.json()
-
-                            // Preencher campos
-                            if (data.categoria) {
-                              const catInput = document.getElementById("categoria") as HTMLInputElement
-                              if (catInput) catInput.value = data.categoria
-                            }
-
-                            if (data.codigo) {
-                              setProductCode(data.codigo)
-                            }
-
-                            if (data.tipo_item) {
-                              setTipoItem(data.tipo_item)
-                              // Atualizar select visualmente é complexo sem controlar o estado, 
-                              // mas o setTipoItem atualiza o estado que controla o valor
-                            }
-
-                            if (data.ponto_ressuprimento) {
-                              const prInput = document.getElementById("ponto_ressuprimento") as HTMLInputElement
-                              if (prInput) prInput.value = data.ponto_ressuprimento
-                            }
-
-                            toast.success("Campos preenchidos pela IA!")
-                          } catch (error) {
-                            console.error(error)
-                            toast.error("Erro ao preencher com IA")
-                          } finally {
-                            btn.innerHTML = originalContent
-                            btn.disabled = false
-                          }
-                        }}
-                      >
-                        <Sparkles className="h-4 w-4 text-indigo-500" />
-                      </Button>
-                    </div>
+                        )
+                      }
+                      required
+                    />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="tipo_item">{t("dashboard.ferramentas.form.type")}</Label>
@@ -754,30 +744,52 @@ function FerramentasList({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="grid gap-2">
                       <Label htmlFor="categoria">{t("dashboard.ferramentas.form.line_group")}</Label>
-                      <Input
-                        id="categoria"
-                        name="categoria"
-                        placeholder={t("dashboard.ferramentas.form.line_placeholder")}
-                        defaultValue={editing?.categoria || ""}
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="categoria"
+                          name="categoria"
+                          placeholder={t("dashboard.ferramentas.form.line_placeholder")}
+                          defaultValue={editing?.categoria || ""}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          title="Sugerir Categoria (IA)"
+                          onClick={(e) => handleAutoFill('categoria', e.currentTarget)}
+                        >
+                          <Sparkles className="h-3 w-3 text-indigo-500" />
+                        </Button>
+                      </div>
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="codigo">{t("dashboard.ferramentas.form.code")}</Label>
-                      <Input
-                        id="codigo"
-                        name="codigo"
-                        value={
-                          productCode ||
-                          gerarCodigoLocal(
-                            (document.getElementById("nome") as HTMLInputElement)?.value || editing?.nome || "",
-                            (document.getElementById("tamanho") as HTMLInputElement)?.value || editing?.tamanho || "",
-                            (document.getElementById("cor") as HTMLInputElement)?.value || editing?.cor || "",
-                            tipoItem
-                          )
-                        }
-                        onChange={(e) => setProductCode(e.target.value)}
-                        placeholder={t("dashboard.ferramentas.form.auto_generated")}
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="codigo"
+                          name="codigo"
+                          value={
+                            productCode ||
+                            gerarCodigoLocal(
+                              (document.getElementById("nome") as HTMLInputElement)?.value || editing?.nome || "",
+                              (document.getElementById("tamanho") as HTMLInputElement)?.value || editing?.tamanho || "",
+                              (document.getElementById("cor") as HTMLInputElement)?.value || editing?.cor || "",
+                              tipoItem
+                            )
+                          }
+                          onChange={(e) => setProductCode(e.target.value)}
+                          placeholder={t("dashboard.ferramentas.form.auto_generated")}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          title="Sugerir Código (IA)"
+                          onClick={(e) => handleAutoFill('codigo', e.currentTarget)}
+                        >
+                          <Sparkles className="h-3 w-3 text-indigo-500" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -859,14 +871,25 @@ function FerramentasList({
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="ponto_ressuprimento">{t("dashboard.ferramentas.form.min_stock")}</Label>
-                    <Input
-                      id="ponto_ressuprimento"
-                      name="ponto_ressuprimento"
-                      type="number"
-                      min="0"
-                      placeholder={t("dashboard.ferramentas.form.min_stock_placeholder")}
-                      defaultValue={editing?.ponto_ressuprimento || ""}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id="ponto_ressuprimento"
+                        name="ponto_ressuprimento"
+                        type="number"
+                        min="0"
+                        placeholder={t("dashboard.ferramentas.form.min_stock_placeholder")}
+                        defaultValue={editing?.ponto_ressuprimento || ""}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        title="Sugerir Ponto de Ressuprimento (IA)"
+                        onClick={(e) => handleAutoFill('ponto_ressuprimento', e.currentTarget)}
+                      >
+                        <Sparkles className="h-3 w-3 text-indigo-500" />
+                      </Button>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {t("dashboard.ferramentas.form.min_stock_hint")}
                     </p>

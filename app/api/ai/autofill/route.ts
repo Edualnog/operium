@@ -3,7 +3,8 @@ import { openai } from '@/lib/openai';
 
 export async function POST(req: Request) {
     try {
-        const { nome } = await req.json();
+        const { context, targetField } = await req.json();
+        // context = { nome, categoria, tipo_item, ... }
 
         if (!process.env.OPENAI_API_KEY) {
             return NextResponse.json(
@@ -12,26 +13,52 @@ export async function POST(req: Request) {
             );
         }
 
-        const prompt = `
-      Com base no nome do produto "${nome}", sugira os seguintes campos para cadastro em um sistema de almoxarifado:
-      1. Categoria (ex: Elétrica, Hidráulica, Ferramentas Manuais, EPI, Escritório, Limpeza, etc.)
-      2. Código Sugerido (formato: 3 letras da categoria + 3 letras do nome + 3 números aleatórios. Ex: ELE-PAR-123)
-      3. Tipo de Item (ferramenta, epi, ou consumivel)
-      4. Ponto de Ressuprimento (estimativa conservadora, número inteiro)
+        let prompt = "";
 
-      Responda APENAS com um JSON no seguinte formato:
-      {
-        "categoria": "string",
-        "codigo": "string",
-        "tipo_item": "ferramenta" | "epi" | "consumivel",
-        "ponto_ressuprimento": number
-      }
-    `;
+        if (targetField === 'categoria') {
+            prompt = `
+        Com base no produto:
+        Nome: "${context.nome || ''}"
+        Tipo: "${context.tipo_item || ''}"
+        
+        Sugira uma Categoria curta e padronizada para este item (ex: Elétrica, Hidráulica, Ferramentas Manuais, EPI, Escritório).
+        Responda APENAS com um JSON: { "suggestion": "string" }
+      `;
+        } else if (targetField === 'codigo') {
+            prompt = `
+        Com base no produto:
+        Nome: "${context.nome || ''}"
+        Categoria: "${context.categoria || ''}"
+        Tipo: "${context.tipo_item || ''}"
+        
+        Gere um código único e curto seguindo o padrão XXX-YYY-000 (3 letras categoria, 3 letras nome, 3 números).
+        Exemplo: Para "Martelo" na categoria "Ferramentas", sugira "FER-MAR-123".
+        Responda APENAS com um JSON: { "suggestion": "string" }
+      `;
+        } else if (targetField === 'ponto_ressuprimento') {
+            prompt = `
+        Com base no produto:
+        Nome: "${context.nome || ''}"
+        Tipo: "${context.tipo_item || ''}"
+        
+        Estime um Ponto de Ressuprimento (quantidade mínima segura) conservador.
+        Responda APENAS com um JSON: { "suggestion": number }
+      `;
+        } else {
+            // Fallback para preenchimento geral (comportamento antigo, caso necessário)
+            prompt = `
+        Com base no nome "${context.nome}", sugira:
+        1. Categoria
+        2. Código
+        3. Ponto de Ressuprimento
+        Responda JSON: { "categoria": "...", "codigo": "...", "ponto_ressuprimento": ... }
+      `;
+        }
 
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "Você é um assistente de cadastro de produtos." },
+                { role: "system", content: "Você é um assistente de cadastro de almoxarifado." },
                 { role: "user", content: prompt }
             ],
             response_format: { type: "json_object" },
@@ -42,7 +69,6 @@ export async function POST(req: Request) {
         if (!content) throw new Error("Sem resposta da IA");
 
         const data = JSON.parse(content);
-
         return NextResponse.json(data);
 
     } catch (error: any) {
