@@ -42,6 +42,7 @@ import {
 import { useSidebar } from "@/components/ui/sidebar"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
+import { VoiceCommandButton } from "../ferramentas/VoiceCommandButton"
 
 interface Colaborador {
   id: string
@@ -105,6 +106,25 @@ function ColaboradoresList({
   const [nomeDigitado, setNomeDigitado] = useState("")
   const [colaboradoresSimilares, setColaboradoresSimilares] = useState<Colaborador[]>([])
   const [confirmarDuplicata, setConfirmarDuplicata] = useState(false)
+
+  // Estado para dados preenchidos por voz
+  const [voiceData, setVoiceData] = useState<any>(null)
+
+  const handleVoiceCommand = (data: any) => {
+    const { intent } = data
+    if (!intent) return
+
+    if (intent.action === "create") {
+      setVoiceData({
+        nome: intent.nome,
+        cargo: intent.cargo,
+        email: intent.email,
+        telefone: intent.telefone
+      })
+      setOpen(true)
+      toast.success("Formulário preenchido por voz!")
+    }
+  }
 
   const router = useRouter()
   const supabase = createClientComponentClient()
@@ -1004,6 +1024,15 @@ function ColaboradoresList({
   return (
     <div className="space-y-4">
       {/* Filtros */}
+      {/* Voice Assistant Section */}
+      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para cadastrar colaboradores rapidamente</p>
+        </div>
+        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="colaborador" />
+      </div>
+
       <ColaboradoresFilters
         cargos={cargos}
         filters={filters}
@@ -1077,7 +1106,7 @@ function ColaboradoresList({
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} key={editing ? `edit-${editing.id}` : voiceData ? `voice-${Date.now()}` : 'new'}>
                 <DialogHeader>
                   <DialogTitle>
                     {editing ? t("dashboard.colaboradores.form.title_edit") : t("dashboard.colaboradores.form.title_new")}
@@ -1168,7 +1197,7 @@ function ColaboradoresList({
                       id="cargo"
                       name="cargo"
                       placeholder={t("dashboard.colaboradores.form.role_placeholder")}
-                      defaultValue={editing?.cargo || ""}
+                      defaultValue={editing?.cargo || voiceData?.cargo || ""}
                     />
                   </div>
 
@@ -1196,7 +1225,7 @@ function ColaboradoresList({
                         name="email"
                         type="email"
                         placeholder={t("dashboard.colaboradores.form.email_placeholder")}
-                        defaultValue={editing?.email || ""}
+                        defaultValue={editing?.email || voiceData?.email || ""}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -1206,7 +1235,7 @@ function ColaboradoresList({
                         name="telefone"
                         type="tel"
                         placeholder={t("dashboard.colaboradores.form.phone_placeholder")}
-                        defaultValue={editing?.telefone || ""}
+                        defaultValue={editing?.telefone || voiceData?.telefone || ""}
                       />
                     </div>
                   </div>
@@ -1218,7 +1247,7 @@ function ColaboradoresList({
                       id="cpf"
                       name="cpf"
                       placeholder={t("dashboard.colaboradores.form.cpf_placeholder")}
-                      defaultValue={editing?.cpf || ""}
+                      defaultValue={editing?.cpf || voiceData?.cpf || ""}
                     />
                   </div>
 

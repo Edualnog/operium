@@ -1140,7 +1140,7 @@ export default function MovimentacoesList({
           <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para registrar movimentações rapidamente</p>
         </div>
-        <VoiceCommandButton onCommandReceived={handleVoiceCommand} />
+        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="movimentacao" />
       </div>
 
       <MovimentacoesFilters

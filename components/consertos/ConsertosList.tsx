@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { registrarEnvioConserto } from "@/lib/actions"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
+import { VoiceCommandButton } from "../ferramentas/VoiceCommandButton"
 
 interface Conserto {
   id: string
@@ -99,6 +100,39 @@ function ConsertosList({
     local: "",
     produtoId: "",
   })
+
+  const handleVoiceCommand = (data: any) => {
+    const { intent } = data
+    if (!intent) return
+
+    if (intent.item_name) {
+      // Tentar encontrar o produto
+      const termo = intent.item_name.toLowerCase()
+      const produtoEncontrado = produtos.find(p => p.nome.toLowerCase().includes(termo))
+
+      if (produtoEncontrado) {
+        setForm(prev => ({
+          ...prev,
+          produto: produtoEncontrado.nome,
+          produtoId: produtoEncontrado.id,
+          quantidade: (intent.quantity || 1).toString(),
+          descricao: intent.action === "conserto" ? "Solicitado via voz" : ""
+        }))
+        setOpenNew(true)
+        toast.success(`Produto identificado: ${produtoEncontrado.nome}`)
+      } else {
+        toast.warning(`Produto "${intent.item_name}" não encontrado.`)
+        // Preenche o nome mesmo assim para o usuário buscar
+        setForm(prev => ({
+          ...prev,
+          produto: intent.item_name,
+          produtoId: "",
+          quantidade: (intent.quantity || 1).toString()
+        }))
+        setOpenNew(true)
+      }
+    }
+  }
 
   const consertosAbertos = useMemo(
     () => consertos.filter((c) => c.status !== "concluido"),
@@ -523,6 +557,15 @@ function ConsertosList({
 
   return (
     <div className="space-y-8">
+      {/* Voice Assistant Section */}
+      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para registrar consertos rapidamente</p>
+        </div>
+        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="movimentacao" />
+      </div>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
           <DialogTrigger asChild>
@@ -829,246 +872,254 @@ function ConsertosList({
         </Dialog>
       </div>
       {/* Consertos Abertos */}
-      {consertosAbertos.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">{t("dashboard.consertos.open_repairs")}</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
-            {consertosAbertos.map((conserto) => (
-              <Card key={conserto.id} className="flex h-full flex-col">
-                <CardContent className="p-6 flex h-full flex-col">
-                  <div className="flex h-full flex-col gap-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <h3 className="font-semibold text-lg">
-                          {parseFerramenta(conserto.ferramentas).nome}
-                        </h3>
-                        {conserto.prioridade && (
-                          <Badge
-                            variant={
-                              conserto.prioridade === "alta"
-                                ? "destructive"
-                                : conserto.prioridade === "media"
-                                  ? "default"
-                                  : "secondary"
-                            }
-                          >
-                            Prioridade: {conserto.prioridade}
-                          </Badge>
-                        )}
+      {
+        consertosAbertos.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">{t("dashboard.consertos.open_repairs")}</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+              {consertosAbertos.map((conserto) => (
+                <Card key={conserto.id} className="flex h-full flex-col">
+                  <CardContent className="p-6 flex h-full flex-col">
+                    <div className="flex h-full flex-col gap-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <h3 className="font-semibold text-lg">
+                            {parseFerramenta(conserto.ferramentas).nome}
+                          </h3>
+                          {conserto.prioridade && (
+                            <Badge
+                              variant={
+                                conserto.prioridade === "alta"
+                                  ? "destructive"
+                                  : conserto.prioridade === "media"
+                                    ? "default"
+                                    : "secondary"
+                              }
+                            >
+                              Prioridade: {conserto.prioridade}
+                            </Badge>
+                          )}
+                          <p className="text-sm text-muted-foreground">
+                            Enviado em{" "}
+                            {conserto.data_envio
+                              ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
+                                locale: ptBR,
+                              })
+                              : "-"}
+                          </p>
+                          {conserto.local_conserto && (
+                            <p className="text-xs text-muted-foreground">
+                              Local: {conserto.local_conserto}
+                            </p>
+                          )}
+                          {conserto.prazo && (
+                            <p className="text-xs text-muted-foreground">
+                              Prazo: {format(new Date(conserto.prazo), "dd/MM/yyyy", { locale: ptBR })}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant={getStatusBadge(conserto.status)}>
+                          <span className="flex items-center gap-1">
+                            {getStatusIcon(conserto.status)}
+                            {getStatusLabel(conserto.status)}
+                          </span>
+                        </Badge>
+                      </div>
+
+                      {conserto.descricao && (
                         <p className="text-sm text-muted-foreground">
-                          Enviado em{" "}
-                          {conserto.data_envio
-                            ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
-                              locale: ptBR,
-                            })
-                            : "-"}
+                          {conserto.descricao}
                         </p>
-                        {conserto.local_conserto && (
-                          <p className="text-xs text-muted-foreground">
-                            Local: {conserto.local_conserto}
-                          </p>
+                      )}
+
+                      <div className="flex flex-col gap-2 mt-auto">
+                        {conserto.status === "aguardando" && (
+                          <Button
+                            variant="secondary"
+                            disabled={statusLoadingId === conserto.id}
+                            onClick={() => handleAtualizarStatus(conserto.id, "em_andamento")}
+                          >
+                            {statusLoadingId === conserto.id ? t("dashboard.consertos.actions.processing") : t("dashboard.consertos.actions.mark_in_progress")}
+                          </Button>
                         )}
-                        {conserto.prazo && (
-                          <p className="text-xs text-muted-foreground">
-                            Prazo: {format(new Date(conserto.prazo), "dd/MM/yyyy", { locale: ptBR })}
-                          </p>
+
+                        {conserto.status !== "concluido" && (
+                          <Button
+                            className="w-full"
+                            onClick={() => setRetornoDialog(conserto)}
+                          >
+                            {t("dashboard.consertos.actions.register_return")}
+                          </Button>
                         )}
                       </div>
-                      <Badge variant={getStatusBadge(conserto.status)}>
-                        <span className="flex items-center gap-1">
-                          {getStatusIcon(conserto.status)}
-                          {getStatusLabel(conserto.status)}
-                        </span>
-                      </Badge>
                     </div>
-
-                    {conserto.descricao && (
-                      <p className="text-sm text-muted-foreground">
-                        {conserto.descricao}
-                      </p>
-                    )}
-
-                    <div className="flex flex-col gap-2 mt-auto">
-                      {conserto.status === "aguardando" && (
-                        <Button
-                          variant="secondary"
-                          disabled={statusLoadingId === conserto.id}
-                          onClick={() => handleAtualizarStatus(conserto.id, "em_andamento")}
-                        >
-                          {statusLoadingId === conserto.id ? t("dashboard.consertos.actions.processing") : t("dashboard.consertos.actions.mark_in_progress")}
-                        </Button>
-                      )}
-
-                      {conserto.status !== "concluido" && (
-                        <Button
-                          className="w-full"
-                          onClick={() => setRetornoDialog(conserto)}
-                        >
-                          {t("dashboard.consertos.actions.register_return")}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Consertos Concluídos */}
-      {consertosConcluidos.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">{t("dashboard.consertos.completed_repairs")}</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
-            {consertosConcluidos.map((conserto) => (
-              <Card key={conserto.id} className="flex h-full flex-col">
-                <CardContent className="p-6 flex h-full flex-col">
-                  <div className="flex h-full flex-col gap-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <h3 className="font-semibold text-lg">
-                          {parseFerramenta(conserto.ferramentas).nome}
-                        </h3>
-                        {conserto.prioridade && (
-                          <Badge
-                            variant={
-                              conserto.prioridade === "alta"
-                                ? "destructive"
-                                : conserto.prioridade === "media"
-                                  ? "default"
-                                  : "secondary"
-                            }
-                          >
-                            Prioridade: {conserto.prioridade}
-                          </Badge>
-                        )}
-                        <p className="text-sm text-muted-foreground">
-                          Enviado em{" "}
-                          {conserto.data_envio
-                            ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
-                              locale: ptBR,
-                            })
-                            : "-"}
-                        </p>
-                        {conserto.local_conserto && (
-                          <p className="text-xs text-muted-foreground">
-                            Local: {conserto.local_conserto}
-                          </p>
-                        )}
-                        {conserto.prazo && (
-                          <p className="text-xs text-muted-foreground">
-                            Prazo: {format(new Date(conserto.prazo), "dd/MM/yyyy", { locale: ptBR })}
-                          </p>
-                        )}
-                        {conserto.data_retorno && (
+      {
+        consertosConcluidos.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">{t("dashboard.consertos.completed_repairs")}</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+              {consertosConcluidos.map((conserto) => (
+                <Card key={conserto.id} className="flex h-full flex-col">
+                  <CardContent className="p-6 flex h-full flex-col">
+                    <div className="flex h-full flex-col gap-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <h3 className="font-semibold text-lg">
+                            {parseFerramenta(conserto.ferramentas).nome}
+                          </h3>
+                          {conserto.prioridade && (
+                            <Badge
+                              variant={
+                                conserto.prioridade === "alta"
+                                  ? "destructive"
+                                  : conserto.prioridade === "media"
+                                    ? "default"
+                                    : "secondary"
+                              }
+                            >
+                              Prioridade: {conserto.prioridade}
+                            </Badge>
+                          )}
                           <p className="text-sm text-muted-foreground">
-                            {t("dashboard.consertos.labels.returned_at")}{" "}
-                            {format(new Date(conserto.data_retorno), "dd/MM/yyyy", {
-                              locale: dateLocale,
-                            })}
+                            Enviado em{" "}
+                            {conserto.data_envio
+                              ? format(new Date(conserto.data_envio), "dd/MM/yyyy", {
+                                locale: ptBR,
+                              })
+                              : "-"}
                           </p>
-                        )}
+                          {conserto.local_conserto && (
+                            <p className="text-xs text-muted-foreground">
+                              Local: {conserto.local_conserto}
+                            </p>
+                          )}
+                          {conserto.prazo && (
+                            <p className="text-xs text-muted-foreground">
+                              Prazo: {format(new Date(conserto.prazo), "dd/MM/yyyy", { locale: ptBR })}
+                            </p>
+                          )}
+                          {conserto.data_retorno && (
+                            <p className="text-sm text-muted-foreground">
+                              {t("dashboard.consertos.labels.returned_at")}{" "}
+                              {format(new Date(conserto.data_retorno), "dd/MM/yyyy", {
+                                locale: dateLocale,
+                              })}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant={getStatusBadge(conserto.status)}>
+                          <span className="flex items-center gap-1">
+                            {getStatusIcon(conserto.status)}
+                            {getStatusLabel(conserto.status)}
+                          </span>
+                        </Badge>
                       </div>
-                      <Badge variant={getStatusBadge(conserto.status)}>
-                        <span className="flex items-center gap-1">
-                          {getStatusIcon(conserto.status)}
-                          {getStatusLabel(conserto.status)}
-                        </span>
-                      </Badge>
+
+                      {conserto.descricao && (
+                        <p className="text-sm text-muted-foreground">
+                          {conserto.descricao}
+                        </p>
+                      )}
+
+                      {conserto.custo && (
+                        <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-auto">
+                          <span className="text-sm font-medium">{t("dashboard.consertos.labels.cost")}:</span>
+                          <span className="text-sm font-semibold">
+                            R$ {conserto.custo.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
                     </div>
-
-                    {conserto.descricao && (
-                      <p className="text-sm text-muted-foreground">
-                        {conserto.descricao}
-                      </p>
-                    )}
-
-                    {conserto.custo && (
-                      <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-auto">
-                        <span className="text-sm font-medium">{t("dashboard.consertos.labels.cost")}:</span>
-                        <span className="text-sm font-semibold">
-                          R$ {conserto.custo.toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {consertos.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          {t("dashboard.consertos.no_repairs")}
-        </div>
-      )}
+      {
+        consertos.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            {t("dashboard.consertos.no_repairs")}
+          </div>
+        )
+      }
 
       {/* Dialog de Retorno */}
-      {retornoDialog && (
-        <Dialog open={!!retornoDialog} onOpenChange={(open) => {
-          if (!open) {
-            setRetornoDialog(null)
-            setQuantidadeEmConserto(0)
-          }
-        }}>
-          <DialogContent>
-            <form onSubmit={handleRetorno}>
-              <DialogHeader>
-                <DialogTitle>{t("dashboard.consertos.return.title")}</DialogTitle>
-                <DialogDescription>
-                  {t("dashboard.consertos.return.tool_label", { name: parseFerramenta(retornoDialog.ferramentas).nome })}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="custo">{t("dashboard.consertos.return.cost")}</Label>
-                  <Input
-                    id="custo"
-                    name="custo"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="0.00"
-                  />
+      {
+        retornoDialog && (
+          <Dialog open={!!retornoDialog} onOpenChange={(open) => {
+            if (!open) {
+              setRetornoDialog(null)
+              setQuantidadeEmConserto(0)
+            }
+          }}>
+            <DialogContent>
+              <form onSubmit={handleRetorno}>
+                <DialogHeader>
+                  <DialogTitle>{t("dashboard.consertos.return.title")}</DialogTitle>
+                  <DialogDescription>
+                    {t("dashboard.consertos.return.tool_label", { name: parseFerramenta(retornoDialog.ferramentas).nome })}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="custo">{t("dashboard.consertos.return.cost")}</Label>
+                    <Input
+                      id="custo"
+                      name="custo"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="quantidade">{t("dashboard.consertos.return.quantity")}</Label>
+                    <Input
+                      id="quantidade"
+                      name="quantidade"
+                      type="number"
+                      min="1"
+                      max={quantidadeEmConserto}
+                      defaultValue={quantidadeEmConserto > 0 ? quantidadeEmConserto : 1}
+                      required
+                    />
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {quantidadeEmConserto > 0
+                        ? t("dashboard.consertos.return.in_repair_count", { count: quantidadeEmConserto })
+                        : t("dashboard.consertos.actions.loading")}
+                    </p>
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="quantidade">{t("dashboard.consertos.return.quantity")}</Label>
-                  <Input
-                    id="quantidade"
-                    name="quantidade"
-                    type="number"
-                    min="1"
-                    max={quantidadeEmConserto}
-                    defaultValue={quantidadeEmConserto > 0 ? quantidadeEmConserto : 1}
-                    required
-                  />
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {quantidadeEmConserto > 0
-                      ? t("dashboard.consertos.return.in_repair_count", { count: quantidadeEmConserto })
-                      : t("dashboard.consertos.actions.loading")}
-                  </p>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setRetornoDialog(null)}
-                >
-                  {t("dashboard.consertos.actions.cancel")}
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? t("dashboard.consertos.actions.processing") : t("dashboard.consertos.return.confirm")}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setRetornoDialog(null)}
+                  >
+                    {t("dashboard.consertos.actions.cancel")}
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? t("dashboard.consertos.actions.processing") : t("dashboard.consertos.return.confirm")}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )
+      }
+    </div >
   )
 }
 

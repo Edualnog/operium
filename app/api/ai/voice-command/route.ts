@@ -34,23 +34,62 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        const context = formData.get("context")?.toString() || "movimentacao"
+
+        let systemPrompt = ""
+
+        switch (context) {
+            case "ferramenta":
+                systemPrompt = `Você é um assistente de cadastro de produtos. Extraia informações de um comando de voz para cadastrar um novo item.
+                
+                O usuário vai dizer algo como: "Cadastrar 5 furadeiras Bosch na categoria Elétricos" ou "Adicionar 100 luvas de proteção tipo EPI".
+
+                Extraia os seguintes campos em JSON:
+                - action: "create"
+                - nome: nome do produto (obrigatório)
+                - quantidade: número (se não especificado, assuma 0)
+                - categoria: categoria do item
+                - tipo: "ferramenta", "epi" ou "consumivel" (inferir pelo contexto)
+                
+                Responda APENAS o JSON.`
+                break
+            case "colaborador":
+                systemPrompt = `Você é um assistente de RH. Extraia informações de um comando de voz para cadastrar um novo colaborador.
+                
+                O usuário vai dizer algo como: "Cadastrar o João Silva como Eletricista" ou "Novo funcionário Maria Souza, telefone 11999999999".
+
+                Extraia os seguintes campos em JSON:
+                - action: "create"
+                - nome: nome do colaborador (obrigatório)
+                - cargo: cargo ou função
+                - telefone: número de telefone
+                - email: endereço de email
+                
+                Responda APENAS o JSON.`
+                break
+            case "movimentacao":
+            default:
+                systemPrompt = `Você é um assistente de almoxarifado. Sua tarefa é extrair informações estruturadas de um comando de voz.
+          
+                O usuário vai dizer algo como: "Retirar 2 furadeiras para o João", "Devolver a lixadeira" ou "Mandar a serra para conserto".
+                
+                Extraia os seguintes campos em JSON:
+                - action: "retirada", "devolucao" ou "conserto" (se não ficar claro, assuma "retirada")
+                - quantity: número (se não especificado, assuma 1)
+                - item_name: nome do item (o mais próximo possível do que foi dito)
+                - collaborator_name: nome do colaborador (se houver)
+                
+                Responda APENAS o JSON.`
+                break
+        }
+
         // 2. Extrair intenção com GPT-4o-mini
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
                 {
                     role: "system",
-                    content: `Você é um assistente de almoxarifado. Sua tarefa é extrair informações estruturadas de um comando de voz.
-          
-          O usuário vai dizer algo como: "Retirar 2 furadeiras para o João" ou "Devolver a lixadeira".
-          
-          Extraia os seguintes campos em JSON:
-          - action: "retirada" ou "devolucao" (se não ficar claro, assuma "retirada")
-          - quantity: número (se não especificado, assuma 1)
-          - item_name: nome do item (o mais próximo possível do que foi dito)
-          - collaborator_name: nome do colaborador (se houver)
-          
-          Responda APENAS o JSON.`,
+                    content: systemPrompt,
                 },
                 {
                     role: "user",

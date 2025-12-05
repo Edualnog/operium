@@ -61,6 +61,7 @@ import Image from "next/image"
 import { FerramentasFilters, type FilterState } from "./FerramentasFilters"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
+import { VoiceCommandButton } from "./VoiceCommandButton" // Assuming it's in the same folder or I need to fix path
 
 interface Ferramenta {
   id: string
@@ -138,6 +139,26 @@ function FerramentasList({
   const [productPhoto, setProductPhoto] = useState("")
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
   const [exportingCsv, setExportingCsv] = useState(false)
+
+  // Estado para dados preenchidos por voz
+  const [voiceData, setVoiceData] = useState<any>(null)
+
+  const handleVoiceCommand = (data: any) => {
+    const { intent } = data
+    if (!intent) return
+
+    if (intent.action === "create") {
+      setVoiceData({
+        nome: intent.nome,
+        categoria: intent.categoria,
+        quantidade_total: intent.quantidade || 0,
+        tipo_item: intent.tipo || "ferramenta"
+      })
+      if (intent.tipo) setTipoItem(intent.tipo)
+      setOpen(true)
+      toast.success("Formulário preenchido por voz!")
+    }
+  }
   const supabase = createClientComponentClient()
   const { toast } = useToast()
   const [userId, setUserId] = useState<string>("")
@@ -598,6 +619,15 @@ function FerramentasList({
 
   return (
     <div className="space-y-4">
+      {/* Voice Assistant Section */}
+      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para cadastrar produtos rapidamente</p>
+        </div>
+        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="ferramenta" />
+      </div>
+
       <FerramentasFilters
         categorias={categorias}
         filters={filters}
@@ -709,7 +739,7 @@ function FerramentasList({
                     <Input
                       id="nome"
                       name="nome"
-                      defaultValue={editing?.nome || ""}
+                      defaultValue={editing?.nome || voiceData?.nome || ""}
                       onBlur={(e) =>
                         setProductCode(
                           gerarCodigoLocal(
@@ -764,7 +794,7 @@ function FerramentasList({
                           id="categoria"
                           name="categoria"
                           placeholder={t("dashboard.ferramentas.form.line_placeholder")}
-                          defaultValue={editing?.categoria || ""}
+                          defaultValue={editing?.categoria || voiceData?.categoria || ""}
                         />
                         <Button
                           type="button"
@@ -855,7 +885,7 @@ function FerramentasList({
                         name="quantidade_total"
                         type="number"
                         min="0"
-                        defaultValue={editing?.quantidade_total || 0}
+                        defaultValue={editing?.quantidade_total || voiceData?.quantidade_total || 0}
                         required
                       />
                     </div>

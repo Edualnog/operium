@@ -19,12 +19,14 @@ interface VoiceCommandButtonProps {
     onCommandReceived: (data: VoiceCommandResponse) => void
     disabled?: boolean
     className?: string
+    context?: "movimentacao" | "ferramenta" | "colaborador"
 }
 
 export function VoiceCommandButton({
     onCommandReceived,
     disabled,
     className,
+    context = "movimentacao",
 }: VoiceCommandButtonProps) {
     const [isRecording, setIsRecording] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
@@ -85,6 +87,7 @@ export function VoiceCommandButton({
         try {
             const formData = new FormData()
             formData.append("audio", file)
+            formData.append("context", context)
 
             const response = await fetch("/api/ai/voice-command", {
                 method: "POST",
