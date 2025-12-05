@@ -56,9 +56,37 @@ export function CameraCaptureModal({
             }
         } catch (err: any) {
             console.error("Error accessing camera:", err)
-            setError(
-                "Não foi possível acessar a câmera. Verifique se você deu permissão de acesso."
-            )
+
+            let errorMessage = "Não foi possível acessar a câmera."
+
+            if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+                errorMessage = "Permissão de câmera negada. Por favor, permita o acesso nas configurações do navegador."
+            } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+                errorMessage = "Nenhuma câmera encontrada no dispositivo."
+            } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+                errorMessage = "A câmera pode estar sendo usada por outro aplicativo ou há um erro de hardware."
+            } else if (err.name === "OverconstrainedError") {
+                errorMessage = "A câmera solicitada (traseira) não está disponível."
+                // Fallback: tentar qualquer câmera se a traseira falhar
+                try {
+                    const fallbackStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: false,
+                    })
+                    streamRef.current = fallbackStream
+                    setStream(fallbackStream)
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = fallbackStream
+                    }
+                    return // Sucesso no fallback, não mostrar erro
+                } catch (fallbackErr) {
+                    console.error("Fallback camera error:", fallbackErr)
+                }
+            } else if (err.name === "TypeError" && window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
+                errorMessage = "A câmera requer uma conexão segura (HTTPS)."
+            }
+
+            setError(errorMessage)
         } finally {
             setLoading(false)
         }
