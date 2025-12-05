@@ -23,7 +23,9 @@ import {
   Search,
   SortAsc,
   SortDesc,
+  Sparkles,
 } from "lucide-react"
+import { useToast } from "@/components/ui/toast-context"
 
 export interface FilterState {
   search: string
@@ -49,10 +51,41 @@ export function FerramentasFilters({
 }: FerramentasFiltersProps) {
   const { t } = useTranslation()
   const [showFilters, setShowFilters] = useState(false)
+  const [isSearchingAI, setIsSearchingAI] = useState(false)
+  const { toast } = useToast()
 
   const updateFilter = (key: keyof FilterState, value: any) => {
     onFiltersChange({ ...filters, [key]: value })
   }
+
+  const handleAISearch = async () => {
+    if (!filters.search) return
+    setIsSearchingAI(true)
+
+    try {
+      const response = await fetch("/api/ai/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: filters.search,
+          categorias
+        })
+      })
+
+      if (!response.ok) throw new Error("Erro na busca IA")
+
+      const newFilters = await response.json()
+      onFiltersChange({ ...filters, ...newFilters })
+      toast.success("Filtros aplicados pela IA!")
+    } catch (error) {
+      console.error(error)
+      toast.error("Erro ao processar busca inteligente")
+    } finally {
+      setIsSearchingAI(false)
+    }
+  }
+
+
 
   const clearFilters = () => {
     onFiltersChange({
@@ -77,8 +110,27 @@ export function FerramentasFilters({
             placeholder={t("dashboard.ferramentas.filters.search_placeholder")}
             value={filters.search}
             onChange={(e) => updateFilter("search", e.target.value)}
-            className="pl-10"
+            className="pl-10 pr-10"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && filters.search) {
+                handleAISearch()
+              }
+            }}
           />
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50"
+            onClick={handleAISearch}
+            disabled={isSearchingAI || !filters.search}
+            title="Busca Inteligente com IA"
+          >
+            {isSearchingAI ? (
+              <div className="animate-spin h-4 w-4 border-2 border-indigo-500 border-t-transparent rounded-full" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+          </Button>
         </div>
         <div className="flex gap-2">
           <Popover open={showFilters} onOpenChange={setShowFilters}>
