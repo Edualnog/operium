@@ -37,6 +37,7 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
 import mockupDevices from "@/public/images/mockup-devices.png"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
+import { LogoCloud } from "@/components/ui/logo-cloud"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -69,6 +70,16 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [plan, setPlan] = useState<"mensal" | "trimestral" | "anual">("trimestral")
   const router = useRouter()
+
+  const logos = [
+    { src: "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg", alt: "OpenAI" },
+    { src: "https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png", alt: "Vercel" },
+    { src: "https://supabase.com/docs/img/supabase-logo-icon.svg", alt: "Supabase" },
+    { src: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg", alt: "React" },
+    { src: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg", alt: "Tailwind CSS" },
+    { src: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Nextjs-logo.svg", alt: "Next.js" },
+    { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Figma-logo.svg/1667px-Figma-logo.svg.png", alt: "Figma" },
+  ]
 
   const handleStart = () => {
     setCheckoutLoading(true)
@@ -495,6 +506,16 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             </div>
           </div>
         </section>
+
+        {/* Powered By Section */}
+        <div className="py-12 border-y border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="container mx-auto px-4">
+            <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 mb-8 uppercase tracking-wider">
+              Powered by world-class technology
+            </p>
+            <LogoCloud logos={logos} />
+          </div>
+        </div>
 
         {/* AI Features Section */}
         <section className="py-24 bg-slate-900 text-white overflow-hidden relative border-t border-slate-800">
