@@ -212,33 +212,32 @@ function SubscribeContent() {
   const selectedPlan = plans.find(p => p.id === plan)!
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 relative overflow-hidden">
-      {/* Background */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.015]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(0 0 0)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
-        }}
-      />
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 relative overflow-hidden font-sans selection:bg-blue-500/30">
+      {/* Premium Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/10 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
+        <div className="absolute top-[20%] right-[20%] w-[30%] h-[30%] rounded-full bg-purple-500/10 blur-[100px]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay" />
+      </div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-slate-200/50 dark:border-zinc-800/50">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border-b border-white/20 dark:border-zinc-800/50 supports-[backdrop-filter]:bg-white/60">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="p-1.5 rounded-xl bg-[#4B6BFB] shadow-lg shadow-blue-500/25">
-                <svg className="h-7 w-7" viewBox="0 0 500 500" fill="none">
-                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="p-1.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300">
+                <svg className="h-6 w-6" viewBox="0 0 500 500" fill="none">
+                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
                 </svg>
               </div>
-              <span className="font-bold text-xl tracking-tight">Almox Fácil</span>
+              <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Almox Fácil</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all"
             >
               <LogOut className="h-4 w-4" />
               {isPortuguese ? "Sair" : "Logout"}
@@ -248,194 +247,186 @@ function SubscribeContent() {
       </header>
 
       {/* Content */}
-      <main className="pt-28 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
+      <main className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-6xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-10"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium mb-6">
-              <Zap className="h-4 w-4" />
-              {isPortuguese ? "Falta só um passo!" : "Just one more step!"}
-            </div>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm font-semibold mb-8 backdrop-blur-sm"
+            >
+              <Zap className="h-4 w-4 fill-current" />
+              {isPortuguese ? "Comece agora seu teste grátis" : "Start your free trial now"}
+            </motion.div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold mb-4 dark:text-zinc-50">
-              {isPortuguese ? "Escolha seu plano" : "Choose your plan"}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 tracking-tight text-slate-900 dark:text-white">
+              {isPortuguese ? "Escolha o plano ideal" : "Choose the perfect plan"}
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 mt-2">
+                {isPortuguese ? "para o seu negócio" : "for your business"}
+              </span>
             </h1>
-            <p className="text-lg text-slate-600 dark:text-zinc-400">
+            <p className="text-lg sm:text-xl text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
               {isPortuguese
-                ? <>Sua conta foi criada com sucesso! Escolha um plano e ganhe <strong>7 dias grátis</strong>.</>
-                : <>Your account was created! Choose a plan and get <strong>7 days free</strong>.</>
+                ? "Desbloqueie todo o potencial do seu almoxarifado. Sem compromisso, cancele quando quiser."
+                : "Unlock the full potential of your warehouse. No commitment, cancel anytime."
               }
             </p>
             {warning && (
-              <p className="mt-2 text-sm text-amber-700">{warning}</p>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-sm inline-block"
+              >
+                {warning}
+              </motion.div>
             )}
           </motion.div>
 
           {/* Pricing Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
-          >
-            {plans.map((planOption) => (
-              <div
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 items-center">
+            {plans.map((planOption, index) => (
+              <motion.div
                 key={planOption.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
                 onClick={() => setPlan(planOption.id)}
                 className={`
-                  relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200
+                  relative cursor-pointer rounded-3xl p-8 transition-all duration-300 group
                   ${plan === planOption.id
-                    ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 scale-[1.02] shadow-xl shadow-blue-500/20"
-                    : "border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-slate-300 dark:hover:border-zinc-600"
+                    ? "bg-white/80 dark:bg-zinc-900/80 ring-2 ring-blue-500 shadow-2xl shadow-blue-500/20 scale-105 z-10"
+                    : "bg-white/40 dark:bg-zinc-900/40 hover:bg-white/60 dark:hover:bg-zinc-900/60 border border-white/50 dark:border-zinc-800 hover:scale-[1.02] hover:shadow-xl"
                   }
-                  ${planOption.popular ? "ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-zinc-950" : ""}
+                  backdrop-blur-xl
                 `}
               >
-                {/* Badge */}
-                {planOption.badge && (
-                  <div className={`
-                    absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1
-                    ${planOption.popular
-                      ? "bg-blue-500 text-white"
-                      : "bg-gradient-to-r from-amber-400 to-orange-500 text-white"
-                    }
-                  `}>
-                    {planOption.popular ? <Star className="h-3 w-3" /> : <Crown className="h-3 w-3" />}
+                {/* Popular Badge */}
+                {planOption.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-lg shadow-blue-500/30 flex items-center gap-1.5 tracking-wide uppercase">
+                    <Star className="h-3 w-3 fill-white" />
+                    {planOption.badge}
+                  </div>
+                )}
+
+                {/* Best Value Badge */}
+                {planOption.bestValue && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold shadow-lg shadow-amber-500/30 flex items-center gap-1.5 tracking-wide uppercase">
+                    <Crown className="h-3 w-3 fill-white" />
                     {planOption.badge}
                   </div>
                 )}
 
                 {/* Discount Badge */}
                 {planOption.discount && (
-                  <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  <div className="absolute top-4 right-4 bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-bold px-2.5 py-1 rounded-full border border-green-500/20">
                     -{planOption.discount}%
                   </div>
                 )}
 
-                <div className="text-center pt-2">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-zinc-100 mb-2">
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
                     {planOption.name}
                   </h3>
-
-                  {/* Total Price */}
-                  <div className="mb-2">
-                    <span className="text-3xl font-bold text-slate-900 dark:text-zinc-100">
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
                       {isPortuguese
-                        ? `R$${planOption.priceBRL.toFixed(2).replace(".", ",")}`
+                        ? `R$${planOption.priceBRL.toFixed(0)}`
                         : `$${planOption.priceUSD}`
                       }
                     </span>
-                    <span className="text-slate-500 dark:text-zinc-400 text-sm">
+                    <span className="text-slate-500 dark:text-zinc-400 font-medium">
                       {planOption.period}
                     </span>
                   </div>
-
-                  {/* Per Month */}
-                  <div className="text-sm text-slate-500 dark:text-zinc-400 mb-4">
+                  <div className="text-sm text-slate-500 dark:text-zinc-500 mt-2">
                     {isPortuguese
-                      ? `≈ R$${planOption.perMonthBRL.toFixed(2).replace(".", ",")}/mês`
-                      : `≈ $${planOption.perMonthUSD.toFixed(2)}/mo`
+                      ? `Equivalente a R$${planOption.perMonthBRL.toFixed(2).replace(".", ",")}/mês`
+                      : `Equivalent to $${planOption.perMonthUSD.toFixed(2)}/mo`
                     }
-                  </div>
-
-                  {/* Radio Indicator */}
-                  <div className={`
-                    w-5 h-5 rounded-full border-2 mx-auto transition-all
-                    ${plan === planOption.id
-                      ? "border-blue-500 bg-blue-500"
-                      : "border-slate-300 dark:border-zinc-600"
-                    }
-                  `}>
-                    {plan === planOption.id && (
-                      <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />
-                    )}
                   </div>
                 </div>
-              </div>
-            ))}
-          </motion.div>
 
-          {/* Selected Plan Details & CTA */}
+                {/* Selection Indicator */}
+                <div className={`
+                  w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 font-medium
+                  ${plan === planOption.id
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                    : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                  }
+                `}>
+                  {plan === planOption.id ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      {isPortuguese ? "Selecionado" : "Selected"}
+                    </>
+                  ) : (
+                    isPortuguese ? "Selecionar" : "Select"
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Features & CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-8 max-w-2xl mx-auto"
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="max-w-3xl mx-auto bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl rounded-3xl border border-white/50 dark:border-zinc-800 p-8 sm:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-none"
           >
-            {/* Plan Badge */}
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 text-sm font-medium">
-                <Zap className="h-4 w-4" />
-                {isPortuguese ? "Plano Profissional" : "Professional Plan"} - {selectedPlan.name}
-              </div>
+            <div className="text-center mb-8">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                {isPortuguese ? "Tudo incluído no plano Profissional" : "Everything included in Professional plan"}
+              </h3>
+              <p className="text-slate-500 dark:text-zinc-400">
+                {isPortuguese ? "Acesso total a todas as funcionalidades do sistema" : "Full access to all system features"}
+              </p>
             </div>
 
-            {/* Features */}
-            <div className="grid grid-cols-2 gap-3 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mb-10">
               {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                    <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                <div key={index} className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                   </div>
-                  <span className="text-sm text-slate-700 dark:text-zinc-300">{feature}</span>
+                  <span className="text-slate-700 dark:text-zinc-300 font-medium">{feature}</span>
                 </div>
               ))}
             </div>
 
-            {/* CTA */}
             <button
               onClick={handleCheckout}
               disabled={loading}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
             >
               {loading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  {isPortuguese ? "Redirecionando..." : "Redirecting..."}
+                  {isPortuguese ? "Preparando seu ambiente..." : "Setting up your environment..."}
                 </>
               ) : (
                 <>
                   {isPortuguese ? "Começar 7 dias grátis" : "Start 7-day free trial"}
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
 
-            {error && (
-              <p className="mt-4 text-center text-red-600 text-sm">{error}</p>
-            )}
-
-            <p className="mt-4 text-center text-sm text-slate-500 dark:text-zinc-400">
+            <p className="mt-6 text-center text-sm text-slate-500 dark:text-zinc-500 flex items-center justify-center gap-2">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
               {isPortuguese
-                ? "Cancele quando quiser. Sem compromisso."
-                : "Cancel anytime. No commitment."
+                ? "Pagamento seguro via Stripe. Cancele a qualquer momento."
+                : "Secure payment via Stripe. Cancel anytime."
               }
             </p>
-          </motion.div>
-
-          {/* Trust badges */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-500"
-          >
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              {isPortuguese ? "Pagamento seguro" : "Secure payment"}
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-              SSL 256-bit
-            </div>
           </motion.div>
         </div>
       </main>
