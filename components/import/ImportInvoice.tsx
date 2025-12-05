@@ -125,8 +125,9 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
 
     const startCamera = async () => {
         try {
+            // Usar constraints mais simples para garantir compatibilidade
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment" }
+                video: true
             })
             setMediaStream(stream)
             setIsCameraOpen(true)
@@ -148,12 +149,14 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
         }
     }, [mediaStream, step])
 
-    // Anexar stream ao vídeo quando o elemento estiver pronto
-    useEffect(() => {
-        if (step === "camera" && videoRef.current && mediaStream) {
-            videoRef.current.srcObject = mediaStream
+    // Callback ref para garantir que o vídeo inicie assim que montado
+    const onVideoMount = useCallback((node: HTMLVideoElement | null) => {
+        videoRef.current = node
+        if (node && mediaStream) {
+            node.srcObject = mediaStream
+            node.play().catch(e => console.error("Erro ao iniciar vídeo:", e))
         }
-    }, [step, mediaStream])
+    }, [mediaStream])
 
     // Cleanup ao desmontar
     useEffect(() => {
@@ -302,9 +305,10 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                             >
                                 <div className="relative w-full max-w-2xl aspect-video bg-black rounded-lg overflow-hidden mb-6">
                                     <video
-                                        ref={videoRef}
+                                        ref={onVideoMount}
                                         autoPlay
                                         playsInline
+                                        muted
                                         className="w-full h-full object-cover"
                                     />
                                     <canvas ref={canvasRef} className="hidden" />
