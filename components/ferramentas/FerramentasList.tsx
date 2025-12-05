@@ -45,6 +45,7 @@ import {
   Upload,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react"
 import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { Card, CardContent } from "@/components/ui/card"
@@ -636,22 +637,86 @@ function FerramentasList({
                   )}
                   <div className="grid gap-2">
                     <Label htmlFor="nome">{t("dashboard.ferramentas.form.name")} *</Label>
-                    <Input
-                      id="nome"
-                      name="nome"
-                      defaultValue={editing?.nome || ""}
-                      onBlur={(e) =>
-                        setProductCode(
-                          gerarCodigoLocal(
-                            e.target.value,
-                            (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                            (document.getElementById("cor") as HTMLInputElement)?.value || "",
-                            tipoItem
+                    <div className="flex gap-2">
+                      <Input
+                        id="nome"
+                        name="nome"
+                        defaultValue={editing?.nome || ""}
+                        onBlur={(e) =>
+                          setProductCode(
+                            gerarCodigoLocal(
+                              e.target.value,
+                              (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
+                              (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                              tipoItem
+                            )
                           )
-                        )
-                      }
-                      required
-                    />
+                        }
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        title="Preencher com IA"
+                        onClick={async () => {
+                          const nomeInput = document.getElementById("nome") as HTMLInputElement
+                          const nome = nomeInput?.value
+                          if (!nome) {
+                            toast.error("Digite o nome do produto primeiro")
+                            return
+                          }
+
+                          const btn = document.activeElement as HTMLButtonElement
+                          const originalContent = btn.innerHTML
+                          btn.innerHTML = '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>'
+                          btn.disabled = true
+
+                          try {
+                            const res = await fetch("/api/ai/autofill", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ nome })
+                            })
+
+                            if (!res.ok) throw new Error("Erro na IA")
+
+                            const data = await res.json()
+
+                            // Preencher campos
+                            if (data.categoria) {
+                              const catInput = document.getElementById("categoria") as HTMLInputElement
+                              if (catInput) catInput.value = data.categoria
+                            }
+
+                            if (data.codigo) {
+                              setProductCode(data.codigo)
+                            }
+
+                            if (data.tipo_item) {
+                              setTipoItem(data.tipo_item)
+                              // Atualizar select visualmente é complexo sem controlar o estado, 
+                              // mas o setTipoItem atualiza o estado que controla o valor
+                            }
+
+                            if (data.ponto_ressuprimento) {
+                              const prInput = document.getElementById("ponto_ressuprimento") as HTMLInputElement
+                              if (prInput) prInput.value = data.ponto_ressuprimento
+                            }
+
+                            toast.success("Campos preenchidos pela IA!")
+                          } catch (error) {
+                            console.error(error)
+                            toast.error("Erro ao preencher com IA")
+                          } finally {
+                            btn.innerHTML = originalContent
+                            btn.disabled = false
+                          }
+                        }}
+                      >
+                        <Sparkles className="h-4 w-4 text-indigo-500" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="tipo_item">{t("dashboard.ferramentas.form.type")}</Label>

@@ -31,6 +31,7 @@ import {
   Activity,
 } from "lucide-react"
 import { OnboardingChecklist } from "./OnboardingChecklist"
+import { AIInsightsCard } from "./AIInsightsCard"
 
 interface IndustrialDashboardProps {
   userId: string
@@ -564,6 +565,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       </div>
 
       <OnboardingChecklist userId={userId} />
+
+      {/* Seção de Insights IA */}
+      <div className="mb-8">
+        <AIInsightsCard kpis={data} recentMovements={movimentacoesMensais} />
+      </div>
 
       {/* SESSÃO OVERVIEW - Gráficos principais */}
       <section className="space-y-6 mb-8">
