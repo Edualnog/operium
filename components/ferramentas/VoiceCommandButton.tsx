@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Mic, Loader2, Square } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
 import { cn } from "@/lib/utils"
+import { AIVoiceInput } from "@/components/ui/ai-voice-input"
 
 interface VoiceCommandResponse {
     text: string
@@ -32,6 +31,7 @@ export function VoiceCommandButton({
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const chunksRef = useRef<Blob[]>([])
     const { toast } = useToast()
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const startRecording = async () => {
         try {
@@ -56,6 +56,16 @@ export function VoiceCommandButton({
 
             mediaRecorderRef.current.start()
             setIsRecording(true)
+
+            // Parar automaticamente após 10 segundos
+            if (timeoutRef.current) clearTimeout(timeoutRef.current)
+            timeoutRef.current = setTimeout(() => {
+                if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+                    stopRecording()
+                    toast.info("Gravação encerrada automaticamente (limite de 10s).")
+                }
+            }, 10000)
+
         } catch (error) {
             console.error("Erro ao acessar microfone:", error)
             toast.error("Não foi possível acessar o microfone.")
@@ -63,6 +73,7 @@ export function VoiceCommandButton({
     }
 
     const stopRecording = () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
         if (mediaRecorderRef.current && isRecording) {
             mediaRecorderRef.current.stop()
             setIsRecording(false)
@@ -96,34 +107,13 @@ export function VoiceCommandButton({
     }
 
     return (
-        <Button
-            variant={isRecording ? "destructive" : "outline"}
-            size="icon"
-            className={cn(
-                "relative transition-all duration-300",
-                isRecording && "animate-pulse ring-2 ring-red-500 ring-offset-2",
-                className
-            )}
-            disabled={disabled || isProcessing}
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-            onTouchStart={(e) => {
-                e.preventDefault() // Previne comportamentos padrão de toque
-                startRecording()
-            }}
-            onTouchEnd={(e) => {
-                e.preventDefault()
-                stopRecording()
-            }}
-            title="Segure para falar"
-        >
-            {isProcessing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-            ) : isRecording ? (
-                <Square className="h-4 w-4" />
-            ) : (
-                <Mic className="h-4 w-4" />
-            )}
-        </Button>
+        <div className={cn("w-full", className)}>
+            <AIVoiceInput
+                isRecording={isRecording}
+                onStart={startRecording}
+                onStop={stopRecording}
+                className={isProcessing ? "opacity-50 pointer-events-none" : ""}
+            />
+        </div>
     )
 }

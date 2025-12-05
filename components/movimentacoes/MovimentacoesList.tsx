@@ -951,7 +951,7 @@ export default function MovimentacoesList({
             <Upload className="h-4 w-4" />
           </Button>
 
-          <VoiceCommandButton onCommandReceived={handleVoiceCommand} className="h-8 w-8" />
+
 
           <div className="h-4 w-px bg-zinc-300 mx-2 dark:bg-zinc-600" />
 
@@ -1132,6 +1132,15 @@ export default function MovimentacoesList({
             </Badge>
           )}
         </div>
+      </div>
+
+      {/* Voice Assistant Section */}
+      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para registrar movimentações rapidamente</p>
+        </div>
+        <VoiceCommandButton onCommandReceived={handleVoiceCommand} />
       </div>
 
       <MovimentacoesFilters
