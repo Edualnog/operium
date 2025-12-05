@@ -954,15 +954,26 @@
             "emergency_desc": "Material runs out in the middle of the work or service. You pay more to replace urgently."
         },
         "solution": {
-            "badge": "The definitive solution",
-            "title": "Regain full control of your operation",
-            "description": "Almox Fácil was designed for those who have no time to lose. Simple, fast and works on your team's cell phone.",
-            "mobile_title": "Control in the palm of your hand",
-            "mobile_desc": "Register entries and exits by cell phone, directly from the workplace. No bureaucracy.",
-            "lost_title": "End of 'lost tool'",
-            "lost_desc": "Know exactly who took it, when and if returned. Hold your team accountable.",
-            "alerts_title": "Automatic alerts",
-            "alerts_desc": "The system warns when stock is low or PPE is expiring. Zero surprises."
+            "badge": "Complete Solution",
+            "title": "Total control in the palm of your hand",
+            "description": "Ditch the spreadsheets and notebooks. Have a professional system that organizes your stock, controls who took what, and alerts you when you need to buy more.",
+            "mobile_title": "Works on Mobile",
+            "mobile_desc": "Access from anywhere, whether on site or in the office.",
+            "lost_title": "No More Lost Items",
+            "lost_desc": "Know exactly who has each tool.",
+            "alerts_title": "Automatic Alerts",
+            "alerts_desc": "Get notified before stock runs out."
+        },
+        "ai_features": {
+            "badge": "Exclusive Feature",
+            "title": "Integrated Artificial Intelligence",
+            "subtitle": "Automate manual tasks and save time with the power of AI",
+            "ocr_title": "Invoice OCR",
+            "ocr_desc": "Upload a photo of the invoice and let AI identify and register products automatically.",
+            "search_title": "Smart Search",
+            "search_desc": "Find what you need by describing it in natural language (e.g., 'damaged cutting tools').",
+            "autofill_title": "Smart Auto-fill",
+            "autofill_desc": "AI suggests categories, codes, and reorder points for your products."
         },
         "features": {
             "support_title": "Support with 95% satisfaction",

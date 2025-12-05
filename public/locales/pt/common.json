@@ -956,6 +956,17 @@
             "alerts_title": "Alertas automáticos",
             "alerts_desc": "O sistema avisa quando o estoque está baixo ou EPIs estão vencendo. Zero surpresas."
         },
+        "ai_features": {
+            "badge": "Novidade Exclusiva",
+            "title": "Inteligência Artificial Integrada",
+            "subtitle": "Automatize tarefas manuais e ganhe tempo com o poder da IA",
+            "ocr_title": "Leitura de Notas Fiscais",
+            "ocr_desc": "Envie uma foto da nota e deixe a IA identificar e cadastrar os produtos automaticamente.",
+            "search_title": "Busca Inteligente",
+            "search_desc": "Encontre o que precisa descrevendo em linguagem natural (ex: 'ferramentas danificadas de corte').",
+            "autofill_title": "Preenchimento Automático",
+            "autofill_desc": "A IA sugere categorias, códigos e pontos de ressuprimento para seus produtos."
+        },
         "features": {
             "support_title": "Suporte com 95% de satisfação",
             "support_desc": "Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.",
