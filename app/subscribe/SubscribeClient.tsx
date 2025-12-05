@@ -301,7 +301,7 @@ function SubscribeContent() {
                   relative cursor-pointer rounded-3xl p-8 transition-all duration-300 group
                   ${plan === planOption.id
                     ? "bg-white dark:bg-zinc-800 ring-2 ring-blue-500 shadow-2xl shadow-blue-500/20 scale-105 z-10"
-                    : "bg-white/60 dark:bg-zinc-900/60 hover:bg-white/80 dark:hover:bg-zinc-800/60 border border-white/60 dark:border-zinc-700 hover:border-blue-200 dark:hover:border-zinc-600 hover:scale-[1.02] hover:shadow-xl"
+                    : "bg-white dark:bg-zinc-900/60 hover:bg-slate-50 dark:hover:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-zinc-600 hover:scale-[1.02] hover:shadow-xl"
                   }
                   backdrop-blur-xl
                 `}
@@ -378,7 +378,7 @@ function SubscribeContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="max-w-3xl mx-auto bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-3xl border border-white/60 dark:border-zinc-700 p-8 sm:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-none"
+            className="max-w-3xl mx-auto bg-white dark:bg-zinc-900/80 backdrop-blur-xl rounded-3xl border border-slate-200 dark:border-zinc-700 p-8 sm:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-none"
           >
             <div className="text-center mb-8">
               <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
