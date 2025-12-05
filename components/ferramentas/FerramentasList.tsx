@@ -46,8 +46,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Camera,
 } from "lucide-react"
-import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
+import ImportExcel, { ImportConfig } from "../import/ImportExcel"
+import ImportInvoice from "../import/ImportInvoice"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
@@ -158,6 +160,7 @@ function FerramentasList({
 
   // Estado para modal de importação
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [importInvoiceOpen, setImportInvoiceOpen] = useState(false)
 
   // Configuração de importação de Excel
   const importConfig: ImportConfig = {
@@ -657,6 +660,14 @@ function FerramentasList({
             <Upload className="mr-2 h-4 w-4" />
             {t("dashboard.ferramentas.import_button")}
           </Button>
+          <Button
+            variant="outline"
+            onClick={() => setImportInvoiceOpen(true)}
+            title="Importar Nota Fiscal com IA"
+          >
+            <Camera className="mr-2 h-4 w-4" />
+            Importar NF (IA)
+          </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditing(null)}>
@@ -921,6 +932,42 @@ function FerramentasList({
         <ImportExcel
           config={importConfig}
           onClose={() => setImportModalOpen(false)}
+        />
+      )}
+
+      {/* Modal de Importação de Nota Fiscal */}
+      {importInvoiceOpen && (
+        <ImportInvoice
+          onClose={() => setImportInvoiceOpen(false)}
+          onImport={async (items) => {
+            setLoading(true)
+            try {
+              // Para cada item extraído, criar no banco
+              for (const item of items) {
+                const { error } = await supabase
+                  .from("ferramentas")
+                  .insert({
+                    nome: item.nome,
+                    quantidade_total: item.quantidade,
+                    quantidade_disponivel: item.quantidade,
+                    valor_unitario: item.valor_unitario,
+                    codigo: item.codigo || gerarCodigoLocal(item.nome),
+                    tipo_item: "ferramenta", // Default
+                    estado: "ok",
+                    user_id: userId
+                  })
+
+                if (error) throw error
+              }
+              toast.success("Itens importados com sucesso!")
+              router.refresh()
+            } catch (error) {
+              console.error(error)
+              toast.error("Erro ao importar itens")
+            } finally {
+              setLoading(false)
+            }
+          }}
         />
       )}
 
