@@ -77,7 +77,7 @@ export function AIInsightsCard({ kpis, recentMovements }: AIInsightsCardProps) {
             <CardContent className="pt-4">
                 {insights.length === 0 ? (
                     <div className="text-center py-6 text-zinc-500 text-sm">
-                        <p>Clique em "Gerar Insights" para analisar seus dados com IA.</p>
+                        <p>Clique em &quot;Gerar Insights&quot; para analisar seus dados com IA.</p>
                     </div>
                 ) : (
                     <ul className="space-y-3">
