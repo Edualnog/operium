@@ -258,8 +258,8 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
               {(subscriptionStatus === "active" || subscriptionStatus === "trialing" || hasStripeCustomer) && (
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-sm text-slate-400 line-through">R$ 69,90</span>
-                  <span className="text-sm font-semibold text-slate-700 dark:text-zinc-200">R$ 39,90/mês</span>
-                  <span className="px-1.5 py-0.5 rounded bg-green-100 text-green-700 text-xs font-medium dark:bg-green-900/30 dark:text-green-400">43% OFF</span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-zinc-200">R$ 49,75/mês</span>
+                  <span className="px-1.5 py-0.5 rounded bg-green-100 text-green-700 text-xs font-medium dark:bg-green-900/30 dark:text-green-400">29% OFF</span>
                 </div>
               )}
             </div>
