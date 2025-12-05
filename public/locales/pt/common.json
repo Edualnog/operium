@@ -255,6 +255,12 @@
             "damaged": "Danificada",
             "ok": "OK"
         },
+        "columns": {
+            "collaborator": "Colaborador",
+            "qty": "Qtd",
+            "days_in_use": "Dias em uso",
+            "deadline": "Prazo"
+        },
         "labels": {
             "demand": "Demanda:",
             "withdrawals": "retiradas",

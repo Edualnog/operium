@@ -32,6 +32,7 @@ import {
 } from "lucide-react"
 import { OnboardingChecklist } from "./OnboardingChecklist"
 import { AIInsightsCard } from "./AIInsightsCard"
+import { DashboardVoiceSummary } from "./DashboardVoiceSummary"
 
 interface IndustrialDashboardProps {
   userId: string
@@ -555,13 +556,17 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="mb-6 text-center sm:text-left">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          {t('dashboard.header.title')}
-        </h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
-          {t('dashboard.header.subtitle')}
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-center sm:text-left">
+        <div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            {t('dashboard.header.title')}
+          </h1>
+          <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
+            {t('dashboard.header.subtitle')}
+          </p>
+        </div>
+        {/* Componente de Resumo por Voz */}
+        <DashboardVoiceSummary />
       </div>
 
       <OnboardingChecklist userId={userId} />
