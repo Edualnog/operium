@@ -36,15 +36,6 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
             actionUrl: "/dashboard/estoque",
         },
         {
-            id: "transaction",
-            label: t('onboarding.steps.transaction.label'),
-            description: t('onboarding.steps.transaction.desc'),
-            completed: false,
-            icon: TrendingUp,
-            actionLabel: t('onboarding.steps.transaction.action'),
-            actionUrl: "/dashboard/movimentacoes",
-        },
-        {
             id: "employees",
             label: t('onboarding.steps.employees.label'),
             description: t('onboarding.steps.employees.desc'),
@@ -52,6 +43,15 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
             icon: Users,
             actionLabel: t('onboarding.steps.employees.action'),
             actionUrl: "/dashboard/colaboradores",
+        },
+        {
+            id: "transaction",
+            label: t('onboarding.steps.transaction.label'),
+            description: t('onboarding.steps.transaction.desc'),
+            completed: false,
+            icon: TrendingUp,
+            actionLabel: t('onboarding.steps.transaction.action'),
+            actionUrl: "/dashboard/movimentacoes",
         },
     ])
     const [loading, setLoading] = useState(true)
