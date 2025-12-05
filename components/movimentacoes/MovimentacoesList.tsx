@@ -35,6 +35,7 @@ import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabili
 import MovimentacaoDetailModal from "./MovimentacaoDetailModal"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
+import { VoiceCommandButton } from "../ferramentas/VoiceCommandButton"
 
 interface Movimentacao {
   id: string
@@ -102,6 +103,47 @@ export default function MovimentacoesList({
     tipo: "retirada" | "devolucao"
     initialSignature?: string | null
   } | null>(null)
+
+  const handleVoiceCommand = (data: any) => {
+    const { intent } = data
+    if (!intent) return
+
+    // 1. Encontrar ferramenta (fuzzy match simples)
+    let foundTool = null
+    if (intent.item_name) {
+      const search = intent.item_name.toLowerCase()
+      foundTool = ferramentas.find(f =>
+        f.nome.toLowerCase().includes(search)
+      )
+    }
+
+    // 2. Encontrar colaborador
+    let foundCollaborator = null
+    if (intent.collaborator_name) {
+      const search = intent.collaborator_name.toLowerCase()
+      foundCollaborator = colaboradores.find(c =>
+        c.nome.toLowerCase().includes(search)
+      )
+    }
+
+    // 3. Preencher formulário e abrir dialog
+    if (foundTool) {
+      setForm(prev => ({
+        ...prev,
+        tipo: (intent.action as any) || "retirada",
+        produto: foundTool.nome,
+        produtoId: foundTool.id,
+        quantidade: String(intent.quantity || 1),
+        colaboradorId: foundCollaborator?.id || "",
+        colaboradorNome: foundCollaborator?.nome || "",
+      }))
+      setOpen(true)
+      toast.success(`Comando entendido: ${intent.action} de ${intent.quantity} ${foundTool.nome}`)
+    } else {
+      toast.error(`Ferramenta "${intent.item_name}" não encontrada.`)
+    }
+  }
+
   const [openExportDialog, setOpenExportDialog] = useState(false)
   const [exportingCsv, setExportingCsv] = useState(false)
   const [periodoRapido, setPeriodoRapido] = useState<"hoje" | "ontem" | "selecionar" | null>(null)
@@ -908,6 +950,8 @@ export default function MovimentacoesList({
           <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setImportModalOpen(true)} title={t("dashboard.movimentacoes.import_button")}>
             <Upload className="h-4 w-4" />
           </Button>
+
+          <VoiceCommandButton onCommandReceived={handleVoiceCommand} className="h-8 w-8" />
 
           <div className="h-4 w-px bg-zinc-300 mx-2 dark:bg-zinc-600" />
 

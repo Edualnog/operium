@@ -61,7 +61,6 @@ import Image from "next/image"
 import { FerramentasFilters, type FilterState } from "./FerramentasFilters"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
-import { VoiceCommandButton } from "./VoiceCommandButton"
 
 interface Ferramenta {
   id: string
@@ -118,42 +117,6 @@ function FerramentasList({
     initialCollaboratorId?: string
   } | null>(null)
 
-  const handleVoiceCommand = (data: any) => {
-    const { intent } = data
-    if (!intent) return
-
-    // 1. Encontrar ferramenta (fuzzy match simples)
-    let foundTool = null
-    if (intent.item_name) {
-      const search = intent.item_name.toLowerCase()
-      foundTool = initialFerramentas.find(f =>
-        f.nome.toLowerCase().includes(search) ||
-        (f.codigo && f.codigo.toLowerCase().includes(search))
-      )
-    }
-
-    // 2. Encontrar colaborador
-    let foundCollaborator = null
-    if (intent.collaborator_name) {
-      const search = intent.collaborator_name.toLowerCase()
-      foundCollaborator = colaboradores.find(c =>
-        c.nome.toLowerCase().includes(search)
-      )
-    }
-
-    // 3. Abrir dialog
-    if (foundTool) {
-      setActionDialog({
-        type: intent.action || "retirada",
-        ferramenta: foundTool,
-        initialQuantity: intent.quantity || 1,
-        initialCollaboratorId: foundCollaborator?.id
-      })
-      toast.success(`Comando entendido: ${intent.action} de ${intent.quantity} ${foundTool.nome}`)
-    } else {
-      toast.error(`Ferramenta "${intent.item_name}" não encontrada.`)
-    }
-  }
   const [editing, setEditing] = useState<Ferramenta | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -709,7 +672,6 @@ function FerramentasList({
             <Camera className="mr-2 h-4 w-4" />
             Importar NF (IA)
           </Button>
-          <VoiceCommandButton onCommandReceived={handleVoiceCommand} />
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditing(null)} className="w-full sm:w-auto">
