@@ -426,15 +426,13 @@ function FerramentasList({
     if (!confirm("Tem certeza que deseja excluir esta ferramenta?")) return
 
     try {
-      const { error } = await supabase.from("produtos").delete().eq("id", id)
-
-      if (error) throw error
+      await deletarFerramenta(id)
 
       setFerramentas(ferramentas.filter((p) => p.id !== id))
       toast.success("Ferramenta excluída com sucesso")
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao excluir:", error)
-      toast.error("Erro ao excluir ferramenta")
+      toast.error(error.message || "Erro ao excluir ferramenta")
     }
   }
 
