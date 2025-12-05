@@ -73,8 +73,11 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
   const logos = [
     { src: "/images/logos/openai.svg", alt: "OpenAI" },
+    { src: "/images/logos/gemini.png", alt: "Google Gemini" },
+    { src: "/images/logos/anthropic.png", alt: "Anthropic" },
     { src: "/images/logos/vercel.png", alt: "Vercel" },
-    { src: "/images/logos/supabase.svg", alt: "Supabase" },
+    { src: "/images/logos/supabase.png", alt: "Supabase" },
+    { src: "/images/logos/hostinger.png", alt: "Hostinger" },
     { src: "/images/logos/react.svg", alt: "React" },
     { src: "/images/logos/tailwind.svg", alt: "Tailwind CSS" },
     { src: "/images/logos/nextjs.svg", alt: "Next.js" },
