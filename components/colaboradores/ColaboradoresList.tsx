@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/table"
 import { useSidebar } from "@/components/ui/sidebar"
 import { useTranslation } from "react-i18next"
+import { useToast } from "@/components/ui/toast-context"
 
 interface Colaborador {
   id: string
@@ -109,6 +110,7 @@ function ColaboradoresList({
   const supabase = createClientComponentClient()
   const { open: sidebarOpen } = useSidebar()
   const { t } = useTranslation()
+  const { toast } = useToast()
 
   // Debounce para verificação de nome duplicado
   const debouncedNome = useDebounce(nomeDigitado, 500)
@@ -354,7 +356,7 @@ function ColaboradoresList({
       setConfirmarDuplicata(false)
       router.refresh()
     } catch (error) {
-      alert(t("dashboard.colaboradores.form.error_save"))
+      toast.error(t("dashboard.colaboradores.form.error_save"))
     } finally {
       setLoading(false)
     }
@@ -617,7 +619,7 @@ function ColaboradoresList({
       await deletarColaborador(id)
       router.refresh()
     } catch (error) {
-      alert(t("dashboard.colaboradores.card.error_delete"))
+      toast.error(t("dashboard.colaboradores.card.error_delete"))
     }
   }
 

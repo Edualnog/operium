@@ -57,6 +57,7 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { FerramentasFilters, type FilterState } from "./FerramentasFilters"
 import { useTranslation } from "react-i18next"
+import { useToast } from "@/components/ui/toast-context"
 
 interface Ferramenta {
   id: string
@@ -132,6 +133,7 @@ function FerramentasList({
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
   const [exportingCsv, setExportingCsv] = useState(false)
   const supabase = createClientComponentClient()
+  const { toast } = useToast()
   const [userId, setUserId] = useState<string>("")
   useEffect(() => {
     if (editing) {
@@ -356,7 +358,7 @@ function FerramentasList({
       } else if (error?.toString) {
         errorMessage = error.toString()
       }
-      alert(`Erro ao salvar produto: ${errorMessage}`)
+      toast.error(`Erro ao salvar produto: ${errorMessage}`) // Replaced alert with toast.error
     } finally {
       setLoading(false)
     }
@@ -366,10 +368,52 @@ function FerramentasList({
     if (!confirm("Tem certeza que deseja excluir esta ferramenta?")) return
 
     try {
-      await deletarFerramenta(id)
-      router.refresh()
+      const { error } = await supabase.from("produtos").delete().eq("id", id)
+
+      if (error) throw error
+
+      setFerramentas(ferramentas.filter((p) => p.id !== id))
+      toast.success("Ferramenta excluída com sucesso")
     } catch (error) {
-      alert("Erro ao excluir ferramenta")
+      console.error("Erro ao excluir:", error)
+      toast.error("Erro ao excluir ferramenta")
+    }
+  }
+
+  const handleEdit = (produto: Ferramenta) => {
+    setEditing(produto)
+    setOpen(true)
+  }
+
+  const handlePhotoUpload = async (file: File) => {
+    if (!editing?.id) return
+
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("productId", editing.id)
+    formData.append("bucketName", "produtos-fotos")
+
+    try {
+      const response = await fetch("/api/upload-photo", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Erro no upload")
+      }
+
+      const data = await response.json()
+      // Update the editing state with the new photo URL
+      setEditing((prev) => prev ? ({ ...prev, foto_url: data.url }) : null)
+      // Also update the list
+      setFerramentas((prev) => prev.map(f => f.id === editing.id ? { ...f, foto_url: data.url } : f))
+
+      toast.success("Foto atualizada com sucesso")
+    } catch (error: any) {
+      console.error("Erro no upload:", error)
+      toast.error(error.message || "Erro ao processar ação")
     }
   }
 
@@ -469,7 +513,7 @@ function FerramentasList({
       setActionDialog(null)
       router.refresh()
     } catch (error: any) {
-      alert(error.message || "Erro ao processar ação")
+      toast.error(error.message || "Erro ao processar ação")
     } finally {
       setLoading(false)
     }

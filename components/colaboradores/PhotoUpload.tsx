@@ -14,6 +14,7 @@ import {
   AlertTitle,
 } from "@/components/ui/alert"
 import { CameraCaptureModal } from "@/components/ui/camera-capture-modal"
+import { useToast } from "@/components/ui/toast-context"
 
 interface PhotoUploadProps {
   currentPhotoUrl?: string | null
@@ -29,6 +30,7 @@ export function PhotoUpload({
   colaboradorId,
 }: PhotoUploadProps) {
   const { t } = useTranslation()
+  const { toast } = useToast()
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
@@ -100,7 +102,7 @@ export function PhotoUpload({
 
     // Verificar se o bucket existe antes de continuar
     if (bucketExists === false) {
-      alert(
+      toast.error(
         "Bucket 'colaboradores-fotos' não encontrado no Supabase Storage.\n\n" +
         "Por favor, crie o bucket primeiro seguindo as instruções exibidas acima."
       )
@@ -112,13 +114,13 @@ export function PhotoUpload({
 
     // Validar tipo de arquivo
     if (!file.type.startsWith("image/")) {
-      alert("Por favor, selecione apenas imagens")
+      toast.error("Por favor, selecione apenas imagens")
       return
     }
 
     // Validar tamanho (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("A imagem deve ter no máximo 5MB")
+      toast.error("A imagem deve ter no máximo 5MB")
       return
     }
 
@@ -142,7 +144,7 @@ export function PhotoUpload({
   const handleCameraCapture = async (file: File) => {
     // Verificar se o bucket existe antes de continuar
     if (bucketExists === false) {
-      alert(
+      toast.error(
         "Bucket 'colaboradores-fotos' não encontrado no Supabase Storage.\n\n" +
         "Por favor, crie o bucket primeiro seguindo as instruções exibidas acima."
       )
@@ -182,7 +184,7 @@ export function PhotoUpload({
 
       // Verificar novamente se o bucket existe antes de fazer upload
       if (bucketExists === false) {
-        alert(
+        toast.error(
           "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
           "Por favor, crie o bucket no Supabase Dashboard seguindo as instruções exibidas acima."
         )
@@ -293,7 +295,7 @@ export function PhotoUpload({
                 fileInputRef.current.value = ""
               }
               setUploading(false)
-              alert(
+              toast.error(
                 "Bucket 'colaboradores-fotos' não encontrado.\n\n" +
                 "Por favor, crie o bucket no Supabase Dashboard e execute a migration SQL."
               )
@@ -433,7 +435,7 @@ export function PhotoUpload({
           "4. Variáveis de ambiente não configuradas corretamente"
       }
 
-      alert(`Erro ao fazer upload da foto: ${errorMessage}`)
+      toast.error(`Erro ao fazer upload da foto: ${errorMessage}`)
       setPreview(null)
       if (fileInputRef.current) {
         fileInputRef.current.value = ""

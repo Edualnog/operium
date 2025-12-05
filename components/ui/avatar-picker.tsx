@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Pencil, X } from "lucide-react"
+import { useToast } from "@/components/ui/toast-context"
 
 interface Avatar {
   id: number
@@ -356,6 +357,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
   const [isEditing, setIsEditing] = useState(false)
   const supabase = createClientComponentClient()
   const router = useRouter()
+  const { toast } = useToast()
 
   // Dados da empresa
   const [companyName, setCompanyName] = useState("")
@@ -459,7 +461,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
   const handleAvatarSelect = async (avatar: Avatar) => {
     setRotationCount((prev) => prev + 1080) // Add 3 rotations each time
     setSelectedAvatar(avatar)
-    
+
     // Salvar avatar no banco de dados
     setLoading(true)
     try {
@@ -488,21 +490,21 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert("Usuário não autenticado. Faça login novamente.")
+        toast.error("Usuário não autenticado. Faça login novamente.")
         return
       }
 
       // Preparar dados para atualização (apenas campos não vazios)
       const updateData: Record<string, string | null> = {}
-      
+
       if (companyName.trim()) updateData.company_name = companyName.trim()
       else updateData.company_name = null
-      
+
       if (cnpj.trim()) updateData.cnpj = cnpj.trim()
       else updateData.cnpj = null
-      
+
       updateData.company_email = (user.email || companyEmail || "").trim() || null
-      
+
       if (phone.trim()) updateData.phone = phone.trim()
       else updateData.phone = null
 
@@ -514,10 +516,10 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
 
       if (error) {
         console.error("Erro ao salvar dados da empresa:", error)
-        
+
         // Verificar se o erro é porque as colunas não existem
         if (error.message?.includes("column") && error.message?.includes("does not exist")) {
-          alert(
+          toast.error(
             "Erro: As colunas da empresa não foram criadas no banco de dados.\n\n" +
             "Por favor, execute a migration 012_add_company_fields_to_profiles.sql no Supabase Dashboard:\n" +
             "1. Acesse o Supabase Dashboard\n" +
@@ -525,12 +527,12 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
             "3. Execute o arquivo supabase/migrations/012_add_company_fields_to_profiles.sql"
           )
         } else if (error.message?.includes("permission denied") || error.message?.includes("RLS")) {
-          alert(
+          toast.error(
             "Erro de permissão. Verifique se as políticas RLS estão configuradas corretamente " +
             "para permitir que usuários atualizem seus próprios perfis."
           )
         } else {
-          alert(`Erro ao salvar dados da empresa: ${error.message || "Erro desconhecido"}`)
+          toast.error(`Erro ao salvar dados da empresa: ${error.message || "Erro desconhecido"}`)
         }
       } else {
         // Atualizar dados originais após salvar
@@ -553,7 +555,7 @@ export function AvatarPicker({ onSaveSuccess }: AvatarPickerProps) {
     } catch (error: any) {
       console.error("Erro ao salvar dados da empresa:", error)
       const errorMessage = error?.message || "Erro desconhecido"
-      alert(`Erro ao salvar dados da empresa: ${errorMessage}`)
+      toast.error(`Erro ao salvar dados da empresa: ${errorMessage}`)
     } finally {
       setSaving(false)
     }

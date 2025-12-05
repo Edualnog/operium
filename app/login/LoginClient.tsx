@@ -10,7 +10,9 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 import { Turnstile } from "@marsidev/react-turnstile"
 import { motion } from "framer-motion"
 import { ArrowLeft, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react"
+import { useToast } from "@/components/ui/toast-context"
 import { useTranslation } from "react-i18next"
+import { Suspense } from "react"
 
 function BackgroundDecoration() {
   return (
@@ -21,16 +23,13 @@ function BackgroundDecoration() {
   )
 }
 
-import { Suspense } from "react"
-
 function LoginForm() {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState("")
-  const [info, setInfo] = React.useState("")
   const { t } = useTranslation('common')
+  const { toast } = useToast()
 
   const [captchaToken, setCaptchaToken] = React.useState<string | null>(null)
   const captchaRef = React.useRef<any>(null)
@@ -53,11 +52,9 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError("")
-    setInfo("")
 
     if (!captchaToken) {
-      setError(t('auth.errors.captcha_required'))
+      toast.error(t('auth.errors.captcha_required'))
       setLoading(false)
       return
     }
@@ -86,11 +83,11 @@ function LoginForm() {
     } catch (err: any) {
       console.error("Login error:", err)
       if (err.message.includes("Invalid login credentials")) {
-        setError(t('auth.errors.invalid_credentials'))
+        toast.error(t('auth.errors.invalid_credentials'))
       } else if (err.message.includes("Email not confirmed")) {
-        setError(t('auth.errors.email_not_confirmed'))
+        toast.error(t('auth.errors.email_not_confirmed'))
       } else {
-        setError(err.message || t('auth.errors.generic_login'))
+        toast.error(err.message || t('auth.errors.generic_login'))
       }
       setCaptchaToken(null)
       captchaRef.current?.reset()
@@ -101,18 +98,16 @@ function LoginForm() {
 
   const handleResetPassword = async () => {
     if (!email) {
-      setError(t('auth.errors.email_required_reset'))
+      toast.error(t('auth.errors.email_required_reset'))
       return
     }
 
     if (!captchaToken) {
-      setError(t('auth.errors.captcha_required'))
+      toast.error(t('auth.errors.captcha_required'))
       return
     }
 
     setLoading(true)
-    setError("")
-    setInfo("")
 
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
@@ -124,10 +119,10 @@ function LoginForm() {
         throw resetError
       }
 
-      setInfo(t('auth.success.reset_email_sent'))
+      toast.success(t('auth.success.reset_email_sent'))
     } catch (err: any) {
       console.error("Reset password error:", err)
-      setError(err.message || t('auth.errors.generic_login'))
+      toast.error(err.message || t('auth.errors.generic_login'))
     } finally {
       setLoading(false)
       setCaptchaToken(null)
@@ -182,19 +177,6 @@ function LoginForm() {
               </Link>
             </p>
           </div>
-
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700 flex items-start gap-2">
-              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-          {info && (
-            <div className="mb-4 rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700 flex items-start gap-2">
-              <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5" />
-              <span>{info}</span>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -257,7 +239,7 @@ function LoginForm() {
                   siteKey={turnstileSiteKey}
                   onSuccess={(token) => setCaptchaToken(token)}
                   onError={() => {
-                    setError("Erro na verificação de segurança. Tente novamente.")
+                    toast.error("Erro na verificação de segurança. Tente novamente.")
                     setCaptchaToken(null)
                   }}
                   onExpire={() => setCaptchaToken(null)}

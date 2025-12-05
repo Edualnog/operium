@@ -26,6 +26,7 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { registrarEnvioConserto } from "@/lib/actions"
 import { useTranslation } from "react-i18next"
+import { useToast } from "@/components/ui/toast-context"
 
 interface Conserto {
   id: string
@@ -58,6 +59,7 @@ function ConsertosList({
 }) {
   const supabase = createClientComponentClient()
   const { t, i18n } = useTranslation()
+  const { toast } = useToast()
   const dateLocale = i18n.language === "pt" ? ptBR : enUS
 
   const parseFerramenta = (ferramentas: Conserto["ferramentas"]) => {
@@ -199,13 +201,13 @@ function ConsertosList({
     const quantidade = Number(formData.get("quantidade"))
 
     if (quantidade < 1) {
-      alert(t("dashboard.consertos.errors.min_quantity"))
+      toast.error(t("dashboard.consertos.errors.min_quantity"))
       setLoading(false)
       return
     }
 
     if (quantidade > quantidadeEmConserto) {
-      alert(t("dashboard.consertos.errors.invalid_quantity", { count: quantidadeEmConserto }))
+      toast.error(t("dashboard.consertos.errors.invalid_quantity", { count: quantidadeEmConserto }))
       setLoading(false)
       return
     }
@@ -216,7 +218,7 @@ function ConsertosList({
       setQuantidadeEmConserto(0)
       router.refresh()
     } catch (error: any) {
-      alert(error.message || t("dashboard.consertos.errors.register_return"))
+      toast.error(error.message || t("dashboard.consertos.errors.register_return"))
     } finally {
       setLoading(false)
     }
@@ -229,7 +231,7 @@ function ConsertosList({
       setConsertos((prev) => prev.map((c) => (c.id === consertoId ? { ...c, status } : c)))
       router.refresh()
     } catch (error: any) {
-      alert(error.message || t("dashboard.consertos.errors.update_status"))
+      toast.error(error.message || t("dashboard.consertos.errors.update_status"))
     } finally {
       setStatusLoadingId(null)
     }
@@ -250,19 +252,19 @@ function ConsertosList({
   const handleNovaOrdem = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!form.produtoId) {
-      alert(t("dashboard.consertos.errors.select_product"))
+      toast.error(t("dashboard.consertos.errors.select_product"))
       return
     }
 
     const quantidade = Number(form.quantidade)
     if (quantidade < 1) {
-      alert(t("dashboard.consertos.errors.min_quantity"))
+      toast.error(t("dashboard.consertos.errors.min_quantity"))
       return
     }
 
     const produtoSelecionado = produtos.find(p => p.id === form.produtoId)
     if (produtoSelecionado && quantidade > produtoSelecionado.quantidade_disponivel) {
-      alert(t("dashboard.consertos.errors.insufficient_quantity", { count: produtoSelecionado.quantidade_disponivel }))
+      toast.error(t("dashboard.consertos.errors.insufficient_quantity", { count: produtoSelecionado.quantidade_disponivel }))
       return
     }
 
@@ -290,7 +292,7 @@ function ConsertosList({
       })
       router.refresh()
     } catch (err: any) {
-      alert(err.message || t("dashboard.consertos.errors.create_order"))
+      toast.error(err.message || t("dashboard.consertos.errors.create_order"))
     } finally {
       setLoading(false)
     }
@@ -376,7 +378,7 @@ function ConsertosList({
     const filteredConsertos = getFilteredConsertos()
 
     if (filteredConsertos.length === 0) {
-      alert(t("dashboard.consertos.actions.no_results_export"))
+      toast.error(t("dashboard.consertos.actions.no_results_export"))
       return
     }
 

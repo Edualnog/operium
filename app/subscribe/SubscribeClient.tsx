@@ -15,6 +15,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { useTranslation } from "react-i18next"
+import { useToast } from "@/components/ui/toast-context"
 import { Suspense } from "react"
 
 type PlanType = "mensal" | "trimestral" | "anual"
@@ -42,6 +43,7 @@ function SubscribeContent() {
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { t, i18n } = useTranslation()
+  const { toast } = useToast()
 
   const isPortuguese = i18n.language?.startsWith("pt")
 
@@ -146,7 +148,7 @@ function SubscribeContent() {
       const response = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, locale: isPortuguese ? "pt-BR" : "en" }),
       })
 
       const data = await response.json()
@@ -161,7 +163,9 @@ function SubscribeContent() {
         throw new Error("URL de checkout não retornada")
       }
     } catch (err: any) {
-      setError(err.message || "Erro ao processar checkout")
+      const msg = err.message || "Erro ao processar checkout"
+      setError(msg)
+      toast.error(msg)
       setLoading(false)
     }
   }

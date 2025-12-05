@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { checkBucketExists } from "@/lib/utils/storage"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CameraCaptureModal } from "@/components/ui/camera-capture-modal"
+import { useToast } from "@/components/ui/toast-context"
 
 interface ProductPhotoUploadProps {
   currentPhotoUrl?: string | null
@@ -27,6 +28,7 @@ export function ProductPhotoUpload({
   productId,
 }: ProductPhotoUploadProps) {
   const { t } = useTranslation()
+  const { toast } = useToast()
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null)
   const [bucketExists, setBucketExists] = useState<boolean | null>(null)
@@ -71,7 +73,7 @@ export function ProductPhotoUpload({
     if (!file) return
 
     if (bucketExists === false) {
-      alert(
+      toast.error(
         "Bucket 'produtos-fotos' não encontrado no Supabase Storage. Crie o bucket e clique em verificar."
       )
       fileInputRef.current && (fileInputRef.current.value = "")
@@ -79,12 +81,12 @@ export function ProductPhotoUpload({
     }
 
     if (!file.type.startsWith("image/")) {
-      alert("Selecione apenas imagens")
+      toast.error("Selecione apenas imagens")
       return
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Máximo 5MB")
+      toast.error("Máximo 5MB")
       return
     }
 
@@ -97,7 +99,7 @@ export function ProductPhotoUpload({
 
   const handleCameraCapture = async (file: File) => {
     if (bucketExists === false) {
-      alert(
+      toast.error(
         "Bucket 'produtos-fotos' não encontrado no Supabase Storage. Crie o bucket e clique em verificar."
       )
       return
@@ -114,7 +116,7 @@ export function ProductPhotoUpload({
     try {
       setUploading(true)
       if (bucketExists === false) {
-        alert("Configure o bucket 'produtos-fotos' no Supabase primeiro.")
+        toast.error("Configure o bucket 'produtos-fotos' no Supabase primeiro.")
         setPreview(null)
         fileInputRef.current && (fileInputRef.current.value = "")
         return
@@ -150,7 +152,7 @@ export function ProductPhotoUpload({
           const msg = error.message.toLowerCase()
           if (msg.includes("bucket") && msg.includes("not")) {
             setBucketExists(false)
-            alert("Bucket 'produtos-fotos' não encontrado. Crie e tente novamente.")
+            toast.error("Bucket 'produtos-fotos' não encontrado. Crie e tente novamente.")
             return
           }
 
@@ -219,7 +221,7 @@ export function ProductPhotoUpload({
       onPhotoUploaded(publicUrl)
     } catch (err: any) {
       console.error("Erro ao enviar foto do produto:", err)
-      alert("Erro ao enviar a foto do produto: " + (err.message || "Erro desconhecido"))
+      toast.error("Erro ao enviar a foto do produto: " + (err.message || "Erro desconhecido"))
       setPreview(null)
     } finally {
       setUploading(false)

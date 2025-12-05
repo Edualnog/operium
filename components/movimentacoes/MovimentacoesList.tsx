@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils"
 import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabilidadeModal"
 import MovimentacaoDetailModal from "./MovimentacaoDetailModal"
 import { useTranslation } from "react-i18next"
+import { useToast } from "@/components/ui/toast-context"
 
 interface Movimentacao {
   id: string
@@ -71,6 +72,7 @@ export default function MovimentacoesList({
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { t } = useTranslation()
+  const { toast } = useToast()
   const [movimentacoes, setMovimentacoes] = useState(initialMovs)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [starredIds, setStarredIds] = useState<string[]>([])
@@ -409,11 +411,11 @@ export default function MovimentacoesList({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!form.produtoId) {
-      alert(t("dashboard.movimentacoes.form.select_product"))
+      toast.error(t("dashboard.movimentacoes.form.select_product"))
       return
     }
     if (form.tipo !== "entrada" && !form.colaboradorId) {
-      alert(t("dashboard.movimentacoes.form.select_collaborator"))
+      toast.error(t("dashboard.movimentacoes.form.select_collaborator"))
       return
     }
 
@@ -434,7 +436,7 @@ export default function MovimentacoesList({
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || t("dashboard.movimentacoes.form.error"))
 
-      console.log("✅ " + t("dashboard.movimentacoes.form.success"))
+      toast.success(t("dashboard.movimentacoes.form.success"))
 
       // Verificar se deve abrir modal de assinatura
       const deveAssinar = solicitarAssinatura && (form.tipo === "retirada" || form.tipo === "devolucao")
@@ -495,7 +497,7 @@ export default function MovimentacoesList({
         router.refresh()
       }, 500)
     } catch (err: any) {
-      alert(err.message || t("dashboard.movimentacoes.form.error"))
+      toast.error(err.message || t("dashboard.movimentacoes.form.error"))
     } finally {
       setLoading(false)
     }
@@ -586,7 +588,7 @@ export default function MovimentacoesList({
   const handleExportCSV = () => {
     const filtered = getFilteredMovimentacoes()
     if (filtered.length === 0) {
-      alert(t("dashboard.movimentacoes.actions.no_results_export"))
+      toast.error(t("dashboard.movimentacoes.actions.no_results_export"))
       return
     }
 
@@ -620,7 +622,7 @@ export default function MovimentacoesList({
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Erro ao exportar CSV:", error)
-      alert(t("dashboard.movimentacoes.actions.export_error"))
+      toast.error(t("dashboard.movimentacoes.actions.export_error"))
     } finally {
       setExportingCsv(false)
       setOpenExportDialog(false)
@@ -703,7 +705,7 @@ export default function MovimentacoesList({
   const handleExportSelected = () => {
     const selectedMovs = movimentacoes.filter((m) => selectedIds.includes(m.id))
     if (selectedMovs.length === 0) {
-      alert(t("dashboard.movimentacoes.actions.select_one"))
+      toast.error(t("dashboard.movimentacoes.actions.select_one"))
       return
     }
 
@@ -737,7 +739,7 @@ export default function MovimentacoesList({
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Erro ao exportar selecionados:", error)
-      alert(t("dashboard.movimentacoes.actions.export_error"))
+      toast.error(t("dashboard.movimentacoes.actions.export_error"))
     } finally {
       setExportingCsv(false)
     }

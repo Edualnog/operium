@@ -89,20 +89,49 @@ export async function middleware(request: NextRequest) {
         // Verificar status do trial/assinatura para bloqueio
         // Apenas se estiver tentando acessar dashboard
         if (request.nextUrl.pathname.startsWith('/dashboard')) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('subscription_status, trial_start_date, stripe_customer_id')
-            .eq('id', authUser.id)
-            .single()
+          let profileData = null
+          let fromCache = false
 
-          if (profile) {
+          // Tentar ler do cache
+          const cacheCookie = request.cookies.get('subscription_cache')
+          if (cacheCookie) {
+            try {
+              const cached = JSON.parse(cacheCookie.value)
+              // Validar se o cache pertence ao usuário atual e não expirou (embora o cookie tenha expiração, validamos timestamp também)
+              if (cached.userId === authUser.id) {
+                profileData = cached
+                fromCache = true
+              }
+            } catch (e) {
+              // Cache inválido, ignorar
+            }
+          }
+
+          // Se não tem cache, buscar no banco
+          if (!profileData) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('subscription_status, trial_start_date')
+              .eq('id', authUser.id)
+              .single()
+
+            if (profile) {
+              profileData = {
+                userId: authUser.id,
+                subscription_status: profile.subscription_status,
+                trial_start_date: profile.trial_start_date
+              }
+            }
+          }
+
+          if (profileData) {
             const activeStatuses = ['active', 'trialing']
-            const hasActiveSubscription = profile.subscription_status && activeStatuses.includes(profile.subscription_status)
+            const hasActiveSubscription = profileData.subscription_status && activeStatuses.includes(profileData.subscription_status)
 
             // Verificar trial
             let isTrialValid = false
-            if (profile.trial_start_date) {
-              const startDate = new Date(profile.trial_start_date)
+            if (profileData.trial_start_date) {
+              const startDate = new Date(profileData.trial_start_date)
               const now = new Date()
               const endDate = new Date(startDate)
               endDate.setDate(endDate.getDate() + 7)
@@ -115,6 +144,17 @@ export async function middleware(request: NextRequest) {
 
             if (!hasActiveSubscription && !isTrialValid && !isSubPage) {
               return NextResponse.redirect(new URL('/subscribe', request.url))
+            }
+
+            // Se acesso permitido e não veio do cache, atualizar o cookie
+            if (!fromCache) {
+              response.cookies.set({
+                name: 'subscription_cache',
+                value: JSON.stringify(profileData),
+                maxAge: 300, // 5 minutos
+                path: '/',
+                sameSite: 'lax',
+              })
             }
           }
         }
