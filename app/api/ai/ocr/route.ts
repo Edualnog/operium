@@ -22,7 +22,7 @@ export async function POST(req: Request) {
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "Analise esta imagem de nota fiscal e extraia os itens. Retorne APENAS um JSON com uma lista de objetos contendo: 'nome' (descrição do produto), 'quantidade' (número), 'valor_unitario' (número), 'codigo' (se houver). Exemplo: { \"items\": [{ \"nome\": \"Martelo\", \"quantidade\": 2, \"valor_unitario\": 15.50, \"codigo\": \"123\" }] }" },
+                        { type: "text", text: "Analise esta imagem de nota fiscal e extraia os itens. Retorne APENAS um JSON com uma lista de objetos contendo: 'nome' (descrição do produto), 'quantidade' (número), 'valor_unitario' (número), 'codigo' (se não houver, GERE um código sugerido baseado no nome, ex: PAR-001), 'categoria' (sugira uma categoria baseada no nome, ex: Ferramentas Elétricas, Hidráulica, etc), 'unidade' (sugira a unidade: UN, KG, M, CX, etc). Exemplo: { \"items\": [{ \"nome\": \"Martelo\", \"quantidade\": 2, \"valor_unitario\": 15.50, \"codigo\": \"MAR-001\", \"categoria\": \"Ferramentas Manuais\", \"unidade\": \"UN\" }] }" },
                         {
                             type: "image_url",
                             image_url: {

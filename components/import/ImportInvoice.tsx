@@ -23,6 +23,8 @@ export interface ExtractedItem {
     quantidade: number
     valor_unitario?: number
     codigo?: string
+    categoria?: string
+    unidade?: string
 }
 
 interface ImportInvoiceProps {
@@ -128,7 +130,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
             >
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -203,7 +205,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                     Lendo Nota Fiscal...
                                 </p>
                                 <p className="text-slate-500 dark:text-slate-400">
-                                    A IA está identificando os produtos e quantidades.
+                                    A IA está identificando os produtos, códigos e categorias.
                                 </p>
                             </motion.div>
                         )}
@@ -216,9 +218,9 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                 exit={{ opacity: 0, y: -20 }}
                                 className="space-y-4"
                             >
-                                <div className="flex gap-4">
+                                <div className="flex gap-4 flex-col lg:flex-row">
                                     {previewUrl && (
-                                        <div className="w-1/3 relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-64">
+                                        <div className="w-full lg:w-1/3 relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-64 lg:h-auto min-h-[200px]">
                                             <Image
                                                 src={previewUrl}
                                                 alt="Preview"
@@ -241,8 +243,11 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                                 <thead className="bg-slate-50 dark:bg-slate-700">
                                                     <tr>
                                                         <th className="px-4 py-2 text-left">Produto</th>
-                                                        <th className="px-4 py-2 text-left w-24">Qtd</th>
-                                                        <th className="px-4 py-2 text-left w-32">Valor (R$)</th>
+                                                        <th className="px-4 py-2 text-left w-24">Código</th>
+                                                        <th className="px-4 py-2 text-left w-32">Categoria</th>
+                                                        <th className="px-4 py-2 text-left w-20">Unid.</th>
+                                                        <th className="px-4 py-2 text-left w-20">Qtd</th>
+                                                        <th className="px-4 py-2 text-left w-24">Valor (R$)</th>
                                                         <th className="px-4 py-2 w-10"></th>
                                                     </tr>
                                                 </thead>
@@ -254,6 +259,31 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                                                     value={item.nome}
                                                                     onChange={(e) => updateItem(i, "nome", e.target.value)}
                                                                     className="h-8"
+                                                                    placeholder="Nome do produto"
+                                                                />
+                                                            </td>
+                                                            <td className="p-2">
+                                                                <Input
+                                                                    value={item.codigo || ""}
+                                                                    onChange={(e) => updateItem(i, "codigo", e.target.value)}
+                                                                    className="h-8"
+                                                                    placeholder="Código"
+                                                                />
+                                                            </td>
+                                                            <td className="p-2">
+                                                                <Input
+                                                                    value={item.categoria || ""}
+                                                                    onChange={(e) => updateItem(i, "categoria", e.target.value)}
+                                                                    className="h-8"
+                                                                    placeholder="Categoria"
+                                                                />
+                                                            </td>
+                                                            <td className="p-2">
+                                                                <Input
+                                                                    value={item.unidade || ""}
+                                                                    onChange={(e) => updateItem(i, "unidade", e.target.value)}
+                                                                    className="h-8"
+                                                                    placeholder="UN"
                                                                 />
                                                             </td>
                                                             <td className="p-2">
