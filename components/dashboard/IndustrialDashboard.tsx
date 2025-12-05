@@ -32,7 +32,10 @@ import {
 } from "lucide-react"
 import { OnboardingChecklist } from "./OnboardingChecklist"
 import { AIInsightsCard } from "./AIInsightsCard"
-import { DashboardVoiceSummary } from "./DashboardVoiceSummary"
+import { VoiceSummaryAgent } from "./VoiceSummaryAgent"
+
+// ... (inside component)
+
 
 interface IndustrialDashboardProps {
   userId: string
@@ -566,7 +569,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           </p>
         </div>
         {/* Componente de Resumo por Voz */}
-        <DashboardVoiceSummary />
+        <VoiceSummaryAgent />
       </div>
 
       <OnboardingChecklist userId={userId} />
