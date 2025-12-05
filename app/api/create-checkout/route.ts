@@ -6,10 +6,7 @@ import { z } from "zod"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-const checkoutSchema = z.object({
-  plan: z.enum(["mensal", "trimestral", "anual"]),
-  locale: z.string().optional().default("pt"),
-})
+import { validateCheckoutBody, getPriceId } from "./helpers"
 
 const messages = {
   pt: {
@@ -32,7 +29,7 @@ export async function POST(req: Request) {
     const body = await req.json()
 
     // Validação com Zod
-    const result = checkoutSchema.safeParse(body)
+    const result = validateCheckoutBody(body)
 
     if (!result.success) {
       return NextResponse.json(
@@ -47,15 +44,7 @@ export async function POST(req: Request) {
     const t = messages[lang]
 
     // Definir Price ID via variáveis de ambiente
-    let priceId = ""
-
-    if (plan === "anual") {
-      priceId = process.env.STRIPE_PRICE_YEARLY || ""
-    } else if (plan === "trimestral") {
-      priceId = process.env.STRIPE_PRICE_QUARTERLY || ""
-    } else if (plan === "mensal") {
-      priceId = process.env.STRIPE_PRICE_MONTHLY || ""
-    }
+    const priceId = getPriceId(plan, process.env as Record<string, string>)
 
     if (!process.env.STRIPE_SECRET_KEY || !priceId) {
       console.error("Missing Stripe config:", {

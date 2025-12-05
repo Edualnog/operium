@@ -1,6 +1,6 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { NextRequest, NextResponse } from "next/server"
-import { resolveBucketName } from "./helpers"
+import { resolveBucketName, validateFile } from "./helpers"
 
 const messages = {
   pt: {
@@ -62,25 +62,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!file) {
+    const validation = validateFile(file)
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: t.fileMissing },
-        { status: 400 }
-      )
-    }
-
-    // Validar tipo de arquivo
-    if (!file.type.startsWith("image/")) {
-      return NextResponse.json(
-        { error: t.typeError },
-        { status: 400 }
-      )
-    }
-
-    // Validar tamanho (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: t.sizeError },
+        { error: t[validation.error as keyof typeof t] },
         { status: 400 }
       )
     }
