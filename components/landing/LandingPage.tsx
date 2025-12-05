@@ -72,13 +72,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
   const router = useRouter()
 
   const logos = [
-    { src: "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg", alt: "OpenAI" },
-    { src: "https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png", alt: "Vercel" },
-    { src: "https://supabase.com/docs/img/supabase-logo-icon.svg", alt: "Supabase" },
-    { src: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg", alt: "React" },
-    { src: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg", alt: "Tailwind CSS" },
-    { src: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Nextjs-logo.svg", alt: "Next.js" },
-    { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Figma-logo.svg/1667px-Figma-logo.svg.png", alt: "Figma" },
+    { src: "/images/logos/openai.svg", alt: "OpenAI" },
+    { src: "/images/logos/vercel.png", alt: "Vercel" },
+    { src: "/images/logos/supabase.svg", alt: "Supabase" },
+    { src: "/images/logos/react.svg", alt: "React" },
+    { src: "/images/logos/tailwind.svg", alt: "Tailwind CSS" },
+    { src: "/images/logos/nextjs.svg", alt: "Next.js" },
+    { src: "/images/logos/figma.png", alt: "Figma" },
   ]
 
   const handleStart = () => {
