@@ -41,6 +41,8 @@ export function Toast({ id, message, type, onDismiss }: ToastProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
             className={`flex items-center gap-3 p-4 rounded-lg shadow-lg border ${bgColors[type]} min-w-[300px] max-w-md pointer-events-auto`}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
         >
             <div className="flex-shrink-0">{icons[type]}</div>
             <p className="text-sm font-medium text-slate-900 dark:text-zinc-100 flex-1">
