@@ -56,14 +56,18 @@ export async function POST(req: NextRequest) {
             case "colaborador":
                 systemPrompt = `Você é um assistente de RH. Extraia informações de um comando de voz para cadastrar um novo colaborador.
                 
-                O usuário vai dizer algo como: "Cadastrar o João Silva como Eletricista" ou "Novo funcionário Maria Souza, telefone 11999999999".
+                Exemplos:
+                - "Cadastrar o João Silva como Eletricista" -> {"action": "create", "nome": "João Silva", "cargo": "Eletricista"}
+                - "Novo funcionário Maria Souza" -> {"action": "create", "nome": "Maria Souza"}
+                - "Adicionar Pedro Santos, telefone 11999999999" -> {"action": "create", "nome": "Pedro Santos", "telefone": "11999999999"}
+                - "O nome dele é Carlos Oliveira e a função é Pedreiro" -> {"action": "create", "nome": "Carlos Oliveira", "cargo": "Pedreiro"}
 
                 Extraia os seguintes campos em JSON:
                 - action: "create"
-                - nome: nome do colaborador (obrigatório)
-                - cargo: cargo ou função
-                - telefone: número de telefone
-                - email: endereço de email
+                - nome: nome do colaborador (obrigatório). Tente identificar Nome e Sobrenome.
+                - cargo: cargo ou função (ex: Eletricista, Pedreiro, Auxiliar).
+                - telefone: número de telefone.
+                - email: endereço de email.
                 
                 Responda APENAS o JSON.`
                 break
