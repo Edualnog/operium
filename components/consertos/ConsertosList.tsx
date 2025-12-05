@@ -121,7 +121,7 @@ function ConsertosList({
         setOpenNew(true)
         toast.success(`Produto identificado: ${produtoEncontrado.nome}`)
       } else {
-        toast.warning(`Produto "${intent.item_name}" não encontrado.`)
+        toast.error(`Produto "${intent.item_name}" não encontrado.`)
         // Preenche o nome mesmo assim para o usuário buscar
         setForm(prev => ({
           ...prev,
