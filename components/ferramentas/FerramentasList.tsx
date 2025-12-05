@@ -944,26 +944,30 @@ function FerramentasList({
             try {
               // Para cada item extraído, criar no banco
               for (const item of items) {
-                const { error } = await supabase
-                  .from("ferramentas")
-                  .insert({
-                    nome: item.nome,
-                    quantidade_total: item.quantidade,
-                    quantidade_disponivel: item.quantidade,
-                    valor_unitario: item.valor_unitario,
-                    codigo: item.codigo || gerarCodigoLocal(item.nome),
-                    tipo_item: "ferramenta", // Default
-                    estado: "ok",
-                    user_id: userId
-                  })
+                const formData = new FormData()
+                formData.append("nome", item.nome)
+                formData.append("quantidade_total", item.quantidade.toString())
+                formData.append("estado", "ok")
+                formData.append("tipo_item", "ferramenta")
 
-                if (error) throw error
+                if (item.valor_unitario) {
+                  formData.append("valor_unitario", item.valor_unitario.toString())
+                }
+
+                if (item.codigo) {
+                  formData.append("codigo", item.codigo)
+                } else {
+                  // Gerar código se não existir
+                  formData.append("codigo", gerarCodigoLocal(item.nome))
+                }
+
+                await criarFerramenta(formData)
               }
               toast.success("Itens importados com sucesso!")
               router.refresh()
-            } catch (error) {
+            } catch (error: any) {
               console.error(error)
-              toast.error("Erro ao importar itens")
+              toast.error(error.message || "Erro ao importar itens")
             } finally {
               setLoading(false)
             }
