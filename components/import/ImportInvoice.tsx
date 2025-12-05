@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Image from "next/image"
 
 export interface ExtractedItem {
     nome: string
@@ -217,8 +218,13 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                             >
                                 <div className="flex gap-4">
                                     {previewUrl && (
-                                        <div className="w-1/3 relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                                            <img src={previewUrl} alt="Preview" className="w-full h-auto object-contain" />
+                                        <div className="w-1/3 relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-64">
+                                            <Image
+                                                src={previewUrl}
+                                                alt="Preview"
+                                                fill
+                                                className="object-contain"
+                                            />
                                         </div>
                                     )}
                                     <div className="flex-1 space-y-4">

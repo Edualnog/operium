@@ -253,7 +253,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
     return () => {
       cancelled = true
     }
-  }, [userId])
+  }, [userId, t])
 
   if (loading) {
     return (

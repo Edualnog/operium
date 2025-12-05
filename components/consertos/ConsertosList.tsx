@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, memo, useEffect } from "react"
+import { useState, useMemo, memo, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -62,14 +62,14 @@ function ConsertosList({
   const { toast } = useToast()
   const dateLocale = i18n.language === "pt" ? ptBR : enUS
 
-  const parseFerramenta = (ferramentas: Conserto["ferramentas"]) => {
+  const parseFerramenta = useCallback((ferramentas: Conserto["ferramentas"]) => {
     const f = Array.isArray(ferramentas) ? ferramentas[0] : ferramentas
     return {
       id: f?.id || "",
       nome: f?.nome || t("dashboard.consertos.no_name"),
       quantidade_disponivel: Number(f?.quantidade_disponivel || 0),
     }
-  }
+  }, [t])
 
   const [consertos, setConsertos] = useState(initialConsertos)
   const [retornoDialog, setRetornoDialog] = useState<Conserto | null>(null)
@@ -189,7 +189,7 @@ function ConsertosList({
     }
 
     buscarQuantidadeEmConserto()
-  }, [retornoDialog, supabase])
+  }, [retornoDialog, supabase, parseFerramenta])
 
   const handleRetorno = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

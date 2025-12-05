@@ -130,7 +130,7 @@ function DashboardCharts({ userId }: { userId: string }) {
     return () => {
       cancelled = true
     }
-  }, [userId])
+  }, [userId, t])
 
   // Memoizar cores para evitar recriação
   const chartColors = useMemo(() => COLORS, [])

@@ -70,7 +70,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
     ws["!cols"] = colWidths
 
     XLSX.writeFile(wb, config.templateFileName)
-  }, [config])
+  }, [config, t])
 
   // Processar arquivo
   const processFile = useCallback((file: File) => {
@@ -144,7 +144,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
     }
 
     reader.readAsArrayBuffer(file)
-  }, [config])
+  }, [config, t])
 
   // Handlers de drag & drop
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -167,7 +167,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
     } else {
       setErrors([t("import.errors.invalid_file_type")])
     }
-  }, [processFile])
+  }, [processFile, t])
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -197,7 +197,7 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
       setErrors([t("import.errors.process_error")])
       setStep("preview")
     }
-  }, [config, mappedData])
+  }, [config, mappedData, t])
 
   // Reset
   const reset = useCallback(() => {
@@ -339,8 +339,8 @@ export default function ImportExcel({ config, onClose }: ImportExcelProps) {
                       <div
                         key={col.dbColumn}
                         className={`px-3 py-2 rounded-lg text-sm ${col.required
-                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                            : "bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300"
+                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                          : "bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300"
                           }`}
                       >
                         {col.label}
