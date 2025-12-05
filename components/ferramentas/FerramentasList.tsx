@@ -603,11 +603,12 @@ function FerramentasList({
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center justify-between sm:justify-start">
           <Button
             variant="outline"
             onClick={handleExportCSV}
             disabled={exportingCsv || filteredFerramentas.length === 0}
+            className="flex-1 sm:flex-none"
           >
             <FileDown className="mr-2 h-4 w-4" />
             {exportingCsv ? t("dashboard.ferramentas.generating_csv") : t("dashboard.ferramentas.export_csv")}
@@ -650,10 +651,11 @@ function FerramentasList({
             </button>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
             onClick={() => setImportModalOpen(true)}
+            className="w-full sm:w-auto"
           >
             <Upload className="mr-2 h-4 w-4" />
             {t("dashboard.ferramentas.import_button")}
@@ -662,13 +664,14 @@ function FerramentasList({
             variant="outline"
             onClick={() => setImportInvoiceOpen(true)}
             title="Importar Nota Fiscal com IA"
+            className="w-full sm:w-auto"
           >
             <Camera className="mr-2 h-4 w-4" />
             Importar NF (IA)
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditing(null)}>
+              <Button onClick={() => setEditing(null)} className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
                 {t("dashboard.ferramentas.new_button")}
               </Button>

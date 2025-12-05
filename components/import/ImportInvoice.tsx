@@ -184,16 +184,16 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
+                className="bg-white dark:bg-slate-800 rounded-none md:rounded-2xl shadow-2xl w-full h-full md:h-auto md:max-h-[90vh] md:max-w-6xl overflow-hidden flex flex-col"
             >
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div className="px-4 md:px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <Camera className="w-6 h-6 text-blue-500" />
+                        <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <Camera className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                             Importar Nota Fiscal (IA)
                         </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                             Tire uma foto da nota e deixe a IA extrair os itens.
                         </p>
                     </div>
@@ -209,7 +209,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-auto p-6">
+                <div className="flex-1 overflow-y-auto p-4 md:p-6">
                     <AnimatePresence mode="wait">
                         {step === "upload" && (
                             <motion.div
@@ -217,12 +217,12 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
-                                className="space-y-6"
+                                className="space-y-6 h-full flex flex-col justify-center md:block"
                             >
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex flex-col items-center justify-center gap-4 h-64"
+                                        className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 md:p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex flex-col items-center justify-center gap-4 h-48 md:h-64"
                                     >
                                         <input
                                             ref={fileInputRef}
@@ -231,14 +231,14 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                             onChange={handleFileSelect}
                                             className="hidden"
                                         />
-                                        <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                            <Upload className="w-8 h-8" />
+                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                            <Upload className="w-6 h-6 md:w-8 md:h-8" />
                                         </div>
                                         <div>
-                                            <p className="text-lg font-medium text-slate-900 dark:text-white">
+                                            <p className="text-base md:text-lg font-medium text-slate-900 dark:text-white">
                                                 Fazer Upload
                                             </p>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                                                 Arraste ou clique para selecionar
                                             </p>
                                         </div>
@@ -246,16 +246,16 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
 
                                     <div
                                         onClick={startCamera}
-                                        className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex flex-col items-center justify-center gap-4 h-64"
+                                        className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 md:p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex flex-col items-center justify-center gap-4 h-48 md:h-64"
                                     >
-                                        <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                                            <Camera className="w-8 h-8" />
+                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                                            <Camera className="w-6 h-6 md:w-8 md:h-8" />
                                         </div>
                                         <div>
-                                            <p className="text-lg font-medium text-slate-900 dark:text-white">
+                                            <p className="text-base md:text-lg font-medium text-slate-900 dark:text-white">
                                                 Usar Câmera
                                             </p>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                                                 Tirar foto agora
                                             </p>
                                         </div>
@@ -306,7 +306,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="flex flex-col items-center justify-center py-12"
+                                className="flex flex-col items-center justify-center py-12 h-full"
                             >
                                 <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
                                 <p className="text-lg font-medium text-slate-900 dark:text-white">
@@ -328,7 +328,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                             >
                                 <div className="flex gap-4 flex-col lg:flex-row">
                                     {previewUrl && (
-                                        <div className="w-full lg:w-1/3 relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-64 lg:h-auto min-h-[200px]">
+                                        <div className="w-full lg:w-1/3 relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-48 md:h-64 lg:h-auto min-h-[200px]">
                                             <Image
                                                 src={previewUrl}
                                                 alt="Preview"
@@ -346,8 +346,8 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                             </Button>
                                         </div>
 
-                                        <div className="border rounded-lg overflow-hidden">
-                                            <table className="w-full text-sm">
+                                        <div className="border rounded-lg overflow-x-auto">
+                                            <table className="w-full text-sm min-w-[600px]">
                                                 <thead className="bg-slate-50 dark:bg-slate-700">
                                                     <tr>
                                                         <th className="px-4 py-2 text-left">Produto</th>

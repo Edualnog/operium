@@ -267,24 +267,24 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       {t('landing.hero.badge')}
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
-                      {t('landing.hero.title_part1')} <span className="text-blue-600">{t('landing.hero.title_part2')}</span> {t('landing.hero.title_part3')}
+                    <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 mb-4 sm:mb-6 leading-[1.1]">
+                      {t('landing.hero.title_part1')} <span className="text-blue-600 block sm:inline">{t('landing.hero.title_part2')}</span> {t('landing.hero.title_part3')}
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-base sm:text-xl text-slate-600 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4">
                       {t('landing.hero.description')}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 sm:mb-16 px-4">
                       <RainbowButton
                         onClick={handleStart}
                         disabled={checkoutLoading}
-                        className="w-full sm:w-auto h-auto px-8 py-4 text-lg font-bold flex items-center justify-center gap-2 rounded-xl"
+                        className="w-full sm:w-auto h-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold flex items-center justify-center gap-2 rounded-xl"
                       >
                         {checkoutLoading ? <Loader2 className="animate-spin" /> : t('landing.hero.cta_button')}
                         {!checkoutLoading && <ArrowRight className="h-5 w-5" />}
                       </RainbowButton>
-                      <p className="text-sm text-slate-500 font-medium">
+                      <p className="text-xs sm:text-sm text-slate-500 font-medium">
                         {t('landing.hero.no_card')}
                       </p>
                     </div>
