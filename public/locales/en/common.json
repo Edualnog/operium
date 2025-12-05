@@ -90,6 +90,11 @@
                 "label": "Register transaction",
                 "desc": "Make your first entry or exit movement",
                 "action": "Move"
+            },
+            "employees": {
+                "label": "Register Collaborators",
+                "desc": "Register your team to control withdrawals",
+                "action": "Register"
             }
         },
         "success": {

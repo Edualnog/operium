@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, Circle, ArrowRight, Building2, Package, TrendingUp, PartyPopper } from "lucide-react"
+import { CheckCircle2, Circle, ArrowRight, Building2, Package, TrendingUp, PartyPopper, Users } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import confetti from "canvas-confetti"
@@ -44,6 +44,15 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
             actionLabel: t('onboarding.steps.transaction.action'),
             actionUrl: "/dashboard/movimentacoes",
         },
+        {
+            id: "employees",
+            label: t('onboarding.steps.employees.label'),
+            description: t('onboarding.steps.employees.desc'),
+            completed: false,
+            icon: Users,
+            actionLabel: t('onboarding.steps.employees.action'),
+            actionUrl: "/dashboard/colaboradores",
+        },
     ])
     const [loading, setLoading] = useState(true)
     const [completedAll, setCompletedAll] = useState(false)
@@ -81,16 +90,25 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
 
                 const hasTransactions = (transactionsCount || 0) > 0
 
+                // 4. Check Employees (Count > 0)
+                const { count: employeesCount } = await supabase
+                    .from("colaboradores")
+                    .select("*", { count: "exact", head: true })
+                    .eq("profile_id", userId)
+
+                const hasEmployees = (employeesCount || 0) > 0
+
                 setSteps((prev) =>
                     prev.map((step) => {
                         if (step.id === "company") return { ...step, completed: hasCompany }
                         if (step.id === "products") return { ...step, completed: hasProducts }
                         if (step.id === "transaction") return { ...step, completed: hasTransactions }
+                        if (step.id === "employees") return { ...step, completed: hasEmployees }
                         return step
                     })
                 )
 
-                const allDone = hasCompany && hasProducts && hasTransactions
+                const allDone = hasCompany && hasProducts && hasTransactions && hasEmployees
                 setCompletedAll(allDone)
 
                 // Check if user has already seen the success message

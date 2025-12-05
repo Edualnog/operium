@@ -87,6 +87,11 @@
                 "label": "Registrar transação",
                 "desc": "Faça sua primeira movimentação de entrada ou saída",
                 "action": "Movimentar"
+            },
+            "employees": {
+                "label": "Cadastrar Colaboradores",
+                "desc": "Cadastre sua equipe para controlar retiradas",
+                "action": "Cadastrar"
             }
         },
         "success": {
