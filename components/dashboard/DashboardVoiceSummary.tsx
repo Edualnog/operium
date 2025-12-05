@@ -35,11 +35,20 @@ export function DashboardVoiceSummary() {
             const url = URL.createObjectURL(blob)
 
             if (audioRef.current) {
+                console.log("Setting audio src, blob size:", blob.size)
                 audioRef.current.src = url
-                audioRef.current.play()
-                setPlaying(true)
+
+                try {
+                    await audioRef.current.play()
+                    console.log("Audio playback started")
+                    setPlaying(true)
+                } catch (playError) {
+                    console.error("Playback failed:", playError)
+                    toast.error("Erro ao reproduzir áudio (permissão ou formato)")
+                }
 
                 audioRef.current.onended = () => {
+                    console.log("Audio playback ended")
                     setPlaying(false)
                     URL.revokeObjectURL(url)
                 }

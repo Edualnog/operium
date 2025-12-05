@@ -72,6 +72,7 @@ export async function POST(req: Request) {
         })
 
         const textToSpeak = completion.choices[0].message.content || "Não foi possível gerar o resumo."
+        console.log("Text to speak:", textToSpeak)
 
         // 3. Gerar áudio com ElevenLabs
         const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
@@ -113,6 +114,7 @@ export async function POST(req: Request) {
         }
 
         const audioBuffer = await elevenLabsResponse.arrayBuffer()
+        console.log("Audio generated successfully. Size:", audioBuffer.byteLength)
 
         return new NextResponse(audioBuffer, {
             headers: {
