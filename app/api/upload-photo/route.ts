@@ -2,10 +2,37 @@ import { createServerComponentClient } from "@/lib/supabase-server"
 import { NextRequest, NextResponse } from "next/server"
 import { resolveBucketName } from "./helpers"
 
+const messages = {
+  pt: {
+    authError: "Não autenticado",
+    bucketError: "Bucket inválido",
+    fileMissing: "Arquivo não fornecido",
+    typeError: "Apenas imagens são permitidas",
+    sizeError: "A imagem deve ter no máximo 5MB",
+    uploadError: "Erro ao fazer upload",
+    unknownError: "Erro desconhecido"
+  },
+  en: {
+    authError: "Not authenticated",
+    bucketError: "Invalid bucket",
+    fileMissing: "File not provided",
+    typeError: "Only images are allowed",
+    sizeError: "Image must be at most 5MB",
+    uploadError: "Upload error",
+    unknownError: "Unknown error"
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerComponentClient()
-    
+
+    // Obter dados do formulário primeiro para pegar o locale
+    const formData = await request.formData()
+    const localeParam = formData.get("locale") as string | null
+    const lang = (localeParam && localeParam.startsWith("en")) ? "en" : "pt"
+    const t = messages[lang]
+
     // Verificar autenticação
     const {
       data: { user },
@@ -14,13 +41,11 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Não autenticado" },
+        { error: t.authError },
         { status: 401 }
       )
     }
 
-    // Obter dados do formulário
-    const formData = await request.formData()
     const file = formData.get("file") as File
     const colaboradorId = formData.get("colaboradorId") as string | null
     const productId = formData.get("productId") as string | null
@@ -32,14 +57,14 @@ export async function POST(request: NextRequest) {
       bucketName = resolveBucketName(colaboradorId, productId, bucketNameParam)
     } catch (bucketError: any) {
       return NextResponse.json(
-        { error: bucketError.message || "Bucket inválido" },
+        { error: t.bucketError },
         { status: 400 }
       )
     }
 
     if (!file) {
       return NextResponse.json(
-        { error: "Arquivo não fornecido" },
+        { error: t.fileMissing },
         { status: 400 }
       )
     }
@@ -47,7 +72,7 @@ export async function POST(request: NextRequest) {
     // Validar tipo de arquivo
     if (!file.type.startsWith("image/")) {
       return NextResponse.json(
-        { error: "Apenas imagens são permitidas" },
+        { error: t.typeError },
         { status: 400 }
       )
     }
@@ -55,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Validar tamanho (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "A imagem deve ter no máximo 5MB" },
+        { error: t.sizeError },
         { status: 400 }
       )
     }
@@ -88,7 +113,7 @@ export async function POST(request: NextRequest) {
     if (uploadError) {
       console.error("Erro no upload:", uploadError)
       return NextResponse.json(
-        { error: uploadError.message || "Erro ao fazer upload" },
+        { error: t.uploadError },
         { status: 500 }
       )
     }
@@ -101,8 +126,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: publicUrl })
   } catch (error: any) {
     console.error("Erro na API de upload:", error)
+    // Se não conseguimos determinar o locale (ex: erro ao ler formData), fallback para PT
     return NextResponse.json(
-      { error: error.message || "Erro desconhecido" },
+      { error: "Erro desconhecido" },
       { status: 500 }
     )
   }

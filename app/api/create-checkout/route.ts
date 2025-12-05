@@ -2,37 +2,76 @@ import Stripe from "stripe"
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { z } from "zod"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder")
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const checkoutSchema = z.object({
+  plan: z.enum(["mensal", "trimestral", "anual"]),
+  locale: z.string().optional().default("pt"),
+})
+
+const messages = {
+  pt: {
+    configError: "Erro de configuração do servidor.",
+    authError: "Não autorizado. Faça login primeiro.",
+    activeSub: "Você já possui uma assinatura ativa.",
+    checkoutError: "Erro ao criar sessão de checkout",
+  },
+  en: {
+    configError: "Server configuration error.",
+    authError: "Unauthorized. Please login first.",
+    activeSub: "You already have an active subscription.",
+    checkoutError: "Error creating checkout session",
+  }
+}
 
 export async function POST(req: Request) {
   try {
     const cookieStore = await cookies()
-    // Ler o body para obter o plano
     const body = await req.json()
-    const { plan } = body
 
-    // Definir Price ID com base no plano
-    let priceId = process.env.STRIPE_PRICE_ID // Default
+    // Validação com Zod
+    const result = checkoutSchema.safeParse(body)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Dados inválidos.", details: result.error.format() },
+        { status: 400 }
+      )
+    }
+
+    const { plan, locale } = result.data
+    // Normalizar locale para pt ou en
+    const lang = locale.startsWith("en") ? "en" : "pt"
+    const t = messages[lang]
+
+    // Definir Price ID via variáveis de ambiente
+    let priceId = ""
 
     if (plan === "anual") {
-      priceId = "price_1SahXHGzXnyQEqRwi5p6sy27" // U$139/R$597 annual
+      priceId = process.env.STRIPE_PRICE_YEARLY || ""
     } else if (plan === "trimestral") {
-      priceId = "price_1SajrSGzXnyQEqRwwHy4QCIu" // U$45/R$189.90 quarterly
+      priceId = process.env.STRIPE_PRICE_QUARTERLY || ""
     } else if (plan === "mensal") {
-      priceId = "price_1SahVCGzXnyQEqRwYIYHH3yb" // U$17/R$69.90 monthly
+      priceId = process.env.STRIPE_PRICE_MONTHLY || ""
     }
 
     if (!process.env.STRIPE_SECRET_KEY || !priceId) {
+      console.error("Missing Stripe config:", {
+        hasSecret: !!process.env.STRIPE_SECRET_KEY,
+        priceId,
+        plan
+      })
       return NextResponse.json(
-        { error: "Configuração do Stripe inválida (Price ID não encontrado)." },
+        { error: t.configError },
         { status: 500 }
       )
     }
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
@@ -60,7 +99,7 @@ export async function POST(req: Request) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Não autorizado. Faça login primeiro.", redirect: "/login?redirect=checkout" },
+        { error: t.authError, redirect: "/login?redirect=checkout" },
         { status: 401 }
       )
     }
@@ -75,7 +114,7 @@ export async function POST(req: Request) {
     const activeStatuses = ["active", "trialing"]
     if (profile?.subscription_status && activeStatuses.includes(profile.subscription_status)) {
       return NextResponse.json(
-        { error: "Você já possui uma assinatura ativa.", redirect: "/dashboard" },
+        { error: t.activeSub, redirect: "/dashboard" },
         { status: 400 }
       )
     }
@@ -126,14 +165,16 @@ export async function POST(req: Request) {
       // Configurações adicionais
       allow_promotion_codes: true,
       billing_address_collection: "required",
+      locale: lang === "pt" ? "pt-BR" : "en",
     })
 
     return NextResponse.json({ url: session.url })
 
   } catch (error: any) {
     console.error("Checkout error:", error)
+    // Tentar determinar o idioma mesmo em caso de erro catastrófico
     return NextResponse.json(
-      { error: error.message || "Erro ao criar sessão de checkout" },
+      { error: "Erro ao processar checkout" }, // Fallback genérico
       { status: 500 }
     )
   }
