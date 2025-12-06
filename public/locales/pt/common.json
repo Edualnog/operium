@@ -45,6 +45,13 @@
             "account_created": "Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro."
         }
     },
+    "ai": {
+        "title": "Assistente de Voz IA",
+        "description_collaborator": "Fale para cadastrar colaboradores rapidamente",
+        "description_product": "Fale para cadastrar produtos rapidamente",
+        "listening": "Ouvindo...",
+        "click_to_speak": "Clique para falar"
+    },
     "common": {
         "loading": "Carregando...",
         "error": "Ocorreu um erro",
@@ -433,13 +440,6 @@
                 "description": "Importe colaboradores a partir de uma planilha Excel ou CSV",
                 "error_creating": "Linha {{line}}: {{error}}"
             }
-        },
-        "ai": {
-            "title": "Assistente de Voz IA",
-            "description_collaborator": "Fale para cadastrar colaboradores rapidamente",
-            "description_product": "Fale para cadastrar produtos rapidamente",
-            "listening": "Ouvindo...",
-            "click_to_speak": "Clique para falar"
         },
         "movimentacoes": {
             "title": "Movimentações",
