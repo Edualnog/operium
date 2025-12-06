@@ -378,6 +378,7 @@
                 "statistics": "STATISTICS",
                 "active_epis": "active PPEs (IN POSSESSION)",
                 "history": "RECENT HISTORY",
+                "history_note": "Detailed history available in the full version.",
                 "no_active_epis": "No PPE in possession at the moment",
                 "no_history": "No movements registered",
                 "print_file": "Download PDF",

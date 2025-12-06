@@ -67,6 +67,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useSidebar } from "@/components/ui/sidebar"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
@@ -377,6 +389,11 @@ function ColaboradoresList({
 
     return result
   }, [colaboradores, debouncedSearch, filters, activeTab])
+
+  const uniqueRoles = useMemo(() => {
+    const roles = new Set(colaboradores.map(c => c.cargo).filter(Boolean))
+    return Array.from(roles).sort()
+  }, [colaboradores])
 
   // Counts for Tabs
   const counts = useMemo(() => {
@@ -700,9 +717,42 @@ function ColaboradoresList({
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
               </div>
-              <Button variant="outline" className="gap-2">
-                Mais filtros <ChevronLeft className="h-4 w-4 rotate-[-90deg]" />
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    {t("dashboard.colaboradores.filters.advanced_filters")} <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-4" align="end">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>{t("dashboard.colaboradores.filters.role")}</Label>
+                      <Select
+                        value={filters.cargo || "all"}
+                        onValueChange={(v) => setFilters(prev => ({ ...prev, cargo: v === "all" ? "" : v }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("dashboard.colaboradores.filters.all_roles")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{t("dashboard.colaboradores.filters.all_roles")}</SelectItem>
+                          {uniqueRoles.map((role: any) => (
+                            <SelectItem key={role} value={role}>{role}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start px-0 text-muted-foreground"
+                      onClick={() => setFilters(prev => ({ ...prev, cargo: "", dataAdmissaoInicio: null, dataAdmissaoFim: null }))}
+                    >
+                      {t("dashboard.colaboradores.filters.clear")}
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>
@@ -1004,23 +1054,22 @@ function ColaboradoresList({
         <Dialog open={fichaDialogOpen} onOpenChange={setFichaDialogOpen}>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Ficha do Colaborador: {colaboradorSelecionado.nome}</DialogTitle>
+              <DialogTitle>{t("dashboard.colaboradores.details.file_title", { name: colaboradorSelecionado.nome })}</DialogTitle>
             </DialogHeader>
             <div className="p-4 max-h-[70vh] overflow-y-auto">
               <div className="mb-4">
-                <h4 className="font-semibold mb-2">EPIs em Posse</h4>
+                <h4 className="font-semibold mb-2">{t("dashboard.colaboradores.details.active_epis")}</h4>
                 {loadingEpis ? <Loader2 className="animate-spin" /> : (
                   episAtivos.length > 0 ? (
                     <ul className="list-disc pl-5">
                       {episAtivos.map(epi => (
-                        <li key={epi.id}>{epi.nome} - Qtd: {epi.quantidade}</li>
+                        <li key={epi.id}>{epi.nome} - {t("dashboard.colaboradores.details.table.qty")}: {epi.quantidade}</li>
                       ))}
                     </ul>
-                  ) : <p className="text-zinc-500">Nenhum EPI em posse.</p>
+                  ) : <p className="text-zinc-500">{t("dashboard.colaboradores.details.no_active_epis")}</p>
                 )}
               </div>
-              {/* Full history implementation would go here, simplified for this intervention */}
-              <p className="text-sm text-zinc-400 italic">Histórico detalhado disponível na versão completa.</p>
+              <p className="text-sm text-zinc-400 italic">{t("dashboard.colaboradores.details.history_note")}</p>
             </div>
           </DialogContent>
         </Dialog>

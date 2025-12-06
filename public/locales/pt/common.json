@@ -370,6 +370,7 @@
                 "statistics": "ESTATÍSTICAS",
                 "active_epis": "EPIS EM POSSE (ATIVOS)",
                 "history": "HISTÓRICO RECENTE",
+                "history_note": "Histórico detalhado disponível na versão completa.",
                 "no_active_epis": "Nenhum EPI em posse no momento",
                 "no_history": "Nenhuma movimentação registrada",
                 "print_file": "Baixar PDF",
