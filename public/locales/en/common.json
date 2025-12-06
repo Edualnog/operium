@@ -734,7 +734,7 @@
             }
         },
         "ferramentas": {
-            "title": "Stock",
+            "title": "Inventory",
             "subtitle": "Manage your tools and products",
             "new_button": "New Product",
             "import_button": "Import Excel",
