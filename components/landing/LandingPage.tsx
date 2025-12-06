@@ -668,11 +668,15 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <TestimonialsSection
             title={t('landing.testimonials.title')}
             description={t('landing.testimonials.subtitle')}
-            testimonials={testimonials.map((testimonial) => ({
+            testimonials={testimonials.map((testimonial, idx) => ({
               author: {
                 name: testimonial.name,
                 handle: `${testimonial.role}, ${testimonial.company}`,
-                avatar: "", // Fallback to initials
+                avatar: [
+                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces", // Ricardo
+                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces", // Ana
+                  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces"  // Carlos
+                ][idx] || "",
               },
               text: testimonial.content,
               href: "#",
