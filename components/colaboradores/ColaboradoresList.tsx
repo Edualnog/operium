@@ -38,7 +38,8 @@ import {
   Loader2,
   Archive,
   MoreHorizontal,
-  AlertTriangle
+  AlertTriangle,
+  HardHat
 } from "lucide-react"
 import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { useRouter } from "next/navigation"
@@ -770,25 +771,33 @@ function ColaboradoresList({
                   {colaborador.data_admissao ? format(new Date(colaborador.data_admissao), 'dd/MM/yyyy') : "-"}
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400">
-                        Ações <ChevronLeft className="h-3 w-3 rotate-[-90deg]" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleEdit(colaborador)}>
-                        <Edit className="mr-2 h-4 w-4" /> {t("dashboard.colaboradores.card.edit")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleAbrirFicha(colaborador)}>
-                        <History className="mr-2 h-4 w-4" /> {t("dashboard.colaboradores.card.history")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(colaborador.id)}>
-                        <Archive className="mr-2 h-4 w-4" /> {t("dashboard.colaboradores.card.delete")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="Ver EPIs / Ficha"
+                      className="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                      onClick={() => handleAbrirFicha(colaborador)}
+                    >
+                      <HardHat className="h-4 w-4" />
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleEdit(colaborador)}>
+                          <Edit className="mr-2 h-4 w-4" /> {t("dashboard.colaboradores.card.edit")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(colaborador.id)}>
+                          <Archive className="mr-2 h-4 w-4" /> {t("dashboard.colaboradores.card.delete")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
