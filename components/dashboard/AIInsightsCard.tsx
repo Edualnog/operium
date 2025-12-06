@@ -111,7 +111,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                         <HoverButton
                             onClick={generateInsights}
                             disabled={loading}
-                            className="h-10 px-6 text-sm font-semibold tracking-wide shadow-lg hover:shadow-indigo-500/25 w-full sm:w-auto"
+                            className="h-10 px-6 font-semibold shadow-lg hover:shadow-indigo-500/25 w-full sm:w-auto"
                             backgroundColor="#4f46e5"
                             glowColor="#a855f7"
                         >

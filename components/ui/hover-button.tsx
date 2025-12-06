@@ -51,9 +51,9 @@ const HoverButton: React.FC<ButtonProps> = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             className={`
-        relative inline-block px-8 py-4 border-none 
+        relative inline-block px-4 py-2 border-none 
         cursor-pointer overflow-hidden transition-colors duration-300 
-        text-xl rounded-lg z-10 font-sans
+        text-sm rounded-lg z-10 
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         ${className}
       `}

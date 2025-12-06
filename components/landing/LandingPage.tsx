@@ -837,7 +837,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
       {/* Footer */}
       <footer className="bg-slate-50 py-12 border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-8">
           <div className="flex items-center gap-2">
             <div className="relative h-6 w-6 rounded-md overflow-hidden">
               <Image
@@ -849,15 +849,21 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             </div>
             <span className="font-bold text-slate-700">Almox Fácil</span>
           </div>
-          <div className="flex gap-6 text-sm text-slate-500">
+
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
             <Link href="/terms" className="hover:text-blue-600">{t('landing.footer.terms')}</Link>
             <Link href="/privacy" className="hover:text-blue-600">{t('landing.footer.privacy')}</Link>
             <a href="mailto:contato@almoxfacil.com.br" className="hover:text-blue-600">{t('landing.footer.contact')}</a>
           </div>
+
           <div className="flex gap-4 text-slate-400">
             <a href="#" className="hover:text-blue-600"><InstagramIcon className="h-5 w-5" /></a>
             <a href="#" className="hover:text-blue-600"><YouTubeIcon className="h-5 w-5" /></a>
             <a href="https://www.linkedin.com/company/almoxfacil" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600"><LinkedInIcon className="h-5 w-5" /></a>
+          </div>
+
+          <div className="text-xs text-slate-400 mt-2">
+            © {new Date().getFullYear()} Almox Fácil - Todos os direitos reservados
           </div>
         </div>
       </footer>
