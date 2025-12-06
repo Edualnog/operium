@@ -46,29 +46,29 @@ export function VoiceSummaryAgent() {
         }
     }
 
-    const updateVisualizer = () => {
-        if (!analyserRef.current || !playing) return
-
-        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount)
-        analyserRef.current.getByteFrequencyData(dataArray)
-
-        // Pegar 5 frequências distribuídas
-        const relevantFreqs = [
-            dataArray[0], // Graves
-            dataArray[2],
-            dataArray[4], // Médios
-            dataArray[6],
-            dataArray[8]  // Agudos
-        ]
-
-        // Normalizar para altura das barras (10 a 100%)
-        const normalizedData = relevantFreqs.map(val => Math.max(15, (val / 255) * 100))
-        setAudioData(normalizedData)
-
-        animationFrameRef.current = requestAnimationFrame(updateVisualizer)
-    }
-
     useEffect(() => {
+        const updateVisualizer = () => {
+            if (!analyserRef.current || !playing) return
+
+            const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount)
+            analyserRef.current.getByteFrequencyData(dataArray)
+
+            // Pegar 5 frequências distribuídas
+            const relevantFreqs = [
+                dataArray[0], // Graves
+                dataArray[2],
+                dataArray[4], // Médios
+                dataArray[6],
+                dataArray[8]  // Agudos
+            ]
+
+            // Normalizar para altura das barras (10 a 100%)
+            const normalizedData = relevantFreqs.map(val => Math.max(15, (val / 255) * 100))
+            setAudioData(normalizedData)
+
+            animationFrameRef.current = requestAnimationFrame(updateVisualizer)
+        }
+
         if (playing) {
             updateVisualizer()
         } else {

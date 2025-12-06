@@ -1,5 +1,6 @@
 
 import React from 'react'
+import Image from "next/image"
 
 interface ProductLabelProps {
     product: {
@@ -47,10 +48,13 @@ export const ProductLabel = React.forwardRef<HTMLDivElement, ProductLabelProps>(
 
                 {/* Placeholder for QR Code - Using a public API for demonstration or a simple box */}
                 <div style={{ margin: '2px 0' }}>
-                    <img
+                    <Image
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${product.codigo || 'SEM_CODIGO'}`}
                         alt="QR Code"
+                        width={40}
+                        height={40}
                         style={{ width: '40px', height: '40px' }}
+                        unoptimized
                     />
                 </div>
 

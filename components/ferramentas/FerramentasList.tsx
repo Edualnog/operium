@@ -449,7 +449,7 @@ function FerramentasList({
     })
 
     return result
-  }, [ferramentas, debouncedSearch, filters])
+  }, [ferramentas, debouncedSearch, filters, activeTab])
 
   const totalPages = Math.ceil(filteredFerramentas.length / ITEMS_PER_PAGE)
   const paginatedFerramentas = useMemo(() => {
