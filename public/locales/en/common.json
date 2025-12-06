@@ -754,10 +754,14 @@
             "filters": {
                 "search_placeholder": "Search by name, code or category...",
                 "filters": "Filters",
+                "more_filters": "More filters",
+                "title": "Advanced Filters",
+                "description": "Refine your search by category or item type.",
                 "advanced_filters": "Advanced filters",
                 "clear": "Clear",
                 "type": "Type",
-                "all_types": "All types",
+                "select_type": "Select Type",
+                "all_types": "All Types",
                 "tool": "Tool",
                 "ppe": "PPE",
                 "consumable": "Consumable",
@@ -767,6 +771,7 @@
                 "damaged": "Damaged",
                 "in_repair": "In Repair",
                 "category": "Category",
+                "select_category": "Select Category",
                 "all_categories": "All Categories",
                 "sort_by": "Sort by",
                 "name": "Name",
@@ -784,11 +789,21 @@
                 "status": "Status",
                 "all_status": "All Status"
             },
+            "tabs": {
+                "active": "Active",
+                "inactive": "Inactive",
+                "all": "All"
+            },
+            "list": {
+                "selected_count": "{{count}} of {{total}} record(s) selected",
+                "bulk_actions": "Bulk actions"
+            },
             "table": {
-                "name": "Name",
-                "category": "Category",
-                "quantity": "Quantity",
-                "min_stock": "Min. Stock",
+                "product": "Product",
+                "sku": "SKU",
+                "format": "Format",
+                "value": "Value (R$)",
+                "stock": "Stock",
                 "status": "Status",
                 "actions": "Actions"
             },

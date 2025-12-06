@@ -744,12 +744,16 @@
                 "help_text": "JPG/PNG/WebP até 5MB."
             },
             "filters": {
-                "search_placeholder": "Buscar por nome, código ou categoria...",
+                "search_placeholder": "Pesquisar por nome, código ou categoria...",
                 "filters": "Filtros",
+                "more_filters": "Mais filtros",
+                "title": "Filtros Avançados",
+                "description": "Refine sua busca por categoria ou tipo de item.",
                 "advanced_filters": "Filtros avançados",
                 "clear": "Limpar",
                 "type": "Tipo",
-                "all_types": "Todos os tipos",
+                "select_type": "Selecionar Tipo",
+                "all_types": "Todos os Tipos",
                 "tool": "Ferramenta",
                 "ppe": "EPI",
                 "consumable": "Consumível",
@@ -759,6 +763,7 @@
                 "damaged": "Danificada",
                 "in_repair": "Em Conserto",
                 "category": "Categoria",
+                "select_category": "Selecionar Categoria",
                 "all_categories": "Todas as Categorias",
                 "sort_by": "Ordenar por",
                 "name": "Nome",
@@ -776,12 +781,22 @@
                 "status": "Status",
                 "all_status": "Todos os Status"
             },
+            "tabs": {
+                "active": "Ativo",
+                "inactive": "Inativos",
+                "all": "Todos"
+            },
+            "list": {
+                "selected_count": "{{count}} de {{total}} registro(s) selecionado(s)",
+                "bulk_actions": "Ações em lote"
+            },
             "table": {
-                "name": "Nome",
-                "category": "Categoria",
-                "quantity": "Quantidade",
-                "min_stock": "Est. Mínimo",
-                "status": "Status",
+                "product": "Produto",
+                "sku": "SKU",
+                "format": "Formato",
+                "value": "Valor (R$)",
+                "stock": "Estoque",
+                "status": "Situação",
                 "actions": "Ações"
             },
             "form": {
