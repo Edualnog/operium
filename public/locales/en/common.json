@@ -49,6 +49,7 @@
         "title": "AI Voice Assistant",
         "description_collaborator": "Speak to register collaborators quickly",
         "description_product": "Speak to register products quickly",
+        "description_movement": "Speak to register movements quickly",
         "listening": "Listening...",
         "click_to_speak": "Click to speak"
     },
@@ -456,6 +457,7 @@
             "import_button": "Import Excel",
             "export_button": "Export CSV",
             "filters": {
+                "search_placeholder": "Search movements...",
                 "filters": "Filters",
                 "clear": "Clear",
                 "type": "Type",

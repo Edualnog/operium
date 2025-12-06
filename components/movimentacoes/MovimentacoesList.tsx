@@ -36,6 +36,10 @@ import MovimentacaoDetailModal from "./MovimentacaoDetailModal"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
 import { VoiceCommandButton } from "../ferramentas/VoiceCommandButton"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+
+// ... existing imports ...
 
 interface Movimentacao {
   id: string
@@ -92,6 +96,7 @@ export default function MovimentacoesList({
   })
   const [search, setSearch] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
+
 
   // Estados para assinatura digital
   const [solicitarAssinatura, setSolicitarAssinatura] = useState(true)
@@ -155,6 +160,16 @@ export default function MovimentacoesList({
     produtoId: "",
     colaboradorId: "",
   })
+
+  // State for tabs - defined after filters to avoid reference error
+  const [activeTab, setActiveTab] = useState<"todos" | "entrada" | "retirada" | "devolucao">("todos")
+
+  // Sync activeTab with filters.tipo
+  useEffect(() => {
+    if (["todos", "entrada", "retirada", "devolucao"].includes(filters.tipo)) {
+      setActiveTab(filters.tipo as any)
+    }
+  }, [filters.tipo])
 
   // Atualizar filtros quando período rápido mudar
   useEffect(() => {
@@ -789,367 +804,341 @@ export default function MovimentacoesList({
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-100 p-2 rounded-t-lg border border-zinc-200 shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
-        {/* Left: Actions */}
-        <div className="flex items-center gap-1 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-          <Button
-            variant={showStarredOnly ? "default" : "ghost"}
-            size="icon"
-            className={cn(
-              "h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800",
-              showStarredOnly && "text-yellow-600 dark:text-yellow-400"
-            )}
-            onClick={() => setShowStarredOnly((v) => !v)}
-            title={showStarredOnly ? t("dashboard.movimentacoes.actions.show_all") : t("dashboard.movimentacoes.actions.show_starred")}
-          >
-            <Star className="h-4 w-4" fill={showStarredOnly ? "currentColor" : "none"} />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={handleExportSelected} title={t("dashboard.movimentacoes.actions.export_selected")}>
-            <FileDown className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setSelectedIds([])} title={t("dashboard.movimentacoes.actions.clear_selection")}>
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => window.print()} title={t("dashboard.movimentacoes.actions.print")}>
-            <Printer className="h-4 w-4" />
-          </Button>
+      {/* Voice Assistant Section */}
+      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm mb-6">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t("ai.title")}</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("ai.description_movement")}</p>
+        </div>
+        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="movimentacao" />
+      </div>
 
-          <div className="h-4 w-px bg-zinc-300 mx-2 dark:bg-zinc-600" />
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <TabsList>
+            <TabsTrigger value="todos">{t("dashboard.movimentacoes.filters.all_types")}</TabsTrigger>
+            <TabsTrigger value="entrada">{t("dashboard.movimentacoes.filters.entry")}</TabsTrigger>
+            <TabsTrigger value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</TabsTrigger>
+            <TabsTrigger value="devolucao">{t("dashboard.movimentacoes.filters.return")}</TabsTrigger>
+          </TabsList>
 
-          <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" title={t("dashboard.movimentacoes.actions.export_csv")}>
-                <FileDown className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{t("dashboard.movimentacoes.actions.export_filters_title")}</DialogTitle>
-                <DialogDescription>
-                  {t("dashboard.movimentacoes.actions.export_filters_desc")}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label>{t("dashboard.movimentacoes.filters.type")}</Label>
-                  <Select
-                    value={exportFilters.tipo}
-                    onValueChange={(val: any) =>
-                      setExportFilters((f) => ({ ...f, tipo: val }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">{t("dashboard.movimentacoes.filters.all_types")}</SelectItem>
-                      <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
-                      <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
-                      <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
-                      <SelectItem value="conserto">{t("dashboard.movimentacoes.filters.repair")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label>{t("dashboard.movimentacoes.table.product")}</Label>
-                  <Select
-                    value={exportFilters.produtoId || "todos"}
-                    onValueChange={(val) =>
-                      setExportFilters((f) => ({ ...f, produtoId: val === "todos" ? "" : val }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">{t("dashboard.ferramentas.filters.all_categories")}</SelectItem>
-                      {ferramentas.map((f) => (
-                        <SelectItem key={f.id} value={f.id}>
-                          {f.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label>{t("dashboard.movimentacoes.table.collaborator")}</Label>
-                  <Select
-                    value={exportFilters.colaboradorId || "todos"}
-                    onValueChange={(val) =>
-                      setExportFilters((f) => ({ ...f, colaboradorId: val === "todos" ? "" : val }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">{t("dashboard.ferramentas.actions.select_collaborator")}</SelectItem>
-                      {colaboradores.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="grid gap-2">
-                    <Label>{t("dashboard.movimentacoes.filters.start_date")}</Label>
-                    <Input
-                      type="date"
-                      value={exportFilters.dataInicio}
-                      onChange={(e) =>
-                        setExportFilters((f) => ({ ...f, dataInicio: e.target.value }))
-                      }
-                      className="text-sm md:text-base"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label>{t("dashboard.movimentacoes.filters.end_date")}</Label>
-                    <Input
-                      type="date"
-                      value={exportFilters.dataFim}
-                      onChange={(e) =>
-                        setExportFilters((f) => ({ ...f, dataFim: e.target.value }))
-                      }
-                      className="text-sm md:text-base"
-                    />
-                  </div>
-                </div>
-
-                <div className="text-sm text-muted-foreground">
-                  {t("dashboard.movimentacoes.actions.export_count", { count: getFilteredMovimentacoes().length })}
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setExportFilters({
-                      tipo: "todos",
-                      dataInicio: "",
-                      dataFim: "",
-                      produtoId: "",
-                      colaboradorId: "",
-                    })
-                  }}
-                >
-                  {t("dashboard.ferramentas.filters.clear")}
+          <div className="flex items-center gap-2">
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t("dashboard.movimentacoes.new_button")}</span>
                 </Button>
-                <Button onClick={handleExportCSV} disabled={getFilteredMovimentacoes().length === 0}>
-                  {exportingCsv ? t("dashboard.ferramentas.actions.exporting") : t("dashboard.movimentacoes.actions.export_csv")}
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
+                <form onSubmit={handleSubmit}>
+                  <DialogHeader>
+                    <DialogTitle>{t("dashboard.movimentacoes.form.title")}</DialogTitle>
+                    <DialogDescription>{t("dashboard.movimentacoes.form.desc")}</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-3 py-4">
+                    <div className="grid gap-2">
+                      <Label>{t("dashboard.movimentacoes.form.type")}</Label>
+                      <Select
+                        value={form.tipo}
+                        onValueChange={(val: any) => setForm((f) => ({ ...f, tipo: val }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
+                          <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
+                          <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label>{t("dashboard.movimentacoes.form.product")}</Label>
+                      <Input
+                        placeholder={t("dashboard.movimentacoes.form.select_product")}
+                        value={form.produto}
+                        onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
+                        className="text-sm md:text-base"
+                      />
+                      {suggestions.length > 0 && (
+                        <div className="border rounded-md divide-y bg-white shadow-sm max-h-48 overflow-auto">
+                          {suggestions.map((s) => (
+                            <button
+                              type="button"
+                              key={s.id}
+                              className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm dark:hover:bg-zinc-800"
+                              onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
+                            >
+                              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{s.nome}</div>
+                              <div className="text-xs text-zinc-500 dark:text-zinc-400">{s.tipo_item || t("dashboard.ferramentas.form.tool")}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="grid gap-2">
+                        <Label>{t("dashboard.movimentacoes.form.quantity")}</Label>
+                        <Input
+                          type="number"
+                          min={form.tipo === "entrada" ? 1 : 1}
+                          value={form.quantidade}
+                          onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
+                          required
+                        />
+                      </div>
+
+                      {(form.tipo === "retirada" || form.tipo === "devolucao") && (
+                        <div className="grid gap-2">
+                          <Label>{t("dashboard.movimentacoes.form.collaborator")}</Label>
+                          <Input
+                            placeholder={t("dashboard.movimentacoes.form.select_collaborator")}
+                            value={form.colaboradorNome}
+                            onChange={(e) =>
+                              setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))
+                            }
+                          />
+                          {colabSuggestions.length > 0 && (
+                            <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
+                              {colabSuggestions.map((c) => (
+                                <button
+                                  type="button"
+                                  key={c.id}
+                                  className="w-full text-left px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                                  onClick={() =>
+                                    setForm((f) => ({
+                                      ...f,
+                                      colaboradorId: c.id,
+                                      colaboradorNome: c.nome,
+                                    }))
+                                  }
+                                >
+                                  <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{c.nome}</div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          <div className="text-xs text-zinc-500">
+                            {t("dashboard.movimentacoes.form.collaborator_hint")}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label>{t("dashboard.movimentacoes.form.date")}</Label>
+                      <Input
+                        type="datetime-local"
+                        value={form.dataMov}
+                        onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
+                      />
+                      <div className="text-xs text-zinc-500">{t("dashboard.movimentacoes.form.date_hint")}</div>
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label>{t("dashboard.movimentacoes.form.observations")}</Label>
+                      <Input
+                        placeholder={t("dashboard.ferramentas.actions.optional")}
+                        value={form.observacoes}
+                        onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
+                      />
+                    </div>
+
+                    {/* Checkbox de assinatura - só aparece para retirada/devolução */}
+                    {(form.tipo === "retirada" || form.tipo === "devolucao") && (
+                      <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
+                        <Checkbox
+                          id="solicitar-assinatura"
+                          checked={solicitarAssinatura}
+                          onCheckedChange={(checked) => setSolicitarAssinatura(checked === true)}
+                        />
+                        <div className="flex-1">
+                          <label
+                            htmlFor="solicitar-assinatura"
+                            className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2 dark:text-blue-100"
+                          >
+                            <FileSignature className="h-4 w-4" />
+                            {t("dashboard.movimentacoes.form.request_signature")}
+                          </label>
+                          <p className="text-xs text-blue-700 mt-0.5 dark:text-blue-300">
+                            Gera termo de responsabilidade com assinatura do colaborador
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={loading}>
+                      {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Button variant="outline" onClick={() => setImportModalOpen(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              {t("dashboard.movimentacoes.import_button")}
+            </Button>
+
+            <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <FileDown className="h-4 w-4 mr-2" />
+                  {t("dashboard.movimentacoes.export_button")}
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800" onClick={() => setImportModalOpen(true)} title={t("dashboard.movimentacoes.import_button")}>
-            <Upload className="h-4 w-4" />
-          </Button>
-
-
-
-          <div className="h-4 w-px bg-zinc-300 mx-2 dark:bg-zinc-600" />
-
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setOpen(true)} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-8">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("dashboard.movimentacoes.new_button")}</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
-              <form onSubmit={handleSubmit}>
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>{t("dashboard.movimentacoes.form.title")}</DialogTitle>
-                  <DialogDescription>{t("dashboard.movimentacoes.form.desc")}</DialogDescription>
+                  <DialogTitle>{t("dashboard.movimentacoes.actions.export_filters_title")}</DialogTitle>
+                  <DialogDescription>
+                    {t("dashboard.movimentacoes.actions.export_filters_desc")}
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-3 py-4">
+                <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
-                    <Label>{t("dashboard.movimentacoes.form.type")}</Label>
+                    <Label>{t("dashboard.movimentacoes.filters.type")}</Label>
                     <Select
-                      value={form.tipo}
-                      onValueChange={(val: any) => setForm((f) => ({ ...f, tipo: val }))}
+                      value={exportFilters.tipo}
+                      onValueChange={(val: any) =>
+                        setExportFilters((f) => ({ ...f, tipo: val }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="todos">{t("dashboard.movimentacoes.filters.all_types")}</SelectItem>
                         <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
                         <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
                         <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
+                        <SelectItem value="conserto">{t("dashboard.movimentacoes.filters.repair")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="grid gap-2">
-                    <Label>{t("dashboard.movimentacoes.form.product")}</Label>
-                    <Input
-                      placeholder={t("dashboard.movimentacoes.form.select_product")}
-                      value={form.produto}
-                      onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
-                      className="text-sm md:text-base"
-                    />
-                    {suggestions.length > 0 && (
-                      <div className="border rounded-md divide-y bg-white shadow-sm max-h-48 overflow-auto">
-                        {suggestions.map((s) => (
-                          <button
-                            type="button"
-                            key={s.id}
-                            className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm dark:hover:bg-zinc-800"
-                            onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
-                          >
-                            <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{s.nome}</div>
-                            <div className="text-xs text-zinc-500 dark:text-zinc-400">{s.tipo_item || t("dashboard.ferramentas.form.tool")}</div>
-                          </button>
+                    <Label>{t("dashboard.movimentacoes.table.product")}</Label>
+                    <Select
+                      value={exportFilters.produtoId || "todos"}
+                      onValueChange={(val) =>
+                        setExportFilters((f) => ({ ...f, produtoId: val === "todos" ? "" : val }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todos">{t("dashboard.ferramentas.filters.all_categories")}</SelectItem>
+                        {ferramentas.map((f) => (
+                          <SelectItem key={f.id} value={f.id}>
+                            {f.nome}
+                          </SelectItem>
                         ))}
-                      </div>
-                    )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label>{t("dashboard.movimentacoes.table.collaborator")}</Label>
+                    <Select
+                      value={exportFilters.colaboradorId || "todos"}
+                      onValueChange={(val) =>
+                        setExportFilters((f) => ({ ...f, colaboradorId: val === "todos" ? "" : val }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todos">{t("dashboard.ferramentas.actions.select_collaborator")}</SelectItem>
+                        {colaboradores.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="grid gap-2">
-                      <Label>{t("dashboard.movimentacoes.form.quantity")}</Label>
+                      <Label>{t("dashboard.movimentacoes.filters.start_date")}</Label>
                       <Input
-                        type="number"
-                        min={form.tipo === "entrada" ? 1 : 1}
-                        value={form.quantidade}
-                        onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
-                        required
+                        type="date"
+                        value={exportFilters.dataInicio}
+                        onChange={(e) =>
+                          setExportFilters((f) => ({ ...f, dataInicio: e.target.value }))
+                        }
+                        className="text-sm md:text-base"
                       />
                     </div>
-
-                    {(form.tipo === "retirada" || form.tipo === "devolucao") && (
-                      <div className="grid gap-2">
-                        <Label>{t("dashboard.movimentacoes.form.collaborator")}</Label>
-                        <Input
-                          placeholder={t("dashboard.movimentacoes.form.select_collaborator")}
-                          value={form.colaboradorNome}
-                          onChange={(e) =>
-                            setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))
-                          }
-                        />
-                        {colabSuggestions.length > 0 && (
-                          <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
-                            {colabSuggestions.map((c) => (
-                              <button
-                                type="button"
-                                key={c.id}
-                                className="w-full text-left px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                                onClick={() =>
-                                  setForm((f) => ({
-                                    ...f,
-                                    colaboradorId: c.id,
-                                    colaboradorNome: c.nome,
-                                  }))
-                                }
-                              >
-                                <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{c.nome}</div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        <div className="text-xs text-zinc-500">
-                          {t("dashboard.movimentacoes.form.collaborator_hint")}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label>{t("dashboard.movimentacoes.form.date")}</Label>
-                    <Input
-                      type="datetime-local"
-                      value={form.dataMov}
-                      onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
-                    />
-                    <div className="text-xs text-zinc-500">{t("dashboard.movimentacoes.form.date_hint")}</div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label>{t("dashboard.movimentacoes.form.observations")}</Label>
-                    <Input
-                      placeholder={t("dashboard.ferramentas.actions.optional")}
-                      value={form.observacoes}
-                      onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
-                    />
-                  </div>
-
-                  {/* Checkbox de assinatura - só aparece para retirada/devolução */}
-                  {(form.tipo === "retirada" || form.tipo === "devolucao") && (
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
-                      <Checkbox
-                        id="solicitar-assinatura"
-                        checked={solicitarAssinatura}
-                        onCheckedChange={(checked) => setSolicitarAssinatura(checked === true)}
+                    <div className="grid gap-2">
+                      <Label>{t("dashboard.movimentacoes.filters.end_date")}</Label>
+                      <Input
+                        type="date"
+                        value={exportFilters.dataFim}
+                        onChange={(e) =>
+                          setExportFilters((f) => ({ ...f, dataFim: e.target.value }))
+                        }
+                        className="text-sm md:text-base"
                       />
-                      <div className="flex-1">
-                        <label
-                          htmlFor="solicitar-assinatura"
-                          className="text-sm font-medium text-blue-900 cursor-pointer flex items-center gap-2 dark:text-blue-100"
-                        >
-                          <FileSignature className="h-4 w-4" />
-                          {t("dashboard.movimentacoes.form.request_signature")}
-                        </label>
-                        <p className="text-xs text-blue-700 mt-0.5 dark:text-blue-300">
-                          Gera termo de responsabilidade com assinatura do colaborador
-                        </p>
-                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  <div className="text-sm text-muted-foreground">
+                    {t("dashboard.movimentacoes.actions.export_count", { count: getFilteredMovimentacoes().length })}
+                  </div>
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                    Cancelar
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setExportFilters({
+                        tipo: "todos",
+                        dataInicio: "",
+                        dataFim: "",
+                        produtoId: "",
+                        colaboradorId: "",
+                      })
+                    }}
+                  >
+                    {t("dashboard.ferramentas.filters.clear")}
                   </Button>
-                  <Button type="submit" disabled={loading}>
-                    {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
+                  <Button onClick={handleExportCSV} disabled={getFilteredMovimentacoes().length === 0}>
+                    {exportingCsv ? t("dashboard.ferramentas.actions.exporting") : t("dashboard.movimentacoes.actions.export_csv")}
                   </Button>
                 </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
-        {/* Right: Search */}
-        <div className="relative w-full md:max-w-xs flex items-center gap-2">
-          <div className="relative flex-1">
+        <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
+          <div className="relative w-full md:max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
             <Input
-              placeholder="Buscar..."
+              placeholder={t("dashboard.movimentacoes.filters.search_placeholder") || "Buscar..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 h-9 text-sm bg-white border-zinc-300 focus:border-blue-500 dark:bg-zinc-900 dark:border-zinc-700"
             />
           </div>
-          {selectedIds.length > 0 && (
-            <Badge variant="secondary" className="whitespace-nowrap text-xs">
-              {t("dashboard.movimentacoes.actions.selected_count", { count: selectedIds.length })}
-            </Badge>
-          )}
+          <MovimentacoesFilters
+            ferramentas={ferramentas}
+            colaboradores={colaboradores}
+            filters={filters}
+            onFiltersChange={setFilters}
+            totalEncontrados={filtered.length}
+          />
         </div>
-      </div>
-
-      {/* Voice Assistant Section */}
-      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para registrar movimentações rapidamente</p>
-        </div>
-        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="movimentacao" />
-      </div>
-
-      <MovimentacoesFilters
-        ferramentas={ferramentas}
-        colaboradores={colaboradores}
-        filters={filters}
-        onFiltersChange={setFilters}
-        totalEncontrados={filtered.length}
-      />
+      </Tabs>
 
       <div className="border border-zinc-200 rounded-b-lg overflow-hidden bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
         {/* Header - Desktop */}
@@ -1238,7 +1227,9 @@ export default function MovimentacoesList({
                     {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
                     {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600" />}
                     {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600" />}
-                    <span className="text-xs font-medium capitalize">{m.tipo}</span>
+                    <span className="text-xs font-medium capitalize">
+                      {t(`dashboard.movimentacoes.filters.${m.tipo}`)}
+                    </span>
                   </div>
                   <span className="text-xs text-zinc-500">
                     {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
@@ -1246,12 +1237,12 @@ export default function MovimentacoesList({
                 </div>
                 <div>
                   <p className="font-medium text-sm text-zinc-900 dark:text-zinc-100">
-                    {m.ferramentas?.nome || "Produto"}
+                    {m.ferramentas?.nome || t("dashboard.movimentacoes.table.product")}
                   </p>
                 </div>
                 <div className="flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-400">
-                  <span>Qtd: <strong>{m.quantidade}</strong></span>
-                  <span>Resp: <strong>{m.colaboradores?.nome || "-"}</strong></span>
+                  <span>{t("dashboard.ferramentas.columns.qty")}: <strong>{m.quantidade}</strong></span>
+                  <span>{t("dashboard.movimentacoes.table.collaborator")}: <strong>{m.colaboradores?.nome || "-"}</strong></span>
                 </div>
               </div>
             </Fragment>

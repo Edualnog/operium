@@ -49,6 +49,7 @@
         "title": "Assistente de Voz IA",
         "description_collaborator": "Fale para cadastrar colaboradores rapidamente",
         "description_product": "Fale para cadastrar produtos rapidamente",
+        "description_movement": "Fale para registrar movimentações rapidamente",
         "listening": "Ouvindo...",
         "click_to_speak": "Clique para falar"
     },
@@ -448,6 +449,7 @@
             "import_button": "Importar Excel",
             "export_button": "Exportar CSV",
             "filters": {
+                "search_placeholder": "Buscar movimentações...",
                 "filters": "Filtros",
                 "clear": "Limpar",
                 "type": "Tipo",
