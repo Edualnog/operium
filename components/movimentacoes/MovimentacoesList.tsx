@@ -12,7 +12,28 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -1140,86 +1161,131 @@ export default function MovimentacoesList({
         </div>
       </Tabs>
 
-      <div className="border border-zinc-200 rounded-b-lg overflow-hidden bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
-        {/* Header - Desktop */}
-        <div className="hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 bg-slate-700 text-white font-semibold text-xs uppercase tracking-wider items-center dark:bg-slate-900">
-          <div className="flex justify-center">
-            <Checkbox
-              className="border-white/50 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 dark:border-zinc-500"
-              checked={
-                paginatedMovimentacoes.length === 0
-                  ? false
-                  : paginatedMovimentacoes.every((m) => selectedIds.includes(m.id))
-                    ? true
-                    : paginatedMovimentacoes.some((m) => selectedIds.includes(m.id))
-                      ? "indeterminate"
-                      : false
-              }
-              onCheckedChange={(checked) => toggleSelectPage(checked === true)}
-            />
-          </div>
-          <div className="flex justify-center"><Star className="h-3 w-3" /></div>
-          <div className="flex justify-center">{t("dashboard.movimentacoes.table.type")}</div>
-          <div>ID</div>
-          <div>{t("dashboard.movimentacoes.table.product")}</div>
-          <div>{t("dashboard.movimentacoes.table.collaborator")}</div>
-          <div>{t("dashboard.movimentacoes.table.date")}</div>
-          <div>{t("dashboard.movimentacoes.table.observations")}</div>
-        </div>
+      <div className="border border-zinc-200 rounded-lg overflow-hidden bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
+        <Table className="hidden md:table">
+          <TableHeader className="bg-zinc-50 dark:bg-zinc-800">
+            <TableRow>
+              <TableHead className="w-[40px] text-center">
+                <Checkbox
+                  className="translate-y-[2px]"
+                  checked={
+                    paginatedMovimentacoes.length === 0
+                      ? false
+                      : paginatedMovimentacoes.every((m) => selectedIds.includes(m.id))
+                        ? true
+                        : paginatedMovimentacoes.some((m) => selectedIds.includes(m.id))
+                          ? "indeterminate"
+                          : false
+                  }
+                  onCheckedChange={(checked) => toggleSelectPage(checked === true)}
+                />
+              </TableHead>
+              <TableHead className="w-[40px] text-center"><Star className="h-3 w-3 mx-auto" /></TableHead>
+              <TableHead className="w-[40px] text-center">{t("dashboard.movimentacoes.table.type")}</TableHead>
+              <TableHead className="w-[60px]">ID</TableHead>
+              <TableHead>{t("dashboard.movimentacoes.table.product")}</TableHead>
+              <TableHead>{t("dashboard.movimentacoes.table.collaborator")}</TableHead>
+              <TableHead>{t("dashboard.movimentacoes.table.date")}</TableHead>
+              <TableHead>{t("dashboard.movimentacoes.table.observations")}</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedMovimentacoes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={9} className="h-24 text-center">
+                  {t("dashboard.movimentacoes.empty.no_results")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedMovimentacoes.map((m) => (
+                <TableRow
+                  key={m.id}
+                  className={cn(
+                    "cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50",
+                    selectedIds.includes(m.id) && "bg-blue-50/50 dark:bg-blue-900/10",
+                    starredIds.includes(m.id) && "bg-yellow-50/30 dark:bg-yellow-900/10"
+                  )}
+                  onClick={() => handleOpenDetail(m.id)}
+                >
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedIds.includes(m.id)}
+                      onCheckedChange={(checked) => toggleSelect(m.id, checked === true)}
+                      className="translate-y-[2px]"
+                    />
+                  </TableCell>
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      className={cn(
+                        "hover:text-yellow-400 transition-colors dark:text-zinc-600",
+                        starredIds.includes(m.id) ? "text-yellow-400 dark:text-yellow-300" : "text-zinc-300"
+                      )}
+                      onClick={() => toggleStar(m.id)}
+                    >
+                      <Star className="h-4 w-4" fill={starredIds.includes(m.id) ? "currentColor" : "none"} />
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex justify-center" title={t(`dashboard.movimentacoes.filters.${m.tipo}`)}>
+                      {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600" />}
+                      {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
+                      {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600" />}
+                      {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600" />}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">
+                    #{m.id.substring(0, 4)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{m.ferramentas?.nome || t("dashboard.movimentacoes.table.product")}</span>
+                      {m.quantidade > 1 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{m.quantidade}</Badge>}
+                    </div>
+                  </TableCell>
+                  <TableCell>{m.colaboradores?.nome || "-"}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs">
+                    {m.data ? format(new Date(m.data), "dd/MM/yyyy", { locale: ptBR }) : "-"}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-xs max-w-[150px] truncate">
+                    {m.observacoes || "-"}
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>{t("dashboard.colaboradores.list.bulk_actions")}</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleOpenDetail(m.id)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          {t("dashboard.colaboradores.card.view_details")}
+                        </DropdownMenuItem>
+                        {(m.tipo === "retirada" || m.tipo === "devolucao") && (
+                          <DropdownMenuItem onClick={() => handleReprintTermo(m)}>
+                            <Printer className="mr-2 h-4 w-4" />
+                            {t("dashboard.movimentacoes.form.request_signature")}
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
-        {/* Corpo da tabela */}
-        <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-zinc-200 dark:divide-zinc-700">
           {paginatedMovimentacoes.map((m) => (
             <Fragment key={m.id}>
-              {/* Versão Desktop */}
               <div
+                className="p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer dark:border-zinc-700 dark:active:bg-zinc-800"
                 onClick={() => handleOpenDetail(m.id)}
-                className={cn(
-                  "hidden md:grid grid-cols-[40px_40px_40px_60px_2fr_1fr_150px_1fr] gap-4 px-4 py-2 hover:bg-blue-50/50 transition-colors items-center text-sm text-zinc-700 group cursor-pointer dark:text-zinc-300 dark:hover:bg-blue-900/10",
-                  selectedIds.includes(m.id) && "bg-blue-50/80 dark:bg-blue-900/20",
-                  starredIds.includes(m.id) && "ring-1 ring-amber-200 dark:ring-amber-500/50"
-                )}
-              >
-                <div className="flex justify-center" onClick={e => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedIds.includes(m.id)}
-                    onCheckedChange={(checked) => toggleSelect(m.id, checked === true)}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className={cn(
-                    "flex justify-center text-zinc-300 hover:text-yellow-400 transition-colors dark:text-zinc-600",
-                    starredIds.includes(m.id) && "text-yellow-400 dark:text-yellow-300"
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleStar(m.id)
-                  }}
-                  aria-label={starredIds.includes(m.id) ? t("dashboard.movimentacoes.actions.remove_favorite") : t("dashboard.movimentacoes.actions.add_favorite")}
-                >
-                  <Star className="h-4 w-4" fill={starredIds.includes(m.id) ? "currentColor" : "none"} />
-                </button>
-                <div className="flex justify-center" title={m.tipo}>
-                  {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600" />}
-                  {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
-                  {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600" />}
-                  {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600" />}
-                </div>
-                <div className="font-mono text-xs text-zinc-500 dark:text-zinc-400">#{m.id.substring(0, 4)}</div>
-                <div className="font-medium text-zinc-900 truncate flex items-center gap-2 dark:text-zinc-100">
-                  <span className="truncate">{m.ferramentas?.nome || t("dashboard.movimentacoes.table.product")}</span>
-                  {m.quantidade > 1 && <Badge variant="secondary" className="text-[10px] h-4 px-1">{m.quantidade}</Badge>}
-                </div>
-                <div className="truncate text-xs">{m.colaboradores?.nome || "-"}</div>
-                <div className="text-xs text-zinc-500 dark:text-zinc-400">{m.data ? format(new Date(m.data), "dd/MM/yyyy", { locale: ptBR }) : "-"}</div>
-                <div className="truncate text-xs text-zinc-400 dark:text-zinc-500">{m.observacoes || "-"}</div>
-              </div>
-
-              {/* Versão Mobile */}
-              <div
-                onClick={() => handleOpenDetail(m.id)}
-                className="md:hidden p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer dark:border-zinc-700 dark:active:bg-zinc-800"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -1279,64 +1345,72 @@ export default function MovimentacoesList({
         </div>
       </div>
 
-      {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 mt-4 dark:bg-zinc-900 dark:border-zinc-700">
-          <div className="bg-blue-50 p-4 rounded-full mb-4 dark:bg-blue-900/20">
-            <RotateCcw className="h-10 w-10 text-blue-500 dark:text-blue-400" />
+      {
+        filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 mt-4 dark:bg-zinc-900 dark:border-zinc-700">
+            <div className="bg-blue-50 p-4 rounded-full mb-4 dark:bg-blue-900/20">
+              <RotateCcw className="h-10 w-10 text-blue-500 dark:text-blue-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
+              {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
+                ? t("dashboard.movimentacoes.empty.no_results")
+                : t("dashboard.movimentacoes.empty.no_records")}
+            </h3>
+            <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
+              {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
+                ? t("dashboard.movimentacoes.empty.adjust_filters")
+                : t("dashboard.movimentacoes.empty.start_registering")}
+            </p>
           </div>
-          <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
-            {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
-              ? t("dashboard.movimentacoes.empty.no_results")
-              : t("dashboard.movimentacoes.empty.no_records")}
-          </h3>
-          <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
-            {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
-              ? t("dashboard.movimentacoes.empty.adjust_filters")
-              : t("dashboard.movimentacoes.empty.start_registering")}
-          </p>
-        </div>
-      )}
+        )
+      }
 
       {/* Modal de Importação */}
-      {importModalOpen && (
-        <ImportExcel
-          config={importConfig}
-          onClose={() => setImportModalOpen(false)}
-        />
-      )}
+      {
+        importModalOpen && (
+          <ImportExcel
+            config={importConfig}
+            onClose={() => setImportModalOpen(false)}
+          />
+        )
+      }
 
       {/* Modal de Termo de Responsabilidade */}
-      {movimentacaoParaAssinar && (
-        <TermoResponsabilidadeModal
-          open={termoModalOpen}
-          onOpenChange={(open) => {
-            setTermoModalOpen(open)
-            if (!open) setMovimentacaoParaAssinar(null)
-          }}
-          colaborador={movimentacaoParaAssinar.colaborador}
-          itens={movimentacaoParaAssinar.itens}
-          tipo={movimentacaoParaAssinar.tipo}
-          movimentacaoId={movimentacaoParaAssinar.id}
-          initialSignature={movimentacaoParaAssinar.initialSignature}
-          onSuccess={(termoId, pdfUrl) => {
-            console.log("✅ Termo assinado:", termoId, pdfUrl)
-            router.refresh()
-          }}
-        />
-      )}
+      {
+        movimentacaoParaAssinar && (
+          <TermoResponsabilidadeModal
+            open={termoModalOpen}
+            onOpenChange={(open) => {
+              setTermoModalOpen(open)
+              if (!open) setMovimentacaoParaAssinar(null)
+            }}
+            colaborador={movimentacaoParaAssinar.colaborador}
+            itens={movimentacaoParaAssinar.itens}
+            tipo={movimentacaoParaAssinar.tipo}
+            movimentacaoId={movimentacaoParaAssinar.id}
+            initialSignature={movimentacaoParaAssinar.initialSignature}
+            onSuccess={(termoId, pdfUrl) => {
+              console.log("✅ Termo assinado:", termoId, pdfUrl)
+              router.refresh()
+            }}
+          />
+        )
+      }
 
       {/* Modal de Detalhes da Movimentação */}
-      {selectedMovimentacaoId && (
-        <MovimentacaoDetailModal
-          open={detailModalOpen}
-          onOpenChange={(open) => {
-            setDetailModalOpen(open)
-            if (!open) setSelectedMovimentacaoId(null)
-          }}
-          movimentacaoId={selectedMovimentacaoId}
-          onReprint={handleReprintTermo}
-        />
-      )}
-    </div>
+      {
+        selectedMovimentacaoId && (
+          <MovimentacaoDetailModal
+            open={detailModalOpen}
+            onOpenChange={(open) => {
+              setDetailModalOpen(open)
+              if (!open) setSelectedMovimentacaoId(null)
+            }}
+            movimentacaoId={selectedMovimentacaoId}
+            onReprint={handleReprintTermo}
+          />
+        )
+      }
+    </div >
   )
 }
