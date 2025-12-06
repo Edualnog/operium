@@ -667,16 +667,16 @@ function ColaboradoresList({
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
           <TabsList>
-            <TabsTrigger value="ativos">Ativos ({counts.ativos})</TabsTrigger>
-            <TabsTrigger value="inativos">Inativos ({counts.inativos})</TabsTrigger>
-            <TabsTrigger value="todos">Todos ({counts.todos})</TabsTrigger>
+            <TabsTrigger value="ativos">{t("dashboard.ferramentas.tabs.active")} ({counts.ativos})</TabsTrigger>
+            <TabsTrigger value="inativos">{t("dashboard.ferramentas.tabs.inactive")} ({counts.inativos})</TabsTrigger>
+            <TabsTrigger value="todos">{t("dashboard.ferramentas.tabs.all")} ({counts.todos})</TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="flex gap-2 w-full sm:w-auto items-center">
           <Button onClick={() => setOpen(true)} className="gap-2 flex-1 sm:flex-none">
             <Plus size={16} />
-            Novo Colaborador
+            {t("dashboard.colaboradores.new_button")}
           </Button>
 
           <Button variant="outline" onClick={() => setImportModalOpen(true)} className="gap-2">
@@ -687,7 +687,7 @@ function ColaboradoresList({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
-                Exportar
+                {t("dashboard.colaboradores.export_button").split(' ')[0]} {/* "Exportar" */}
                 <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
               </Button>
             </DropdownMenuTrigger>
@@ -760,10 +760,10 @@ function ColaboradoresList({
         {/* Selection Info */}
         <div className="bg-blue-50/50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
           <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
-            {selectedItems.size} de {filteredAndSortedColaboradores.length} registro(s) selecionado(s)
+            {t("dashboard.colaboradores.list.selected_count", { count: selectedItems.size, total: filteredAndSortedColaboradores.length })}
           </span>
           <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-blue-600 border-blue-200">
-            Ações em lote <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
+            {t("dashboard.colaboradores.list.bulk_actions")} <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
           </Button>
         </div>
 
@@ -780,8 +780,8 @@ function ColaboradoresList({
               <TableHead>{t("dashboard.colaboradores.table.name")}</TableHead>
               <TableHead>{t("dashboard.colaboradores.table.role")}</TableHead>
               <TableHead>{t("dashboard.colaboradores.table.email")} / {t("dashboard.colaboradores.table.phone")}</TableHead>
-              <TableHead>Admissão</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead>{t("dashboard.colaboradores.table.admission_date")}</TableHead>
+              <TableHead className="text-right">{t("dashboard.colaboradores.table.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1057,19 +1057,55 @@ function ColaboradoresList({
               <DialogTitle>{t("dashboard.colaboradores.details.file_title", { name: colaboradorSelecionado.nome })}</DialogTitle>
             </DialogHeader>
             <div className="p-4 max-h-[70vh] overflow-y-auto">
-              <div className="mb-4">
-                <h4 className="font-semibold mb-2">{t("dashboard.colaboradores.details.active_epis")}</h4>
-                {loadingEpis ? <Loader2 className="animate-spin" /> : (
+              <div className="mb-6">
+                <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                  <HardHat className="h-5 w-5 text-orange-600" />
+                  {t("dashboard.colaboradores.details.active_epis")}
+                </h4>
+                {loadingEpis ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="animate-spin h-8 w-8 text-zinc-400" />
+                  </div>
+                ) : (
                   episAtivos.length > 0 ? (
-                    <ul className="list-disc pl-5">
-                      {episAtivos.map(epi => (
-                        <li key={epi.id}>{epi.nome} - {t("dashboard.colaboradores.details.table.qty")}: {epi.quantidade}</li>
-                      ))}
-                    </ul>
-                  ) : <p className="text-zinc-500">{t("dashboard.colaboradores.details.no_active_epis")}</p>
+                    <div className="border rounded-md">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{t("dashboard.colaboradores.details.table.item")}</TableHead>
+                            <TableHead className="text-right">{t("dashboard.colaboradores.details.table.qty")}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {episAtivos.map(epi => (
+                            <TableRow key={epi.id}>
+                              <TableCell className="font-medium">{epi.nome}</TableCell>
+                              <TableCell className="text-right">
+                                <Badge variant="secondary" className="font-mono">
+                                  {epi.quantidade}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-dashed">
+                      <p>{t("dashboard.colaboradores.details.no_active_epis")}</p>
+                    </div>
+                  )
                 )}
               </div>
-              <p className="text-sm text-zinc-400 italic">{t("dashboard.colaboradores.details.history_note")}</p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
+                <History className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <div>
+                  <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-1">{t("dashboard.colaboradores.details.history_title")}</h5>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    {t("dashboard.colaboradores.details.history_note")}
+                  </p>
+                </div>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
