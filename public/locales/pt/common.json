@@ -306,8 +306,13 @@
                 "role": "Cargo",
                 "email": "Email",
                 "phone": "Telefone",
+                "admission_date": "Admissão",
                 "status": "Status",
                 "actions": "Ações"
+            },
+            "list": {
+                "selected_count": "{{count}} de {{total}} registro(s) selecionado(s)",
+                "bulk_actions": "Ações em lote"
             },
             "form": {
                 "title_new": "Novo Colaborador",

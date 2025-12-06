@@ -314,8 +314,13 @@
                 "role": "Role",
                 "email": "Email",
                 "phone": "Phone",
+                "admission_date": "Admission",
                 "status": "Status",
                 "actions": "Actions"
+            },
+            "list": {
+                "selected_count": "{{count}} of {{total}} record(s) selected",
+                "bulk_actions": "Bulk actions"
             },
             "form": {
                 "title_new": "New Collaborator",
