@@ -115,11 +115,20 @@ function ColaboradoresList({
     if (!intent) return
 
     if (intent.action === "create") {
-      if (intent.nome) {
-        setNomeDigitado(intent.nome)
+      // Função para formatar nome (Primeira letra maiúscula em cada palavra)
+      const formatName = (name: string) => {
+        return name
+          .toLowerCase()
+          .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase())
+      }
+
+      const formattedName = intent.nome ? formatName(intent.nome) : ""
+
+      if (formattedName) {
+        setNomeDigitado(formattedName)
       }
       setVoiceData({
-        nome: intent.nome,
+        nome: formattedName,
         cargo: intent.cargo,
         email: intent.email,
         telefone: intent.telefone
