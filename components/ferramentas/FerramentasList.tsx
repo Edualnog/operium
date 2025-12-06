@@ -549,8 +549,54 @@ function FerramentasList({
 
   const handleGenerateLabel = async (ferramenta: Ferramenta) => {
     try {
-      const ReactDOMServer = (await import('react-dom/server')).default
-      const html = ReactDOMServer.renderToString(<ProductLabel product={ferramenta} />)
+      // Manual HTML construction to avoid ReactDOMServer.renderToString client-side issues
+      const html = `
+        <div style="
+          width: 50mm;
+          height: 30mm;
+          padding: 2mm;
+          border: 1px solid #000;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          font-family: Arial, sans-serif;
+          background-color: white;
+          page-break-after: always;
+        " class="print-label">
+          <h3 style="
+            margin: 0 0 2px 0;
+            font-size: 10px;
+            text-align: center;
+            max-height: 12px;
+            overflow: hidden;
+            width: 100%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          ">
+            ${ferramenta.nome}
+          </h3>
+          
+          <div style="margin: 2px 0;">
+            <img 
+              src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${ferramenta.codigo || 'SEM_CODIGO'}" 
+              alt="QR Code"
+              style="width: 40px; height: 40px;"
+            />
+          </div>
+
+          <div style="font-size: 8px; font-weight: bold;">
+            ${ferramenta.codigo || '-'}
+          </div>
+          
+          <div style="font-size: 7px; margin-top: 1px;">
+             ${ferramenta.tamanho ? ferramenta.tamanho : ''} 
+             ${ferramenta.tamanho && ferramenta.cor ? ' - ' : ''}
+             ${ferramenta.cor ? ferramenta.cor : ''}
+          </div>
+        </div>
+      `
+
       const printWindow = window.open('', '_blank', 'width=500,height=400')
       if (printWindow) {
         printWindow.document.write(`
@@ -574,6 +620,7 @@ function FerramentasList({
                 }
                 .print-label {
                   background-color: white;
+                  box-sizing: border-box;
                 }
               </style>
             </head>
@@ -592,7 +639,7 @@ function FerramentasList({
         `)
         printWindow.document.close()
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao gerar etiqueta:", error)
       toast.error("Erro ao gerar etiqueta")
     }
