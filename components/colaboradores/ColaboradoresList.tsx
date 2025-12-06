@@ -129,7 +129,7 @@ function ColaboradoresList({
       }
       setVoiceData({
         nome: formattedName,
-        cargo: intent.cargo,
+        cargo: intent.cargo ? formatName(intent.cargo) : "",
         email: intent.email,
         telefone: intent.telefone
       })

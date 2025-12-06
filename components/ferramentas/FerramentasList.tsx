@@ -148,9 +148,16 @@ function FerramentasList({
     if (!intent) return
 
     if (intent.action === "create") {
+      // Função para formatar texto (Primeira letra maiúscula em cada palavra)
+      const formatName = (text: string) => {
+        return text
+          .toLowerCase()
+          .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase())
+      }
+
       setVoiceData({
-        nome: intent.nome,
-        categoria: intent.categoria,
+        nome: intent.nome ? formatName(intent.nome) : "",
+        categoria: intent.categoria ? formatName(intent.categoria) : "",
         quantidade_total: intent.quantidade || 0,
         tipo_item: intent.tipo || "ferramenta"
       })
