@@ -704,10 +704,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 <div className="text-center pt-2">
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.monthly')}</h3>
                   <div className="mb-2">
-                    <span className="text-3xl font-bold text-slate-900">R$69,90</span>
-                    <span className="text-slate-500 text-sm">/mês</span>
+                    <span className="text-3xl font-bold text-slate-900">{t('landing.pricing.monthly_value')}</span>
+                    <span className="text-slate-500 text-sm">{t('landing.pricing.monthly_unit')}</span>
                   </div>
-                  <div className="text-sm text-slate-500 mb-4">≈ R$69,90/mês</div>
+                  <div className="text-sm text-slate-500 mb-4">{t('landing.pricing.monthly_equiv')}</div>
                   <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "mensal" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
                     {plan === "mensal" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
                   </div>
@@ -732,10 +732,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 <div className="text-center pt-2">
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.quarterly')}</h3>
                   <div className="mb-2">
-                    <span className="text-3xl font-bold text-slate-900">R$189,90</span>
-                    <span className="text-slate-500 text-sm">/trimestre</span>
+                    <span className="text-3xl font-bold text-slate-900">{t('landing.pricing.quarterly_value')}</span>
+                    <span className="text-slate-500 text-sm">{t('landing.pricing.quarterly_unit')}</span>
                   </div>
-                  <div className="text-sm text-slate-500 mb-4">≈ R$63,30/mês</div>
+                  <div className="text-sm text-slate-500 mb-4">{t('landing.pricing.quarterly_equiv')}</div>
                   <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "trimestral" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
                     {plan === "trimestral" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
                   </div>
@@ -759,10 +759,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 <div className="text-center pt-2">
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.annual')}</h3>
                   <div className="mb-2">
-                    <span className="text-3xl font-bold text-slate-900">R$597,00</span>
-                    <span className="text-slate-500 text-sm">/ano</span>
+                    <span className="text-3xl font-bold text-slate-900">{t('landing.pricing.annual_value')}</span>
+                    <span className="text-slate-500 text-sm">{t('landing.pricing.annual_unit')}</span>
                   </div>
-                  <div className="text-sm text-slate-500 mb-4">≈ R$49,75/mês</div>
+                  <div className="text-sm text-slate-500 mb-4">{t('landing.pricing.annual_equiv')}</div>
                   <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "anual" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
                     {plan === "anual" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
                   </div>
