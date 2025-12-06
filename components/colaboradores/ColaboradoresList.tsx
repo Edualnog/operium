@@ -644,10 +644,18 @@ function ColaboradoresList({
           </TabsList>
         </Tabs>
 
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto items-center">
+          {/* Voice Command Button moved here */}
+          <div className="w-auto">
+            <VoiceCommandButton
+              onCommandReceived={handleVoiceCommand}
+              context="colaborador"
+            />
+          </div>
+
           <Button onClick={() => setOpen(true)} className="gap-2 flex-1 sm:flex-none">
             <Plus size={16} />
-            {t("dashboard.colaboradores.add_button")}
+            Novo Colaborador
           </Button>
 
           <Button variant="outline" onClick={() => setImportModalOpen(true)} className="gap-2">
@@ -671,8 +679,6 @@ function ColaboradoresList({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button variant="outline">Mais ações <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" /></Button>
         </div>
       </div>
 
@@ -829,15 +835,6 @@ function ColaboradoresList({
                 {t("dashboard.colaboradores.form.description")}
               </DialogDescription>
             </DialogHeader>
-
-            {!editing && (
-              <div className="mb-4">
-                <VoiceCommandButton
-                  onCommandReceived={handleVoiceCommand}
-                  context="colaborador"
-                />
-              </div>
-            )}
 
             {!editing && colaboradoresSimilares.length > 0 && !confirmarDuplicata && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
