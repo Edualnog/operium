@@ -19,6 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
 import {
   criarFerramenta,
@@ -1151,8 +1156,7 @@ function FerramentasList({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Button variant="outline">Mais ações <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" /></Button>
+            {/* Mais ações removed */}
           </div>
         </div>
 
@@ -1163,15 +1167,67 @@ function FerramentasList({
                 <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Pesquisar registros"
+                    placeholder={t("dashboard.ferramentas.filters.search_placeholder")}
                     className="pl-8"
                     value={filters.search}
                     onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   />
                 </div>
-                <Button variant="outline" className="gap-2">
-                  Mais filtros <ChevronLeft className="h-4 w-4 rotate-[-90deg]" />
-                </Button>
+                {/* 
+                   "Mais filtros" isn't fully implemented in the inspected code. 
+                   If the user says it's not working, and there's no visible logic for it,
+                   I will wrap it in a Popover with some basic content OR 
+                   if it's intended to toggle visibility of advanced filters (like ColaboradoresList might have), I'll add that state.
+                   Lets assume it toggles a filter row.
+                */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      {t("dashboard.ferramentas.filters.more_filters")} <ChevronLeft className="h-4 w-4 rotate-[-90deg]" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80" align="end">
+                    <div className="grid gap-4">
+                      <div className="space-y-2">
+                        <h4 className="font-medium leading-none">{t("dashboard.ferramentas.filters.title")}</h4>
+                        <p className="text-sm text-muted-foreground">{t("dashboard.ferramentas.filters.description")}</p>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="category-filter">{t("dashboard.ferramentas.filters.category")}</Label>
+                        <Select
+                          value={filters.categoria}
+                          onValueChange={(v) => setFilters(prev => ({ ...prev, categoria: v === "all" ? "" : v }))}
+                        >
+                          <SelectTrigger id="category-filter">
+                            <SelectValue placeholder={t("dashboard.ferramentas.filters.select_category")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">{t("dashboard.ferramentas.filters.all_categories")}</SelectItem>
+                            {categorias.map(c => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="type-filter">{t("dashboard.ferramentas.filters.type")}</Label>
+                        <Select
+                          value={filters.tipo}
+                          onValueChange={(v) => setFilters(prev => ({ ...prev, tipo: (v === "all" ? "" : v) as any }))}
+                        >                       <SelectTrigger id="type-filter">
+                            <SelectValue placeholder={t("dashboard.ferramentas.filters.select_type")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">{t("dashboard.ferramentas.filters.all_types")}</SelectItem>
+                            <SelectItem value="ferramenta">{t("dashboard.ferramentas.form.tool")}</SelectItem>
+                            <SelectItem value="epi">{t("dashboard.ferramentas.form.ppe")}</SelectItem>
+                            <SelectItem value="consumivel">{t("dashboard.ferramentas.form.consumable")}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
             <TabsList className="w-full justify-start bg-transparent p-0 h-auto border-b rounded-none border-transparent">
@@ -1179,21 +1235,21 @@ function FerramentasList({
                 value="ativos"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-600 data-[state=active]:text-green-600 px-4 py-2"
               >
-                Ativo
+                {t("dashboard.ferramentas.tabs.active")}
                 <span className="ml-2 text-green-600 font-semibold">{counts.ativos}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="inativos"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary px-4 py-2"
               >
-                Inativos
+                {t("dashboard.ferramentas.tabs.inactive")}
                 <span className="ml-2 text-zinc-500 font-semibold">{counts.inativos}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="todos"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 px-4 py-2"
               >
-                Todos
+                {t("dashboard.ferramentas.tabs.all")}
                 <span className="ml-2 text-blue-600 font-semibold">{counts.todos}</span>
               </TabsTrigger>
             </TabsList>
@@ -1201,10 +1257,10 @@ function FerramentasList({
 
           <div className="bg-blue-50/50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
             <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
-              {selectedItems.size} de {filteredFerramentas.length} registro(s) selecionado(s)
+              {t("dashboard.ferramentas.list.selected_count", { count: selectedItems.size, total: filteredFerramentas.length })}
             </span>
             <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-blue-600 border-blue-200">
-              Ações em lote <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
+              {t("dashboard.ferramentas.list.bulk_actions")} <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
             </Button>
           </div>
 
@@ -1217,13 +1273,13 @@ function FerramentasList({
                     onCheckedChange={toggleAll}
                   />
                 </TableHead>
-                <TableHead>Produto</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Formato</TableHead>
-                <TableHead>Valor (R$)</TableHead>
-                <TableHead>Estoque</TableHead>
-                <TableHead>Situação</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{t("dashboard.ferramentas.table.product")}</TableHead>
+                <TableHead>{t("dashboard.ferramentas.table.sku")}</TableHead>
+                <TableHead>{t("dashboard.ferramentas.table.format")}</TableHead>
+                <TableHead>{t("dashboard.ferramentas.table.value")}</TableHead>
+                <TableHead>{t("dashboard.ferramentas.table.stock")}</TableHead>
+                <TableHead>{t("dashboard.ferramentas.table.status")}</TableHead>
+                <TableHead className="text-right">{t("dashboard.ferramentas.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
