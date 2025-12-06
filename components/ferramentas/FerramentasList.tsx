@@ -553,21 +553,22 @@ function FerramentasList({
       // Generate QR Code Data URI
       const qrCodeDataUri = await QRCode.toDataURL(ferramenta.codigo || 'SEM_CODIGO', { margin: 0 })
 
-      // Manual HTML construction with corrected styling
+      // Manual HTML construction with corrected styling for A4 Grid
       const html = `
         <div style="
           width: 50mm;
           height: 30mm;
           padding: 2mm;
-          border: 1px solid #000;
+          border: 1px dotted #ccc; /* Dotted border for cutting guide */
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           font-family: Arial, sans-serif;
           background-color: white;
-          page-break-after: always;
           box-sizing: border-box;
+          margin: 0;
+          float: left; /* Allow floating for grid layout */
         " class="print-label">
           <h3 style="
             margin: 0 0 2px 0;
@@ -602,7 +603,7 @@ function FerramentasList({
         </div>
       `
 
-      const printWindow = window.open('', '_blank', 'width=500,height=400')
+      const printWindow = window.open('', '_blank', 'width=800,height=600')
       if (printWindow) {
         printWindow.document.write(`
           <!DOCTYPE html>
@@ -611,13 +612,17 @@ function FerramentasList({
               <title>Etiqueta - ${ferramenta.nome}</title>
               <style>
                 @media print {
-                  @page { size: 50mm 30mm; margin: 0; }
+                  @page { margin: 10mm; } /* Default A4 margins */
                   body { margin: 0; padding: 0; }
                 }
                 body {
                   margin: 0;
-                  padding: 0;
+                  padding: 10px;
                   background-color: white;
+                  display: flex;
+                  flex-wrap: wrap; /* Grid layout */
+                  align-content: flex-start;
+                  gap: 0; 
                 }
                 .print-label {
                   background-color: white;
