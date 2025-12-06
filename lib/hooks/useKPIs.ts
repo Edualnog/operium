@@ -307,10 +307,7 @@ export function useKPIs(userId: string) {
         })
 
         const rankingOrdenado = rankingCompleto.sort((a, b) => b.score - a.score)
-        const rankingResponsabilidade =
-          rankingOrdenado.length > 1
-            ? [rankingOrdenado[0], rankingOrdenado[rankingOrdenado.length - 1]]
-            : rankingOrdenado
+        const rankingResponsabilidade = rankingOrdenado
 
         // 6. CONSUMO MÉDIO DIÁRIO (Consumíveis - últimos 30 dias)
         const consumiveisMov = consumiveisRes.data || []
