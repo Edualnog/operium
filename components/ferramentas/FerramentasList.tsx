@@ -88,6 +88,7 @@ import {
   ArrowUpDown,
 } from "lucide-react"
 
+import QRCode from 'qrcode'
 import { VoiceCommandButton } from "./VoiceCommandButton"
 import { ProductLabel } from "./ProductLabel"
 
@@ -549,7 +550,10 @@ function FerramentasList({
 
   const handleGenerateLabel = async (ferramenta: Ferramenta) => {
     try {
-      // Manual HTML construction to avoid ReactDOMServer.renderToString client-side issues
+      // Generate QR Code Data URI
+      const qrCodeDataUri = await QRCode.toDataURL(ferramenta.codigo || 'SEM_CODIGO', { margin: 0 })
+
+      // Manual HTML construction with corrected styling
       const html = `
         <div style="
           width: 50mm;
@@ -563,6 +567,7 @@ function FerramentasList({
           font-family: Arial, sans-serif;
           background-color: white;
           page-break-after: always;
+          box-sizing: border-box;
         " class="print-label">
           <h3 style="
             margin: 0 0 2px 0;
@@ -579,7 +584,7 @@ function FerramentasList({
           
           <div style="margin: 2px 0;">
             <img 
-              src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${ferramenta.codigo || 'SEM_CODIGO'}" 
+              src="${qrCodeDataUri}" 
               alt="QR Code"
               style="width: 40px; height: 40px;"
             />
@@ -612,11 +617,7 @@ function FerramentasList({
                 body {
                   margin: 0;
                   padding: 0;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 100vh;
-                  background-color: #f0f0f0;
+                  background-color: white;
                 }
                 .print-label {
                   background-color: white;
