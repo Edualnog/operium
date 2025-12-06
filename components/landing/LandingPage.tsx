@@ -39,6 +39,7 @@ import mockupDevices from "@/public/images/mockup-devices.png"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { LogoCloud } from "@/components/ui/logo-cloud"
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection"
 
 declare global {
   namespace JSX {
@@ -663,36 +664,21 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </section>
 
         {/* Social Proof */}
-        <section id="depoimentos" className="py-24 bg-slate-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.testimonials.title')}</h2>
-              <p className="text-slate-600">{t('landing.testimonials.subtitle')}</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {testimonials.map((t, i) => (
-                <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                  <div className="flex gap-1 mb-4 text-yellow-400">
-                    {[...Array(5)].map((_, starI) => (
-                      <Star key={starI} className="h-4 w-4 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 mb-6 leading-relaxed italic">&quot;{t.content}&quot;</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500">
-                      {t.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900">{t.name}</p>
-                      <p className="text-sm text-slate-500">{t.role}, {t.company}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <div id="depoimentos">
+          <TestimonialsSection
+            title={t('landing.testimonials.title')}
+            description={t('landing.testimonials.subtitle')}
+            testimonials={testimonials.map((testimonial) => ({
+              author: {
+                name: testimonial.name,
+                handle: `${testimonial.role}, ${testimonial.company}`,
+                avatar: "", // Fallback to initials
+              },
+              text: testimonial.content,
+              href: "#",
+            }))}
+          />
+        </div>
 
         {/* Pricing */}
         <section className="py-24 bg-white">
