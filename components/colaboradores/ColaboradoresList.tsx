@@ -636,6 +636,17 @@ function ColaboradoresList({
   return (
     <div className="space-y-4">
       {/* Top Toolbar */}
+      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm mb-6">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para cadastrar colaboradores rapidamente</p>
+        </div>
+        <VoiceCommandButton
+          onCommandReceived={handleVoiceCommand}
+          context="colaborador"
+        />
+      </div>
+
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
           <TabsList>
@@ -646,14 +657,6 @@ function ColaboradoresList({
         </Tabs>
 
         <div className="flex gap-2 w-full sm:w-auto items-center">
-          {/* Voice Command Button moved here */}
-          <div className="w-auto">
-            <VoiceCommandButton
-              onCommandReceived={handleVoiceCommand}
-              context="colaborador"
-            />
-          </div>
-
           <Button onClick={() => setOpen(true)} className="gap-2 flex-1 sm:flex-none">
             <Plus size={16} />
             Novo Colaborador
