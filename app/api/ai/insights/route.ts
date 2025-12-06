@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
     try {
-        const { kpis, recentMovements } = await req.json();
+        const { kpis, recentMovements, period } = await req.json();
 
         if (!process.env.OPENAI_API_KEY) {
             return NextResponse.json(
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
         const prompt = `
       Você é um assistente inteligente de gestão de estoque para um sistema chamado "Almox Fácil".
-      Analise os seguintes dados do dashboard e forneça 3 insights curtos e acionáveis (máximo 2 frases cada) para o gestor.
+      Analise os seguintes dados do dashboard referentes aos últimos ${period || 30} dias e forneça 3 insights curtos e acionáveis (máximo 2 frases cada) para o gestor.
       Foque em eficiência, redução de custos e prevenção de falhas.
       Use emojis no início de cada insight.
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       - Total de Itens: ${kpis.totalItens}
       - Valor Total em Estoque: ${kpis.valorTotal}
       - Itens Abaixo do Mínimo: ${kpis.itensAbaixoMinimo}
-      - Movimentações Recentes (últimos 5): ${JSON.stringify(recentMovements)}
+      - Movimentações do Período (${recentMovements.length} registros): ${JSON.stringify(recentMovements)}
 
       Responda APENAS com um array JSON de strings, exemplo: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
     `;

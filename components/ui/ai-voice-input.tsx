@@ -3,6 +3,7 @@
 import { Mic } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { HoverButton } from "@/components/ui/hover-button";
 
 interface AIVoiceInputProps {
     onStart?: () => void;
@@ -112,25 +113,24 @@ export function AIVoiceInput({
     return (
         <div className={cn("w-full py-4", className)}>
             <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
-                <button
-                    className={cn(
-                        "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors shadow-sm border border-slate-200 dark:border-slate-800",
-                        submitted
-                            ? "bg-red-50 dark:bg-red-900/20"
-                            : "bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
-                    )}
-                    type="button"
+                <HoverButton
                     onClick={handleClick}
+                    className={cn(
+                        "w-20 h-20 rounded-full p-0 flex items-center justify-center",
+                        submitted && "outline outline-2 outline-red-500"
+                    )}
+                    backgroundColor={submitted ? "#ef4444" : "#111827"} // Red-500 when active
+                    glowColor={submitted ? "#fca5a5" : "#00ffc3"}
                 >
                     {submitted ? (
                         <div
-                            className="w-6 h-6 rounded-sm animate-spin bg-red-500 dark:bg-red-400 cursor-pointer pointer-events-auto"
+                            className="w-6 h-6 rounded-sm animate-spin bg-white cursor-pointer pointer-events-auto"
                             style={{ animationDuration: "3s" }}
                         />
                     ) : (
-                        <Mic className="w-6 h-6 text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform" />
+                        <Mic className="w-8 h-8 text-white group-hover:scale-110 transition-transform" />
                     )}
-                </button>
+                </HoverButton>
 
                 <span
                     className={cn(
