@@ -47,6 +47,7 @@ import {
   ChevronRight,
   Sparkles,
   Camera,
+  Search,
 } from "lucide-react"
 import ImportExcel, { ImportConfig } from "../import/ImportExcel"
 import ImportInvoice from "../import/ImportInvoice"
@@ -58,10 +59,35 @@ import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
-import { FerramentasFilters, type FilterState } from "./FerramentasFilters"
+import { type FilterState } from "./FerramentasFilters"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
-import { VoiceCommandButton } from "./VoiceCommandButton" // Assuming it's in the same folder or I need to fix path
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import {
+  MoreHorizontal,
+  Copy,
+  Printer,
+  Archive,
+  ArrowUpDown,
+} from "lucide-react"
+import { VoiceCommandButton } from "./VoiceCommandButton"
 
 interface Ferramenta {
   id: string
@@ -253,9 +279,26 @@ function FerramentasList({
     return Array.from(set).sort()
   }, [ferramentas])
 
+  const [activeTab, setActiveTab] = useState<"todos" | "ativos" | "inativos">("ativos")
+
+  const counts = useMemo(() => {
+    return {
+      todos: ferramentas.length,
+      ativos: ferramentas.filter(f => f.estado === 'ok').length,
+      inativos: ferramentas.filter(f => f.estado !== 'ok').length
+    }
+  }, [ferramentas])
+
   const filteredFerramentas = useMemo(() => {
     let result = [...ferramentas]
     const searchLower = debouncedSearch.toLowerCase()
+
+    // Filtro por Tab
+    if (activeTab === "ativos") {
+      result = result.filter(f => f.estado === 'ok')
+    } else if (activeTab === "inativos") {
+      result = result.filter(f => f.estado !== 'ok')
+    }
 
     if (searchLower) {
       result = result.filter(
@@ -270,9 +313,7 @@ function FerramentasList({
       result = result.filter((f) => f.tipo_item === filters.tipo)
     }
 
-    if (filters.estado) {
-      result = result.filter((f) => f.estado === filters.estado)
-    }
+    // if (filters.estado) { ... } // Estado filter is now handled by tabs mainly, but we can keep it for advanced filtering if needed or remove it. Let's keep it compatible but tabs take precedence for primary filtering.
 
     if (filters.categoria) {
       result = result.filter((f) => f.categoria === filters.categoria)
@@ -635,708 +676,462 @@ function FerramentasList({
         <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="ferramenta" />
       </div>
 
-      <FerramentasFilters
-        categorias={categorias}
-        filters={filters}
-        onFiltersChange={setFilters}
-        totalEncontrados={filteredFerramentas.length}
-      />
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditing(null)} className="bg-green-600 hover:bg-green-700 text-white">
+                  {t("dashboard.ferramentas.new_button")}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <form onSubmit={handleSubmit}>
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editing ? t("dashboard.ferramentas.form.title_edit") : t("dashboard.ferramentas.form.title_new")}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {editing
+                        ? t("dashboard.ferramentas.form.desc_edit")
+                        : t("dashboard.ferramentas.form.desc_new")}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
+                    <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
+                    <input type="hidden" name="estado" value={editing?.estado || "ok"} />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-2 items-center justify-between sm:justify-start">
-          <Button
-            variant="outline"
-            onClick={handleExportCSV}
-            disabled={exportingCsv || filteredFerramentas.length === 0}
-            className="flex-1 sm:flex-none"
-          >
-            <FileDown className="mr-2 h-4 w-4" />
-            {exportingCsv ? t("dashboard.ferramentas.generating_csv") : t("dashboard.ferramentas.export_csv")}
-          </Button>
-
-          {/* Seletor de tamanho dos cards */}
-          <div className="flex items-center gap-1 border rounded-md p-1 bg-background">
-            <button
-              type="button"
-              onClick={() => setCardSize("pequeno")}
-              className={cn(
-                "p-1.5 rounded hover:bg-accent transition-colors",
-                cardSize === "pequeno" && "bg-primary text-primary-foreground"
-              )}
-              title="Pequeno"
-            >
-              <Grid3x3 className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setCardSize("medio")}
-              className={cn(
-                "p-1.5 rounded hover:bg-accent transition-colors",
-                cardSize === "medio" && "bg-primary text-primary-foreground"
-              )}
-              title="Médio"
-            >
-              <Square className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setCardSize("grande")}
-              className={cn(
-                "p-1.5 rounded hover:bg-accent transition-colors",
-                cardSize === "grande" && "bg-primary text-primary-foreground"
-              )}
-              title="Grande"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setImportModalOpen(true)}
-            className="w-full sm:w-auto"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            {t("dashboard.ferramentas.import_button")}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setImportInvoiceOpen(true)}
-            title="Importar Nota Fiscal com IA"
-            className="w-full sm:w-auto"
-          >
-            <Camera className="mr-2 h-4 w-4" />
-            Importar NF (IA)
-          </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditing(null)} className="w-full sm:w-auto">
-                <Plus className="mr-2 h-4 w-4" />
-                {t("dashboard.ferramentas.new_button")}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
-              <form onSubmit={handleSubmit}>
-                <DialogHeader>
-                  <DialogTitle>
-                    {editing ? t("dashboard.ferramentas.form.title_edit") : t("dashboard.ferramentas.form.title_new")}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {editing
-                      ? t("dashboard.ferramentas.form.desc_edit")
-                      : t("dashboard.ferramentas.form.desc_new")}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
-                  <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
-                  <input type="hidden" name="estado" value={editing?.estado || "ok"} />
-
-                  {userId && (
-                    <ProductPhotoUpload
-                      currentPhotoUrl={editing?.foto_url || productPhoto}
-                      onPhotoUploaded={setProductPhoto}
-                      userId={userId}
-                      productId={editing?.id}
-                    />
-                  )}
-                  <div className="grid gap-2">
-                    <Label htmlFor="nome">{t("dashboard.ferramentas.form.name")} *</Label>
-                    <Input
-                      id="nome"
-                      name="nome"
-                      defaultValue={editing?.nome || voiceData?.nome || ""}
-                      onBlur={(e) =>
-                        setProductCode(
-                          gerarCodigoLocal(
-                            e.target.value,
-                            (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                            (document.getElementById("cor") as HTMLInputElement)?.value || "",
-                            tipoItem
-                          )
-                        )
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="tipo_item">{t("dashboard.ferramentas.form.type")}</Label>
-                    <Select
-                      name="tipo_item"
-                      defaultValue={editing?.tipo_item || tipoItem}
-                      onValueChange={(val: any) => {
-                        setTipoItem(val)
-                        // Atualizar campo hidden
-                        const hiddenInput = document.querySelector('input[name="tipo_item"]') as HTMLInputElement
-                        if (hiddenInput) {
-                          hiddenInput.value = val
-                        }
-                        setProductCode(
-                          gerarCodigoLocal(
-                            (document.getElementById("nome") as HTMLInputElement)?.value || "",
-                            (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                            (document.getElementById("cor") as HTMLInputElement)?.value || "",
-                            val
-                          )
-                        )
-                      }}
-                      required
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("dashboard.ferramentas.form.select_type")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ferramenta">{t("dashboard.ferramentas.form.tool")}</SelectItem>
-                        <SelectItem value="epi">{t("dashboard.ferramentas.form.ppe")}</SelectItem>
-                        <SelectItem value="consumivel">{t("dashboard.ferramentas.form.consumable")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {userId && (
+                      <ProductPhotoUpload
+                        currentPhotoUrl={editing?.foto_url || productPhoto}
+                        onPhotoUploaded={setProductPhoto}
+                        userId={userId}
+                        productId={editing?.id}
+                      />
+                    )}
                     <div className="grid gap-2">
-                      <Label htmlFor="categoria">{t("dashboard.ferramentas.form.line_group")}</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="categoria"
-                          name="categoria"
-                          placeholder={t("dashboard.ferramentas.form.line_placeholder")}
-                          defaultValue={editing?.categoria || voiceData?.categoria || ""}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          title="Sugerir Categoria (IA)"
-                          onClick={(e) => handleAutoFill('categoria', e.currentTarget)}
-                        >
-                          <Sparkles className="h-3 w-3 text-indigo-500" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="codigo">{t("dashboard.ferramentas.form.code")}</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="codigo"
-                          name="codigo"
-                          value={
-                            productCode ||
-                            gerarCodigoLocal(
-                              (document.getElementById("nome") as HTMLInputElement)?.value || editing?.nome || "",
-                              (document.getElementById("tamanho") as HTMLInputElement)?.value || editing?.tamanho || "",
-                              (document.getElementById("cor") as HTMLInputElement)?.value || editing?.cor || "",
-                              tipoItem
-                            )
-                          }
-                          onChange={(e) => setProductCode(e.target.value)}
-                          placeholder={t("dashboard.ferramentas.form.auto_generated")}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          title="Sugerir Código (IA)"
-                          onClick={(e) => handleAutoFill('codigo', e.currentTarget)}
-                        >
-                          <Sparkles className="h-3 w-3 text-indigo-500" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="tamanho">{t("dashboard.ferramentas.form.size")}</Label>
+                      <Label htmlFor="nome">{t("dashboard.ferramentas.form.name")} *</Label>
                       <Input
-                        id="tamanho"
-                        name="tamanho"
-                        placeholder={t("dashboard.ferramentas.form.size_placeholder")}
-                        defaultValue={editing?.tamanho || ""}
+                        id="nome"
+                        name="nome"
+                        defaultValue={editing?.nome || voiceData?.nome || ""}
                         onBlur={(e) =>
                           setProductCode(
                             gerarCodigoLocal(
-                              (document.getElementById("nome") as HTMLInputElement)?.value || "",
                               e.target.value,
+                              (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
                               (document.getElementById("cor") as HTMLInputElement)?.value || "",
                               tipoItem
                             )
                           )
                         }
+                        required
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="cor">{t("dashboard.ferramentas.form.color")}</Label>
-                      <Input
-                        id="cor"
-                        name="cor"
-                        placeholder={t("dashboard.ferramentas.form.color_placeholder")}
-                        defaultValue={editing?.cor || ""}
-                        onBlur={(e) =>
+                      <Label htmlFor="tipo_item">{t("dashboard.ferramentas.form.type")}</Label>
+                      <Select
+                        name="tipo_item"
+                        defaultValue={editing?.tipo_item || tipoItem}
+                        onValueChange={(val: any) => {
+                          setTipoItem(val)
+                          const hiddenInput = document.querySelector('input[name="tipo_item"]') as HTMLInputElement
+                          if (hiddenInput) hiddenInput.value = val
                           setProductCode(
                             gerarCodigoLocal(
                               (document.getElementById("nome") as HTMLInputElement)?.value || "",
                               (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
-                              e.target.value,
-                              tipoItem
+                              (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                              val
                             )
                           )
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="quantidade_total">{t("dashboard.ferramentas.form.quantity_total")} *</Label>
-                      <Input
-                        id="quantidade_total"
-                        name="quantidade_total"
-                        type="number"
-                        min="0"
-                        defaultValue={editing?.quantidade_total || voiceData?.quantidade_total || 0}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="estado">{t("dashboard.ferramentas.form.status")} *</Label>
-                      <Select
-                        name="estado"
-                        defaultValue={editing?.estado || "ok"}
-                        onValueChange={(value) => {
-                          // Atualizar campo hidden
-                          const hiddenInput = document.querySelector('input[name="estado"]') as HTMLInputElement
-                          if (hiddenInput) {
-                            hiddenInput.value = value
-                          }
                         }}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder={t("dashboard.ferramentas.form.select_type")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ok">{t("dashboard.ferramentas.status.ok")}</SelectItem>
-                          <SelectItem value="danificada">{t("dashboard.ferramentas.status.damaged")}</SelectItem>
-                          <SelectItem value="em_conserto">{t("dashboard.ferramentas.status.in_repair")}</SelectItem>
+                          <SelectItem value="ferramenta">{t("dashboard.ferramentas.form.tool")}</SelectItem>
+                          <SelectItem value="epi">{t("dashboard.ferramentas.form.ppe")}</SelectItem>
+                          <SelectItem value="consumivel">{t("dashboard.ferramentas.form.consumable")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="ponto_ressuprimento">{t("dashboard.ferramentas.form.min_stock")}</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="ponto_ressuprimento"
-                        name="ponto_ressuprimento"
-                        type="number"
-                        min="0"
-                        placeholder={t("dashboard.ferramentas.form.min_stock_placeholder")}
-                        defaultValue={editing?.ponto_ressuprimento || ""}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        title="Sugerir Ponto de Ressuprimento (IA)"
-                        onClick={(e) => handleAutoFill('ponto_ressuprimento', e.currentTarget)}
-                      >
-                        <Sparkles className="h-3 w-3 text-indigo-500" />
-                      </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="categoria">{t("dashboard.ferramentas.form.line_group")}</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="categoria"
+                            name="categoria"
+                            placeholder={t("dashboard.ferramentas.form.line_placeholder")}
+                            defaultValue={editing?.categoria || voiceData?.categoria || ""}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            title="Sugerir Categoria (IA)"
+                            onClick={(e) => handleAutoFill('categoria', e.currentTarget)}
+                          >
+                            <Sparkles className="h-3 w-3 text-indigo-500" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="codigo">{t("dashboard.ferramentas.form.code")}</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="codigo"
+                            name="codigo"
+                            value={
+                              productCode ||
+                              gerarCodigoLocal(
+                                (document.getElementById("nome") as HTMLInputElement)?.value || editing?.nome || "",
+                                (document.getElementById("tamanho") as HTMLInputElement)?.value || editing?.tamanho || "",
+                                (document.getElementById("cor") as HTMLInputElement)?.value || editing?.cor || "",
+                                tipoItem
+                              )
+                            }
+                            onChange={(e) => setProductCode(e.target.value)}
+                            placeholder={t("dashboard.ferramentas.form.auto_generated")}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            title="Sugerir Código (IA)"
+                            onClick={(e) => handleAutoFill('codigo', e.currentTarget)}
+                          >
+                            <Sparkles className="h-3 w-3 text-indigo-500" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {t("dashboard.ferramentas.form.min_stock_hint")}
-                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="tamanho">{t("dashboard.ferramentas.form.size")}</Label>
+                        <Input
+                          id="tamanho"
+                          name="tamanho"
+                          placeholder={t("dashboard.ferramentas.form.size_placeholder")}
+                          defaultValue={editing?.tamanho || ""}
+                          onBlur={(e) =>
+                            setProductCode(
+                              gerarCodigoLocal(
+                                (document.getElementById("nome") as HTMLInputElement)?.value || "",
+                                e.target.value,
+                                (document.getElementById("cor") as HTMLInputElement)?.value || "",
+                                tipoItem
+                              )
+                            )
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="cor">{t("dashboard.ferramentas.form.color")}</Label>
+                        <Input
+                          id="cor"
+                          name="cor"
+                          placeholder={t("dashboard.ferramentas.form.color_placeholder")}
+                          defaultValue={editing?.cor || ""}
+                          onBlur={(e) =>
+                            setProductCode(
+                              gerarCodigoLocal(
+                                (document.getElementById("nome") as HTMLInputElement)?.value || "",
+                                (document.getElementById("tamanho") as HTMLInputElement)?.value || "",
+                                e.target.value,
+                                tipoItem
+                              )
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="quantidade_total">{t("dashboard.ferramentas.form.quantity_total")} *</Label>
+                        <Input
+                          id="quantidade_total"
+                          name="quantidade_total"
+                          type="number"
+                          min="0"
+                          defaultValue={editing?.quantidade_total || voiceData?.quantidade_total || 0}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="estado">{t("dashboard.ferramentas.form.status")} *</Label>
+                        <Select
+                          name="estado"
+                          defaultValue={editing?.estado || "ok"}
+                          onValueChange={(value) => {
+                            const hiddenInput = document.querySelector('input[name="estado"]') as HTMLInputElement
+                            if (hiddenInput) hiddenInput.value = value
+                          }}
+                          required
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ok">{t("dashboard.ferramentas.status.ok")}</SelectItem>
+                            <SelectItem value="danificada">{t("dashboard.ferramentas.status.damaged")}</SelectItem>
+                            <SelectItem value="em_conserto">{t("dashboard.ferramentas.status.in_repair")}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="ponto_ressuprimento">{t("dashboard.ferramentas.form.min_stock")}</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="ponto_ressuprimento"
+                          name="ponto_ressuprimento"
+                          type="number"
+                          min="0"
+                          placeholder={t("dashboard.ferramentas.form.min_stock_placeholder")}
+                          defaultValue={editing?.ponto_ressuprimento || ""}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          title="Sugerir Ponto de Ressuprimento (IA)"
+                          onClick={(e) => handleAutoFill('ponto_ressuprimento', e.currentTarget)}
+                        >
+                          <Sparkles className="h-3 w-3 text-indigo-500" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setOpen(false)
-                      setEditing(null)
-                    }}
-                  >
-                    {t("dashboard.ferramentas.form.cancel")}
-                  </Button>
-                  <Button type="submit" disabled={loading}>
-                    {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setOpen(false)
+                        setEditing(null)
+                      }}
+                    >
+                      {t("dashboard.ferramentas.form.cancel")}
+                    </Button>
+                    <Button type="submit" disabled={loading}>
+                      {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
 
-      {/* Modal de Importação */}
+            <Button className="bg-blue-500 hover:bg-blue-600">Novo kit de produtos</Button>
+            <Button variant="outline" onClick={handleExportCSV}>
+              Exportar
+              <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
+            </Button>
+            <Button variant="outline">Imprimir</Button>
+            <Button variant="outline">Mais ações <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" /></Button>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-zinc-900 rounded-md border shadow-sm">
+          <div className="p-4 border-b">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 flex-1">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Pesquisar registros"
+                    className="pl-8"
+                    value={filters.search}
+                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  />
+                </div>
+                <Button variant="outline" className="gap-2">
+                  Mais filtros <ChevronLeft className="h-4 w-4 rotate-[-90deg]" />
+                </Button>
+              </div>
+            </div>
+            <TabsList className="w-full justify-start bg-transparent p-0 h-auto border-b rounded-none border-transparent">
+              <TabsTrigger
+                value="ativos"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-600 data-[state=active]:text-green-600 px-4 py-2"
+              >
+                Ativo
+                <span className="ml-2 text-green-600 font-semibold">{counts.ativos}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="inativos"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary px-4 py-2"
+              >
+                Inativos
+                <span className="ml-2 text-zinc-500 font-semibold">{counts.inativos}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="todos"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 px-4 py-2"
+              >
+                Todos
+                <span className="ml-2 text-blue-600 font-semibold">{counts.todos}</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <div className="bg-blue-50/50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
+            <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
+              {filteredFerramentas.length} registro(s) selecionado(s)
+            </span>
+            <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-blue-600 border-blue-200">
+              Ações em lote <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
+            </Button>
+          </div>
+
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50">
+                <TableHead className="w-[40px]">
+                  <Checkbox />
+                </TableHead>
+                <TableHead>Produto</TableHead>
+                <TableHead>SKU</TableHead>
+                <TableHead>Formato</TableHead>
+                <TableHead>Valor (R$)</TableHead>
+                <TableHead>Estoque</TableHead>
+                <TableHead>Situação</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredFerramentas.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((ferramenta) => (
+                <TableRow key={ferramenta.id}>
+                  <TableCell>
+                    <Checkbox />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-md bg-zinc-100 overflow-hidden relative">
+                        {ferramenta.foto_url ? (
+                          <Image src={ferramenta.foto_url} alt={ferramenta.nome} fill className="object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                            <Package size={20} />
+                          </div>
+                        )}
+                      </div>
+                      <span className="font-medium text-zinc-700 dark:text-zinc-200">{ferramenta.nome}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-zinc-500 font-mono text-xs">{ferramenta.codigo || "-"}</TableCell>
+                  <TableCell>
+                    <span className="text-zinc-600">{ferramenta.tamanho || "Simples"}</span>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {/* Placeholder for value if not exists */}
+                    500,00
+                  </TableCell>
+                  <TableCell>
+                    <span className={cn(
+                      "font-semibold",
+                      ferramenta.quantidade_disponivel === 0 ? "text-red-600" : "text-zinc-700 dark:text-zinc-300"
+                    )}>
+                      {ferramenta.quantidade_disponivel}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={ferramenta.estado === 'ok' ? 'secondary' : 'destructive'} className={cn(
+                      ferramenta.estado === 'ok' ? "bg-green-100 text-green-700 hover:bg-green-200" : ""
+                    )}>
+                      {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400">
+                          Ações <ChevronLeft className="h-3 w-3 rotate-[-90deg]" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => { setEditing(ferramenta); setOpen(true); }}>
+                          <Edit className="mr-2 h-4 w-4" /> Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Printer className="mr-2 h-4 w-4" /> Gerar etiqueta
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ferramenta.id)}>
+                          <Archive className="mr-2 h-4 w-4" /> Inativar / Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {/* Pagination reusable */}
+          {filteredFerramentas.length > 0 && (
+            <div className="flex items-center justify-between px-4 py-4 border-t">
+              <div className="text-sm text-zinc-500">
+                {t("dashboard.ferramentas.pagination.showing", { count: paginatedFerramentas.length, total: filteredFerramentas.length })}
+              </div>
+              <div className="flex gap-1 items-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                >
+                  Próximo
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Tabs>
+
+      {/* Modals restored */}
       {importModalOpen && (
         <ImportExcel
           config={importConfig}
           onClose={() => setImportModalOpen(false)}
         />
       )}
-
-      {/* Modal de Importação de Nota Fiscal */}
       {importInvoiceOpen && (
         <ImportInvoice
           onClose={() => setImportInvoiceOpen(false)}
           onImport={async (items) => {
+            /* Integrated logic from previous code */
             setLoading(true)
             try {
-              // Para cada item extraído, criar no banco
               for (const item of items) {
                 const formData = new FormData()
                 formData.append("nome", item.nome)
                 formData.append("quantidade_total", item.quantidade.toString())
                 formData.append("estado", "ok")
                 formData.append("tipo_item", "ferramenta")
-
-                if (item.valor_unitario) {
-                  formData.append("valor_unitario", item.valor_unitario.toString())
-                }
-
-                if (item.codigo) {
-                  formData.append("codigo", item.codigo)
-                } else {
-                  // Gerar código se não existir
-                  formData.append("codigo", gerarCodigoLocal(item.nome))
-                }
-
+                if (item.valor_unitario) formData.append("valor_unitario", item.valor_unitario.toString())
+                if (item.codigo) formData.append("codigo", item.codigo)
+                else formData.append("codigo", gerarCodigoLocal(item.nome))
                 await criarFerramenta(formData)
               }
               toast.success("Itens importados com sucesso!")
               router.refresh()
-            } catch (error: any) {
-              console.error(error)
-              toast.error(error.message || "Erro ao importar itens")
-            } finally {
-              setLoading(false)
-            }
+            } catch (err: any) {
+              toast.error(err.message)
+            } finally { setLoading(false) }
           }}
         />
-      )}
-
-      <div className={cn(
-        "grid gap-4",
-        cardSize === "pequeno" && "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
-        cardSize === "medio" && "md:grid-cols-2 lg:grid-cols-3",
-        cardSize === "grande" && "md:grid-cols-2"
-      )}>
-        {paginatedFerramentas.map((ferramenta) => (
-          <Card key={ferramenta.id} className={cn(
-            "dark:bg-zinc-900 dark:border-zinc-800",
-            cardSize === "pequeno" && "hover:shadow-md transition-shadow",
-            cardSize === "medio" && "hover:shadow-lg transition-shadow",
-            cardSize === "grande" && "hover:shadow-xl transition-shadow"
-          )}>
-            <CardContent className={cn(
-              cardSize === "pequeno" && "p-3",
-              cardSize === "medio" && "p-6",
-              cardSize === "grande" && "p-8"
-            )}>
-              <div className={cn(
-                "space-y-4",
-                cardSize === "pequeno" && "space-y-2"
-              )}>
-                <div className={cn(
-                  "flex items-start justify-between",
-                  cardSize === "pequeno" && "flex-col gap-1"
-                )}>
-                  <div className={cn(
-                    "space-y-1",
-                    cardSize === "pequeno" && "space-y-0.5 w-full"
-                  )}>
-                    <div className="flex items-center gap-2">
-                      <h3 className={cn(
-                        "font-semibold",
-                        cardSize === "pequeno" && "text-sm",
-                        cardSize === "medio" && "text-lg",
-                        cardSize === "grande" && "text-xl"
-                      )}>{ferramenta.nome}</h3>
-                      {/* Indicador de estoque baixo */}
-                      {ferramenta.ponto_ressuprimento !== null &&
-                        ferramenta.ponto_ressuprimento !== undefined &&
-                        ferramenta.quantidade_disponivel <= ferramenta.ponto_ressuprimento && (
-                          <Badge
-                            variant="destructive"
-                            className={cn(
-                              "animate-pulse",
-                              cardSize === "pequeno" && "text-[10px] px-1.5 py-0",
-                              cardSize === "medio" && "text-xs px-2 py-0.5",
-                              cardSize === "grande" && "text-xs px-2 py-0.5"
-                            )}
-                            title={`Estoque baixo! Mínimo: ${ferramenta.ponto_ressuprimento}`}
-                          >
-                            ⚠️
-                          </Badge>
-                        )}
-                    </div>
-                    <div className={cn(
-                      "flex flex-col text-muted-foreground",
-                      cardSize === "pequeno" && "text-xs",
-                      cardSize === "medio" && "text-sm",
-                      cardSize === "grande" && "text-sm"
-                    )}>
-                      {ferramenta.codigo && <span>{t("dashboard.ferramentas.cards.code")}: {ferramenta.codigo}</span>}
-                      {ferramenta.tipo_item && (
-                        <span>
-                          {t("dashboard.ferramentas.cards.type")}:{" "}
-                          {ferramenta.tipo_item === "consumivel"
-                            ? t("dashboard.ferramentas.form.consumable")
-                            : ferramenta.tipo_item === "epi"
-                              ? t("dashboard.ferramentas.form.ppe")
-                              : t("dashboard.ferramentas.form.tool")}
-                        </span>
-                      )}
-                      {ferramenta.categoria && <span>{t("dashboard.ferramentas.cards.category")}: {ferramenta.categoria}</span>}
-                    </div>
-                  </div>
-                  <Badge
-                    variant={getEstadoBadge(ferramenta.estado)}
-                    className={cn(
-                      cardSize === "pequeno" && "text-xs",
-                      cardSize === "medio" && "text-xs",
-                      cardSize === "grande" && "text-sm"
-                    )}
-                  >
-                    {getEstadoLabel(ferramenta.estado)}
-                  </Badge>
-                </div>
-
-                {ferramenta.foto_url ? (
-                  <div className={cn(
-                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700",
-                    cardSize === "pequeno" && "h-24",
-                    cardSize === "medio" && "h-40",
-                    cardSize === "grande" && "h-56"
-                  )}>
-                    <Image
-                      src={ferramenta.foto_url}
-                      alt={ferramenta.nome}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
-                ) : (
-                  <div className={cn(
-                    "relative w-full rounded-lg overflow-hidden border bg-zinc-50 flex items-center justify-center dark:bg-zinc-800 dark:border-zinc-700",
-                    cardSize === "pequeno" && "h-24",
-                    cardSize === "medio" && "h-40",
-                    cardSize === "grande" && "h-56"
-                  )}>
-                    <Package className={cn(
-                      "text-zinc-400 dark:text-zinc-500",
-                      cardSize === "pequeno" && "h-6 w-6",
-                      cardSize === "medio" && "h-12 w-12",
-                      cardSize === "grande" && "h-16 w-16"
-                    )} />
-                  </div>
-                )}
-
-                <div className={cn(
-                  "grid grid-cols-2 gap-2",
-                  cardSize === "pequeno" && "text-xs",
-                  cardSize === "medio" && "text-sm",
-                  cardSize === "grande" && "text-sm"
-                )}>
-                  <div>
-                    <p className="text-muted-foreground">{t("dashboard.ferramentas.cards.total")}</p>
-                    <p className="font-semibold">
-                      {ferramenta.quantidade_total}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">{t("dashboard.ferramentas.cards.available")}</p>
-                    <p className="font-semibold">
-                      {ferramenta.quantidade_disponivel}
-                    </p>
-                  </div>
-                </div>
-
-                <div className={cn(
-                  "flex flex-wrap gap-2",
-                  cardSize === "pequeno" && "gap-1"
-                )}>
-                  <Button
-                    variant="outline"
-                    size={cardSize === "pequeno" ? "sm" : "sm"}
-                    onClick={() =>
-                      setActionDialog({
-                        type: "entrada",
-                        ferramenta,
-                      })
-                    }
-                    className={cn(
-                      cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
-                    )}
-                  >
-                    <PackagePlus className={cn(
-                      cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                      cardSize !== "pequeno" && "mr-1"
-                    )} />
-                    {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.entry")}
-                  </Button>
-                  {ferramenta.quantidade_disponivel > 0 && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setActionDialog({
-                            type: "retirada",
-                            ferramenta,
-                          })
-                        }
-                        className={cn(
-                          cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
-                        )}
-                      >
-                        <PackageMinus className={cn(
-                          cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                          cardSize !== "pequeno" && "mr-1"
-                        )} />
-                        {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.withdraw")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setActionDialog({
-                            type: "devolucao",
-                            ferramenta,
-                          })
-                        }
-                        className={cn(
-                          cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
-                        )}
-                      >
-                        <RotateCcw className={cn(
-                          cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                          cardSize !== "pequeno" && "mr-1"
-                        )} />
-                        {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.return")}
-                      </Button>
-                    </>
-                  )}
-                  {ferramenta.estado === "ok" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setActionDialog({
-                          type: "conserto",
-                          ferramenta,
-                        })
-                      }
-                      className={cn(
-                        cardSize === "pequeno" && "text-xs px-2 py-1 h-auto"
-                      )}
-                    >
-                      <Wrench className={cn(
-                        cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                        cardSize !== "pequeno" && "mr-1"
-                      )} />
-                      {cardSize !== "pequeno" && t("dashboard.ferramentas.actions.repair")}
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditing(ferramenta)
-                      setOpen(true)
-                    }}
-                    className={cn(
-                      cardSize === "pequeno" && "h-6 w-6 p-0"
-                    )}
-                  >
-                    <Edit className={cn(
-                      cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4"
-                    )} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(ferramenta.id)}
-                    className={cn(
-                      cardSize === "pequeno" && "h-6 w-6 p-0"
-                    )}
-                  >
-                    <Trash2 className={cn(
-                      cardSize === "pequeno" ? "h-3 w-3" : "h-4 w-4",
-                      "text-destructive"
-                    )} />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Footer de Paginação */}
-      {filteredFerramentas.length > 0 && (
-        <div className="flex items-center justify-between px-2 py-2 text-xs text-zinc-500">
-          <div>
-            {t("dashboard.ferramentas.pagination.showing", { count: paginatedFerramentas.length, total: filteredFerramentas.length })}
-            {totalPages > 1 && ` (${t("dashboard.ferramentas.pagination.page", { current: currentPage, total: totalPages })})`}
-          </div>
-          <div className="flex gap-1 items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-3 w-3" />
-            </Button>
-            <span className="min-w-[2rem] text-center">{currentPage}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || totalPages === 0}
-            >
-              <ChevronRight className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {filteredFerramentas.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700">
-          <div className="bg-blue-50 p-4 rounded-full mb-4 dark:bg-blue-900/20">
-            <Package className="h-10 w-10 text-blue-500 dark:text-blue-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
-            {filters.search ? t("dashboard.ferramentas.empty.no_items_title") : t("dashboard.ferramentas.empty.stock_empty_title")}
-          </h3>
-          <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
-            {filters.search
-              ? t("dashboard.ferramentas.empty.no_items_search")
-              : t("dashboard.ferramentas.empty.stock_empty_desc")}
-          </p>
-          {!filters.search && (
-            <Button
-              onClick={() => {
-                setEditing(null)
-                setOpen(true)
-              }}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {t("dashboard.ferramentas.empty.first_item")}
-            </Button>
-          )}
-          {filters.search && (
-            <Button variant="outline" onClick={() => setFilters({ ...filters, search: "" })}>
-              {t("dashboard.ferramentas.empty.clear_search")}
-            </Button>
-          )}
-        </div>
       )}
 
       {/* Dialog de Ações */}
