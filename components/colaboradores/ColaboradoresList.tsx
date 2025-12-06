@@ -115,6 +115,9 @@ function ColaboradoresList({
     if (!intent) return
 
     if (intent.action === "create") {
+      if (intent.nome) {
+        setNomeDigitado(intent.nome)
+      }
       setVoiceData({
         nome: intent.nome,
         cargo: intent.cargo,
