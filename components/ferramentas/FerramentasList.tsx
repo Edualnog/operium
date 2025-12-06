@@ -138,6 +138,8 @@ function FerramentasList({
     ordem: "asc",
   })
   const [currentPage, setCurrentPage] = useState(1)
+  const [activeTab, setActiveTab] = useState<"todos" | "ativos" | "inativos">("ativos")
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const debouncedSearch = useDebounce(filters.search, 300)
   const [open, setOpen] = useState(false)
   const [actionDialog, setActionDialog] = useState<{
@@ -209,6 +211,100 @@ function FerramentasList({
       setTipoItem("ferramenta")
     }
   }, [editing])
+
+  // Clear selection when filters or page change
+  useEffect(() => {
+    setSelectedItems(new Set())
+  }, [filters, activeTab, currentPage])
+
+  const toggleSelection = (id: string) => {
+    const newSelected = new Set(selectedItems)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedItems(newSelected)
+  }
+
+  const toggleAll = () => {
+    if (selectedItems.size === filteredFerramentas.length) {
+      setSelectedItems(new Set())
+    } else {
+      setSelectedItems(new Set(filteredFerramentas.map(f => f.id)))
+    }
+  }
+
+  const handleExportPDF = async () => {
+    if (selectedItems.size === 0) {
+      toast.error("Selecione pelo menos um item para exportar")
+      return
+    }
+
+    try {
+      setLoading(true)
+      const { jsPDF } = await import("jspdf")
+      const autoTable = (await import("jspdf-autotable")).default
+
+      const doc = new jsPDF()
+
+      const itemsToExport = ferramentas.filter(f => selectedItems.has(f.id))
+
+      const tableData = itemsToExport.map(item => [
+        item.nome,
+        item.codigo || "-",
+        item.quantidade_disponivel.toString(),
+        item.estado,
+        item.tamanho || "-",
+        item.cor || "-"
+      ])
+
+      autoTable(doc, {
+        head: [['Nome', 'Código', 'Qtd', 'Estado', 'Tamanho', 'Cor']],
+        body: tableData,
+      })
+
+      doc.save("ferramentas.pdf")
+      toast.success("PDF exportado com sucesso")
+    } catch (error) {
+      console.error("Erro ao exportar PDF:", error)
+      toast.error("Erro ao gerar PDF")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleExportSelectedCSV = () => {
+    if (selectedItems.size === 0) {
+      toast.error("Selecione pelo menos um item para exportar")
+      return
+    }
+    const itemsToExport = ferramentas.filter(f => selectedItems.has(f.id))
+
+    // Create CSV content
+    const headers = ["Nome", "Código", "Categoria", "Quantidade Total", "Quantidade Disponível", "Estado", "Tipo", "Tamanho", "Cor"]
+    const csvContent = [
+      headers.join(","),
+      ...itemsToExport.map(f => [
+        `"${f.nome}"`,
+        `"${f.codigo || ""}"`,
+        `"${f.categoria || ""}"`,
+        f.quantidade_total,
+        f.quantidade_disponivel,
+        f.estado,
+        f.tipo_item || "ferramenta",
+        `"${f.tamanho || ""}"`,
+        `"${f.cor || ""}"`
+      ].join(","))
+    ].join("\n")
+
+    // Download file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(blob)
+    link.download = `produtos_selecionados_${new Date().toISOString().split('T')[0]}.csv`
+    link.click()
+  }
   const router = useRouter()
 
   useEffect(() => {
@@ -282,7 +378,7 @@ function FerramentasList({
     return Array.from(set).sort()
   }, [ferramentas])
 
-  const [activeTab, setActiveTab] = useState<"todos" | "ativos" | "inativos">("ativos")
+
 
   const counts = useMemo(() => {
     return {
@@ -1038,11 +1134,24 @@ function FerramentasList({
               <Sparkles className="h-4 w-4 text-purple-600" />
               Adicionar com IA (Nota Fiscal)
             </Button>
-            <Button variant="outline" onClick={handleExportCSV}>
-              Exportar
-              <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
-            </Button>
-            <Button variant="outline" onClick={() => window.print()}>Imprimir</Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  Exportar
+                  <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleExportSelectedCSV}>
+                  <FileDown className="mr-2 h-4 w-4" /> Exportar CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportPDF}>
+                  <FileDown className="mr-2 h-4 w-4" /> Exportar PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button variant="outline">Mais ações <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" /></Button>
           </div>
         </div>
@@ -1092,7 +1201,7 @@ function FerramentasList({
 
           <div className="bg-blue-50/50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
             <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
-              {filteredFerramentas.length} registro(s) selecionado(s)
+              {selectedItems.size} de {filteredFerramentas.length} registro(s) selecionado(s)
             </span>
             <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-blue-600 border-blue-200">
               Ações em lote <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
@@ -1103,7 +1212,10 @@ function FerramentasList({
             <TableHeader>
               <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50">
                 <TableHead className="w-[40px]">
-                  <Checkbox />
+                  <Checkbox
+                    checked={selectedItems.size === filteredFerramentas.length && filteredFerramentas.length > 0}
+                    onCheckedChange={toggleAll}
+                  />
                 </TableHead>
                 <TableHead>Produto</TableHead>
                 <TableHead>SKU</TableHead>
@@ -1118,7 +1230,10 @@ function FerramentasList({
               {filteredFerramentas.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((ferramenta) => (
                 <TableRow key={ferramenta.id}>
                   <TableCell>
-                    <Checkbox />
+                    <Checkbox
+                      checked={selectedItems.has(ferramenta.id)}
+                      onCheckedChange={() => toggleSelection(ferramenta.id)}
+                    />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
