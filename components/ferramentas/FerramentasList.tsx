@@ -87,7 +87,9 @@ import {
   Archive,
   ArrowUpDown,
 } from "lucide-react"
+
 import { VoiceCommandButton } from "./VoiceCommandButton"
+import { ProductLabel } from "./ProductLabel"
 
 interface Ferramenta {
   id: string
@@ -545,6 +547,57 @@ function FerramentasList({
     }
   }
 
+  const handleGenerateLabel = async (ferramenta: Ferramenta) => {
+    try {
+      const ReactDOMServer = (await import('react-dom/server')).default
+      const html = ReactDOMServer.renderToString(<ProductLabel product={ferramenta} />)
+      const printWindow = window.open('', '_blank', 'width=500,height=400')
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Etiqueta - ${ferramenta.nome}</title>
+              <style>
+                @media print {
+                  @page { size: 50mm 30mm; margin: 0; }
+                  body { margin: 0; padding: 0; }
+                }
+                body {
+                  margin: 0;
+                  padding: 0;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100vh;
+                  background-color: #f0f0f0;
+                }
+                .print-label {
+                  background-color: white;
+                }
+              </style>
+            </head>
+            <body>
+              ${html}
+              <script>
+                window.onload = () => { 
+                  setTimeout(() => { 
+                    window.print(); 
+                    window.close(); 
+                  }, 500); 
+                }
+              </script>
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+      }
+    } catch (error) {
+      console.error("Erro ao gerar etiqueta:", error)
+      toast.error("Erro ao gerar etiqueta")
+    }
+  }
+
   const handleExportCSV = () => {
     if (filteredFerramentas.length === 0) return
     setExportingCsv(true)
@@ -926,12 +979,17 @@ function FerramentasList({
               </DialogContent>
             </Dialog>
 
-            <Button className="bg-blue-500 hover:bg-blue-600">Novo kit de produtos</Button>
+
+
+            <Button variant="outline" onClick={() => setImportInvoiceOpen(true)} className="gap-2">
+              <Sparkles className="h-4 w-4 text-purple-600" />
+              Adicionar com IA (Nota Fiscal)
+            </Button>
             <Button variant="outline" onClick={handleExportCSV}>
               Exportar
               <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
             </Button>
-            <Button variant="outline">Imprimir</Button>
+            <Button variant="outline" onClick={() => window.print()}>Imprimir</Button>
             <Button variant="outline">Mais ações <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" /></Button>
           </div>
         </div>
@@ -1058,7 +1116,7 @@ function FerramentasList({
                         <DropdownMenuItem onClick={() => { setEditing(ferramenta); setOpen(true); }}>
                           <Edit className="mr-2 h-4 w-4" /> Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleGenerateLabel(ferramenta)}>
                           <Printer className="mr-2 h-4 w-4" /> Gerar etiqueta
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ferramenta.id)}>
@@ -1098,163 +1156,169 @@ function FerramentasList({
             </div>
           )}
         </div>
-      </Tabs>
+      </Tabs >
 
       {/* Modals restored */}
-      {importModalOpen && (
-        <ImportExcel
-          config={importConfig}
-          onClose={() => setImportModalOpen(false)}
-        />
-      )}
-      {importInvoiceOpen && (
-        <ImportInvoice
-          onClose={() => setImportInvoiceOpen(false)}
-          onImport={async (items) => {
-            /* Integrated logic from previous code */
-            setLoading(true)
-            try {
-              for (const item of items) {
-                const formData = new FormData()
-                formData.append("nome", item.nome)
-                formData.append("quantidade_total", item.quantidade.toString())
-                formData.append("estado", "ok")
-                formData.append("tipo_item", "ferramenta")
-                if (item.valor_unitario) formData.append("valor_unitario", item.valor_unitario.toString())
-                if (item.codigo) formData.append("codigo", item.codigo)
-                else formData.append("codigo", gerarCodigoLocal(item.nome))
-                await criarFerramenta(formData)
-              }
-              toast.success("Itens importados com sucesso!")
-              router.refresh()
-            } catch (err: any) {
-              toast.error(err.message)
-            } finally { setLoading(false) }
-          }}
-        />
-      )}
+      {
+        importModalOpen && (
+          <ImportExcel
+            config={importConfig}
+            onClose={() => setImportModalOpen(false)}
+          />
+        )
+      }
+      {
+        importInvoiceOpen && (
+          <ImportInvoice
+            onClose={() => setImportInvoiceOpen(false)}
+            onImport={async (items) => {
+              /* Integrated logic from previous code */
+              setLoading(true)
+              try {
+                for (const item of items) {
+                  const formData = new FormData()
+                  formData.append("nome", item.nome)
+                  formData.append("quantidade_total", item.quantidade.toString())
+                  formData.append("estado", "ok")
+                  formData.append("tipo_item", "ferramenta")
+                  if (item.valor_unitario) formData.append("valor_unitario", item.valor_unitario.toString())
+                  if (item.codigo) formData.append("codigo", item.codigo)
+                  else formData.append("codigo", gerarCodigoLocal(item.nome))
+                  await criarFerramenta(formData)
+                }
+                toast.success("Itens importados com sucesso!")
+                router.refresh()
+              } catch (err: any) {
+                toast.error(err.message)
+              } finally { setLoading(false) }
+            }}
+          />
+        )
+      }
 
       {/* Dialog de Ações */}
-      {actionDialog && (
-        <Dialog
-          open={!!actionDialog}
-          onOpenChange={() => setActionDialog(null)}
-        >
-          <DialogContent>
-            <form onSubmit={handleAction}>
-              <DialogHeader>
-                <DialogTitle>
-                  {actionDialog.type === "entrada" && t("dashboard.ferramentas.actions.register_entry")}
-                  {actionDialog.type === "retirada" && t("dashboard.ferramentas.actions.register_withdrawal")}
-                  {actionDialog.type === "devolucao" && t("dashboard.ferramentas.actions.register_return")}
-                  {actionDialog.type === "conserto" && t("dashboard.ferramentas.actions.send_to_repair")}
-                </DialogTitle>
-                <DialogDescription>
-                  {t("dashboard.ferramentas.actions.tool")}: {actionDialog.ferramenta?.nome}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                {(actionDialog.type === "retirada" ||
-                  actionDialog.type === "devolucao") && (
-                    <div className="grid gap-2">
-                      <Label htmlFor="colaborador_id">{t("dashboard.ferramentas.actions.collaborator")} *</Label>
-                      <Select name="colaborador_id" required defaultValue={actionDialog.initialCollaboratorId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("dashboard.ferramentas.actions.select_collaborator")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {colaboradores.map((col) => (
-                            <SelectItem key={col.id} value={col.id}>
-                              {col.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                <div className="grid gap-2">
-                  <Label htmlFor="quantidade">{t("dashboard.ferramentas.actions.quantity")} *</Label>
-                  <Input
-                    id="quantidade"
-                    name="quantidade"
-                    type="number"
-                    defaultValue={actionDialog.initialQuantity}
-                    min="1"
-                    max={
-                      actionDialog.type === "retirada" ||
-                        actionDialog.type === "devolucao" ||
-                        actionDialog.type === "conserto"
-                        ? actionDialog.ferramenta?.quantidade_disponivel
-                        : undefined
-                    }
-                    required
-                  />
-                </div>
+      {
+        actionDialog && (
+          <Dialog
+            open={!!actionDialog}
+            onOpenChange={() => setActionDialog(null)}
+          >
+            <DialogContent>
+              <form onSubmit={handleAction}>
+                <DialogHeader>
+                  <DialogTitle>
+                    {actionDialog.type === "entrada" && t("dashboard.ferramentas.actions.register_entry")}
+                    {actionDialog.type === "retirada" && t("dashboard.ferramentas.actions.register_withdrawal")}
+                    {actionDialog.type === "devolucao" && t("dashboard.ferramentas.actions.register_return")}
+                    {actionDialog.type === "conserto" && t("dashboard.ferramentas.actions.send_to_repair")}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {t("dashboard.ferramentas.actions.tool")}: {actionDialog.ferramenta?.nome}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  {(actionDialog.type === "retirada" ||
+                    actionDialog.type === "devolucao") && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="colaborador_id">{t("dashboard.ferramentas.actions.collaborator")} *</Label>
+                        <Select name="colaborador_id" required defaultValue={actionDialog.initialCollaboratorId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("dashboard.ferramentas.actions.select_collaborator")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {colaboradores.map((col) => (
+                              <SelectItem key={col.id} value={col.id}>
+                                {col.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  <div className="grid gap-2">
+                    <Label htmlFor="quantidade">{t("dashboard.ferramentas.actions.quantity")} *</Label>
+                    <Input
+                      id="quantidade"
+                      name="quantidade"
+                      type="number"
+                      defaultValue={actionDialog.initialQuantity}
+                      min="1"
+                      max={
+                        actionDialog.type === "retirada" ||
+                          actionDialog.type === "devolucao" ||
+                          actionDialog.type === "conserto"
+                          ? actionDialog.ferramenta?.quantidade_disponivel
+                          : undefined
+                      }
+                      required
+                    />
+                  </div>
 
-                {actionDialog.type === "conserto" && (
-                  <>
-                    <div className="grid gap-2">
-                      <Label htmlFor="status_conserto">{t("dashboard.ferramentas.actions.status")}</Label>
-                      <Select name="status_conserto" defaultValue="aguardando">
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("dashboard.ferramentas.actions.repair_status_placeholder")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="aguardando">{t("dashboard.consertos.status.waiting")}</SelectItem>
-                          <SelectItem value="em_andamento">{t("dashboard.consertos.status.in_progress")}</SelectItem>
-                          <SelectItem value="concluido">{t("dashboard.consertos.status.completed")}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="local_conserto">{t("dashboard.ferramentas.actions.location")}</Label>
-                      <Input id="local_conserto" name="local_conserto" placeholder={t("dashboard.ferramentas.actions.location_placeholder")} />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="prazo_conserto">{t("dashboard.ferramentas.actions.deadline")}</Label>
-                      <Input id="prazo_conserto" name="prazo_conserto" type="date" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="prioridade_conserto">{t("dashboard.ferramentas.actions.priority")}</Label>
-                      <Select name="prioridade_conserto" defaultValue="media">
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("dashboard.ferramentas.actions.priority")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="baixa">{t("dashboard.ferramentas.actions.priority_low")}</SelectItem>
-                          <SelectItem value="media">{t("dashboard.ferramentas.actions.priority_medium")}</SelectItem>
-                          <SelectItem value="alta">{t("dashboard.ferramentas.actions.priority_high")}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </>
-                )}
-                <div className="grid gap-2">
-                  <Label htmlFor="observacoes">{t("dashboard.ferramentas.actions.observations")}</Label>
-                  <Input
-                    id="observacoes"
-                    name="observacoes"
-                    placeholder={t("dashboard.ferramentas.actions.optional")}
-                  />
+                  {actionDialog.type === "conserto" && (
+                    <>
+                      <div className="grid gap-2">
+                        <Label htmlFor="status_conserto">{t("dashboard.ferramentas.actions.status")}</Label>
+                        <Select name="status_conserto" defaultValue="aguardando">
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("dashboard.ferramentas.actions.repair_status_placeholder")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="aguardando">{t("dashboard.consertos.status.waiting")}</SelectItem>
+                            <SelectItem value="em_andamento">{t("dashboard.consertos.status.in_progress")}</SelectItem>
+                            <SelectItem value="concluido">{t("dashboard.consertos.status.completed")}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="local_conserto">{t("dashboard.ferramentas.actions.location")}</Label>
+                        <Input id="local_conserto" name="local_conserto" placeholder={t("dashboard.ferramentas.actions.location_placeholder")} />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="prazo_conserto">{t("dashboard.ferramentas.actions.deadline")}</Label>
+                        <Input id="prazo_conserto" name="prazo_conserto" type="date" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="prioridade_conserto">{t("dashboard.ferramentas.actions.priority")}</Label>
+                        <Select name="prioridade_conserto" defaultValue="media">
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("dashboard.ferramentas.actions.priority")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="baixa">{t("dashboard.ferramentas.actions.priority_low")}</SelectItem>
+                            <SelectItem value="media">{t("dashboard.ferramentas.actions.priority_medium")}</SelectItem>
+                            <SelectItem value="alta">{t("dashboard.ferramentas.actions.priority_high")}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
+                  <div className="grid gap-2">
+                    <Label htmlFor="observacoes">{t("dashboard.ferramentas.actions.observations")}</Label>
+                    <Input
+                      id="observacoes"
+                      name="observacoes"
+                      placeholder={t("dashboard.ferramentas.actions.optional")}
+                    />
+                  </div>
                 </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setActionDialog(null)}
-                >
-                  {t("dashboard.ferramentas.form.cancel")}
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? t("dashboard.ferramentas.actions.processing") : t("dashboard.ferramentas.actions.confirm")}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setActionDialog(null)}
+                  >
+                    {t("dashboard.ferramentas.form.cancel")}
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? t("dashboard.ferramentas.actions.processing") : t("dashboard.ferramentas.actions.confirm")}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )
+      }
+    </div >
   )
 }
 
