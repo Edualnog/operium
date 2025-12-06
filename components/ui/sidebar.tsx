@@ -202,12 +202,14 @@ export const SidebarLink = ({
   className,
   active,
   onClick,
+  id,
   ...props
 }: {
   link: Links;
   className?: string;
   active?: boolean;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  id?: string;
   props?: LinkProps;
 }) => {
   const { open, animate, setOpen } = useSidebar();
@@ -223,6 +225,7 @@ export const SidebarLink = ({
     return (
       <a
         href="#"
+        id={id}
         onClick={(e) => {
           e.preventDefault()
           onClick(e)
@@ -261,6 +264,7 @@ export const SidebarLink = ({
   return (
     <Link
       href={link.href}
+      id={id}
       onClick={handleMobileClick}
       className={cn(
         // Base styles

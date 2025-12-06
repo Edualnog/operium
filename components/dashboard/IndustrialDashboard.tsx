@@ -33,6 +33,7 @@ import {
 import { OnboardingChecklist } from "./OnboardingChecklist"
 import { AIInsightsCard } from "./AIInsightsCard"
 import { VoiceSummaryAgent } from "./VoiceSummaryAgent"
+import { OnboardingTour } from "./OnboardingTour"
 
 // ... (inside component)
 
@@ -578,6 +579,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       <div className="mb-8">
         <AIInsightsCard kpis={data} recentMovements={movimentacoesMensais} />
       </div>
+
+      <OnboardingTour />
 
       {/* SESSÃO OVERVIEW - Gráficos principais */}
       <section className="space-y-6 mb-8">

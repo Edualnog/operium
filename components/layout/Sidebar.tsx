@@ -88,6 +88,7 @@ export default function AppSidebar() {
             {links.map((link) => (
               <SidebarLink
                 key={link.href}
+                id={`sidebar-${link.href.split('/').pop() || 'dashboard'}`}
                 link={link}
                 active={pathname === link.href}
               />
@@ -100,6 +101,7 @@ export default function AppSidebar() {
               <LanguageSwitcher />
             </div>
             <Link
+              id="sidebar-conta"
               href="/dashboard/conta"
               className={cn(
                 "flex items-center justify-start gap-3 group/sidebar py-2.5 px-3 rounded-md transition-colors cursor-pointer min-h-[44px] flex-1",
