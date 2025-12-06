@@ -828,7 +828,14 @@ export default function MovimentacoesList({
         <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="movimentacao" />
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => {
+          setActiveTab(v as any)
+          setFilters(prev => ({ ...prev, tipo: v as any }))
+        }}
+        className="w-full space-y-4"
+      >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <TabsList>
             <TabsTrigger value="todos">{t("dashboard.movimentacoes.filters.all_types")}</TabsTrigger>
