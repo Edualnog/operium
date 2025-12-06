@@ -42,7 +42,7 @@ export function TestimonialCard({
                 </div>
 
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                    "{text}"
+                    &quot;{text}&quot;
                 </p>
             </div>
 
