@@ -442,6 +442,13 @@
                 "error_creating": "Line {{line}}: {{error}}"
             }
         },
+        "ai": {
+            "title": "AI Voice Assistant",
+            "description_collaborator": "Speak to register collaborators quickly",
+            "description_product": "Speak to register products quickly",
+            "listening": "Listening...",
+            "click_to_speak": "Click to speak"
+        },
         "movimentacoes": {
             "title": "Movements",
             "subtitle": "Register entries, withdrawals and returns of products",

@@ -877,8 +877,8 @@ function FerramentasList({
       {/* Voice Assistant Section */}
       <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
         <div className="text-center mb-4">
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Assistente de Voz IA</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fale para cadastrar produtos rapidamente</p>
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t("ai.title")}</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("ai.description_product")}</p>
         </div>
         <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="ferramenta" />
       </div>

@@ -15,6 +15,8 @@ interface AIVoiceInputProps {
     className?: string;
 }
 
+import { useTranslation } from "react-i18next";
+
 export function AIVoiceInput({
     onStart,
     onStop,
@@ -24,6 +26,7 @@ export function AIVoiceInput({
     demoInterval = 3000,
     className
 }: AIVoiceInputProps) {
+    const { t } = useTranslation();
     const [submitted, setSubmitted] = useState(false);
     const [time, setTime] = useState(0);
     const [isClient, setIsClient] = useState(false);
@@ -166,7 +169,7 @@ export function AIVoiceInput({
                 </div>
 
                 <p className="h-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    {submitted ? "Ouvindo..." : "Clique para falar"}
+                    {submitted ? t("ai.listening") : t("ai.click_to_speak")}
                 </p>
             </div>
         </div>
