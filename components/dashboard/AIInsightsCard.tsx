@@ -111,14 +111,14 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                         <HoverButton
                             onClick={generateInsights}
                             disabled={loading}
-                            className="h-10 px-6 text-sm font-medium shadow-lg hover:shadow-indigo-500/25"
+                            className="h-10 px-6 text-sm font-semibold tracking-wide shadow-lg hover:shadow-indigo-500/25 w-full sm:w-auto"
                             backgroundColor="#4f46e5"
                             glowColor="#a855f7"
                         >
                             {loading ? (
-                                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                                <RefreshCw className="h-4 w-4 animate-spin" />
                             ) : (
-                                <Lightbulb className="h-4 w-4 mr-2" />
+                                <Lightbulb className="h-4 w-4" />
                             )}
                             <span>{loading ? "Analisando..." : "Gerar Insights"}</span>
                         </HoverButton>
