@@ -1,7 +1,7 @@
 const securityHeaders = [
   {
     key: 'Content-Security-Policy',
-    value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.gstatic.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cmgmobhnrjawfdafhqko.supabase.co; media-src 'self' blob:; font-src 'self' data:; connect-src 'self' https://cmgmobhnrjawfdafhqko.supabase.co https://*.supabase.co https://www.google-analytics.com https://stats.g.doubleclick.net https://vitals.vercel-insights.com https://challenges.cloudflare.com; frame-src 'self' https://vercel.live https://challenges.cloudflare.com; frame-ancestors 'self' https://vercel.live; base-uri 'self'; form-action 'self'; object-src 'none';",
+    value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.gstatic.com https://vercel.live https://unpkg.com https://elevenlabs.io; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob: https://cmgmobhnrjawfdafhqko.supabase.co https://elevenlabs.io; media-src 'self' blob: https://elevenlabs.io; font-src 'self' data: https://unpkg.com; connect-src 'self' https://cmgmobhnrjawfdafhqko.supabase.co https://*.supabase.co https://www.google-analytics.com https://stats.g.doubleclick.net https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.elevenlabs.io wss://*.elevenlabs.io https://unpkg.com; frame-src 'self' https://vercel.live https://challenges.cloudflare.com; frame-ancestors 'self' https://vercel.live; base-uri 'self'; form-action 'self'; object-src 'none';",
   },
   {
     key: 'Referrer-Policy',

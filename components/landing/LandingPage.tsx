@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Script from "next/script"
 import { motion } from "framer-motion"
@@ -75,6 +75,14 @@ interface LandingPageProps {
 
 export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: LandingPageProps) {
   const { t } = useTranslation('common')
+  const convaiRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (convaiRef.current) {
+      convaiRef.current.setAttribute("agent-id", "agent_9101kbpggtvkffq8thjkahnbqg1w")
+    }
+  }, [])
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [plan, setPlan] = useState<"mensal" | "trimestral" | "anual">("trimestral")
@@ -854,8 +862,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </div>
       </footer>
 
-      <elevenlabs-convai agent-id="agent_9101kbpggtvkffq8thjkahnbqg1w"></elevenlabs-convai>
+      <elevenlabs-convai ref={convaiRef} agent-id="agent_9101kbpggtvkffq8thjkahnbqg1w"></elevenlabs-convai>
       <Script src="https://unpkg.com/@elevenlabs/convai-widget-embed" strategy="afterInteractive" />
-    </div>
+    </div >
   )
 }
