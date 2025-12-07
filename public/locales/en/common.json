@@ -682,6 +682,7 @@
             "actions": {
                 "actions": "Actions",
                 "register_return": "Register Return",
+                "update_status": "Update Status",
                 "clear_filters": "Clear Filters",
                 "cancel": "Cancel",
                 "mark_in_progress": "Mark as in progress",
