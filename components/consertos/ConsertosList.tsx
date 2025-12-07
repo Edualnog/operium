@@ -967,21 +967,56 @@ function ConsertosList({
             return (
               <div
                 key={conserto.id}
-                className="p-4 space-y-3 cursor-pointer active:bg-zinc-50 dark:active:bg-zinc-800"
-                onClick={() => setRetornoDialog(conserto)}
+                className="p-4 space-y-3 active:bg-zinc-50 dark:active:bg-zinc-800"
               >
-                <div className="flex items-center justify-between">
-                  <Badge variant={getStatusBadge(conserto.status)} className="capitalize gap-1 text-xs">
+                <div className="flex items-start justify-between">
+                  <Badge variant={getStatusBadge(conserto.status)} className="capitalize gap-2 whitespace-nowrap text-xs">
                     {getStatusIcon(conserto.status)}
-                    {getStatusLabel(conserto.status)}
+                    <span>{getStatusLabel(conserto.status)}</span>
                   </Badge>
-                  <span className="text-xs text-zinc-500">
-                    {conserto.data_envio ? format(new Date(conserto.data_envio), "dd/MM", { locale: dateLocale }) : "-"}
-                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-zinc-500">
+                      {conserto.data_envio ? format(new Date(conserto.data_envio), "dd/MM", { locale: dateLocale }) : "-"}
+                    </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 -mr-2">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>{t("dashboard.consertos.actions.actions")}</DropdownMenuLabel>
+                        {conserto.status !== "concluido" ? (
+                          <DropdownMenuItem onClick={() => handleQuickReturn(conserto)}>
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            {t("dashboard.consertos.actions.register_return")}
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem disabled>
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            {t("dashboard.consertos.status.completed")}
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => setRetornoDialog(conserto)}>
+                          <Wrench className="mr-2 h-4 w-4" />
+                          {t("dashboard.consertos.actions.update_status")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-                <div>
+
+                <div onClick={() => setRetornoDialog(conserto)} className="cursor-pointer">
                   <h4 className="font-medium text-sm text-zinc-900 dark:text-zinc-100">{f.nome}</h4>
-                  <p className="text-xs text-zinc-500 truncate">{conserto.local_conserto || "-"}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-xs text-zinc-500 truncate max-w-[150px]">{conserto.local_conserto || "-"}</p>
+                    {conserto.prioridade && (
+                      <span className="text-[10px] px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-full text-zinc-600 dark:text-zinc-400 capitalize">
+                        {conserto.prioridade}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             )
