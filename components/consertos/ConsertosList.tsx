@@ -311,13 +311,12 @@ function ConsertosList({
 
   const handleQuickReturn = async (conserto: Conserto) => {
     try {
-      const qtd = await getQuantidadeRestante(conserto)
-      if (qtd <= 0) {
-        toast.error(t("dashboard.consertos.errors.invalid_quantity", { count: 0 }))
-        return
-      }
+      const qtdRestante = await getQuantidadeRestante(conserto)
+      // Se a quantidade restante for 0 ou menor, assumimos 1 para garantir que o retorno seja registrado
+      // e o status possivelmente atualizado para concluído
+      const qtdParaRetornar = qtdRestante > 0 ? qtdRestante : 1
 
-      await registrarRetornoConserto(conserto.id, 0, qtd)
+      await registrarRetornoConserto(conserto.id, 0, qtdParaRetornar)
       toast.success(t("dashboard.consertos.return.success"))
       router.refresh()
     } catch (error) {
