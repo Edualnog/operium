@@ -170,12 +170,15 @@ function ConsertosList({
     // Filter by Search
     if (search) {
       const s = search.toLowerCase()
-      result = result.filter(c =>
-        c.ferramentas.some(f => f.nome.toLowerCase().includes(s)) ||
-        c.colaboradores?.nome?.toLowerCase().includes(s) ||
-        c.local_conserto?.toLowerCase().includes(s) ||
-        c.id.toLowerCase().includes(s)
-      )
+      result = result.filter(c => {
+        const ferramentasArray = Array.isArray(c.ferramentas) ? c.ferramentas : [c.ferramentas]
+        return (
+          ferramentasArray.some(f => f.nome.toLowerCase().includes(s)) ||
+          c.colaboradores?.nome?.toLowerCase().includes(s) ||
+          c.local_conserto?.toLowerCase().includes(s) ||
+          c.id.toLowerCase().includes(s)
+        )
+      })
     }
 
     // Filter by Export Filters (if strictly needed, but usually we separate export filters from view filters. 
