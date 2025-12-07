@@ -68,6 +68,9 @@ interface Conserto {
   local_conserto?: string | null
   prazo?: string | null
   prioridade?: string | null
+  colaboradores?: {
+    nome: string
+  } | null
 }
 
 function ConsertosList({
