@@ -594,11 +594,11 @@ function ConsertosList({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "concluido":
-        return <CheckCircle2 className="h-4 w-4" />
+        return <CheckCircle2 className="h-4 w-4 shrink-0" />
       case "em_andamento":
-        return <Wrench className="h-4 w-4" />
+        return <Wrench className="h-4 w-4 shrink-0" />
       default:
-        return <Clock className="h-4 w-4" />
+        return <Clock className="h-4 w-4 shrink-0" />
     }
   }
 
@@ -879,9 +879,9 @@ function ConsertosList({
                 return (
                   <TableRow key={conserto.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
                     <TableCell>
-                      <Badge variant={getStatusBadge(conserto.status)} className="capitalize gap-1">
+                      <Badge variant={getStatusBadge(conserto.status)} className="capitalize gap-2 whitespace-nowrap">
                         {getStatusIcon(conserto.status)}
-                        {getStatusLabel(conserto.status)}
+                        <span>{getStatusLabel(conserto.status)}</span>
                       </Badge>
                     </TableCell>
                     <TableCell>
