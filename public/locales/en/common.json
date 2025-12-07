@@ -178,6 +178,37 @@
                 "subtitle": "Current inventory status"
             }
         },
+        "ai": {
+            "voice_summary": {
+                "button": "Daily Summary",
+                "generating": "Generating...",
+                "error": "Error generating voice summary"
+            },
+            "insights": {
+                "title": "Smart Insights (AI)",
+                "select_period": "Select period",
+                "periods": {
+                    "daily": "Daily (24h)",
+                    "weekly": "Weekly (7 days)",
+                    "biweekly": "Biweekly (15 days)",
+                    "monthly": "Monthly (30 days)"
+                },
+                "button": {
+                    "idle": "Generate Insights",
+                    "loading": "Analyzing..."
+                },
+                "empty": {
+                    "title": "Ready to analyze?",
+                    "desc": "Select a period above and let our AI find patterns and opportunities in your data."
+                },
+                "summary_title": "Summary of last {{days}} days",
+                "generated_now": "Generated now",
+                "toasts": {
+                    "success": "Insights generated successfully!",
+                    "error": "Error generating insights. Please try again."
+                }
+            }
+        },
         "kpi": {
             "last_30_days": "Last 30 days",
             "last_days": "Last {{days}} days",

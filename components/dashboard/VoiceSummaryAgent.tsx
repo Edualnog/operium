@@ -5,6 +5,7 @@ import { Loader2, StopCircle, Sparkles, Pause } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 export function VoiceSummaryAgent() {
     const [loading, setLoading] = useState(false)
@@ -18,6 +19,8 @@ export function VoiceSummaryAgent() {
     const animationFrameRef = useRef<number | null>(null)
 
     const { toast } = useToast()
+
+    const { t } = useTranslation('common')
 
     useEffect(() => {
         return () => {
@@ -121,7 +124,7 @@ export function VoiceSummaryAgent() {
             }
         } catch (error) {
             console.error(error)
-            toast.error("Erro ao gerar resumo de voz")
+            toast.error(t("dashboard.ai.voice_summary.error"))
         } finally {
             setLoading(false)
         }
@@ -198,7 +201,7 @@ export function VoiceSummaryAgent() {
                         </div>
                     ) : (
                         <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
-                            {loading ? "Gerando Resumo..." : "Resumo Diário"}
+                            {loading ? t("dashboard.ai.voice_summary.generating") : t("dashboard.ai.voice_summary.button")}
                         </span>
                     )}
                 </div>

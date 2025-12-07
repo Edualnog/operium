@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { createClientComponentClient } from "@/lib/supabase-client"
+import { useTranslation } from "react-i18next"
 
 interface AIInsightsCardProps {
     kpis: any
@@ -21,6 +22,7 @@ interface AIInsightsCardProps {
 }
 
 export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIInsightsCardProps) {
+    const { t } = useTranslation('common')
     const [insights, setInsights] = useState<string[]>([])
     const [loading, setLoading] = useState(false)
     const [period, setPeriod] = useState("30") // default 30 days
@@ -69,13 +71,19 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
 
             const data = await response.json()
             setInsights(data.insights || [])
-            toast.success("Insights gerados com sucesso!")
+            toast.success(t("dashboard.ai.insights.toasts.success"))
         } catch (error) {
             console.error(error)
-            toast.error("Erro ao gerar insights. Tente novamente.")
+            toast.error(t("dashboard.ai.insights.toasts.error"))
         } finally {
             setLoading(false)
         }
+    }
+
+    // Helper to process insight string and remove bullets if present
+    const cleanInsight = (text: string) => {
+        // Remove leading bullets, numbers, hyphens
+        return text.replace(/^[\s\-\*•\d\.]+\s*/, '')
     }
 
     return (
@@ -92,19 +100,19 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             <Sparkles className="h-5 w-5 text-white" />
                         </div>
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-                            Insights Inteligentes (IA)
+                            {t("dashboard.ai.insights.title")}
                         </span>
                     </CardTitle>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <Select value={period} onValueChange={setPeriod}>
                             <SelectTrigger className="w-[160px] bg-white/50 dark:bg-zinc-800/50 h-10 border-indigo-200/50 dark:border-indigo-800/50 backdrop-blur-sm focus:ring-indigo-500/20 transition-all hover:bg-white/80 dark:hover:bg-zinc-800/80">
-                                <SelectValue placeholder="Selecione o período" />
+                                <SelectValue placeholder={t("dashboard.ai.insights.select_period")} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="1">Diário (24h)</SelectItem>
-                                <SelectItem value="7">Semanal (7 dias)</SelectItem>
-                                <SelectItem value="15">Quinzenal (15 dias)</SelectItem>
-                                <SelectItem value="30">Mensal (30 dias)</SelectItem>
+                                <SelectItem value="1">{t("dashboard.ai.insights.periods.daily")}</SelectItem>
+                                <SelectItem value="7">{t("dashboard.ai.insights.periods.weekly")}</SelectItem>
+                                <SelectItem value="15">{t("dashboard.ai.insights.periods.biweekly")}</SelectItem>
+                                <SelectItem value="30">{t("dashboard.ai.insights.periods.monthly")}</SelectItem>
                             </SelectContent>
                         </Select>
 
@@ -120,7 +128,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             ) : (
                                 <Lightbulb className="h-4 w-4" />
                             )}
-                            <span>{loading ? "Analisando..." : "Gerar Insights"}</span>
+                            <span>{loading ? t("dashboard.ai.insights.button.loading") : t("dashboard.ai.insights.button.idle")}</span>
                         </HoverButton>
                     </div>
                 </div>
@@ -135,9 +143,9 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p className="font-medium text-zinc-900 dark:text-zinc-100">Pronto para analisar?</p>
+                            <p className="font-medium text-zinc-900 dark:text-zinc-100">{t("dashboard.ai.insights.empty.title")}</p>
                             <p className="text-sm text-zinc-500 max-w-sm mx-auto">
-                                Selecione um período acima e deixe nossa IA encontrar padrões e oportunidades nos seus dados.
+                                {t("dashboard.ai.insights.empty.desc")}
                             </p>
                         </div>
                     </div>
@@ -145,10 +153,10 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="flex items-center justify-between px-1">
                             <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                                Resumo dos últimos {period} dias
+                                {t("dashboard.ai.insights.summary_title", { days: period })}
                             </p>
                             <span className="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-                                Gerado agora
+                                {t("dashboard.ai.insights.generated_now")}
                             </span>
                         </div>
                         <div className="grid gap-3">
@@ -160,11 +168,11 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                                 >
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                    <span className="text-2xl select-none filter drop-shadow-sm transform group-hover:scale-110 transition-transform duration-300">
-                                        {insight.substring(0, 2)}
-                                    </span>
-                                    <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1">
-                                        {insight.substring(2).trim()}
+                                    <div className="mt-0.5 p-1 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 shrink-0">
+                                        <Sparkles className="h-4 w-4" />
+                                    </div>
+                                    <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                                        {cleanInsight(insight)}
                                     </p>
                                 </div>
                             ))}

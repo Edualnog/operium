@@ -175,6 +175,37 @@
                 "subtitle": "Status atual do inventário"
             }
         },
+        "ai": {
+            "voice_summary": {
+                "button": "Resumo Diário",
+                "generating": "Gerando Resumo...",
+                "error": "Erro ao gerar resumo de voz"
+            },
+            "insights": {
+                "title": "Insights Inteligentes (IA)",
+                "select_period": "Selecione o período",
+                "periods": {
+                    "daily": "Diário (24h)",
+                    "weekly": "Semanal (7 dias)",
+                    "biweekly": "Quinzenal (15 dias)",
+                    "monthly": "Mensal (30 dias)"
+                },
+                "button": {
+                    "idle": "Gerar Insights",
+                    "loading": "Analisando..."
+                },
+                "empty": {
+                    "title": "Pronto para analisar?",
+                    "desc": "Selecione um período acima e deixe nossa IA encontrar padrões e oportunidades nos seus dados."
+                },
+                "summary_title": "Resumo dos últimos {{days}} dias",
+                "generated_now": "Gerado agora",
+                "toasts": {
+                    "success": "Insights gerados com sucesso!",
+                    "error": "Erro ao gerar insights. Tente novamente."
+                }
+            }
+        },
         "kpi": {
             "last_30_days": "Últimos 30 dias",
             "last_days": "Últimos {{days}} dias",
