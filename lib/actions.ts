@@ -160,7 +160,7 @@ export async function criarFerramenta(formData: FormData) {
 
     const estadoValue = formData.get("estado") as string
     const tipoItemValue = (formData.get("tipo_item") as string) || "ferramenta"
-    
+
     if (!estadoValue || !["ok", "danificada", "em_conserto"].includes(estadoValue)) {
       throw new Error("Estado inválido. Deve ser: ok, danificada ou em_conserto")
     }
@@ -251,18 +251,18 @@ export async function criarFerramenta(formData: FormData) {
 
     if (error1) {
       console.warn("Erro na primeira tentativa:", error1.message)
-      
+
       // Se erro for sobre coluna não encontrada, tentar sem campos opcionais
-      if (error1.message?.includes("codigo") || 
-          error1.message?.includes("column") || 
-          error1.message?.includes("schema cache") ||
-          error1.message?.includes("tipo_item") ||
-          error1.message?.includes("foto_url") ||
-          error1.message?.includes("tamanho") ||
-          error1.message?.includes("cor")) {
-        
+      if (error1.message?.includes("codigo") ||
+        error1.message?.includes("column") ||
+        error1.message?.includes("schema cache") ||
+        error1.message?.includes("tipo_item") ||
+        error1.message?.includes("foto_url") ||
+        error1.message?.includes("tamanho") ||
+        error1.message?.includes("cor")) {
+
         console.log("Tentando inserir apenas com campos básicos...")
-        
+
         // Versão básica sem campos opcionais
         const basicData: any = {
           profile_id: user.id,
@@ -272,12 +272,12 @@ export async function criarFerramenta(formData: FormData) {
           quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
           estado: data.estado,
         }
-        
+
         const { data: result2, error: error2 } = await supabase
           .from("ferramentas")
           .insert(basicData)
           .select()
-        
+
         if (error2) {
           console.error("Erro ao inserir (versão básica):", error2)
           insertError = error2
@@ -311,7 +311,7 @@ export async function criarFerramenta(formData: FormData) {
     }
 
     console.log("✅ Ferramenta inserida com sucesso! ID:", insertedData[0].id)
-    
+
     // Revalidar todas as páginas relacionadas
     revalidateAllPages()
   } catch (error: any) {
@@ -340,7 +340,7 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
 
     const estadoValue = formData.get("estado") as string
     const tipoItemValue = (formData.get("tipo_item") as string) || "ferramenta"
-    
+
     if (!estadoValue || !["ok", "danificada", "em_conserto"].includes(estadoValue)) {
       throw new Error("Estado inválido. Deve ser: ok, danificada ou em_conserto")
     }
@@ -383,13 +383,13 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
     }
     if (data.tamanho) updateData.tamanho = data.tamanho
     if (data.cor) updateData.cor = data.cor
-    
+
     const codigoFinal =
       data.codigo && data.codigo.trim().length > 0
         ? data.codigo
         : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
     if (codigoFinal) updateData.codigo = codigoFinal
-    
+
     // Adicionar ponto_ressuprimento se fornecido
     const pontoRessuprimento = formData.get("ponto_ressuprimento")
     if (pontoRessuprimento && pontoRessuprimento.toString().trim() !== "") {
@@ -419,15 +419,15 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
     if (error) {
       console.error("Erro ao atualizar ferramenta:", error)
       // Se erro for sobre coluna não encontrada, tentar sem campos opcionais
-      if (error.message?.includes("codigo") || 
-          error.message?.includes("column") || 
-          error.message?.includes("schema cache") ||
-          error.message?.includes("tipo_item") ||
-          error.message?.includes("foto_url") ||
-          error.message?.includes("tamanho") ||
-          error.message?.includes("cor")) {
+      if (error.message?.includes("codigo") ||
+        error.message?.includes("column") ||
+        error.message?.includes("schema cache") ||
+        error.message?.includes("tipo_item") ||
+        error.message?.includes("foto_url") ||
+        error.message?.includes("tamanho") ||
+        error.message?.includes("cor")) {
         console.warn("Alguns campos opcionais não encontrados, tentando atualizar apenas campos básicos...")
-        
+
         // Versão básica sem campos opcionais
         const basicUpdateData: any = {
           nome: data.nome,
@@ -535,9 +535,9 @@ export async function registrarEntrada(
     observacoes,
     data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
   }
-  
+
   console.log("📝 Registrando entrada:", movData)
-  
+
   const { data: movResult, error: movError } = await supabase
     .from("movimentacoes")
     .insert(movData)
@@ -547,7 +547,7 @@ export async function registrarEntrada(
     console.error("❌ Erro ao registrar movimentação:", movError)
     throw movError
   }
-  
+
   console.log("✅ Movimentação registrada:", movResult)
 
   revalidateAllPages()
@@ -612,9 +612,9 @@ export async function registrarRetirada(
       observacoes,
       data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
     }
-    
+
     console.log("📝 Registrando retirada:", movData)
-    
+
     const { data: movResult, error: movError } = await supabase
       .from("movimentacoes")
       .insert(movData)
@@ -624,7 +624,7 @@ export async function registrarRetirada(
       console.error("❌ Erro ao registrar movimentação:", movError)
       throw movError
     }
-    
+
     console.log("✅ Movimentação registrada:", movResult)
 
     revalidateAllPages()
@@ -686,9 +686,9 @@ export async function registrarDevolucao(
     observacoes,
     data: dataMovimentacao ? new Date(dataMovimentacao).toISOString() : undefined,
   }
-  
+
   console.log("📝 Registrando devolução:", movData)
-  
+
   const { data: movResult, error: movError } = await supabase
     .from("movimentacoes")
     .insert(movData)
@@ -698,7 +698,7 @@ export async function registrarDevolucao(
     console.error("❌ Erro ao registrar movimentação:", movError)
     throw movError
   }
-  
+
   console.log("✅ Movimentação registrada:", movResult)
 
   revalidateAllPages()
@@ -876,8 +876,14 @@ export async function registrarRetornoConserto(
   const quantidadeJaRetornada = (movRetornos || []).reduce((acc, m) => acc + (m.quantidade || 0), 0)
   const quantidadeRestante = Math.max(0, quantidadeEnviada - quantidadeJaRetornada)
 
+  // Se a quantidade solicitada for maior que a restante, verificamos se é um caso de ajuste (forçar retorno de 1)
   if (quantidade > quantidadeRestante) {
-    throw new Error(`Quantidade inválida. Ainda em conserto: ${quantidadeRestante}`)
+    // Se for para retornar 1 e o conserto ainda não foi concluído, permitimos (assumindo inconsistência de dados)
+    const isForceReturn = quantidade === 1 && conserto.status !== "concluido"
+
+    if (!isForceReturn) {
+      throw new Error(`Quantidade inválida. Ainda em conserto: ${quantidadeRestante}`)
+    }
   }
 
   const quantidadeTotalRetornada = quantidadeJaRetornada + quantidade
