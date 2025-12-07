@@ -132,9 +132,12 @@ export async function POST(req: NextRequest) {
         // Determinar o tipo de plano
         let planType = "mensal" // Default
         const priceId = subscription.items.data[0]?.price.id
-        if (priceId === "price_1SaFQ9GzXnyQEqRwYtTy0EUF") {
+
+        if (priceId === process.env.STRIPE_PRICE_YEARLY) {
           planType = "anual"
-        } else if (priceId === "price_1SaEi1GzXnyQEqRweQLZoPWp") {
+        } else if (priceId === process.env.STRIPE_PRICE_QUARTERLY) {
+          planType = "trimestral"
+        } else if (priceId === process.env.STRIPE_PRICE_MONTHLY) {
           planType = "mensal"
         }
 
