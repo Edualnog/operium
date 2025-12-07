@@ -715,6 +715,14 @@
                 "tool_label": "Tool: {{name}}",
                 "in_repair_count": "{{count}} unit(s) still in repair"
             },
+            "return_dialog": {
+                "title": "Update Status / Return",
+                "status_label": "New Status",
+                "cost": "Cost",
+                "quantity_returned": "Quantity Returned",
+                "quantity_max": "Max available: {{count}}",
+                "conclude_action": "Save Changes"
+            },
             "errors": {
                 "min_quantity": "The quantity must be at least 1",
                 "invalid_quantity": "Invalid quantity. Still in repair: {{count}}",

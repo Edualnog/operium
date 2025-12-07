@@ -707,6 +707,14 @@
                 "tool_label": "Ferramenta: {{name}}",
                 "in_repair_count": "{{count}} unidade(s) ainda em conserto"
             },
+            "return_dialog": {
+                "title": "Atualizar Status / Retorno",
+                "status_label": "Novo Status",
+                "cost": "Custo (R$)",
+                "quantity_returned": "Quantidade Retornada",
+                "quantity_max": "Máximo disponível: {{count}}",
+                "conclude_action": "Salvar Alterações"
+            },
             "errors": {
                 "min_quantity": "A quantidade deve ser pelo menos 1",
                 "invalid_quantity": "Quantidade inválida. Ainda em conserto: {{count}}",
