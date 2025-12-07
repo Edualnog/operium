@@ -216,61 +216,65 @@ function ConsertosList({
   }, [])
   const [quantidadeEmConserto, setQuantidadeEmConserto] = useState<number>(0)
 
-  useEffect(() => {
-    async function buscarQuantidadeEmConserto() {
-      if (!retornoDialog) return
+  const getQuantidadeRestante = useCallback(async (conserto: Conserto) => {
+    try {
+      const ferramenta = parseFerramenta(conserto.ferramentas)
+      const dataEnvioRef = conserto.data_envio || new Date().toISOString()
 
-      try {
-        const ferramenta = parseFerramenta(retornoDialog.ferramentas)
-        const dataEnvioRef = retornoDialog.data_envio || new Date().toISOString()
+      // Primeiro tenta achar a movimentação do envio com referência ao conserto na observação
+      const { data: movEnvioPorObs } = await supabase
+        .from("movimentacoes")
+        .select("quantidade, data")
+        .eq("ferramenta_id", ferramenta.id)
+        .eq("tipo", "conserto")
+        .ilike("observacoes", `%${conserto.id}%`)
+        .order("data", { ascending: true })
+        .limit(1)
 
-        // Primeiro tenta achar a movimentação do envio com referência ao conserto na observação
-        const { data: movEnvioPorObs } = await supabase
+      let movEnvio = movEnvioPorObs?.[0]
+
+      // Fallback: primeiro envio registrado depois da data do conserto
+      if (!movEnvio) {
+        const { data: movEnvioFallback } = await supabase
           .from("movimentacoes")
           .select("quantidade, data")
           .eq("ferramenta_id", ferramenta.id)
           .eq("tipo", "conserto")
-          .ilike("observacoes", `%${retornoDialog.id}%`)
+          .gte("data", dataEnvioRef)
           .order("data", { ascending: true })
           .limit(1)
+        movEnvio = movEnvioFallback?.[0]
+      }
 
-        let movEnvio = movEnvioPorObs?.[0]
+      const quantidadeEnviada = movEnvio?.quantidade || 1
 
-        // Fallback: primeiro envio registrado depois da data do conserto
-        if (!movEnvio) {
-          const { data: movEnvioFallback } = await supabase
-            .from("movimentacoes")
-            .select("quantidade, data")
-            .eq("ferramenta_id", ferramenta.id)
-            .eq("tipo", "conserto")
-            .gte("data", dataEnvioRef)
-            .order("data", { ascending: true })
-            .limit(1)
-          movEnvio = movEnvioFallback?.[0]
-        }
+      // Buscar movimentações de entrada (retorno) associadas a este conserto
+      const { data: movRetornos } = await supabase
+        .from("movimentacoes")
+        .select("quantidade")
+        .eq("ferramenta_id", ferramenta.id)
+        .eq("tipo", "entrada")
+        .ilike("observacoes", `%${conserto.id}%`)
 
-        const quantidadeEnviada = movEnvio?.quantidade || 1
+      const quantidadeJaRetornada = (movRetornos || []).reduce((acc: number, m: any) => acc + (m.quantidade || 0), 0)
+      const quantidadeAindaEmConserto = quantidadeEnviada - quantidadeJaRetornada
 
-        // Buscar movimentações de entrada (retorno) associadas a este conserto
-        const { data: movRetornos } = await supabase
-          .from("movimentacoes")
-          .select("quantidade")
-          .eq("ferramenta_id", ferramenta.id)
-          .eq("tipo", "entrada")
-          .ilike("observacoes", `%${retornoDialog.id}%`)
+      return Math.max(0, quantidadeAindaEmConserto)
+    } catch (err) {
+      console.error("Erro ao buscar quantidade em conserto:", err)
+      return 1
+    }
+  }, [supabase, parseFerramenta])
 
-        const quantidadeJaRetornada = (movRetornos || []).reduce((acc: number, m: any) => acc + (m.quantidade || 0), 0)
-        const quantidadeAindaEmConserto = quantidadeEnviada - quantidadeJaRetornada
-
-        setQuantidadeEmConserto(Math.max(0, quantidadeAindaEmConserto))
-      } catch (err) {
-        console.error("Erro ao buscar quantidade em conserto:", err)
-        setQuantidadeEmConserto(1)
+  useEffect(() => {
+    async function updateQuantidade() {
+      if (retornoDialog) {
+        const qtd = await getQuantidadeRestante(retornoDialog)
+        setQuantidadeEmConserto(qtd)
       }
     }
-
-    buscarQuantidadeEmConserto()
-  }, [retornoDialog, supabase, parseFerramenta])
+    updateQuantidade()
+  }, [retornoDialog, getQuantidadeRestante])
 
   const handleRetorno = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -302,6 +306,23 @@ function ConsertosList({
       toast.error(error.message || t("dashboard.consertos.errors.register_return"))
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleQuickReturn = async (conserto: Conserto) => {
+    try {
+      const qtd = await getQuantidadeRestante(conserto)
+      if (qtd <= 0) {
+        toast.error(t("dashboard.consertos.errors.invalid_quantity", { count: 0 }))
+        return
+      }
+
+      await registrarRetornoConserto(conserto.id, 0, qtd)
+      toast.success(t("dashboard.consertos.return.success"))
+      router.refresh()
+    } catch (error) {
+      console.error(error)
+      toast.error(t("dashboard.consertos.errors.register_return"))
     }
   }
 
@@ -916,7 +937,7 @@ function ConsertosList({
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>{t("dashboard.consertos.actions.actions")}</DropdownMenuLabel>
                           {conserto.status !== "concluido" ? (
-                            <DropdownMenuItem onClick={() => setRetornoDialog(conserto)}>
+                            <DropdownMenuItem onClick={() => handleQuickReturn(conserto)}>
                               <CheckCircle2 className="mr-2 h-4 w-4" />
                               {t("dashboard.consertos.actions.register_return")}
                             </DropdownMenuItem>

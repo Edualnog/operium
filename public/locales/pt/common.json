@@ -700,12 +700,13 @@
             "return": {
                 "title": "Registrar Retorno",
                 "desc": "Item retornando do conserto",
-                "quantity": "Quantidade retornando",
+                "quantity": "Quantidade a retornar",
                 "in_repair": "Em conserto",
                 "cost": "Custo do conserto (R$)",
                 "confirm": "Confirmar Retorno",
                 "tool_label": "Ferramenta: {{name}}",
-                "in_repair_count": "{{count}} unidade(s) ainda em conserto"
+                "in_repair_count": "{{count}} unidade(s) ainda em conserto",
+                "success": "Retorno registrado com sucesso!"
             },
             "return_dialog": {
                 "title": "Atualizar Status / Retorno",

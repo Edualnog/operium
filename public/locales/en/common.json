@@ -713,7 +713,8 @@
                 "cost": "Repair cost (R$)",
                 "confirm": "Confirm Return",
                 "tool_label": "Tool: {{name}}",
-                "in_repair_count": "{{count}} unit(s) still in repair"
+                "in_repair_count": "{{count}} unit(s) still in repair",
+                "success": "Return registered successfully!"
             },
             "return_dialog": {
                 "title": "Update Status / Return",
