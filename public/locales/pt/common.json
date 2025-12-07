@@ -642,7 +642,17 @@
             "open_repairs": "Consertos Abertos",
             "completed_repairs": "Consertos Concluídos",
             "no_repairs": "Nenhuma ordem de conserto",
+            "no_results": "Nenhum resultado encontrado",
+            "table": {
+                "status": "Status",
+                "product": "Produto",
+                "priority": "Prioridade",
+                "location": "Local",
+                "deadline": "Prazo",
+                "sent_at": "Enviado em"
+            },
             "status": {
+                "all": "Todos",
                 "waiting": "Aguardando",
                 "in_progress": "Em Andamento",
                 "completed": "Concluído"
@@ -662,6 +672,7 @@
                 "returned_at": "Retornou em"
             },
             "actions": {
+                "actions": "Ações",
                 "register_return": "Registrar Retorno",
                 "clear_filters": "Limpar Filtros",
                 "cancel": "Cancelar",
