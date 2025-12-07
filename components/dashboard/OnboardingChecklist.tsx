@@ -128,6 +128,8 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                         spread: 70,
                         origin: { y: 0.6 }
                     })
+                    // Mark as seen automatically so it doesn't show on next reload
+                    localStorage.setItem(`onboarding_seen_${userId}`, 'true')
                 }
 
             } catch (error) {
