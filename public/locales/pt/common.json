@@ -795,6 +795,7 @@
         },
         "ferramentas": {
             "title": "Estoque",
+            "subtitle": "Gerencie suas ferramentas e produtos",
             "description": "Gerencie suas ferramentas e produtos",
             "new_button": "Novo Produto",
             "import_button": "Importar Excel",

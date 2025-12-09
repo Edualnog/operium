@@ -891,10 +891,10 @@ function ColaboradoresList({
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>
-                {editing ? t("dashboard.colaboradores.form.edit_title") : t("dashboard.colaboradores.form.create_title")}
+                {editing ? t("dashboard.colaboradores.form.title_edit") : t("dashboard.colaboradores.form.title_new")}
               </DialogTitle>
               <DialogDescription>
-                {t("dashboard.colaboradores.form.description")}
+                {editing ? t("dashboard.colaboradores.form.desc_edit") : t("dashboard.colaboradores.form.desc_new")}
               </DialogDescription>
             </DialogHeader>
 
