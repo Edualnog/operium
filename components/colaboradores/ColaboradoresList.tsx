@@ -82,7 +82,7 @@ import {
 import { useSidebar } from "@/components/ui/sidebar"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
-import { VoiceCommandButton } from "../ferramentas/VoiceCommandButton"
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -149,35 +149,7 @@ function ColaboradoresList({
   const [colaboradoresSimilares, setColaboradoresSimilares] = useState<Colaborador[]>([])
   const [confirmarDuplicata, setConfirmarDuplicata] = useState(false)
 
-  // Estado para dados preenchidos por voz
-  const [voiceData, setVoiceData] = useState<any>(null)
 
-  const handleVoiceCommand = (data: any) => {
-    const { intent } = data
-    if (!intent) return
-
-    if (intent.action === "create") {
-      const formatName = (name: string) => {
-        return name
-          .toLowerCase()
-          .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase())
-      }
-
-      const formattedName = intent.nome ? formatName(intent.nome) : ""
-
-      if (formattedName) {
-        setNomeDigitado(formattedName)
-      }
-      setVoiceData({
-        nome: formattedName,
-        cargo: intent.cargo ? formatName(intent.cargo) : "",
-        email: intent.email,
-        telefone: intent.telefone
-      })
-      setOpen(true)
-      toast.success("Formulário preenchido por voz!")
-    }
-  }
 
   const router = useRouter()
   const supabase = createClientComponentClient()
@@ -653,16 +625,6 @@ function ColaboradoresList({
   return (
     <div className="space-y-4">
       {/* Top Toolbar */}
-      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm mb-6">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t("ai.title")}</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("ai.description_collaborator")}</p>
-        </div>
-        <VoiceCommandButton
-          onCommandReceived={handleVoiceCommand}
-          context="colaborador"
-        />
-      </div>
 
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
@@ -950,7 +912,7 @@ function ColaboradoresList({
                     <Input
                       id="nome"
                       name="nome"
-                      defaultValue={editing?.nome || voiceData?.nome || ""}
+                      defaultValue={editing?.nome || ""}
                       value={nomeDigitado}
                       onChange={(e) => setNomeDigitado(e.target.value)}
                       required
@@ -961,7 +923,7 @@ function ColaboradoresList({
                     <Input
                       id="cargo"
                       name="cargo"
-                      defaultValue={editing?.cargo || voiceData?.cargo || ""}
+                      defaultValue={editing?.cargo || ""}
                     />
                   </div>
                 </div>

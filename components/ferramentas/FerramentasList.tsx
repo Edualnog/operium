@@ -94,8 +94,7 @@ import {
 } from "lucide-react"
 
 import QRCode from 'qrcode'
-import { VoiceCommandButton } from "./VoiceCommandButton"
-import { ProductLabel } from "./ProductLabel"
+
 
 interface Ferramenta {
   id: string
@@ -176,32 +175,7 @@ function FerramentasList({
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
   const [exportingCsv, setExportingCsv] = useState(false)
 
-  // Estado para dados preenchidos por voz
-  const [voiceData, setVoiceData] = useState<any>(null)
 
-  const handleVoiceCommand = (data: any) => {
-    const { intent } = data
-    if (!intent) return
-
-    if (intent.action === "create") {
-      // Função para formatar texto (Primeira letra maiúscula em cada palavra)
-      const formatName = (text: string) => {
-        return text
-          .toLowerCase()
-          .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase())
-      }
-
-      setVoiceData({
-        nome: intent.nome ? formatName(intent.nome) : "",
-        categoria: intent.categoria ? formatName(intent.categoria) : "",
-        quantidade_total: intent.quantidade || 0,
-        tipo_item: intent.tipo || "ferramenta"
-      })
-      if (intent.tipo) setTipoItem(intent.tipo)
-      setOpen(true)
-      toast.success("Formulário preenchido por voz!")
-    }
-  }
   const supabase = createClientComponentClient()
   const { toast } = useToast()
   const [userId, setUserId] = useState<string>("")
@@ -873,16 +847,8 @@ function FerramentasList({
   }
 
   return (
-    <div className="space-y-4">
-      {/* Voice Assistant Section */}
-      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t("ai.title")}</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("ai.description_product")}</p>
-        </div>
-        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="ferramenta" />
-      </div>
 
+    <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
@@ -922,7 +888,7 @@ function FerramentasList({
                       <Input
                         id="nome"
                         name="nome"
-                        defaultValue={editing?.nome || voiceData?.nome || ""}
+                        defaultValue={editing?.nome || ""}
                         onBlur={(e) =>
                           setProductCode(
                             gerarCodigoLocal(
@@ -974,7 +940,7 @@ function FerramentasList({
                             id="categoria"
                             name="categoria"
                             placeholder={t("dashboard.ferramentas.form.line_placeholder")}
-                            defaultValue={editing?.categoria || voiceData?.categoria || ""}
+                            defaultValue={editing?.categoria || ""}
                           />
                           <Button
                             type="button"
@@ -1065,7 +1031,7 @@ function FerramentasList({
                           name="quantidade_total"
                           type="number"
                           min="0"
-                          defaultValue={editing?.quantidade_total || voiceData?.quantidade_total || 0}
+                          defaultValue={editing?.quantidade_total || 0}
                           required
                         />
                       </div>
