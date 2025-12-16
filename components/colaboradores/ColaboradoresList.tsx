@@ -935,7 +935,7 @@ function ColaboradoresList({
                       id="email"
                       name="email"
                       type="email"
-                      defaultValue={editing?.email || voiceData?.email || ""}
+                      defaultValue={editing?.email || ""}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -943,7 +943,7 @@ function ColaboradoresList({
                     <Input
                       id="telefone"
                       name="telefone"
-                      defaultValue={editing?.telefone || voiceData?.telefone || ""}
+                      defaultValue={editing?.telefone || ""}
                     />
                   </div>
                 </div>
