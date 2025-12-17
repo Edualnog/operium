@@ -533,6 +533,7 @@
         "movimentacoes": {
             "title": "Movimentações",
             "subtitle": "Registre entradas, saídas e devoluções de produtos",
+            "fast_mode": "Modo Rápido",
             "new_button": "Nova Movimentação",
             "import_button": "Importar Excel",
             "export_button": "Exportar CSV",

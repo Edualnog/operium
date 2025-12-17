@@ -548,6 +548,7 @@
         "movimentacoes": {
             "title": "Movements",
             "subtitle": "Register entries, withdrawals and returns of products",
+            "fast_mode": "Fast Mode",
             "new_button": "New Movement",
             "import_button": "Import Excel",
             "export_button": "Export CSV",

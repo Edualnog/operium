@@ -846,7 +846,7 @@ export default function MovimentacoesList({
               className="gap-2 bg-[#37352f] hover:bg-[#37352f]/90 text-white flex-1 sm:flex-none"
             >
               <Zap size={16} className="fill-yellow-400 text-yellow-400" />
-              Modo Rápido
+              {t("dashboard.movimentacoes.fast_mode")}
             </Button>
 
             <Dialog open={open} onOpenChange={setOpen}>
