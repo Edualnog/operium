@@ -93,5 +93,3 @@ export async function trackEvent(
         console.error('SILENT_EVENT_ERROR:', error)
     }
 }
-
-```
