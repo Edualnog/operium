@@ -147,15 +147,15 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
         setIsVisible(false)
     }
 
-    // Se estiver carregando, mostra skeleton ou nada? Vamos mostrar skeleton básico.
+    // Se estiver carregando, mostra skeleton
     if (loading) {
         return (
-            <Card className="mb-8 border-blue-100 bg-gradient-to-r from-blue-50 to-white">
+            <Card className="mb-8 border-zinc-100 bg-white shadow-sm">
                 <CardContent className="p-6">
-                    <div className="h-6 w-48 bg-blue-100 rounded animate-pulse mb-4" />
-                    <div className="space-y-3">
+                    <div className="h-6 w-48 bg-zinc-100 rounded animate-pulse mb-6" />
+                    <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-12 w-full bg-white rounded-lg animate-pulse" />
+                            <div key={i} className="h-16 w-full bg-zinc-50 rounded-lg animate-pulse" />
                         ))}
                     </div>
                 </CardContent>
@@ -163,35 +163,31 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
         )
     }
 
-    // Se completou tudo, mostra card de sucesso compactado ou some?
-    // Requisito: "Feedback positivo quando completar".
+    // Se completou tudo
     if (completedAll) {
         if (!isVisible) return null
 
         return (
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="mb-8"
             >
-                <Card className="border-green-200 bg-gradient-to-r from-green-50 to-white overflow-hidden relative">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <PartyPopper className="w-32 h-32 text-green-600" />
-                    </div>
+                <Card className="border-zinc-200 bg-zinc-50/50 overflow-hidden relative shadow-sm">
                     <CardContent className="p-6 flex items-center justify-between relative z-10">
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                        <div className="flex items-center gap-5">
+                            <div className="h-12 w-12 rounded-xl bg-zinc-900 flex items-center justify-center text-white shadow-md">
                                 <CheckCircle2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-green-900 text-lg">{t('onboarding.success.title')}</h3>
-                                <p className="text-green-700">{t('onboarding.success.desc')}</p>
+                                <h3 className="font-serif font-medium text-zinc-900 text-xl">{t('onboarding.success.title')}</h3>
+                                <p className="text-zinc-500 mt-1 text-sm">{t('onboarding.success.desc')}</p>
                             </div>
                         </div>
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="text-green-700 hover:text-green-800 hover:bg-green-100"
+                            className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                             onClick={handleClose}
                         >
                             {t('common.close')}
@@ -207,75 +203,77 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
 
     return (
 
-        <Card className="mb-8 border-blue-200 bg-white shadow-sm overflow-hidden dark:bg-zinc-900 dark:border-zinc-800">
-            <CardHeader className="pb-3 border-b border-blue-50 bg-blue-50/30 dark:border-zinc-800 dark:bg-zinc-900/50">
+        <Card className="mb-8 border-zinc-200 bg-white shadow-sm overflow-hidden rounded-xl">
+            <CardHeader className="pb-6 pt-6 border-b border-zinc-100 bg-white">
                 <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 text-center sm:text-left">
                     <div>
-                        <CardTitle className="text-lg font-semibold text-blue-950 flex items-center justify-center sm:justify-start gap-2 dark:text-blue-100">
+                        <CardTitle className="text-2xl font-serif font-medium text-zinc-900 flex items-center justify-center sm:justify-start gap-3">
                             🚀 {t('onboarding.title')}
                         </CardTitle>
-                        <p className="text-sm text-blue-600/80 mt-1 dark:text-blue-300">
+                        <p className="text-sm text-zinc-500 mt-2 font-light">
                             {t('onboarding.subtitle')}
                         </p>
                     </div>
-                    <div className="text-center sm:text-right w-full sm:w-auto bg-white/50 sm:bg-transparent p-2 rounded-lg sm:p-0 dark:bg-zinc-800/50 sm:dark:bg-transparent">
-                        <div className="flex items-center justify-center sm:justify-end gap-2 sm:block">
-                            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{Math.round(progress)}%</span>
-                            <span className="text-xs text-blue-400 font-medium uppercase tracking-wider sm:block ml-2 sm:ml-0 dark:text-blue-500">{t('onboarding.completed')}</span>
+                    <div className="text-center sm:text-right w-full sm:w-auto">
+                        <div className="flex items-center justify-center sm:justify-end gap-3 sm:block">
+                            <span className="text-3xl font-serif font-medium text-zinc-900">{Math.round(progress)}%</span>
+                            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest sm:block ml-2 sm:ml-0 mt-1">{t('onboarding.completed')}</span>
                         </div>
                     </div>
                 </div>
                 {/* Progress Bar */}
-                <div className="h-2 w-full bg-blue-100 rounded-full mt-4 overflow-hidden dark:bg-blue-900/30">
+                <div className="h-1.5 w-full bg-zinc-100 rounded-full mt-6 overflow-hidden">
                     <motion.div
-                        className="h-full bg-blue-600 rounded-full dark:bg-blue-500"
+                        className="h-full bg-zinc-900 rounded-full"
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     />
                 </div>
-                <p className="text-xs text-blue-400 text-center mt-2 font-medium dark:text-blue-500">
-                    {t('onboarding.progress_text')}
-                </p>
+                {progress < 100 && (
+                    <p className="text-[10px] text-zinc-400 text-center mt-3 font-medium uppercase tracking-wider">
+                        {t('onboarding.progress_text')}
+                    </p>
+                )}
             </CardHeader>
             <CardContent className="p-0">
-                <div className="divide-y divide-blue-50 dark:divide-zinc-800">
+                <div className="divide-y divide-zinc-100">
                     {steps.map((step) => (
                         <div
                             key={step.id}
-                            className={`p-4 flex flex-col sm:flex-row items-center sm:items-start gap-4 transition-colors text-center sm:text-left ${step.completed ? "bg-blue-50/10 dark:bg-blue-900/10" : "hover:bg-slate-50 dark:hover:bg-zinc-800/50"
+                            className={`p-5 flex flex-col sm:flex-row items-center sm:items-start gap-5 transition-colors text-center sm:text-left ${step.completed ? "bg-zinc-50/50" : "hover:bg-zinc-50/30"
                                 }`}
                         >
                             {/* Icon Status */}
-                            <div className="shrink-0">
+                            <div className="shrink-0 pt-1">
                                 {step.completed ? (
-                                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 dark:bg-green-900/20 dark:text-green-400">
+                                    <div className="h-10 w-10 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-400">
                                         <CheckCircle2 className="w-5 h-5" />
                                     </div>
                                 ) : (
-                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-400 dark:bg-blue-900/20 dark:text-blue-400">
-                                        <Circle className="w-5 h-5" />
+                                    <div className="h-10 w-10 rounded-lg bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-900 shadow-sm">
+                                        <step.icon className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                 )}
                             </div>
 
                             {/* Content */}
                             <div className="flex-1 min-w-0 w-full">
-                                <h4 className={`font-medium ${step.completed ? "text-slate-500 line-through decoration-slate-300 dark:text-zinc-500 dark:decoration-zinc-600" : "text-slate-900 dark:text-zinc-100"}`}>
+                                <h4 className={`font-medium text-base ${step.completed ? "text-zinc-400 line-through decoration-zinc-300" : "text-zinc-900"}`}>
                                     {step.label}
                                 </h4>
-                                <p className="text-sm text-slate-500 whitespace-normal sm:truncate dark:text-zinc-400">{step.description}</p>
+                                <p className={`text-sm mt-1 whitespace-normal sm:truncate ${step.completed ? "text-zinc-300" : "text-zinc-500"}`}>{step.description}</p>
                             </div>
 
                             {/* Action */}
                             <div className="shrink-0 w-full sm:w-auto">
                                 {step.completed ? (
-                                    <span className="flex items-center justify-center text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100 mx-auto sm:mx-0 w-fit dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+                                    <span className="flex items-center justify-center text-xs font-medium text-zinc-400 bg-zinc-100 px-3 py-1.5 rounded-md border border-zinc-200 mx-auto sm:mx-0 w-fit">
                                         {t('common.done')}
                                     </span>
                                 ) : (
-                                    <Button asChild size="sm" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200 dark:bg-blue-600 dark:hover:bg-blue-500 dark:shadow-none">
-                                        <Link href={step.actionUrl} className="flex items-center justify-center gap-1.5">
+                                    <Button asChild size="sm" className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white shadow-md shadow-zinc-200 font-medium px-5">
+                                        <Link href={step.actionUrl} className="flex items-center justify-center gap-2">
                                             {step.actionLabel} <ArrowRight className="w-3.5 h-3.5" />
                                         </Link>
                                     </Button>
