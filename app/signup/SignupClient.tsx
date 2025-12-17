@@ -12,9 +12,8 @@ import { useTranslation } from "react-i18next"
 
 function BackgroundDecoration() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full bg-blue-100/30 blur-3xl" />
-      <div className="absolute top-[40%] -right-[10%] w-[60%] h-[60%] rounded-full bg-indigo-100/30 blur-3xl" />
+    <div className="absolute inset-0 overflow-hidden pointer-events-none bg-zinc-50">
+      <div className="absolute inset-0 opacity-[0.4]" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
     </div>
   )
 }
@@ -80,12 +79,11 @@ function SignupForm() {
       }
 
       if (data.user) {
-        // Se houver sessão (login automático ou dev), cria o perfil
         if (data.session) {
           await supabase.from("profiles").upsert({
             id: data.user.id,
             name: name || data.user.email?.split("@")[0] || "Usuário",
-            company_name: "Minha Empresa", // Placeholder
+            company_name: "Minha Empresa",
             cnpj: null,
             company_email: email,
             phone: null,
@@ -93,16 +91,9 @@ function SignupForm() {
             subscription_status: 'trialing',
           })
 
-          if (redirectTo === "checkout") {
-            // IGNORAR checkout no cadastro - forçar fluxo de trial
-            router.push("/dashboard/setup")
-          } else {
-            router.push("/dashboard/setup")
-          }
+          router.push("/dashboard/setup")
         } else {
-          // Sem sessão: email de confirmação enviado
           setInfo(t('auth.success.account_created'))
-          // Limpar formulário
           setName("")
           setEmail("")
           setPassword("")
@@ -121,168 +112,164 @@ function SignupForm() {
   }
 
   return (
-    <div className="bg-gradient-to-b from-slate-50 to-white text-slate-800 selection:bg-blue-200 min-h-screen relative overflow-hidden flex flex-col">
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center font-sans text-zinc-900 bg-zinc-50">
       <BackgroundDecoration />
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="p-1.5 rounded-xl bg-[#4B6BFB] shadow-lg shadow-blue-500/25">
-                <svg className="h-7 w-7" viewBox="0 0 500 500" fill="none">
-                  <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="font-bold text-xl tracking-tight">Almox Fácil</span>
-            </Link>
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {t('auth.back')}
-            </Link>
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-[440px] p-8 sm:p-10 bg-white rounded-xl shadow-xl shadow-zinc-200/50 border border-zinc-200/60"
+      >
+        <div className="flex justify-center mb-8">
+          <div className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center shadow-md">
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
           </div>
-        </nav>
-      </header>
+        </div>
 
-      <div className="flex-1 flex items-center justify-center pt-20 sm:pt-24 pb-8 sm:pb-12 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative z-10 w-full max-w-xl p-5 sm:p-8 bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50"
-        >
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-900">
-              {t('auth.signup.title')}
-            </h1>
-            <p className="mt-2 text-slate-600 dark:text-slate-600">
-              {t('auth.signup.subtitle')}
-            </p>
-            <p className="mt-1 text-sm text-slate-500">
-              {t('auth.signup.has_account')}{" "}
-              <Link href={`/login${redirectTo ? `?redirect=${redirectTo}` : ""}`} className="text-blue-600 hover:underline font-medium">
-                {t('auth.signup.login_here')}
-              </Link>
-            </p>
-          </div>
-
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700 flex items-start gap-2">
-              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-          {info && (
-            <div className="mb-4 rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700 flex items-start gap-2">
-              <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5" />
-              <span>{info}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                {t('auth.fields.name')}
-              </label>
-              <input
-                id="name"
-                type="text"
-                placeholder={t('auth.placeholders.name')}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                disabled={loading}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 dark:bg-white dark:text-slate-800 dark:border-slate-300 dark:placeholder-slate-400"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                {t('auth.fields.email')}
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder={t('auth.placeholders.email')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 dark:bg-white dark:text-slate-800 dark:border-slate-300 dark:placeholder-slate-400"
-              />
-            </div>
-
-            <div className="mb-5 sm:mb-6">
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-700">
-                {t('auth.fields.password')}
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder={t('auth.placeholders.password_min')}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                  minLength={6}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 sm:py-2.5 pr-12 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 dark:bg-white dark:text-slate-800 dark:border-slate-300 dark:placeholder-slate-400"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-5 sm:mb-6 flex justify-center min-h-[65px]">
-              {mounted && (
-                <Turnstile
-                  ref={captchaRef}
-                  siteKey={turnstileSiteKey}
-                  onSuccess={(token) => setCaptchaToken(token)}
-                  onError={() => {
-                    setError("Erro na verificação de segurança. Tente novamente.")
-                    setCaptchaToken(null)
-                  }}
-                  onExpire={() => setCaptchaToken(null)}
-                  options={{
-                    theme: "light",
-                    language: "pt-BR",
-                  }}
-                />
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || !captchaToken}
-              className="w-full rounded-xl bg-[#4B6BFB] px-4 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-600 hover:shadow-blue-600/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? t('auth.signup.submitting') : t('auth.signup.submit')}
-            </button>
-          </form>
-
-          <p className="mt-6 text-center text-xs text-slate-500">
-            {t('auth.signup.terms_agreement')}{" "}
-            <Link href="/terms" className="text-blue-600 hover:underline">
-              {t('auth.signup.terms')}
-            </Link>{" "}
-            e{" "}
-            <Link href="/privacy" className="text-blue-600 hover:underline">
-              {t('auth.signup.privacy')}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-serif font-medium text-zinc-900 tracking-tight">
+            {t('auth.signup.title')}
+          </h1>
+          <p className="mt-3 text-zinc-500 text-sm">
+            {t('auth.signup.has_account')}{" "}
+            <Link href={`/login${redirectTo ? `?redirect=${redirectTo}` : ""}`} className="text-zinc-900 underline underline-offset-4 decoration-zinc-300 hover:decoration-zinc-900 hover:text-black transition-all font-medium">
+              {t('auth.signup.login_here')}
             </Link>
           </p>
-        </motion.div>
+        </div>
+
+        {error && (
+          <div className="mb-6 rounded-md bg-red-50/50 border border-red-100 p-3 text-xs text-red-600 flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
+        {info && (
+          <div className="mb-6 rounded-md bg-green-50/50 border border-green-100 p-3 text-xs text-green-700 flex items-start gap-2">
+            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>{info}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-2">
+              {t('auth.fields.name')}
+            </label>
+            <input
+              id="name"
+              type="text"
+              placeholder={t('auth.placeholders.name')}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-2.5 text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 transition-all shadow-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-2">
+              {t('auth.fields.email')}
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder={t('auth.placeholders.email')}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-2.5 text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 transition-all shadow-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-2">
+              {t('auth.fields.password')}
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder={t('auth.placeholders.password_min')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                minLength={6}
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-2.5 pr-10 text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 transition-all shadow-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-600 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-center pt-2">
+            {mounted && (
+              <Turnstile
+                ref={captchaRef}
+                siteKey={turnstileSiteKey}
+                onSuccess={(token) => setCaptchaToken(token)}
+                onError={() => {
+                  setError("Erro na verificação de segurança. Tente novamente.")
+                  setCaptchaToken(null)
+                }}
+                onExpire={() => setCaptchaToken(null)}
+                options={{
+                  theme: "light",
+                  language: "pt-BR",
+                  size: "flexible"
+                }}
+              />
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !captchaToken}
+            className="w-full rounded-lg bg-zinc-900 text-white font-medium py-3 px-4 shadow-lg shadow-zinc-300 hover:bg-zinc-800 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:pointer-events-none"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {t('auth.signup.submitting')}
+              </span>
+            ) : (
+              t('auth.signup.submit')
+            )}
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-xs text-zinc-400 leading-relaxed">
+          {t('auth.signup.terms_agreement')}{" "}
+          <Link href="/terms" className="text-zinc-600 hover:text-zinc-900 underline underline-offset-2">
+            {t('auth.signup.terms')}
+          </Link>{" "}
+          e{" "}
+          <Link href="/privacy" className="text-zinc-600 hover:text-zinc-900 underline underline-offset-2">
+            {t('auth.signup.privacy')}
+          </Link>
+        </p>
+      </motion.div>
+
+      <div className="relative z-10 mt-8">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors text-sm"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t('auth.back')}
+        </Link>
       </div>
     </div>
   )
@@ -290,7 +277,7 @@ function SignupForm() {
 
 export default function SignupClient() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-zinc-50"><div className="w-8 h-8 border-2 border-zinc-200 border-t-zinc-900 rounded-full animate-spin"></div></div>}>
       <SignupForm />
     </Suspense>
   )
