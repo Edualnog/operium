@@ -61,7 +61,7 @@ export default function OfflinePage() {
         {/* Info do App */}
         <div className="pt-6 border-t border-zinc-200">
           <p className="text-xs text-zinc-400">
-            Almox Fácil • Gestão de Almoxarifado
+            Operium • Gestão de Almoxarifado
           </p>
           <p className="text-xs text-zinc-400 mt-1">
             As páginas visitadas anteriormente podem estar disponíveis no cache

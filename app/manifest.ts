@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Almox Fácil',
-    short_name: 'Almox Fácil',
+    name: 'Operium',
+    short_name: 'Operium',
     description: 'Gestão de Almoxarifado Simples e Poderosa',
     start_url: '/dashboard',
     display: 'standalone',

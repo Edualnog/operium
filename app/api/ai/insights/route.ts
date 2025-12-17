@@ -15,7 +15,7 @@ export async function POST(req: Request) {
         }
 
         const prompt = `
-      Você é um assistente inteligente de gestão de estoque para um sistema chamado "Almox Fácil".
+      Você é um assistente inteligente de gestão de estoque para um sistema chamado "Operium".
       Analise os seguintes dados do dashboard referentes aos últimos ${period || 30} dias e forneça 3 insights curtos e acionáveis (máximo 2 frases cada) para o gestor.
       Foque em eficiência, redução de custos e prevenção de falhas.
       Use emojis no início de cada insight.

@@ -1,1145 +1,1152 @@
-{
-    "auth": {
-        "back": "Back",
-        "fields": {
-            "email": "Email",
-            "password": "Password",
-            "name": "Full Name"
-        },
-        "placeholders": {
-            "email": "your@email.com",
-            "password": "Your password",
-            "name": "Your name",
-            "password_min": "Minimum 6 characters"
-        },
-        "login": {
-            "title": "Welcome Back",
-            "no_account": "Don't have an account?",
-            "create_now": "Create now",
-            "forgot_password": "Forgot password?",
-            "submit": "Login",
-            "submitting": "Logging in...",
-            "welcome_back": "Welcome Back"
-        },
-        "signup": {
-            "title": "Create your free account",
-            "subtitle": "Start organizing your warehouse in seconds.",
-            "has_account": "Already have an account?",
-            "login_here": "Login here",
-            "submit": "Create Free Account",
-            "submitting": "Creating account...",
-            "terms_agreement": "By creating your account, you agree to our",
-            "terms": "Terms and Conditions",
-            "privacy": "Privacy Policy"
-        },
-        "errors": {
-            "captcha_required": "Please complete the security verification.",
-            "invalid_credentials": "Incorrect email or password.",
-            "email_not_confirmed": "Email not confirmed. Check your inbox.",
-            "generic_login": "An error occurred while logging in. Try again.",
-            "email_required_reset": "Enter your email to recover password.",
-            "generic_signup": "An error occurred while creating the account. Try again."
-        },
-        "success": {
-            "reset_email_sent": "Recovery email sent! Check your inbox.",
-            "account_created": "Account created successfully! Check your email to confirm registration."
-        }
+"metadata": {
+    "title": "Operium - Simple and Powerful Warehouse Management",
+    "description": "Control your stock, tools, employees and movements in a complete platform. 7 days free to test!"
+},
+"auth": {
+    "login": {
+        "title": "Welcome Back",
+        "subtitle": "Sign in to your Operium account"
+    }
+},
+"fields": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name"
+},
+"placeholders": {
+    "email": "your@email.com",
+    "password": "Your password",
+    "name": "Your name",
+    "password_min": "Minimum 6 characters"
+},
+"login": {
+    "title": "Welcome Back",
+    "no_account": "Don't have an account?",
+    "create_now": "Create now",
+    "forgot_password": "Forgot password?",
+    "submit": "Login",
+    "submitting": "Logging in...",
+    "welcome_back": "Welcome Back"
+},
+"signup": {
+    "title": "Create your free account",
+    "subtitle": "Start organizing your warehouse in seconds.",
+    "has_account": "Already have an account?",
+    "login_here": "Login here",
+    "submit": "Create Free Account",
+    "submitting": "Creating account...",
+    "terms_agreement": "By creating your account, you agree to our",
+    "terms": "Terms and Conditions",
+    "privacy": "Privacy Policy"
+},
+"errors": {
+    "captcha_required": "Please complete the security verification.",
+    "invalid_credentials": "Incorrect email or password.",
+    "email_not_confirmed": "Email not confirmed. Check your inbox.",
+    "generic_login": "An error occurred while logging in. Try again.",
+    "email_required_reset": "Enter your email to recover password.",
+    "generic_signup": "An error occurred while creating the account. Try again."
+},
+"success": {
+    "reset_email_sent": "Recovery email sent! Check your inbox.",
+    "account_created": "Account created successfully! Check your email to confirm registration."
+}
+},
+"ai": {
+"title": "AI Voice Assistant",
+"description_collaborator": "Speak to register collaborators quickly",
+"description_product": "Speak to register products quickly",
+"description_movement": "Speak to register movements quickly",
+"listening": "Listening...",
+"click_to_speak": "Click to speak"
+},
+"common": {
+"loading": "Loading...",
+"error": "An error occurred",
+"no_data": "No data available",
+"loading_data": "Loading data...",
+"no_items_found": "No items found",
+"showing_items": "Showing {{count}} of {{total}} items",
+"view_more": "View more",
+"error_loading_kpis": "Error loading KPIs",
+"close": "Close",
+"done": "Done",
+"days": "days",
+"uncategorized": "Uncategorized",
+"no_collaborator": "No collaborator",
+"success": "Success",
+"save": "Save",
+"cancel": "Cancel",
+"delete": "Delete",
+"edit": "Edit",
+"actions": "Actions",
+"search": "Search...",
+"confirm_delete": "Are you sure you want to delete?",
+"yes": "Yes",
+"no": "No"
+},
+"onboarding": {
+"title": "Getting Started",
+"subtitle": "Complete setup to unlock full potential",
+"completed": "Completed",
+"progress_text": "We are building your environment with you",
+"steps": {
+    "company": {
+        "label": "Create your company",
+        "desc": "Customize the system for your business",
+        "action": "Settings"
     },
-    "ai": {
-        "title": "AI Voice Assistant",
-        "description_collaborator": "Speak to register collaborators quickly",
-        "description_product": "Speak to register products quickly",
-        "description_movement": "Speak to register movements quickly",
-        "listening": "Listening...",
-        "click_to_speak": "Click to speak"
+    "products": {
+        "label": "Add products",
+        "desc": "Register your first items in stock",
+        "action": "Add"
     },
-    "common": {
-        "loading": "Loading...",
-        "error": "An error occurred",
-        "no_data": "No data available",
-        "loading_data": "Loading data...",
-        "no_items_found": "No items found",
-        "showing_items": "Showing {{count}} of {{total}} items",
-        "view_more": "View more",
-        "error_loading_kpis": "Error loading KPIs",
-        "close": "Close",
-        "done": "Done",
-        "days": "days",
-        "uncategorized": "Uncategorized",
-        "no_collaborator": "No collaborator",
-        "success": "Success",
-        "save": "Save",
-        "cancel": "Cancel",
-        "delete": "Delete",
-        "edit": "Edit",
-        "actions": "Actions",
-        "search": "Search...",
-        "confirm_delete": "Are you sure you want to delete?",
-        "yes": "Yes",
-        "no": "No"
+    "transaction": {
+        "label": "Register transaction",
+        "desc": "Make your first entry or exit movement",
+        "action": "Move"
     },
-    "onboarding": {
-        "title": "Getting Started",
-        "subtitle": "Complete setup to unlock full potential",
-        "completed": "Completed",
-        "progress_text": "We are building your environment with you",
-        "steps": {
-            "company": {
-                "label": "Create your company",
-                "desc": "Customize the system for your business",
-                "action": "Settings"
-            },
-            "products": {
-                "label": "Add products",
-                "desc": "Register your first items in stock",
-                "action": "Add"
-            },
-            "transaction": {
-                "label": "Register transaction",
-                "desc": "Make your first entry or exit movement",
-                "action": "Move"
-            },
-            "employees": {
-                "label": "Register Collaborators",
-                "desc": "Register your team to control withdrawals",
-                "action": "Register"
-            }
-        },
-        "success": {
-            "title": "Congratulations! Your system is ready.",
-            "desc": "Add more products or register transactions whenever you need."
-        }
+    "employees": {
+        "label": "Register Collaborators",
+        "desc": "Register your team to control withdrawals",
+        "action": "Register"
+    }
+},
+"success": {
+    "title": "Congratulations! Your system is ready.",
+    "desc": "Add more products or register transactions whenever you need."
+}
+},
+"dashboard": {
+"title": "Dashboard",
+"overview": "Overview",
+"inventory": "Inventory",
+"settings": "Settings",
+"profile": "Profile",
+"logout": "Logout",
+"header": {
+    "title": "Industrial Dashboard",
+    "subtitle": "Complete overview of your warehouse in real time"
+},
+"sidebar": {
+    "dashboard": "Dashboard",
+    "movements": "Movements",
+    "collaborators": "Collaborators",
+    "stock": "Stock",
+    "repairs": "Repairs",
+    "inventory": "Inventory",
+    "account": "Account",
+    "logout": "Logout"
+},
+"charts": {
+    "movements": {
+        "title": "Movements",
+        "subtitle": "Last 12 months • Hover over bars for details",
+        "in": "In",
+        "out": "Out",
+        "empty_title": "No movements in the last 12 months",
+        "empty_desc": "Start registering item entries and withdrawals",
+        "total_movements": "Total Movements",
+        "total_in": "Total In",
+        "total_out": "Total Out",
+        "monthly_avg": "Monthly Avg"
     },
-    "dashboard": {
-        "title": "Dashboard",
-        "overview": "Overview",
-        "inventory": "Inventory",
-        "settings": "Settings",
-        "profile": "Profile",
-        "logout": "Logout",
-        "header": {
-            "title": "Industrial Dashboard",
-            "subtitle": "Complete overview of your warehouse in real time"
-        },
-        "sidebar": {
-            "dashboard": "Dashboard",
-            "movements": "Movements",
-            "collaborators": "Collaborators",
-            "stock": "Stock",
-            "repairs": "Repairs",
-            "inventory": "Inventory",
-            "account": "Account",
-            "logout": "Logout"
-        },
-        "charts": {
-            "movements": {
-                "title": "Movements",
-                "subtitle": "Last 12 months • Hover over bars for details",
-                "in": "In",
-                "out": "Out",
-                "empty_title": "No movements in the last 12 months",
-                "empty_desc": "Start registering item entries and withdrawals",
-                "total_movements": "Total Movements",
-                "total_in": "Total In",
-                "total_out": "Total Out",
-                "monthly_avg": "Monthly Avg"
-            },
-            "status": {
-                "title": "Status",
-                "subtitle": "Tools situation"
-            },
-            "loading_analysis": "Loading analysis...",
-            "loading_charts": "Loading charts...",
-            "stock_alerts": {
-                "title": "Stock Alerts"
-            },
-            "turnover": {
-                "title": "Top Tools by Turnover",
-                "subtitle": "Last 90 days - Outputs per day"
-            },
-            "category_consumption": {
-                "title": "Consumption by Category"
-            },
-            "consumption_trend": {
-                "title": "Consumption Trend and Forecast",
-                "subtitle": "Last 4 weeks and forecast for next week",
-                "real": "Real Consumption",
-                "forecast": "Forecast"
-            },
-            "withdrawals_by_collaborator": {
-                "title": "Withdrawals by Collaborator"
-            },
-            "movements_by_day": {
-                "title": "Movements by Day",
-                "subtitle": "Last 7 days"
-            },
-            "tools_status_distribution": {
-                "title": "Tools Status Distribution",
-                "subtitle": "Current inventory status"
-            }
-        },
-        "ai": {
-            "voice_summary": {
-                "button": "Daily Summary",
-                "generating": "Generating...",
-                "error": "Error generating voice summary"
-            },
-            "insights": {
-                "title": "Smart Insights (AI)",
-                "select_period": "Select period",
-                "periods": {
-                    "daily": "Daily (24h)",
-                    "weekly": "Weekly (7 days)",
-                    "biweekly": "Biweekly (15 days)",
-                    "monthly": "Monthly (30 days)"
-                },
-                "button": {
-                    "idle": "Generate Insights",
-                    "loading": "Analyzing..."
-                },
-                "empty": {
-                    "title": "Ready to analyze?",
-                    "desc": "Select a period above and let our AI find patterns and opportunities in your data."
-                },
-                "summary_title": "Summary of last {{days}} days",
-                "generated_now": "Generated now",
-                "toasts": {
-                    "success": "Insights generated successfully!",
-                    "error": "Error generating insights. Please try again."
-                }
-            }
-        },
-        "kpi": {
-            "last_30_days": "Last 30 days",
-            "last_days": "Last {{days}} days",
-            "tools_in_use": {
-                "title": "Tools in Use",
-                "desc": "Currently withdrawn by collaborators"
-            },
-            "tools_damaged": {
-                "title": "Damaged Tools",
-                "desc": "Require attention or replacement"
-            },
-            "urgent_restock": {
-                "title": "Urgent Restock",
-                "desc": "Items below minimum stock",
-                "empty": "No items require urgent restocking"
-            },
-            "top_tools": {
-                "title": "Top Requested Tools",
-                "empty": "No tool requests in this period"
-            },
-            "ranking": {
-                "title": "Collaborator Ranking",
-                "desc": "By number of withdrawals",
-                "empty": "No withdrawals in this period"
-            },
-            "tools_active": {
-                "title": "Active Tools",
-                "desc": "Currently registered tools"
-            },
-            "top_consumables": {
-                "title": "Top Consumables"
-            },
-            "critical_stock": {
-                "title": "Critical Stock",
-                "desc": "Items that need restocking"
-            },
-            "recent_consumption": {
-                "title": "Recent Consumption"
-            },
-            "epis_active": {
-                "title": "Active PPEs",
-                "desc": "PPEs currently in use"
-            },
-            "epis_expiring": {
-                "title": "Expiring PPEs",
-                "desc": "PPEs expiring soon"
-            },
-            "critical_items_day": {
-                "title": "Items at Daily Risk",
-                "desc": "Requires immediate attention"
-            },
-            "rupture_risk": {
-                "title": "Stock Rupture Risk",
-                "desc": "Projected to run out"
-            }
-        },
-        "sections": {
-            "tools": "Tools",
-            "consumables": "Consumables",
-            "epis": "PPE (Personal Protective Equipment)",
-            "predictions": "Predictions and Alerts"
-        },
-        "filters": {
-            "best": "Best",
-            "worst": "Worst"
-        },
-        "stats": {
-            "items_in_stock": "Items in Stock",
-            "collaborators": "Collaborators",
-            "tools": "Tools",
-            "movements_month": "Movements this Month"
-        },
-        "trial": {
-            "days_remaining": "{{days}} days left in your free trial",
-            "last_day": "Last day of your free trial!",
-            "trial_ended": "Your free trial has ended",
-            "use_all_features": "Take advantage to test all system features.",
-            "activate_to_continue": "To continue using all features, activate your subscription now.",
-            "activate_subscription": "Activate Subscription Now"
-        },
-        "status": {
-            "available": "Available",
-            "in_use": "In Use",
-            "maintenance": "Maintenance",
-            "in_repair": "In Repair",
-            "damaged": "Damaged",
-            "ok": "OK"
-        },
-        "columns": {
-            "collaborator": "Collaborator",
-            "qty": "Qty",
-            "days_in_use": "Days in use",
-            "deadline": "Deadline"
-        },
-        "labels": {
-            "demand": "Demand:",
-            "withdrawals": "withdrawals",
-            "stock": "Stock:",
-            "min": "Min:",
-            "outputs": "Outputs:",
-            "category": "Category:",
-            "score": "Score:",
-            "withdrawals_count": "Withdrawals:",
-            "on_time": "On Time:",
-            "no_deadline": "No deadline",
-            "days_remaining_suffix": "days remaining",
-            "available_suffix": "available",
-            "until_stockout": "until stockout",
-            "low_stock": "Low stock",
-            "outputs_per_day": "outputs/day",
-            "turnover": "Turnover",
-            "week": "Week"
-        },
-        "colaboradores": {
-            "title": "Collaborators",
-            "subtitle": "Manage your warehouse collaborators",
-            "new_button": "New Collaborator",
-            "import_button": "Import Excel",
-            "export_button": "Export PDF",
-            "search_placeholder": "Search by name, email, phone or CPF...",
-            "filters": {
-                "role": "Role",
-                "all_roles": "All Roles",
-                "admission_date": "Admission Date",
-                "start_date": "Start Date",
-                "end_date": "End Date",
-                "sort_by": "Sort by",
-                "order": "Order",
-                "admission_start": "Admission Start",
-                "admission_end": "Admission End",
-                "clear": "Clear Filters",
-                "advanced_filters": "Advanced Filters",
-                "active_filters": "Active filters:",
-                "from": "From",
-                "to": "To",
-                "created_at": "Created At",
-                "found_count": "{{count}} collaborator found",
-                "found_count_plural": "{{count}} collaborators found"
-            },
-            "table": {
-                "name": "Name",
-                "role": "Role",
-                "email": "Email",
-                "phone": "Phone",
-                "admission_date": "Admission",
-                "status": "Status",
-                "actions": "Actions"
-            },
-            "list": {
-                "selected_count": "{{count}} of {{total}} record(s) selected",
-                "bulk_actions": "Bulk actions"
-            },
-            "form": {
-                "title_new": "New Collaborator",
-                "title_edit": "Edit Collaborator",
-                "desc": "Fill in the collaborator's data.",
-                "desc_new": "Fill in the collaborator's data.",
-                "desc_edit": "Edit the collaborator's data.",
-                "personal_info": "Personal Information",
-                "name": "Name",
-                "name_placeholder": "Enter full name",
-                "role": "Role",
-                "role_placeholder": "Enter role",
-                "contact": "Contact",
-                "email": "Email",
-                "email_placeholder": "Enter email",
-                "phone": "Phone",
-                "phone_placeholder": "Enter phone",
-                "docs_address": "Documents and Address",
-                "cpf": "Document ID",
-                "cpf_placeholder": "Enter Document ID",
-                "photo_upload": {
-                    "label": "Collaborator Photo",
-                    "upload": "Upload",
-                    "change": "Change",
-                    "camera": "Camera",
-                    "remove": "Remove",
-                    "uploading": "Uploading...",
-                    "help_text": "JPG, PNG or GIF. Max 5MB",
-                    "loading": "Loading..."
-                },
-                "address": "Address",
-                "address_placeholder": "Enter full address",
-                "admission_date": "Admission Date",
-                "observations": "Observations",
-                "photo": "Profile Photo",
-                "photo_hint": "Click to change",
-                "save": "Save",
-                "saving": "Saving...",
-                "cancel": "Cancel",
-                "duplicate_title": "This name already exists or is very similar to:",
-                "duplicate_confirm": "Do you want to register anyway?",
-                "duplicate_yes": "Yes, register duplicate",
-                "duplicate_no": "No, cancel",
-                "error_save": "Error saving collaborator"
-            },
-            "card": {
-                "withdrawals": "Withdrawals",
-                "returns": "Returns",
-                "pending": "Pending",
-                "return_rate": "Return Rate",
-                "view_details": "View Details",
-                "edit": "Edit",
-                "delete": "Delete",
-                "confirm_delete": "Are you sure you want to delete this collaborator?",
-                "error_delete": "Error deleting collaborator"
-            },
-            "details": {
-                "title": "Collaborator File",
-                "personal_data": "PERSONAL DATA",
-                "statistics": "STATISTICS",
-                "active_epis": "Active PPEs (In Possession)",
-                "history": "RECENT HISTORY",
-                "history_title": "Recent History",
-                "history_note": "Access the full version of the system to view the detailed history of all withdrawals and returns for this collaborator.",
-                "no_active_epis": "No PPE in possession at the moment",
-                "no_history": "No movements registered",
-                "print_file": "Download PDF",
-                "close": "Close",
-                "generated_at": "Generated at:",
-                "file_title": "Collaborator File - {{name}}",
-                "error_pdf": "Error generating PDF",
-                "generating_pdf": "Generating PDF...",
-                "no_date": "No date",
-                "loading_epis": "Loading PPEs...",
-                "no_active_epis_found": "No active PPE found",
-                "withdrawn_at": "Withdrawn at",
-                "qty_withdrawn": "Qty withdrawn",
-                "expired_ago": "Expired {{days}} days ago",
-                "expires_in": "Expires in {{days}} days",
-                "validity": "Validity",
-                "no_validity": "No validity registered",
-                "expired": "Expired",
-                "attention": "Attention",
-                "table": {
-                    "item": "Item",
-                    "qty": "Qty",
-                    "withdrawal": "Withdrawal",
-                    "validity": "Validity",
-                    "status": "Status",
-                    "date": "Date/Time",
-                    "type": "Type",
-                    "obs": "Observation"
-                },
-                "stats": {
-                    "total_withdrawals": "Total Withdrawals",
-                    "total_returns": "Total Returns",
-                    "pending_items": "Pending Items",
-                    "return_rate": "Return Rate",
-                    "metric": "Metric",
-                    "value": "Value",
-                    "field": "Field"
-                }
-            },
-            "actions": {
-                "selected_count": "{{count}} selected",
-                "export_selected": "Export selected",
-                "clear_selection": "Clear selection",
-                "print": "Print"
-            },
-            "empty": {
-                "no_results": "No collaborators found",
-                "no_records": "No collaborators registered",
-                "adjust_filters": "Try adjusting filters or searching for another term.",
-                "start_registering": "Register your collaborators to control withdrawals and returns."
-            },
-            "import": {
-                "title": "Import Collaborators",
-                "description": "Import collaborators from an Excel or CSV file",
-                "error_creating": "Line {{line}}: {{error}}"
-            }
-        },
-        "movimentacoes": {
-            "title": "Movements",
-            "subtitle": "Register entries, withdrawals and returns of products",
-            "new_button": "New Movement",
-            "import_button": "Import Excel",
-            "export_button": "Export CSV",
-            "filters": {
-                "search_placeholder": "Search movements...",
-                "filters": "Filters",
-                "clear": "Clear",
-                "type": "Type",
-                "movement_type": "Movement Type",
-                "all_types": "All Types",
-                "entry": "Entry",
-                "withdrawal": "Withdrawal",
-                "return": "Return",
-                "repair": "Repair",
-                "product": "Product",
-                "all_products": "All products",
-                "collaborator": "Collaborator",
-                "all_collaborators": "All collaborators",
-                "date_range": "Date Range",
-                "start_date": "Start Date",
-                "end_date": "End Date",
-                "select": "Select",
-                "today": "Today",
-                "yesterday": "Yesterday",
-                "select_date": "Select Date",
-                "active_filters": "Active filters:",
-                "from": "From",
-                "to": "To",
-                "movements_found": "{{count}} movement(s) found"
-            },
-            "table": {
-                "date": "Date/Time",
-                "type": "Type",
-                "product": "Product",
-                "quantity": "Quantity",
-                "collaborator": "Collaborator",
-                "observations": "Observations"
-            },
-            "form": {
-                "title": "New Movement",
-                "desc": "Register a new stock movement",
-                "type": "Movement Type",
-                "product": "Product",
-                "quantity": "Quantity",
-                "collaborator": "Collaborator",
-                "date": "Date/Time",
-                "observations": "Observations",
-                "request_signature": "Request digital signature",
-                "save": "Register Movement",
-                "select_product": "Select a product from the list",
-                "select_collaborator": "Select a collaborator",
-                "success": "Movement registered successfully!",
-                "error": "Error registering movement",
-                "collaborator_hint": "Choose the collaborator responsible for the withdrawal/return.",
-                "date_hint": "If you prefer, adjust the date/time. By default we use now."
-            },
-            "actions": {
-                "show_all": "Show all movements",
-                "show_starred": "Show starred only",
-                "export_selected": "Export selected",
-                "clear_selection": "Clear selection",
-                "print": "Print",
-                "export_csv": "Export CSV",
-                "export_filters_title": "Export Filters",
-                "export_filters_desc": "Select filters to export movements to CSV",
-                "no_results_export": "No movements found with selected filters",
-                "select_one": "Select at least one movement.",
-                "export_error": "Error exporting CSV",
-                "export_count": "{{count}} movement(s) will be exported",
-                "selected_count": "{{count}} selected",
-                "add_favorite": "Add to favorites",
-                "remove_favorite": "Remove from favorites"
-            },
-            "empty": {
-                "no_results": "No movements found",
-                "no_records": "No movements registered",
-                "adjust_filters": "Try adjusting filters or searching for another term.",
-                "start_registering": "Register entries, withdrawals and returns to keep your stock history always up to date."
-            },
-            "import": {
-                "title": "Import Movements",
-                "description": "Import movements from an Excel or CSV file. Use exact product and collaborator names.",
-                "product_not_found": "Line {{line}}: Product \"{{name}}\" not found",
-                "collaborator_not_found": "Line {{line}}: Collaborator \"{{name}}\" not found",
-                "error_creating": "Line {{line}}: {{error}}"
-            }
-        },
-        "conta": {
-            "title": "My Account",
-            "subtitle": "Manage your subscription and company data",
-            "plan": {
-                "professional": "Professional",
-                "free_trial": "Free Trial",
-                "pending_payment": "Pending Payment",
-                "canceled": "Canceled",
-                "no_plan": "No Plan",
-                "active": "Active",
-                "full_access": "Full access to all features",
-                "trial_days": "7 days of full access to try",
-                "trial_remaining": "{{days}} days of free access remaining",
-                "update_payment": "Update your payment method",
-                "subscription_canceled": "Your subscription was canceled",
-                "subscribe_full": "Subscribe to access all features"
-            },
-            "subscription": {
-                "manage": "Manage subscription",
-                "subscribe_now": "Subscribe Now",
-                "opening": "Opening...",
-                "processing": "Processing...",
-                "included": "Included in your plan:"
-            },
-            "features": {
-                "unlimited_stock": "Unlimited stock",
-                "unlimited_users": "Unlimited users",
-                "unlimited_tools": "Unlimited tools",
-                "full_movements": "Complete movements",
-                "advanced_reports": "Advanced reports",
-                "industrial_dashboard": "Industrial dashboard",
-                "repair_management": "Repair management",
-                "email_support": "Email support"
-            },
-            "account_info": {
-                "title": "Account Information",
-                "subtitle": "Data linked to your login",
-                "email": "Email",
-                "email_note": "This is the email used for login and notifications",
-                "member_since": "Member since",
-                "date_unavailable": "Date not available"
-            },
-            "company_info": {
-                "title": "Company Data",
-                "subtitle": "Information for identification",
-                "company_name": "Company Name",
-                "cnpj": "CNPJ",
-                "phone": "Phone",
-                "save_changes": "Save changes",
-                "saving": "Saving...",
-                "success": "Data updated successfully!",
-                "error": "Error saving data"
-            },
-            "security": {
-                "title": "Security",
-                "subtitle": "Account security options",
-                "change_password": "Change password",
-                "change_password_note": "We recommend changing your password periodically",
-                "send_reset_email": "Send reset email",
-                "reset_email_sent": "Recovery email sent!"
-            }
-        },
-        "inventario": {
-            "title": "Inventory",
-            "subtitle": "Balance and stock count",
-            "new_button": "New Inventory",
-            "no_inventory": "No inventory",
-            "no_inventory_desc": "Create your first inventory to start counting",
-            "status": {
-                "in_progress": "In Progress",
-                "finished": "Finished",
-                "canceled": "Canceled"
-            },
-            "labels": {
-                "items": "items",
-                "progress": "Count progress",
-                "divergences_found": "{{count}} divergence(s) found"
-            },
-            "actions": {
-                "continue": "Continue",
-                "view_result": "View Result"
-            },
-            "form": {
-                "title": "New Inventory",
-                "desc": "Start a new stock count",
-                "description": "Description",
-                "description_placeholder": "Ex: Monthly Inventory - June/2025",
-                "responsible": "Responsible",
-                "responsible_placeholder": "Name of the person responsible for counting",
-                "scope": "Scope",
-                "scope_all": "All items",
-                "scope_category": "By category",
-                "category": "Category",
-                "select_category": "Select category",
-                "observations": "Observations",
-                "observations_placeholder": "Additional observations (optional)",
-                "cancel": "Cancel",
-                "creating": "Creating...",
-                "create_start": "Create and Start"
-            },
-            "confirm_delete": "Are you sure you want to delete this inventory?"
-        },
-        "consertos": {
-            "title": "Repairs",
-            "subtitle": "Manage repair orders",
-            "new_button": "Add Product for Repair",
-            "export_pdf": "Export PDF",
-            "open_repairs": "Open Repairs",
-            "completed_repairs": "Completed Repairs",
-            "no_repairs": "No repair orders",
-            "no_results": "No results found",
-            "table": {
-                "status": "Status",
-                "product": "Product",
-                "priority": "Priority",
-                "location": "Location",
-                "deadline": "Deadline",
-                "sent_at": "Sent at"
-            },
-            "status": {
-                "all": "All",
-                "waiting": "Waiting",
-                "in_progress": "In Progress",
-                "completed": "Completed"
-            },
-            "priority": {
-                "all": "All",
-                "high": "High",
-                "medium": "Medium",
-                "low": "Low"
-            },
-            "labels": {
-                "deadline": "Deadline",
-                "sent": "Sent",
-                "location": "Location",
-                "cost": "Cost",
-                "no_deadline": "No deadline",
-                "returned_at": "Returned at"
-            },
-            "actions": {
-                "actions": "Actions",
-                "register_return": "Register Return",
-                "update_status": "Update Status",
-                "clear_filters": "Clear Filters",
-                "cancel": "Cancel",
-                "mark_in_progress": "Mark as in progress",
-                "loading": "Loading..."
-            },
-            "form": {
-                "title": "New Repair Order",
-                "desc": "Select the product and repair details.",
-                "product": "Product",
-                "product_placeholder": "Type the product name",
-                "quantity": "Quantity for Repair",
-                "available": "Available",
-                "units": "units",
-                "status": "Status",
-                "location": "Location / Responsible",
-                "location_placeholder": "Workshop, supplier, sector",
-                "deadline": "Expected deadline",
-                "priority": "Priority",
-                "description": "Description",
-                "description_placeholder": "Defect details or observations",
-                "save": "Create Repair Order"
-            },
-            "return": {
-                "title": "Register Return",
-                "desc": "Item returning from repair",
-                "quantity": "Quantity to return",
-                "in_repair": "In repair",
-                "cost": "Repair cost (R$)",
-                "confirm": "Confirm Return",
-                "tool_label": "Tool: {{name}}",
-                "in_repair_count": "{{count}} unit(s) still in repair",
-                "success": "Return registered successfully!"
-            },
-            "return_dialog": {
-                "title": "Update Status / Return",
-                "status_label": "New Status",
-                "cost": "Cost",
-                "quantity_returned": "Quantity Returned",
-                "quantity_max": "Max available: {{count}}",
-                "conclude_action": "Save Changes"
-            },
-            "errors": {
-                "min_quantity": "The quantity must be at least 1",
-                "invalid_quantity": "Invalid quantity. Still in repair: {{count}}",
-                "register_return": "Error registering return",
-                "update_status": "Error updating status",
-                "select_product": "Select a product",
-                "insufficient_quantity": "Insufficient quantity. Available: {{count}}",
-                "create_order": "Error creating repair order"
-            },
-            "export": {
-                "title": "Export Filters",
-                "desc": "Select filters to export only the desired repairs. Leave blank to export all.",
-                "priority": "Priority",
-                "status": "Status",
-                "product": "Product (Optional)",
-                "all_products": "All products",
-                "location": "Repair Location (Optional)",
-                "location_placeholder": "Type the location (e.g., Workshop, Supplier)",
-                "send_period": "Send Period",
-                "return_period": "Return Period",
-                "start_date": "Start Date",
-                "end_date": "End Date",
-                "total_to_export": "Total repairs to be exported:",
-                "report_title": "Repairs Report",
-                "generated_at": "Generated at {{date}}",
-                "filter_priority": "Priority: {{value}}",
-                "filter_status": "Status: {{value}}",
-                "filter_product": "Product: {{value}}",
-                "filter_location": "Location: {{value}}",
-                "filter_send_date": "Send Date: {{start}} to {{end}}",
-                "filter_return_date": "Return Date: {{start}} to {{end}}",
-                "filters_applied": "Filters: {{filters}}",
-                "headers": {
-                    "product": "Product",
-                    "status": "Status",
-                    "priority": "Priority",
-                    "location": "Location",
-                    "deadline": "Deadline",
-                    "send_date": "Send Date",
-                    "return_date": "Return Date",
-                    "cost": "Cost"
-                },
-                "footer_page": "Generated at {{date}} - Page {{current}} of {{total}}",
-                "footer_generated_by": "Generated by Almox Fácil"
-            }
-        },
-        "ferramentas": {
-            "title": "Inventory",
-            "subtitle": "Manage your tools and products",
-            "new_button": "New Product",
-            "import_button": "Import Excel",
-            "export_csv": "Export CSV",
-            "generating_csv": "Generating CSV...",
-            "search_placeholder": "Search products...",
-            "photo_upload": {
-                "label": "Product Photo",
-                "loading": "Loading...",
-                "uploading": "Uploading...",
-                "upload": "Upload",
-                "change": "Change",
-                "camera": "Camera",
-                "remove": "Remove",
-                "help_text": "JPG/PNG/WebP up to 5MB."
-            },
-            "filters": {
-                "search_placeholder": "Search by name, code or category...",
-                "filters": "Filters",
-                "more_filters": "More filters",
-                "title": "Advanced Filters",
-                "description": "Refine your search by category or item type.",
-                "advanced_filters": "Advanced filters",
-                "clear": "Clear",
-                "type": "Type",
-                "select_type": "Select Type",
-                "all_types": "All Types",
-                "tool": "Tool",
-                "ppe": "PPE",
-                "consumable": "Consumable",
-                "state": "State",
-                "all_states": "All states",
-                "ok": "OK",
-                "damaged": "Damaged",
-                "in_repair": "In Repair",
-                "category": "Category",
-                "select_category": "Select Category",
-                "all_categories": "All Categories",
-                "sort_by": "Sort by",
-                "name": "Name",
-                "available": "Available",
-                "total_quantity": "Total Quantity",
-                "created_at": "Created At",
-                "ascending": "Ascending",
-                "descending": "Descending",
-                "active_filters": "Active filters:",
-                "type_label": "Type",
-                "state_label": "State",
-                "category_label": "Category",
-                "products_found": "{{count}} product found",
-                "products_found_plural": "{{count}} products found",
-                "status": "Status",
-                "all_status": "All Status"
-            },
-            "tabs": {
-                "active": "Active",
-                "inactive": "Inactive",
-                "all": "All"
-            },
-            "list": {
-                "selected_count": "{{count}} of {{total}} record(s) selected",
-                "bulk_actions": "Bulk actions"
-            },
-            "table": {
-                "product": "Product",
-                "sku": "SKU",
-                "format": "Format",
-                "value": "Value (R$)",
-                "stock": "Stock",
-                "status": "Status",
-                "actions": "Actions"
-            },
-            "form": {
-                "title_new": "New Product",
-                "title_edit": "Edit Product",
-                "desc_new": "Add a new product to stock",
-                "desc_edit": "Update product information",
-                "name": "Name",
-                "type": "Category",
-                "select_type": "Select type",
-                "tool": "Tool",
-                "ppe": "PPE",
-                "consumable": "Consumable",
-                "line_group": "Line/Group",
-                "line_placeholder": "Ex: Cutting, Safety",
-                "code": "Code",
-                "auto_generated": "Auto-generated",
-                "size": "Size / Measure",
-                "size_placeholder": "Ex: M, 500ml, 10mm",
-                "color": "Color",
-                "color_placeholder": "Ex: Blue, Black",
-                "quantity_total": "Total Quantity",
-                "status": "Status",
-                "min_stock": "Minimum Stock",
-                "min_stock_placeholder": "Ex: 5 (alert when stock ≤ 5)",
-                "min_stock_hint": "When stock reaches this value, you will be alerted on the dashboard",
-                "observations": "Observations",
-                "cancel": "Cancel",
-                "save": "Save",
-                "saving": "Saving..."
-            },
-            "status": {
-                "ok": "OK",
-                "damaged": "Damaged",
-                "in_repair": "In Repair"
-            },
-            "cards": {
-                "code": "Code",
-                "type": "Type",
-                "category": "Category",
-                "total": "Total",
-                "available": "Available",
-                "low_stock": "Low stock! Minimum: {{min}}"
-            },
-            "actions": {
-                "entry": "Entry",
-                "withdraw": "Withdraw",
-                "return": "Return",
-                "repair": "Repair",
-                "register_entry": "Register Entry",
-                "register_withdrawal": "Register Withdrawal",
-                "register_return": "Register Return",
-                "send_to_repair": "Send to Repair",
-                "tool": "Tool",
-                "collaborator": "Collaborator",
-                "select_collaborator": "Select a collaborator",
-                "quantity": "Quantity",
-                "status": "Status",
-                "repair_status_placeholder": "Repair status",
-                "location": "Location / Responsible",
-                "location_placeholder": "Ex: Internal workshop, Vendor X",
-                "deadline": "Expected deadline",
-                "priority": "Priority",
-                "priority_low": "Low",
-                "priority_medium": "Medium",
-                "priority_high": "High",
-                "observations": "Observations",
-                "optional": "Optional",
-                "confirm": "Confirm",
-                "processing": "Processing..."
-            },
-            "pagination": {
-                "showing": "Showing {{count}} of {{total}} records",
-                "page": "Page {{current}} of {{total}}"
-            },
-            "empty": {
-                "no_items_title": "No items found",
-                "no_items_search": "Try searching for another term or clear filters.",
-                "stock_empty_title": "Your stock is empty",
-                "stock_empty_desc": "Start by registering tools, PPEs and consumables to efficiently control your warehouse.",
-                "first_item": "Register First Item",
-                "clear_search": "Clear Search"
-            },
-            "error": "Error loading data. Please reload the page."
-        },
-        "checkout": {
-            "subscribe_now": "Subscribe Now",
-            "processing": "Processing..."
-        }
+    "status": {
+        "title": "Status",
+        "subtitle": "Tools situation"
     },
-    "import": {
-        "example": "Example",
-        "data_sheet_name": "Data",
-        "errors": {
-            "empty_sheet": "The spreadsheet is empty or has no valid data.",
-            "required_field": "Row {{row}}: Field \"{{field}}\" is required",
-            "invalid_value": "Row {{row}}: Invalid value \"{{value}}\" for \"{{field}}\". Options: {{options}}",
-            "process_error": "Error processing file. Please check if it is a valid Excel file.",
-            "invalid_file_type": "Please select an Excel (.xlsx, .xls) or CSV (.csv) file",
-            "title": "Errors found:"
-        },
-        "download_template": {
-            "title": "Download spreadsheet template",
-            "description": "Use the template to ensure data is in the correct format",
-            "button": "Download"
-        },
-        "drag_drop": {
-            "title": "Drag and drop your file here",
-            "subtitle": "or click to select",
-            "formats": "Accepted formats: .xlsx, .xls, .csv"
-        },
-        "expected_fields": "Expected fields in spreadsheet:",
-        "required_fields_note": "* Required fields",
-        "preview": {
-            "records_found": "{{count}} record found",
-            "records_found_plural": "{{count}} records found",
-            "change_file": "Change file",
-            "warnings": "Warnings ({{count}}):",
-            "more_warnings": "... and {{count}} more warnings",
-            "show_less": "Show less",
-            "show_more": "Show all ({{count}} more)"
-        },
-        "importing": {
-            "title": "Importing data...",
-            "description": "Please wait while we process {{count}} record(s)"
-        },
-        "result": {
-            "success": "{{count}} record imported successfully!",
-            "success_plural": "{{count}} records imported successfully!",
-            "errors": "{{count}} error during import:",
-            "errors_plural": "{{count}} errors during import:"
-        },
-        "actions": {
-            "import_count": "Import {{count}} record",
-            "import_count_plural": "Import {{count}} records",
-            "import_more": "Import more",
-            "finish": "Finish",
-            "back": "Back"
-        }
+    "loading_analysis": "Loading analysis...",
+    "loading_charts": "Loading charts...",
+    "stock_alerts": {
+        "title": "Stock Alerts"
     },
-    "landing": {
-        "nav": {
-            "problems": "Problems",
-            "solution": "Solution",
-            "testimonials": "Testimonials",
-            "dashboard": "Go to Dashboard",
-            "login": "Login",
-            "start_free": "Start Free"
+    "turnover": {
+        "title": "Top Tools by Turnover",
+        "subtitle": "Last 90 days - Outputs per day"
+    },
+    "category_consumption": {
+        "title": "Consumption by Category"
+    },
+    "consumption_trend": {
+        "title": "Consumption Trend and Forecast",
+        "subtitle": "Last 4 weeks and forecast for next week",
+        "real": "Real Consumption",
+        "forecast": "Forecast"
+    },
+    "withdrawals_by_collaborator": {
+        "title": "Withdrawals by Collaborator"
+    },
+    "movements_by_day": {
+        "title": "Movements by Day",
+        "subtitle": "Last 7 days"
+    },
+    "tools_status_distribution": {
+        "title": "Tools Status Distribution",
+        "subtitle": "Current inventory status"
+    }
+},
+"ai": {
+    "voice_summary": {
+        "button": "Daily Summary",
+        "generating": "Generating...",
+        "error": "Error generating voice summary"
+    },
+    "insights": {
+        "title": "Smart Insights (AI)",
+        "select_period": "Select period",
+        "periods": {
+            "daily": "Daily (24h)",
+            "weekly": "Weekly (7 days)",
+            "biweekly": "Biweekly (15 days)",
+            "monthly": "Monthly (30 days)"
         },
-        "hero": {
-            "badge": "More than 200 companies have already organized their house",
-            "title_part1": "Free ERP for warehouse",
-            "title_part2": "and inventory control",
-            "title_part3": "",
-            "description": "Organize your company's tools, materials, and assets in a simple, fast, and 100% free system.",
-            "cta_button": "Create free account now",
-            "no_card": "Free forever platform for small businesses. No credit card. No catches.",
-            "partners": "Partner companies that trust Almox Fácil"
+        "button": {
+            "idle": "Generate Insights",
+            "loading": "Analyzing..."
         },
-        "pain_points": {
-            "title": "Is your stock a money black hole?",
-            "subtitle": "If you still use paper or spreadsheets, you are probably losing money without realizing it.",
-            "tools_title": "Tools that disappear",
-            "tools_desc": "You buy, use once and nobody knows where it went. The loss is silent, but constant.",
-            "spreadsheets_title": "Outdated spreadsheets",
-            "spreadsheets_desc": "The spreadsheet never matches reality. You lose hours counting stock and still have gaps.",
-            "emergency_title": "Emergency purchases",
-            "emergency_desc": "Material runs out in the middle of the work or service. You pay more to replace urgently."
+        "empty": {
+            "title": "Ready to analyze?",
+            "desc": "Select a period above and let our AI find patterns and opportunities in your data."
         },
-        "solution": {
-            "badge": "Complete Solution",
-            "title": "Total control in the palm of your hand",
-            "description": "Ditch the spreadsheets and notebooks. Have a professional system that organizes your stock, controls who took what, and alerts you when you need to buy more.",
-            "mobile_title": "Works on Mobile",
-            "mobile_desc": "Access from anywhere, whether on site or in the office.",
-            "lost_title": "No More Lost Items",
-            "lost_desc": "Know exactly who has each tool.",
-            "alerts_title": "Automatic Alerts",
-            "alerts_desc": "Get notified before stock runs out."
-        },
-        "ai_features": {
-            "badge": "Exclusive Feature",
-            "title": "Integrated Artificial Intelligence",
-            "subtitle": "Automate manual tasks and save time with the power of AI",
-            "ocr_title": "Invoice OCR",
-            "ocr_desc": "Upload a photo of the invoice and let AI identify and register products automatically.",
-            "search_title": "Smart Search",
-            "search_desc": "Find what you need by describing it in natural language (e.g., 'damaged cutting tools').",
-            "autofill_title": "Smart Auto-fill",
-            "autofill_desc": "AI suggests categories, codes, and reorder points for your products."
-        },
-        "features": {
-            "support_title": "Support with 95% satisfaction",
-            "support_desc": "Agile and humanized service. Talk to those who understand the subject via WhatsApp, email or chat.",
-            "online_title": "100% online system",
-            "online_desc": "Access Almox Fácil anytime, anywhere. From the office, home or directly from the work.",
-            "price_title": "No surprise charges. Ever.",
-            "price_desc": "Use Almox Fácil for free, with no time limit. We don't ask for a credit card and we don't enable automatic charges. If we launch paid plans with advanced features in the future, you only upgrade if you want to. Free access remains available for small businesses."
-        },
-        "how_it_works": {
-            "title": "Simple as it should be",
-            "subtitle": "Start using in less than 5 minutes, completely free.",
-            "step1_title": "Register",
-            "step1_desc": "Import your products or register in seconds.",
-            "step2_title": "Move",
-            "step2_desc": "Register entries and exits by cell phone.",
-            "step3_title": "Control",
-            "step3_desc": "View reports and know where each item is."
-        },
-        "testimonials": {
-            "title": "Who uses, recommends",
-            "subtitle": "Join more than 200 companies that transformed their management",
-            "t1_content": "I lost about 500 reais a month just with small tools disappearing. Almox Fácil paid for itself in the first week.",
-            "t1_role": "Owner",
-            "t2_content": "I tried using 3 different systems, all very complicated. This one my team learned to use in 10 minutes.",
-            "t2_role": "Manager",
-            "t3_content": "PPE control is sensational. The system warns before expiring, I never paid a fine or took a risk again.",
-            "t3_role": "Partner"
-        },
-        "pricing": {
-            "title": "Fair price, no surprises",
-            "subtitle": "Everything you need in a single plan.",
-            "most_popular": "MOST POPULAR",
-            "best_value": "BEST VALUE",
-            "monthly": "Monthly",
-            "quarterly": "Quarterly",
-            "annual": "Annual",
-            "monthly_value": "$17.00",
-            "monthly_unit": "/month",
-            "monthly_equiv": "≈ $17.00/mo",
-            "quarterly_value": "$45.00",
-            "quarterly_unit": "/quarter",
-            "quarterly_equiv": "≈ $15.00/mo",
-            "annual_value": "$139.00",
-            "annual_unit": "/year",
-            "annual_equiv": "≈ $11.58/mo",
-            "per_month": "/month",
-            "billed_annually": "Billed annually (R$ 478,80)",
-            "billed_monthly": "Billed monthly",
-            "feat_stock": "Unlimited stock",
-            "feat_users": "Unlimited users",
-            "feat_tools": "Tool management",
-            "feat_epi": "PPE control",
-            "feat_support": "Priority support via WhatsApp",
-            "cta": "Start 7-day free trial",
-            "cancel_anytime": "Cancel anytime. No loyalty."
-        },
-        "cta_final": {
-            "title": "Organized warehouse without paying monthly fees.",
-            "subtitle": "",
-            "button": "Create free account now",
-            "join": "Free forever for small businesses. Start now."
-        },
-        "footer": {
-            "terms": "Terms of Use",
-            "privacy": "Privacy",
-            "contact": "Contact"
-        },
-        "mockup": {
-            "new_exit": "New Exit",
-            "stock_updated": "Stock updated",
-            "just_now": "Just now",
-            "new_movement": "New Movement",
-            "product": "Product",
-            "quantity": "Quantity",
-            "responsible": "Responsible",
-            "confirm_exit": "Confirm Exit"
+        "summary_title": "Summary of last {{days}} days",
+        "generated_now": "Generated now",
+        "toasts": {
+            "success": "Insights generated successfully!",
+            "error": "Error generating insights. Please try again."
         }
     }
+},
+"kpi": {
+    "last_30_days": "Last 30 days",
+    "last_days": "Last {{days}} days",
+    "tools_in_use": {
+        "title": "Tools in Use",
+        "desc": "Currently withdrawn by collaborators"
+    },
+    "tools_damaged": {
+        "title": "Damaged Tools",
+        "desc": "Require attention or replacement"
+    },
+    "urgent_restock": {
+        "title": "Urgent Restock",
+        "desc": "Items below minimum stock",
+        "empty": "No items require urgent restocking"
+    },
+    "top_tools": {
+        "title": "Top Requested Tools",
+        "empty": "No tool requests in this period"
+    },
+    "ranking": {
+        "title": "Collaborator Ranking",
+        "desc": "By number of withdrawals",
+        "empty": "No withdrawals in this period"
+    },
+    "tools_active": {
+        "title": "Active Tools",
+        "desc": "Currently registered tools"
+    },
+    "top_consumables": {
+        "title": "Top Consumables"
+    },
+    "critical_stock": {
+        "title": "Critical Stock",
+        "desc": "Items that need restocking"
+    },
+    "recent_consumption": {
+        "title": "Recent Consumption"
+    },
+    "epis_active": {
+        "title": "Active PPEs",
+        "desc": "PPEs currently in use"
+    },
+    "epis_expiring": {
+        "title": "Expiring PPEs",
+        "desc": "PPEs expiring soon"
+    },
+    "critical_items_day": {
+        "title": "Items at Daily Risk",
+        "desc": "Requires immediate attention"
+    },
+    "rupture_risk": {
+        "title": "Stock Rupture Risk",
+        "desc": "Projected to run out"
+    }
+},
+"sections": {
+    "tools": "Tools",
+    "consumables": "Consumables",
+    "epis": "PPE (Personal Protective Equipment)",
+    "predictions": "Predictions and Alerts"
+},
+"filters": {
+    "best": "Best",
+    "worst": "Worst"
+},
+"stats": {
+    "items_in_stock": "Items in Stock",
+    "collaborators": "Collaborators",
+    "tools": "Tools",
+    "movements_month": "Movements this Month"
+},
+"trial": {
+    "days_remaining": "{{days}} days left in your free trial",
+    "last_day": "Last day of your free trial!",
+    "trial_ended": "Your free trial has ended",
+    "use_all_features": "Take advantage to test all system features.",
+    "activate_to_continue": "To continue using all features, activate your subscription now.",
+    "activate_subscription": "Activate Subscription Now"
+},
+"status": {
+    "available": "Available",
+    "in_use": "In Use",
+    "maintenance": "Maintenance",
+    "in_repair": "In Repair",
+    "damaged": "Damaged",
+    "ok": "OK"
+},
+"columns": {
+    "collaborator": "Collaborator",
+    "qty": "Qty",
+    "days_in_use": "Days in use",
+    "deadline": "Deadline"
+},
+"labels": {
+    "demand": "Demand:",
+    "withdrawals": "withdrawals",
+    "stock": "Stock:",
+    "min": "Min:",
+    "outputs": "Outputs:",
+    "category": "Category:",
+    "score": "Score:",
+    "withdrawals_count": "Withdrawals:",
+    "on_time": "On Time:",
+    "no_deadline": "No deadline",
+    "days_remaining_suffix": "days remaining",
+    "available_suffix": "available",
+    "until_stockout": "until stockout",
+    "low_stock": "Low stock",
+    "outputs_per_day": "outputs/day",
+    "turnover": "Turnover",
+    "week": "Week"
+},
+"colaboradores": {
+    "title": "Collaborators",
+    "subtitle": "Manage your warehouse collaborators",
+    "new_button": "New Collaborator",
+    "import_button": "Import Excel",
+    "export_button": "Export PDF",
+    "search_placeholder": "Search by name, email, phone or CPF...",
+    "filters": {
+        "role": "Role",
+        "all_roles": "All Roles",
+        "admission_date": "Admission Date",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "sort_by": "Sort by",
+        "order": "Order",
+        "admission_start": "Admission Start",
+        "admission_end": "Admission End",
+        "clear": "Clear Filters",
+        "advanced_filters": "Advanced Filters",
+        "active_filters": "Active filters:",
+        "from": "From",
+        "to": "To",
+        "created_at": "Created At",
+        "found_count": "{{count}} collaborator found",
+        "found_count_plural": "{{count}} collaborators found"
+    },
+    "table": {
+        "name": "Name",
+        "role": "Role",
+        "email": "Email",
+        "phone": "Phone",
+        "admission_date": "Admission",
+        "status": "Status",
+        "actions": "Actions"
+    },
+    "list": {
+        "selected_count": "{{count}} of {{total}} record(s) selected",
+        "bulk_actions": "Bulk actions"
+    },
+    "form": {
+        "title_new": "New Collaborator",
+        "title_edit": "Edit Collaborator",
+        "desc": "Fill in the collaborator's data.",
+        "desc_new": "Fill in the collaborator's data.",
+        "desc_edit": "Edit the collaborator's data.",
+        "personal_info": "Personal Information",
+        "name": "Name",
+        "name_placeholder": "Enter full name",
+        "role": "Role",
+        "role_placeholder": "Enter role",
+        "contact": "Contact",
+        "email": "Email",
+        "email_placeholder": "Enter email",
+        "phone": "Phone",
+        "phone_placeholder": "Enter phone",
+        "docs_address": "Documents and Address",
+        "cpf": "Document ID",
+        "cpf_placeholder": "Enter Document ID",
+        "photo_upload": {
+            "label": "Collaborator Photo",
+            "upload": "Upload",
+            "change": "Change",
+            "camera": "Camera",
+            "remove": "Remove",
+            "uploading": "Uploading...",
+            "help_text": "JPG, PNG or GIF. Max 5MB",
+            "loading": "Loading..."
+        },
+        "address": "Address",
+        "address_placeholder": "Enter full address",
+        "admission_date": "Admission Date",
+        "observations": "Observations",
+        "photo": "Profile Photo",
+        "photo_hint": "Click to change",
+        "save": "Save",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "duplicate_title": "This name already exists or is very similar to:",
+        "duplicate_confirm": "Do you want to register anyway?",
+        "duplicate_yes": "Yes, register duplicate",
+        "duplicate_no": "No, cancel",
+        "error_save": "Error saving collaborator"
+    },
+    "card": {
+        "withdrawals": "Withdrawals",
+        "returns": "Returns",
+        "pending": "Pending",
+        "return_rate": "Return Rate",
+        "view_details": "View Details",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm_delete": "Are you sure you want to delete this collaborator?",
+        "error_delete": "Error deleting collaborator"
+    },
+    "details": {
+        "title": "Collaborator File",
+        "personal_data": "PERSONAL DATA",
+        "statistics": "STATISTICS",
+        "active_epis": "Active PPEs (In Possession)",
+        "history": "RECENT HISTORY",
+        "history_title": "Recent History",
+        "history_note": "Access the full version of the system to view the detailed history of all withdrawals and returns for this collaborator.",
+        "no_active_epis": "No PPE in possession at the moment",
+        "no_history": "No movements registered",
+        "print_file": "Download PDF",
+        "close": "Close",
+        "generated_at": "Generated at:",
+        "file_title": "Collaborator File - {{name}}",
+        "error_pdf": "Error generating PDF",
+        "generating_pdf": "Generating PDF...",
+        "no_date": "No date",
+        "loading_epis": "Loading PPEs...",
+        "no_active_epis_found": "No active PPE found",
+        "withdrawn_at": "Withdrawn at",
+        "qty_withdrawn": "Qty withdrawn",
+        "expired_ago": "Expired {{days}} days ago",
+        "expires_in": "Expires in {{days}} days",
+        "validity": "Validity",
+        "no_validity": "No validity registered",
+        "expired": "Expired",
+        "attention": "Attention",
+        "table": {
+            "item": "Item",
+            "qty": "Qty",
+            "withdrawal": "Withdrawal",
+            "validity": "Validity",
+            "status": "Status",
+            "date": "Date/Time",
+            "type": "Type",
+            "obs": "Observation"
+        },
+        "stats": {
+            "total_withdrawals": "Total Withdrawals",
+            "total_returns": "Total Returns",
+            "pending_items": "Pending Items",
+            "return_rate": "Return Rate",
+            "metric": "Metric",
+            "value": "Value",
+            "field": "Field"
+        }
+    },
+    "actions": {
+        "selected_count": "{{count}} selected",
+        "export_selected": "Export selected",
+        "clear_selection": "Clear selection",
+        "print": "Print"
+    },
+    "empty": {
+        "no_results": "No collaborators found",
+        "no_records": "No collaborators registered",
+        "adjust_filters": "Try adjusting filters or searching for another term.",
+        "start_registering": "Register your collaborators to control withdrawals and returns."
+    },
+    "import": {
+        "title": "Import Collaborators",
+        "description": "Import collaborators from an Excel or CSV file",
+        "error_creating": "Line {{line}}: {{error}}"
+    }
+},
+"movimentacoes": {
+    "title": "Movements",
+    "subtitle": "Register entries, withdrawals and returns of products",
+    "new_button": "New Movement",
+    "import_button": "Import Excel",
+    "export_button": "Export CSV",
+    "filters": {
+        "search_placeholder": "Search movements...",
+        "filters": "Filters",
+        "clear": "Clear",
+        "type": "Type",
+        "movement_type": "Movement Type",
+        "all_types": "All Types",
+        "entry": "Entry",
+        "withdrawal": "Withdrawal",
+        "return": "Return",
+        "repair": "Repair",
+        "product": "Product",
+        "all_products": "All products",
+        "collaborator": "Collaborator",
+        "all_collaborators": "All collaborators",
+        "date_range": "Date Range",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "select": "Select",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "select_date": "Select Date",
+        "active_filters": "Active filters:",
+        "from": "From",
+        "to": "To",
+        "movements_found": "{{count}} movement(s) found"
+    },
+    "table": {
+        "date": "Date/Time",
+        "type": "Type",
+        "product": "Product",
+        "quantity": "Quantity",
+        "collaborator": "Collaborator",
+        "observations": "Observations"
+    },
+    "form": {
+        "title": "New Movement",
+        "desc": "Register a new stock movement",
+        "type": "Movement Type",
+        "product": "Product",
+        "quantity": "Quantity",
+        "collaborator": "Collaborator",
+        "date": "Date/Time",
+        "observations": "Observations",
+        "request_signature": "Request digital signature",
+        "save": "Register Movement",
+        "select_product": "Select a product from the list",
+        "select_collaborator": "Select a collaborator",
+        "success": "Movement registered successfully!",
+        "error": "Error registering movement",
+        "collaborator_hint": "Choose the collaborator responsible for the withdrawal/return.",
+        "date_hint": "If you prefer, adjust the date/time. By default we use now."
+    },
+    "actions": {
+        "show_all": "Show all movements",
+        "show_starred": "Show starred only",
+        "export_selected": "Export selected",
+        "clear_selection": "Clear selection",
+        "print": "Print",
+        "export_csv": "Export CSV",
+        "export_filters_title": "Export Filters",
+        "export_filters_desc": "Select filters to export movements to CSV",
+        "no_results_export": "No movements found with selected filters",
+        "select_one": "Select at least one movement.",
+        "export_error": "Error exporting CSV",
+        "export_count": "{{count}} movement(s) will be exported",
+        "selected_count": "{{count}} selected",
+        "add_favorite": "Add to favorites",
+        "remove_favorite": "Remove from favorites"
+    },
+    "empty": {
+        "no_results": "No movements found",
+        "no_records": "No movements registered",
+        "adjust_filters": "Try adjusting filters or searching for another term.",
+        "start_registering": "Register entries, withdrawals and returns to keep your stock history always up to date."
+    },
+    "import": {
+        "title": "Import Movements",
+        "description": "Import movements from an Excel or CSV file. Use exact product and collaborator names.",
+        "product_not_found": "Line {{line}}: Product \"{{name}}\" not found",
+        "collaborator_not_found": "Line {{line}}: Collaborator \"{{name}}\" not found",
+        "error_creating": "Line {{line}}: {{error}}"
+    }
+},
+"conta": {
+    "title": "My Account",
+    "subtitle": "Manage your subscription and company data",
+    "plan": {
+        "professional": "Professional",
+        "free_trial": "Free Trial",
+        "pending_payment": "Pending Payment",
+        "canceled": "Canceled",
+        "no_plan": "No Plan",
+        "active": "Active",
+        "full_access": "Full access to all features",
+        "trial_days": "7 days of full access to try",
+        "trial_remaining": "{{days}} days of free access remaining",
+        "update_payment": "Update your payment method",
+        "subscription_canceled": "Your subscription was canceled",
+        "subscribe_full": "Subscribe to access all features"
+    },
+    "subscription": {
+        "manage": "Manage subscription",
+        "subscribe_now": "Subscribe Now",
+        "opening": "Opening...",
+        "processing": "Processing...",
+        "included": "Included in your plan:"
+    },
+    "features": {
+        "unlimited_stock": "Unlimited stock",
+        "unlimited_users": "Unlimited users",
+        "unlimited_tools": "Unlimited tools",
+        "full_movements": "Complete movements",
+        "advanced_reports": "Advanced reports",
+        "industrial_dashboard": "Industrial dashboard",
+        "repair_management": "Repair management",
+        "email_support": "Email support"
+    },
+    "account_info": {
+        "title": "Account Information",
+        "subtitle": "Data linked to your login",
+        "email": "Email",
+        "email_note": "This is the email used for login and notifications",
+        "member_since": "Member since",
+        "date_unavailable": "Date not available"
+    },
+    "company_info": {
+        "title": "Company Data",
+        "subtitle": "Information for identification",
+        "company_name": "Company Name",
+        "cnpj": "CNPJ",
+        "phone": "Phone",
+        "save_changes": "Save changes",
+        "saving": "Saving...",
+        "success": "Data updated successfully!",
+        "error": "Error saving data"
+    },
+    "security": {
+        "title": "Security",
+        "subtitle": "Account security options",
+        "change_password": "Change password",
+        "change_password_note": "We recommend changing your password periodically",
+        "send_reset_email": "Send reset email",
+        "reset_email_sent": "Recovery email sent!"
+    }
+},
+"inventario": {
+    "title": "Inventory",
+    "subtitle": "Balance and stock count",
+    "new_button": "New Inventory",
+    "no_inventory": "No inventory",
+    "no_inventory_desc": "Create your first inventory to start counting",
+    "status": {
+        "in_progress": "In Progress",
+        "finished": "Finished",
+        "canceled": "Canceled"
+    },
+    "labels": {
+        "items": "items",
+        "progress": "Count progress",
+        "divergences_found": "{{count}} divergence(s) found"
+    },
+    "actions": {
+        "continue": "Continue",
+        "view_result": "View Result"
+    },
+    "form": {
+        "title": "New Inventory",
+        "desc": "Start a new stock count",
+        "description": "Description",
+        "description_placeholder": "Ex: Monthly Inventory - June/2025",
+        "responsible": "Responsible",
+        "responsible_placeholder": "Name of the person responsible for counting",
+        "scope": "Scope",
+        "scope_all": "All items",
+        "scope_category": "By category",
+        "category": "Category",
+        "select_category": "Select category",
+        "observations": "Observations",
+        "observations_placeholder": "Additional observations (optional)",
+        "cancel": "Cancel",
+        "creating": "Creating...",
+        "create_start": "Create and Start"
+    },
+    "confirm_delete": "Are you sure you want to delete this inventory?"
+},
+"consertos": {
+    "title": "Repairs",
+    "subtitle": "Manage repair orders",
+    "new_button": "Add Product for Repair",
+    "export_pdf": "Export PDF",
+    "open_repairs": "Open Repairs",
+    "completed_repairs": "Completed Repairs",
+    "no_repairs": "No repair orders",
+    "no_results": "No results found",
+    "table": {
+        "status": "Status",
+        "product": "Product",
+        "priority": "Priority",
+        "location": "Location",
+        "deadline": "Deadline",
+        "sent_at": "Sent at"
+    },
+    "status": {
+        "all": "All",
+        "waiting": "Waiting",
+        "in_progress": "In Progress",
+        "completed": "Completed"
+    },
+    "priority": {
+        "all": "All",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+    },
+    "labels": {
+        "deadline": "Deadline",
+        "sent": "Sent",
+        "location": "Location",
+        "cost": "Cost",
+        "no_deadline": "No deadline",
+        "returned_at": "Returned at"
+    },
+    "actions": {
+        "actions": "Actions",
+        "register_return": "Register Return",
+        "update_status": "Update Status",
+        "clear_filters": "Clear Filters",
+        "cancel": "Cancel",
+        "mark_in_progress": "Mark as in progress",
+        "loading": "Loading..."
+    },
+    "form": {
+        "title": "New Repair Order",
+        "desc": "Select the product and repair details.",
+        "product": "Product",
+        "product_placeholder": "Type the product name",
+        "quantity": "Quantity for Repair",
+        "available": "Available",
+        "units": "units",
+        "status": "Status",
+        "location": "Location / Responsible",
+        "location_placeholder": "Workshop, supplier, sector",
+        "deadline": "Expected deadline",
+        "priority": "Priority",
+        "description": "Description",
+        "description_placeholder": "Defect details or observations",
+        "save": "Create Repair Order"
+    },
+    "return": {
+        "title": "Register Return",
+        "desc": "Item returning from repair",
+        "quantity": "Quantity to return",
+        "in_repair": "In repair",
+        "cost": "Repair cost (R$)",
+        "confirm": "Confirm Return",
+        "tool_label": "Tool: {{name}}",
+        "in_repair_count": "{{count}} unit(s) still in repair",
+        "success": "Return registered successfully!"
+    },
+    "return_dialog": {
+        "title": "Update Status / Return",
+        "status_label": "New Status",
+        "cost": "Cost",
+        "quantity_returned": "Quantity Returned",
+        "quantity_max": "Max available: {{count}}",
+        "conclude_action": "Save Changes"
+    },
+    "errors": {
+        "min_quantity": "The quantity must be at least 1",
+        "invalid_quantity": "Invalid quantity. Still in repair: {{count}}",
+        "register_return": "Error registering return",
+        "update_status": "Error updating status",
+        "select_product": "Select a product",
+        "insufficient_quantity": "Insufficient quantity. Available: {{count}}",
+        "create_order": "Error creating repair order"
+    },
+    "export": {
+        "title": "Export Filters",
+        "desc": "Select filters to export only the desired repairs. Leave blank to export all.",
+        "priority": "Priority",
+        "status": "Status",
+        "product": "Product (Optional)",
+        "all_products": "All products",
+        "location": "Repair Location (Optional)",
+        "location_placeholder": "Type the location (e.g., Workshop, Supplier)",
+        "send_period": "Send Period",
+        "return_period": "Return Period",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "total_to_export": "Total repairs to be exported:",
+        "report_title": "Repairs Report",
+        "generated_at": "Generated at {{date}}",
+        "filter_priority": "Priority: {{value}}",
+        "filter_status": "Status: {{value}}",
+        "filter_product": "Product: {{value}}",
+        "filter_location": "Location: {{value}}",
+        "filter_send_date": "Send Date: {{start}} to {{end}}",
+        "filter_return_date": "Return Date: {{start}} to {{end}}",
+        "filters_applied": "Filters: {{filters}}",
+        "headers": {
+            "product": "Product",
+            "status": "Status",
+            "priority": "Priority",
+            "location": "Location",
+            "deadline": "Deadline",
+            "send_date": "Send Date",
+            "return_date": "Return Date",
+            "cost": "Cost"
+        },
+        "footer_page": "Generated at {{date}} - Page {{current}} of {{total}}",
+        "footer_generated_by": "Generated by Almox Fácil"
+    }
+},
+"ferramentas": {
+    "title": "Inventory",
+    "subtitle": "Manage your tools and products",
+    "new_button": "New Product",
+    "import_button": "Import Excel",
+    "export_csv": "Export CSV",
+    "generating_csv": "Generating CSV...",
+    "search_placeholder": "Search products...",
+    "photo_upload": {
+        "label": "Product Photo",
+        "loading": "Loading...",
+        "uploading": "Uploading...",
+        "upload": "Upload",
+        "change": "Change",
+        "camera": "Camera",
+        "remove": "Remove",
+        "help_text": "JPG/PNG/WebP up to 5MB."
+    },
+    "filters": {
+        "search_placeholder": "Search by name, code or category...",
+        "filters": "Filters",
+        "more_filters": "More filters",
+        "title": "Advanced Filters",
+        "description": "Refine your search by category or item type.",
+        "advanced_filters": "Advanced filters",
+        "clear": "Clear",
+        "type": "Type",
+        "select_type": "Select Type",
+        "all_types": "All Types",
+        "tool": "Tool",
+        "ppe": "PPE",
+        "consumable": "Consumable",
+        "state": "State",
+        "all_states": "All states",
+        "ok": "OK",
+        "damaged": "Damaged",
+        "in_repair": "In Repair",
+        "category": "Category",
+        "select_category": "Select Category",
+        "all_categories": "All Categories",
+        "sort_by": "Sort by",
+        "name": "Name",
+        "available": "Available",
+        "total_quantity": "Total Quantity",
+        "created_at": "Created At",
+        "ascending": "Ascending",
+        "descending": "Descending",
+        "active_filters": "Active filters:",
+        "type_label": "Type",
+        "state_label": "State",
+        "category_label": "Category",
+        "products_found": "{{count}} product found",
+        "products_found_plural": "{{count}} products found",
+        "status": "Status",
+        "all_status": "All Status"
+    },
+    "tabs": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "all": "All"
+    },
+    "list": {
+        "selected_count": "{{count}} of {{total}} record(s) selected",
+        "bulk_actions": "Bulk actions"
+    },
+    "table": {
+        "product": "Product",
+        "sku": "SKU",
+        "format": "Format",
+        "value": "Value (R$)",
+        "stock": "Stock",
+        "status": "Status",
+        "actions": "Actions"
+    },
+    "form": {
+        "title_new": "New Product",
+        "title_edit": "Edit Product",
+        "desc_new": "Add a new product to stock",
+        "desc_edit": "Update product information",
+        "name": "Name",
+        "type": "Category",
+        "select_type": "Select type",
+        "tool": "Tool",
+        "ppe": "PPE",
+        "consumable": "Consumable",
+        "line_group": "Line/Group",
+        "line_placeholder": "Ex: Cutting, Safety",
+        "code": "Code",
+        "auto_generated": "Auto-generated",
+        "size": "Size / Measure",
+        "size_placeholder": "Ex: M, 500ml, 10mm",
+        "color": "Color",
+        "color_placeholder": "Ex: Blue, Black",
+        "quantity_total": "Total Quantity",
+        "status": "Status",
+        "min_stock": "Minimum Stock",
+        "min_stock_placeholder": "Ex: 5 (alert when stock ≤ 5)",
+        "min_stock_hint": "When stock reaches this value, you will be alerted on the dashboard",
+        "observations": "Observations",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving..."
+    },
+    "status": {
+        "ok": "OK",
+        "damaged": "Damaged",
+        "in_repair": "In Repair"
+    },
+    "cards": {
+        "code": "Code",
+        "type": "Type",
+        "category": "Category",
+        "total": "Total",
+        "available": "Available",
+        "low_stock": "Low stock! Minimum: {{min}}"
+    },
+    "actions": {
+        "entry": "Entry",
+        "withdraw": "Withdraw",
+        "return": "Return",
+        "repair": "Repair",
+        "register_entry": "Register Entry",
+        "register_withdrawal": "Register Withdrawal",
+        "register_return": "Register Return",
+        "send_to_repair": "Send to Repair",
+        "tool": "Tool",
+        "collaborator": "Collaborator",
+        "select_collaborator": "Select a collaborator",
+        "quantity": "Quantity",
+        "status": "Status",
+        "repair_status_placeholder": "Repair status",
+        "location": "Location / Responsible",
+        "location_placeholder": "Ex: Internal workshop, Vendor X",
+        "deadline": "Expected deadline",
+        "priority": "Priority",
+        "priority_low": "Low",
+        "priority_medium": "Medium",
+        "priority_high": "High",
+        "observations": "Observations",
+        "optional": "Optional",
+        "confirm": "Confirm",
+        "processing": "Processing..."
+    },
+    "pagination": {
+        "showing": "Showing {{count}} of {{total}} records",
+        "page": "Page {{current}} of {{total}}"
+    },
+    "empty": {
+        "no_items_title": "No items found",
+        "no_items_search": "Try searching for another term or clear filters.",
+        "stock_empty_title": "Your stock is empty",
+        "stock_empty_desc": "Start by registering tools, PPEs and consumables to efficiently control your warehouse.",
+        "first_item": "Register First Item",
+        "clear_search": "Clear Search"
+    },
+    "error": "Error loading data. Please reload the page."
+},
+"checkout": {
+    "subscribe_now": "Subscribe Now",
+    "processing": "Processing..."
+}
+},
+"import": {
+"example": "Example",
+"data_sheet_name": "Data",
+"errors": {
+    "empty_sheet": "The spreadsheet is empty or has no valid data.",
+    "required_field": "Row {{row}}: Field \"{{field}}\" is required",
+    "invalid_value": "Row {{row}}: Invalid value \"{{value}}\" for \"{{field}}\". Options: {{options}}",
+    "process_error": "Error processing file. Please check if it is a valid Excel file.",
+    "invalid_file_type": "Please select an Excel (.xlsx, .xls) or CSV (.csv) file",
+    "title": "Errors found:"
+},
+"download_template": {
+    "title": "Download spreadsheet template",
+    "description": "Use the template to ensure data is in the correct format",
+    "button": "Download"
+},
+"drag_drop": {
+    "title": "Drag and drop your file here",
+    "subtitle": "or click to select",
+    "formats": "Accepted formats: .xlsx, .xls, .csv"
+},
+"expected_fields": "Expected fields in spreadsheet:",
+"required_fields_note": "* Required fields",
+"preview": {
+    "records_found": "{{count}} record found",
+    "records_found_plural": "{{count}} records found",
+    "change_file": "Change file",
+    "warnings": "Warnings ({{count}}):",
+    "more_warnings": "... and {{count}} more warnings",
+    "show_less": "Show less",
+    "show_more": "Show all ({{count}} more)"
+},
+"importing": {
+    "title": "Importing data...",
+    "description": "Please wait while we process {{count}} record(s)"
+},
+"result": {
+    "success": "{{count}} record imported successfully!",
+    "success_plural": "{{count}} records imported successfully!",
+    "errors": "{{count}} error during import:",
+    "errors_plural": "{{count}} errors during import:"
+},
+"actions": {
+    "import_count": "Import {{count}} record",
+    "import_count_plural": "Import {{count}} records",
+    "import_more": "Import more",
+    "finish": "Finish",
+    "back": "Back"
+}
+},
+"landing": {
+"nav": {
+    "problems": "Problems",
+    "solution": "Solution",
+    "testimonials": "Testimonials",
+    "dashboard": "Go to Dashboard",
+    "login": "Login",
+    "start_free": "Start Free"
+},
+"hero": {
+    "badge": "More than 200 companies have already organized their house",
+    "title_part1": "Operium - Free ERP for warehouse",
+    "title_part2": "and inventory control",
+    "title_part3": "",
+    "description": "Organize your company's tools, materials, and assets in a simple, fast, and 100% free system.",
+    "cta_button": "Create free account now",
+    "no_card": "Free forever platform for small businesses. No credit card. No catches.",
+    "partners": "Partner companies that trust Operium"
+},
+"pain_points": {
+    "title": "Is your stock a money black hole?",
+    "subtitle": "If you still use paper or spreadsheets, you are probably losing money without realizing it.",
+    "tools_title": "Tools that disappear",
+    "tools_desc": "You buy, use once and nobody knows where it went. The loss is silent, but constant.",
+    "spreadsheets_title": "Outdated spreadsheets",
+    "spreadsheets_desc": "The spreadsheet never matches reality. You lose hours counting stock and still have gaps.",
+    "emergency_title": "Emergency purchases",
+    "emergency_desc": "Material runs out in the middle of the work or service. You pay more to replace urgently."
+},
+"solution": {
+    "badge": "Complete Solution",
+    "title": "Total control in the palm of your hand",
+    "description": "Ditch the spreadsheets and notebooks. Have a professional system that organizes your stock, controls who took what, and alerts you when you need to buy more.",
+    "mobile_title": "Works on Mobile",
+    "mobile_desc": "Access from anywhere, whether on site or in the office.",
+    "lost_title": "No More Lost Items",
+    "lost_desc": "Know exactly who has each tool.",
+    "alerts_title": "Automatic Alerts",
+    "alerts_desc": "Get notified before stock runs out."
+},
+"ai_features": {
+    "badge": "Exclusive Feature",
+    "title": "Integrated Artificial Intelligence",
+    "subtitle": "Automate manual tasks and save time with the power of AI",
+    "ocr_title": "Invoice OCR",
+    "ocr_desc": "Upload a photo of the invoice and let AI identify and register products automatically.",
+    "search_title": "Smart Search",
+    "search_desc": "Find what you need by describing it in natural language (e.g., 'damaged cutting tools').",
+    "autofill_title": "Smart Auto-fill",
+    "autofill_desc": "AI suggests categories, codes, and reorder points for your products."
+},
+"features": {
+    "support_title": "Support with 95% satisfaction",
+    "support_desc": "Agile and humanized service. Talk to those who understand the subject via WhatsApp, email or chat.",
+    "online_title": "100% online system",
+    "online_desc": "Access Operium anytime, anywhere. From the office, home or directly from the work.",
+    "price_title": "No surprise charges. Ever.",
+    "price_desc": "Use Operium for free, with no time limit. We don't ask for a credit card and we don't enable automatic charges. If we launch paid plans with advanced features in the future, you only upgrade if you want to. Free access remains available for small businesses."
+},
+"how_it_works": {
+    "title": "Simple as it should be",
+    "subtitle": "Start using in less than 5 minutes, completely free.",
+    "step1_title": "Register",
+    "step1_desc": "Import your products or register in seconds.",
+    "step2_title": "Move",
+    "step2_desc": "Register entries and exits by cell phone.",
+    "step3_title": "Control",
+    "step3_desc": "View reports and know where each item is."
+},
+"testimonials": {
+    "title": "Who uses, recommends",
+    "subtitle": "Join more than 200 companies that transformed their management",
+    "t1_content": "I lost about 500 reais a month just with small tools disappearing. Operium paid for itself in the first week.",
+    "t1_role": "Owner",
+    "t2_content": "I tried using 3 different systems, all very complicated. This one my team learned to use in 10 minutes.",
+    "t2_role": "Manager",
+    "t3_content": "PPE control is sensational. The system warns before expiring, I never paid a fine or took a risk again.",
+    "t3_role": "Partner"
+},
+"pricing": {
+    "title": "Fair price, no surprises",
+    "subtitle": "Everything you need in a single plan.",
+    "most_popular": "MOST POPULAR",
+    "best_value": "BEST VALUE",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "annual": "Annual",
+    "monthly_value": "$17.00",
+    "monthly_unit": "/month",
+    "monthly_equiv": "≈ $17.00/mo",
+    "quarterly_value": "$45.00",
+    "quarterly_unit": "/quarter",
+    "quarterly_equiv": "≈ $15.00/mo",
+    "annual_value": "$139.00",
+    "annual_unit": "/year",
+    "annual_equiv": "≈ $11.58/mo",
+    "per_month": "/month",
+    "billed_annually": "Billed annually (R$ 478,80)",
+    "billed_monthly": "Billed monthly",
+    "feat_stock": "Unlimited stock",
+    "feat_users": "Unlimited users",
+    "feat_tools": "Tool management",
+    "feat_epi": "PPE control",
+    "feat_support": "Priority support via WhatsApp",
+    "cta": "Start 7-day free trial",
+    "cancel_anytime": "Cancel anytime. No loyalty."
+},
+"cta_final": {
+    "title": "Organized warehouse without paying monthly fees.",
+    "subtitle": "",
+    "button": "Create free account now",
+    "join": "Free forever for small businesses. Start now."
+},
+"footer": {
+    "terms": "Terms of Use",
+    "privacy": "Privacy",
+    "contact": "Contact"
+},
+"mockup": {
+    "new_exit": "New Exit",
+    "stock_updated": "Stock updated",
+    "just_now": "Just now",
+    "new_movement": "New Movement",
+    "product": "Product",
+    "quantity": "Quantity",
+    "responsible": "Responsible",
+    "confirm_exit": "Confirm Exit"
+}
+}
 }

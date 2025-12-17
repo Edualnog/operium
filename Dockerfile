@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for Next.js 14 (ERP Almox Fácil)
+# Multi-stage Dockerfile for Next.js 14 (Operium)
 # Build image: docker build -t erp-almox-facil .
 # Run in production: docker run -p 3000:3000 --env-file .env.local erp-almox-facil
 

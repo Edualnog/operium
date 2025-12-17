@@ -220,7 +220,7 @@ export default function TermoResponsabilidadeModal({
       doc.setFontSize(8)
       doc.setTextColor(128)
       doc.text(
-        "Documento gerado eletronicamente pelo sistema Almox Fácil",
+        "Documento gerado eletronicamente pelo sistema Operium",
         pageWidth / 2,
         pageHeight - 15,
         { align: "center" }

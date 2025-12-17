@@ -16,11 +16,11 @@ export const LEGAL_CONTENT = {
 ## 1. Termos de Uso
 **Última atualização:** 17 de Dezembro de 2025
 
-Bem-vindo ao **Almox Fácil**. Ao acessar ou utilizar nossa plataforma, você concorda com estes Termos de Uso. Este é um contrato vinculativo entre você (o "Usuário" ou "Cliente") e a Almox Fácil ("Nós" ou "Plataforma").
+Bem-vindo ao **Operium**. Ao acessar ou utilizar nossa plataforma, você concorda com estes Termos de Uso. Este é um contrato vinculativo entre você (o "Usuário" ou "Cliente") e a Operium ("Nós" ou "Plataforma").
 
 ### 1. O Serviço
-O Almox Fácil é um software como serviço (SaaS) destinado à gestão e controle de almoxarifados, ferramentas e ativos industriais. Nossa função é fornecer a infraestrutura digital para rastreamento, registro de eventos e organização de inventário.
-**Importante:** O Almox Fácil é uma ferramenta de apoio à gestão. Nós não tomamos decisões operacionais por você, não substituímos a supervisão humana e não nos responsabilizamos por perdas físicas de ativos.
+O Operium é um software como serviço (SaaS) destinado à gestão e controle de almoxarifados, ferramentas e ativos industriais. Nossa função é fornecer a infraestrutura digital para rastreamento, registro de eventos e organização de inventário.
+**Importante:** O Operium é uma ferramenta de apoio à gestão. Nós não tomamos decisões operacionais por você, não substituímos a supervisão humana e não nos responsabilizamos por perdas físicas de ativos.
 
 ### 2. Uso Aceitável
 Você concorda em utilizar a plataforma apenas para fins legais e operacionais legítimos. É estritamente proibido:
@@ -32,30 +32,30 @@ Você concorda em utilizar a plataforma apenas para fins legais e operacionais l
 ### 3. Responsabilidades do Usuário
 - **Cadastro:** Você é responsável pela veracidade dos dados inseridos e pela atualização do cadastro da sua empresa e colaboradores.
 - **Segurança:** Você é responsável por manter a confidencialidade de suas senhas e tokens de acesso (API Keys).
-- **Conteúdo:** Você detém a propriedade intelectual dos dados operacionais inseridos (ex: lista de ativos, nomes de funcionários), concedendo à Almox Fácil licença para processá-los conforme descrito na Política de Privacidade.
+- **Conteúdo:** Você detém a propriedade intelectual dos dados operacionais inseridos (ex: lista de ativos, nomes de funcionários), concedendo à Operium licença para processá-los conforme descrito na Política de Privacidade.
 
 ### 4. Limitação de Responsabilidade
-A Almox Fácil é fornecida "como está" (as-is). Embora empreguemos as melhores práticas de engenharia e segurança:
+A Operium é fornecida "como está" (as-is). Embora empreguemos as melhores práticas de engenharia e segurança:
 - **Não garantimos** que a plataforma estará livre de erros ou interrupções 100% do tempo.
 - **Não nos responsabilizamos** por lucros cessantes, perdas de produção, danos a equipamentos ou decisões tomadas com base em relatórios do sistema. O gestor é o tomador de decisão final.
 - Nossa responsabilidade financeira máxima está limitada ao valor pago pelo Cliente nos últimos 12 meses de assinatura.
 
 ### 5. Propriedade Intelectual
-O software Almox Fácil, seu código-fonte, design, algoritmos, a tecnologia "Blackbox" e a marca são de propriedade exclusiva da Almox Fácil. O uso da plataforma não transfere nenhum direito de propriedade intelectual ao Cliente.
+O software Operium, seu código-fonte, design, algoritmos, a tecnologia "Blackbox" e a marca são de propriedade exclusiva da Operium. O uso da plataforma não transfere nenhum direito de propriedade intelectual ao Cliente.
 
 ### 6. Cancelamento e Rescisão
 - **Pelo Cliente:** Você pode cancelar sua assinatura a qualquer momento através do painel administrativo. O acesso será mantido até o fim do ciclo de faturamento vigente.
-- **Pela Almox Fácil:** Podemos suspender ou encerrar contas que violem estes Termos, mediante aviso prévio, exceto em casos de segurança crítica ou ilegalidade flagrante.
+- **Pela Operium:** Podemos suspender ou encerrar contas que violem estes Termos, mediante aviso prévio, exceto em casos de segurança crítica ou ilegalidade flagrante.
 
 ### 7. Foro
-Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca da sede da Almox Fácil para dirimir quaisquer questões decorrentes deste contrato.
+Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca da sede da Operium para dirimir quaisquer questões decorrentes deste contrato.
 `,
 
     PRIVACY: `
 ## 2. Política de Privacidade
 **Última atualização:** 17 de Dezembro de 2025
 
-A Almox Fácil leva a privacidade e a segurança de dados a sério. Esta política descreve como tratamos informações em nossa plataforma, em conformidade com a Lei Geral de Proteção de Dados (LGPD).
+A Operium leva a privacidade e a segurança de dados a sério. Esta política descreve como tratamos informações em nossa plataforma, em conformidade com a Lei Geral de Proteção de Dados (LGPD).
 
 ### 1. Tipos de Dados Coletados
 Nós coletamos e processamos três categorias distintas de dados:
@@ -70,7 +70,7 @@ Dados inseridos pelo Cliente para identificar quem retirou ou devolveu equipamen
 - Nome completo.
 - Identificação interna (ex: matrícula, e-mail corporativo).
 - Cargo/Função.
-**Nota:** O Cliente é o Controlador destes dados e a Almox Fácil atua como Operadora. Cabe ao Cliente informar seus colaboradores sobre o uso da ferramenta.
+**Nota:** O Cliente é o Controlador destes dados e a Operium atua como Operadora. Cabe ao Cliente informar seus colaboradores sobre o uso da ferramenta.
 
 #### C. Dados Operacionais e de Ativos (Não-Pessoais)
 Dados sobre os equipamentos e sua vida útil:
@@ -106,7 +106,7 @@ Como titular de dados, você tem direito a solicitar acesso, correção, anonimi
 ## 3. Política de Dados & Analytics ("Blackbox")
 **Transparência sobre nossa Inteligência de Dados**
 
-O Almox Fácil possui um motor de inteligência interno conhecido como **"Blackbox"**. Criamos este documento para explicar, de forma simples e transparente, o que ele faz e, principalmente, o que ele **NÃO** faz.
+O Operium possui um motor de inteligência interno conhecido como **"Blackbox"**. Criamos este documento para explicar, de forma simples e transparente, o que ele faz e, principalmente, o que ele **NÃO** faz.
 
 ### 1. O que é o Blackbox?
 É o nosso sistema de processamento de eventos. Cada vez que uma ferramenta é retirada, devolvida, quebrada ou consertada, o Blackbox registra esse fato como um "evento". Com o tempo, esses eventos formam um histórico que nos ajuda a entender a vida útil dos equipamentos e a eficiência dos processos.
@@ -118,7 +118,7 @@ Focamos exclusivamente em **Ativos** e **Processos**.
 
 ### 3. O que nós NÃO analisamos (Princípio de Não-Vigilância)
 **Não monitoramos performance individual de pessoas.**
-O Almox Fácil não cria rankings de "melhores ou piores" funcionários, nem utiliza inteligência artificial para vigiar o comportamento individual dos seus colaboradores.
+O Operium não cria rankings de "melhores ou piores" funcionários, nem utiliza inteligência artificial para vigiar o comportamento individual dos seus colaboradores.
 Nosso objetivo é garantir que a ferramenta que o colaborador recebe esteja segura e funcionando, não julgar quem a está usando.
 
 ### 4. O Indicador DATA_CONFIDENCE

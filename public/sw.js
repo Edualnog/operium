@@ -1,5 +1,5 @@
-// Almox Fácil - Service Worker para Modo Offline
-const CACHE_NAME = "almox-facil-v2"
+// Operium - Service Worker para Modo Offline
+const CACHE_NAME = "operium-v1"
 const OFFLINE_URL = "/offline"
 
 // Recursos para cache imediato (app shell)
@@ -109,7 +109,7 @@ self.addEventListener("fetch", (event) => {
                 })
               }
             })
-            .catch(() => {})
+            .catch(() => { })
           return cachedResponse
         }
 
@@ -155,5 +155,5 @@ self.addEventListener("message", (event) => {
   }
 })
 
-console.log("📱 Almox Fácil Service Worker carregado")
+console.log("📱 Operium Service Worker carregado")
 

@@ -232,36 +232,36 @@ const AuthForm: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
             <p className="text-center md:text-left">
-              © {new Date().getFullYear()} Almox Fácil. Todos os direitos reservados.
+              © {new Date().getFullYear()} Operium. Todos os direitos reservados.
             </p>
             <div className="flex items-center justify-center gap-4 md:gap-6">
-              <a 
+              <a
                 href="mailto:suporte@alnog.com.br"
                 className="flex items-center gap-2 hover:text-blue-600 transition-colors"
                 title="Enviar email para suporte"
               >
                 <Mail className="h-4 w-4 flex-shrink-0" />
                 <span className="hidden md:inline">suporte@alnog.com.br</span>
-                <span className="md:hidden text-xs">Suporte</span>
+                <span className="font-semibold text-foreground">Operium</span>
               </a>
-              <a 
-                href="https://www.linkedin.com/company/almoxfacil" 
-                target="_blank" 
+              <a
+                href="https://www.linkedin.com/company/almoxfacil"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-600 transition-colors flex-shrink-0"
                 title="Visitar LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a 
-                href="https://www.almoxfacil.alnog.com.br" 
-                target="_blank" 
+              <a
+                href="https://www.almoxfacil.alnog.com.br"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 hover:text-blue-600 transition-colors"
                 title="Visitar website"
               >
                 <Globe className="h-4 w-4 flex-shrink-0" />
-                <span className="hidden md:inline">www.almoxfacil.alnog.com.br</span>
+                <span className="hidden md:inline">www.operium.com.br</span>
                 <span className="md:hidden text-xs">Website</span>
               </a>
             </div>
@@ -291,12 +291,12 @@ const Logo: React.FC = () => (
   <div className="mb-6 flex justify-center items-center">
     <div className="rounded-lg bg-[#4B6BFB] p-1.5">
       <svg className="h-8 w-8" viewBox="0 0 500 500" fill="none">
-        <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-        <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-        <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+        <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+        <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+        <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
       </svg>
     </div>
-    <span className="ml-2 text-xl font-bold text-zinc-900">Almox Fácil</span>
+    <span className="ml-2 text-xl font-bold text-zinc-900">Operium</span>
   </div>
 )
 

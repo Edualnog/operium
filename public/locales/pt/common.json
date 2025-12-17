@@ -1018,13 +1018,13 @@
         },
         "hero": {
             "badge": "Mais de 200 empresas já organizaram a casa",
-            "title_part1": "ERP gratuito para almoxarifado",
+            "title_part1": "Operium - ERP gratuito para almoxarifado",
             "title_part2": "e controle de estoque",
             "title_part3": "",
             "description": "Organize ferramentas, materiais e ativos da sua empresa em um sistema simples, rápido e 100% grátis.",
             "cta_button": "Criar conta grátis agora",
             "no_card": "Plataforma gratuita para sempre para pequenas empresas. Sem cartão de crédito. Sem pegadinhas.",
-            "partners": "Empresas parceiras que confiam no Almox Fácil"
+            "partners": "Empresas parceiras que confiam no Operium"
         },
         "pain_points": {
             "title": "Seu estoque é um buraco negro de dinheiro?",
@@ -1039,7 +1039,7 @@
         "solution": {
             "badge": "A solução definitiva",
             "title": "Retome o controle total da sua operação",
-            "description": "O Almox Fácil foi desenhado para quem não tem tempo a perder. Simples, rápido e funciona no celular da sua equipe.",
+            "description": "O Operium foi desenhado para quem não tem tempo a perder. Simples, rápido e funciona no celular da sua equipe.",
             "mobile_title": "Controle na palma da mão",
             "mobile_desc": "Registre entradas e saídas pelo celular, direto do local de trabalho. Sem burocracia.",
             "lost_title": "Fim da 'ferramenta sumida'",
@@ -1062,9 +1062,9 @@
             "support_title": "Suporte com 95% de satisfação",
             "support_desc": "Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.",
             "online_title": "Sistema 100% online",
-            "online_desc": "Acesse o Almox Fácil a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.",
+            "online_desc": "Acesse o Operium a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.",
             "price_title": "Sem cobranças surpresa. Nunca.",
-            "price_desc": "Use o Almox Fácil gratuitamente, sem limite de tempo. Não pedimos cartão de crédito e não ativamos cobranças automáticas. Se no futuro lançarmos planos pagos com recursos avançados, você só contrata se quiser. O acesso gratuito continua disponível para pequenas empresas."
+            "price_desc": "Use o Operium gratuitamente, sem limite de tempo. Não pedimos cartão de crédito e não ativamos cobranças automáticas. Se no futuro lançarmos planos pagos com recursos avançados, você só contrata se quiser. O acesso gratuito continua disponível para pequenas empresas."
         },
         "how_it_works": {
             "title": "Simples como deve ser",
@@ -1079,7 +1079,7 @@
         "testimonials": {
             "title": "Quem usa, recomenda",
             "subtitle": "Junte-se a mais de 200 empresas que transformaram sua gestão",
-            "t1_content": "Eu perdia uns 500 reais por mês só com ferramenta pequena sumindo. O Almox Fácil se pagou na primeira semana.",
+            "t1_content": "Eu perdia uns 500 reais por mês só com ferramenta pequena sumindo. O Operium se pagou na primeira semana.",
             "t1_role": "Dono",
             "t2_content": "Tentei usar 3 sistemas diferentes, todos muito complicados. Esse aqui minha equipe aprendeu a usar em 10 minutos.",
             "t2_role": "Gestora",

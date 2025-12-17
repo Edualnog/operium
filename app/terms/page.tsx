@@ -8,10 +8,10 @@ export default function TermsPage() {
                 <p>Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
 
                 <h2>1. Aceitação dos Termos</h2>
-                <p>Ao acessar e usar o Almox Fácil, você concorda em cumprir e ficar vinculado aos seguintes termos e condições de uso.</p>
+                <p>Ao acessar e usar o Operium, você concorda em cumprir e ficar vinculado aos seguintes termos e condições de uso.</p>
 
                 <h2>2. Descrição do Serviço</h2>
-                <p>O Almox Fácil é uma plataforma de gestão de almoxarifado que permite o controle de estoque, ferramentas e movimentações.</p>
+                <p>O Operium é uma plataforma de gestão de almoxarifado que permite o controle de estoque, ferramentas e movimentações.</p>
 
                 <h2>3. Conta do Usuário</h2>
                 <p>Para usar o serviço, você deve criar uma conta. Você é responsável por manter a confidencialidade de sua conta e senha.</p>

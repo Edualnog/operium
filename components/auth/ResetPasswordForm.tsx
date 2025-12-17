@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 export default function ResetPasswordForm() {
   const router = useRouter()
   const supabase = createClientComponentClient()
-  
+
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
@@ -82,7 +82,7 @@ export default function ResetPasswordForm() {
         if (err.message?.toLowerCase().includes("rate limit") || err.message?.includes("429")) {
           setError("Você atingiu o limite de tentativas. Por favor, aguarde alguns minutos e tente novamente.")
         } else {
-        setError(err.message || "Link de recuperação inválido ou expirado. Solicite um novo link.")
+          setError(err.message || "Link de recuperação inválido ou expirado. Solicite um novo link.")
         }
         setStatus("error")
       }
@@ -127,7 +127,7 @@ export default function ResetPasswordForm() {
 
       // Senha atualizada com sucesso
       setSuccess(true)
-      
+
       // Redirecionar para login após 2 segundos
       setTimeout(() => {
         router.push("/login?success=password_reset&message=" + encodeURIComponent("Senha alterada com sucesso! Faça login com sua nova senha."))
@@ -135,7 +135,7 @@ export default function ResetPasswordForm() {
 
     } catch (err: any) {
       let errorMessage = "Erro ao alterar a senha. Por favor, tente novamente."
-      
+
       if (err.message?.toLowerCase().includes("rate limit") || err.message?.includes("429")) {
         errorMessage = "Você atingiu o limite de tentativas. Por favor, aguarde alguns minutos e tente novamente."
       } else if (err.message?.includes("expired") || err.message?.includes("invalid")) {
@@ -143,7 +143,7 @@ export default function ResetPasswordForm() {
       } else if (err.message) {
         errorMessage = err.message
       }
-      
+
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -231,13 +231,13 @@ export default function ResetPasswordForm() {
         <div className="flex items-center justify-center gap-2 mb-4">
           <div className="w-10 h-10 bg-[#4B6BFB] rounded-lg flex items-center justify-center p-1.5">
             <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
-              <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-              <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
-              <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round"/>
+              <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+              <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
+              <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
             </svg>
           </div>
           <span className="text-2xl font-bold text-gray-900 dark:text-white">
-            Almox Fácil
+            Operium
           </span>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">

@@ -193,12 +193,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <div className="relative h-8 w-8 rounded-lg overflow-hidden">
               <Image
                 src="/images/logo-v2.png"
-                alt="Logo Almox Fácil"
+                alt="Logo Operium"
                 fill
                 className="object-cover"
               />
             </div>
-            <span className="font-bold text-xl tracking-tight text-slate-900">Almox Fácil</span>
+            <span className="font-bold text-xl tracking-tight text-slate-900">Operium</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -606,12 +606,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <div className="relative h-6 w-6 rounded-md overflow-hidden">
               <Image
                 src="/images/logo-v2.png"
-                alt="Logo Almox Fácil"
+                alt="Logo Operium"
                 fill
                 className="object-cover grayscale opacity-50"
               />
             </div>
-            <span className="font-bold text-slate-700">Almox Fácil</span>
+            <span className="font-bold text-slate-700">Operium</span>
           </div>
 
           <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
@@ -627,7 +627,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           </div>
 
           <div className="text-xs text-slate-400 mt-2">
-            © {new Date().getFullYear()} Almox Fácil - Todos os direitos reservados
+            © {new Date().getFullYear()} Operium - Todos os direitos reservados
           </div>
         </div>
       </footer>

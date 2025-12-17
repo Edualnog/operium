@@ -69,7 +69,7 @@ export function LegalAgreementModal() {
                         Atualização de Termos e Privacidade
                     </DialogTitle>
                     <DialogDescription className="text-zinc-500 mt-2 text-sm font-light">
-                        Para continuar usando o Almox Fácil com segurança e transparência, precisamos que você leia e aceite nossos novos documentos alinhados à LGPD e práticas industriais.
+                        Para continuar usando o Operium com segurança e transparência, precisamos que você leia e aceite nossos novos documentos alinhados à LGPD e práticas industriais.
                     </DialogDescription>
                 </DialogHeader>
 

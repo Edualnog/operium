@@ -305,7 +305,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 text-sm text-zinc-600">
             {/* Copyright - smaller on mobile */}
             <p className="text-center md:text-left text-xs md:text-sm order-2 md:order-1">
-              © {new Date().getFullYear()} Almox Fácil
+              © {new Date().getFullYear()} Operium
             </p>
 
             {/* Social links - larger touch targets on mobile */}
@@ -365,7 +365,7 @@ const Logo = () => {
         transition={{ duration: 0.2 }}
         className="font-semibold text-foreground whitespace-pre text-base"
       >
-        Almox Fácil
+        Operium
       </motion.span>
     </Link>
   )

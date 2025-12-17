@@ -1,4 +1,4 @@
-# Almox Fácil
+# Operium
 
 Plataforma completa de gestão de almoxarifado multi-tenant desenvolvida com Next.js 14, Supabase, Tailwind CSS e Shadcn UI.
 

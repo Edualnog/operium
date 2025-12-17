@@ -1,4 +1,4 @@
-# 🚀 Guia de Deploy - Almox Fácil
+# 🚀 Guia de Deploy - Operium
 
 Este guia detalha como fazer o deploy da plataforma em diferentes plataformas.
 

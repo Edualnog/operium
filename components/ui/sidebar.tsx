@@ -135,7 +135,7 @@ export const MobileSidebar = ({
               <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
             </svg>
           </div>
-          <span className="font-semibold text-foreground">Almox Fácil</span>
+          <span className="font-semibold text-foreground">Operium</span>
         </Link>
 
         {/* Menu button */}

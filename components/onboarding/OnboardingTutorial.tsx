@@ -153,7 +153,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Bem-vindo ao Almox Fácil!</h2>
+                <h2 className="text-xl font-bold text-white">Bem-vindo ao Operium!</h2>
                 <p className="text-blue-100 text-sm">Conheça as principais funcionalidades</p>
               </div>
             </div>
@@ -172,13 +172,12 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
               <button
                 key={index}
                 onClick={() => goToStep(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentStep 
-                    ? "w-8 bg-white" 
-                    : index < currentStep 
-                      ? "w-2 bg-white/80" 
+                className={`h-2 rounded-full transition-all duration-300 ${index === currentStep
+                    ? "w-8 bg-white"
+                    : index < currentStep
+                      ? "w-2 bg-white/80"
                       : "w-2 bg-white/40"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -247,14 +246,13 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
                 Anterior
               </button>
             )}
-            
+
             <button
               onClick={nextStep}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all ${
-                isLastStep
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all ${isLastStep
                   ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg hover:shadow-green-500/25"
                   : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/25"
-              }`}
+                }`}
             >
               {isLastStep ? (
                 <>

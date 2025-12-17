@@ -160,10 +160,10 @@ export default function InventarioComparativo({ inventario, onBack }: Inventario
 
       setShowAjusteModal(false)
       setSelectedItem(null)
-      
+
       // Atualizar lista (remover da lista de divergentes ou atualizar status)
-      setItens(prev => prev.map(item => 
-        item.id === selectedItem.id 
+      setItens(prev => prev.map(item =>
+        item.id === selectedItem.id
           ? { ...item, diferenca: 0, quantidade_sistema: selectedItem.quantidade_fisica! }
           : item
       ))
@@ -218,7 +218,7 @@ export default function InventarioComparativo({ inventario, onBack }: Inventario
 
       doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
-      
+
       const divergentes = itens.filter(i => i.diferenca !== 0)
       const sobras = divergentes.filter(i => i.diferenca! > 0)
       const faltas = divergentes.filter(i => i.diferenca! < 0)
@@ -283,7 +283,7 @@ export default function InventarioComparativo({ inventario, onBack }: Inventario
         doc.setFontSize(8)
         doc.setTextColor(128)
         doc.text(
-          `Gerado pelo Almox Fácil em ${format(new Date(), "dd/MM/yyyy HH:mm")}`,
+          `Gerado pelo Operium em ${format(new Date(), "dd/MM/yyyy HH:mm")}`,
           pageWidth / 2,
           doc.internal.pageSize.height - 10,
           { align: "center" }
@@ -304,10 +304,10 @@ export default function InventarioComparativo({ inventario, onBack }: Inventario
   const sobras = divergentes.filter(i => i.diferenca! > 0)
   const faltas = divergentes.filter(i => i.diferenca! < 0)
 
-  const filteredItens = filter === "todos" 
-    ? itens 
-    : filter === "divergentes" 
-      ? divergentes 
+  const filteredItens = filter === "todos"
+    ? itens
+    : filter === "divergentes"
+      ? divergentes
       : semDivergencia
 
   if (loading) {
