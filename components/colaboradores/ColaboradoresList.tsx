@@ -641,21 +641,22 @@ function ColaboradoresList({
         </Tabs>
 
         <div className="flex gap-2 w-full sm:w-auto items-center">
-          <Button onClick={() => setOpen(true)} className="gap-2 flex-1 sm:flex-none bg-[#37352f] hover:bg-zinc-800 text-white">
-            <Plus size={16} />
-            {t("dashboard.colaboradores.new_button")}
+          <Button onClick={() => setOpen(true)} className="gap-2 flex-1 sm:flex-none bg-[#37352f] hover:bg-zinc-800 text-white h-11 sm:h-10">
+            <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">{t("dashboard.colaboradores.new_button")}</span>
           </Button>
 
-          <Button variant="outline" onClick={() => setImportModalOpen(true)} className="gap-2">
-            <Upload size={16} />
-            {t("dashboard.colaboradores.import_button")}
+          <Button variant="outline" onClick={() => setImportModalOpen(true)} className="gap-2 h-11 sm:h-10">
+            <Upload className="h-5 w-5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">{t("dashboard.colaboradores.import_button")}</span>
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                {t("dashboard.colaboradores.export_button").split(' ')[0]} {/* "Exportar" */}
-                <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
+              <Button variant="outline" className="h-11 sm:h-10">
+                <FileDown className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{t("dashboard.colaboradores.export_button").split(' ')[0]}</span>
+                <ChevronLeft className="ml-0 sm:ml-2 h-4 w-4 rotate-[-90deg]" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

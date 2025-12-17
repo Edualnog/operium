@@ -897,29 +897,29 @@ function FerramentasList({
   return (
     <div className="space-y-4">
       {/* Voice Assistant Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-serif font-bold tracking-tight text-[#37352f] dark:text-zinc-50">Ferramentas</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <div className="flex flex-col gap-0.5 sm:gap-1">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#37352f] dark:text-zinc-50">Ferramentas</h1>
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
             Gerencie o inventário, movimentações e manutenção.
           </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           {/* Fast Scan Button */}
           <Button
-            className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium"
+            className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium flex-1 sm:flex-none h-11 sm:h-10"
             onClick={() => setIsScanning(true)}
           >
-            <Zap className="mr-2 h-4 w-4 fill-current" />
-            Modo Rápido
+            <Zap className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2 fill-current" />
+            <span className="hidden sm:inline">Modo Rápido</span>
           </Button>
 
           <Button onClick={() => {
             setEditing(null)
             setOpen(true)
-          }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium">
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Ferramenta
+          }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium flex-1 sm:flex-none h-11 sm:h-10">
+            <Plus className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Nova Ferramenta</span>
           </Button>
         </div>
       </div>
