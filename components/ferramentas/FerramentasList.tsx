@@ -64,7 +64,6 @@ import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
 import { CatalogSearch } from "./CatalogSearch"
 import { IncidentReporter } from "./IncidentReporter"
-import { QRScanner } from "./QRScanner"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { type FilterState } from "./FerramentasFilters"
@@ -95,7 +94,6 @@ import {
   Archive,
   ArrowUpDown,
   AlertTriangle,
-  Zap,
 } from "lucide-react"
 
 import QRCode from 'qrcode'
@@ -185,42 +183,6 @@ function FerramentasList({
 
   // New state for catalog linkage to be robust against re-renders
   const [catalogItemId, setCatalogItemId] = useState<string | null>(null)
-
-  // Scanner State
-  const [isScanning, setIsScanning] = useState(false)
-
-  const handleScanResult = (decodedText: string) => {
-    // 1. Normalize code
-    const searchCode = decodedText.trim().toUpperCase()
-    console.log("Scanned:", searchCode)
-
-    // 2. Search in local list (client-side for speed)
-    // Checks against ID, Custom Code, or Catalog Model Name
-    const found = ferramentas.find(f =>
-      f.id === searchCode ||
-      (f.codigo && f.codigo.toUpperCase() === searchCode) ||
-      (f.nome && f.nome.toUpperCase() === searchCode)
-    )
-
-    if (found) {
-      // 3. Success: Close scanner and open Action
-      setIsScanning(false)
-      // Play beep? (Optional)
-
-      // Open Checkout Dialog
-      setActionDialog({
-        type: "retirada",
-        ferramenta: found,
-        initialQuantity: 1
-      })
-
-      toast.success(`Item encontrado: ${found.nome}`)
-    } else {
-      // 4. Not found logic
-      // Don't close immediately, let user try again or realize it's wrong
-      toast.error(`Código não encontrado: ${searchCode}`)
-    }
-  }
 
   // Voice command handler removed
   const supabase = createClientComponentClient()
@@ -923,15 +885,6 @@ function FerramentasList({
           </Button>
         </div>
       </div>
-
-      {isScanning && (
-        <QRScanner
-          onScan={handleScanResult}
-          onClose={() => setIsScanning(false)}
-          title="Modo Rápido: Escanear Item"
-          description="Aponte a câmera para o código QR ou de barras do item para registrar uma retirada."
-        />
-      )}
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
         <div className="hidden sm:flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

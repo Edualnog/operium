@@ -42,7 +42,7 @@ import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload, FileSignature, Eye, Printer, MoreHorizontal, Star, ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Settings, ArrowRight, ArrowLeft } from "lucide-react"
+import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload, FileSignature, Eye, Printer, MoreHorizontal, Star, ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Settings, ArrowRight, ArrowLeft, Zap } from "lucide-react"
 import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
 import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 import { cn } from "@/lib/utils"
@@ -80,6 +80,8 @@ interface Colaborador {
 
 const ITEMS_PER_PAGE = 35
 
+import { QRScanner } from "@/components/ferramentas/QRScanner"
+
 export default function MovimentacoesList({
   movimentacoes: initialMovs,
   ferramentas,
@@ -93,6 +95,44 @@ export default function MovimentacoesList({
   const supabase = createClientComponentClient()
   const { t } = useTranslation()
   const { toast } = useToast()
+
+  // Scanner State
+  const [isScanning, setIsScanning] = useState(false)
+  const handleScanResult = (decodedText: string) => {
+    const searchCode = decodedText.trim().toUpperCase()
+
+    // Search for tool
+    // Note: ferramentas provided here might be basic info only, typically we need to ensure it has 'codigo'
+    // But interface Ferramenta above only has id/nome/tipo/qtd. 
+    // Usually 'ferramentas' prop in MovimentacoesList comes from 'getFerramentas' which might select less fields.
+    // Let's assume we match by ID (common qr content) or Name.
+    // If we need 'codigo', we should check if the parent passes it. 
+    // Assuming 'id' is in the QR.
+
+    // Ideally we match: ID, Name. 
+    // If 'codigo' is missing in props, we might need to fetch or assume ID fit.
+    const found = ferramentas.find(f =>
+      f.id === searchCode ||
+      f.nome.toUpperCase() === searchCode
+    )
+
+    if (found) {
+      setIsScanning(false)
+      toast.success(`Item encontrado: ${found.nome}`)
+
+      // Open New Movement Dialog with this item pre-selected
+      setForm(prev => ({
+        ...prev,
+        tipo: "retirada", // Default to Retirada for quick mode? Or Entry? Usually Scanner -> Checkout.
+        produto: found.nome,
+        produtoId: found.id,
+        quantidade: "1"
+      }))
+      setOpen(true)
+    } else {
+      toast.error(`Item não encontrado: ${searchCode}`)
+    }
+  }
   const [movimentacoes, setMovimentacoes] = useState(initialMovs)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [starredIds, setStarredIds] = useState<string[]>([])
@@ -799,12 +839,22 @@ export default function MovimentacoesList({
             <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="devolucao">{t("dashboard.movimentacoes.filters.return")}</TabsTrigger>
           </TabsList>
 
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button
+              variant="default"
+              onClick={() => setIsScanning(true)}
+              className="gap-2 bg-[#37352f] hover:bg-[#37352f]/90 text-white flex-1 sm:flex-none"
+            >
+              <Zap size={16} className="fill-yellow-400 text-yellow-400" />
+              {t("dashboard.ferramentas.fast_mode")}
+            </Button>
+
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2">
+                <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2 flex-1 sm:flex-none">
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">{t("dashboard.movimentacoes.new_button")}</span>
+                  <span className="sm:hidden">Novo</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
@@ -1094,8 +1144,8 @@ export default function MovimentacoesList({
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-          </div>
-        </div>
+          </div >
+        </div >
 
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
           <div className="relative w-full md:max-w-sm">
@@ -1115,7 +1165,7 @@ export default function MovimentacoesList({
             totalEncontrados={filtered.length}
           />
         </div>
-      </Tabs>
+      </Tabs >
 
       <div className="border border-zinc-200 rounded-lg overflow-hidden bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
         <Table className="hidden md:table">
@@ -1367,6 +1417,19 @@ export default function MovimentacoesList({
           />
         )
       }
+
+      {/* Scanner Overlay */}
+      {
+        isScanning && (
+          <QRScanner
+            onScan={handleScanResult}
+            onClose={() => setIsScanning(false)}
+            title={t("dashboard.ferramentas.fast_mode")}
+            description="Escaneie o código do item para iniciar uma movimentação"
+          />
+        )
+      }
+
     </div >
   )
 }
