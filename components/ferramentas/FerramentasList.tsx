@@ -934,8 +934,8 @@ function FerramentasList({
       )}
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
+        <div className="hidden sm:flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 flex-wrap">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => setEditing(null)} className="bg-[#37352f] hover:bg-zinc-800 text-white">
@@ -1248,6 +1248,30 @@ function FerramentasList({
           </div>
         </div>
 
+        {/* Mobile-only action bar */}
+        <div className="flex sm:hidden gap-2 overflow-x-auto pb-2">
+          <Button variant="outline" size="sm" onClick={() => setImportInvoiceOpen(true)} className="flex-shrink-0 text-xs">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            IA (Nota Fiscal)
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex-shrink-0 text-xs">
+                <FileDown className="h-3.5 w-3.5 mr-1.5" />
+                Exportar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={handleExportSelectedCSV}>
+                <FileDown className="mr-2 h-4 w-4" /> CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <FileDown className="mr-2 h-4 w-4" /> PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         <div className="bg-white dark:bg-zinc-900 rounded-md border shadow-sm">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
@@ -1352,101 +1376,103 @@ function FerramentasList({
             </Button>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50">
-                <TableHead className="w-[40px]">
-                  <Checkbox
-                    checked={selectedItems.size === filteredFerramentas.length && filteredFerramentas.length > 0}
-                    onCheckedChange={toggleAll}
-                  />
-                </TableHead>
-                <TableHead>{t("dashboard.ferramentas.table.product")}</TableHead>
-                <TableHead>{t("dashboard.ferramentas.table.sku")}</TableHead>
-                <TableHead>{t("dashboard.ferramentas.table.format")}</TableHead>
-                <TableHead>{t("dashboard.ferramentas.table.value")}</TableHead>
-                <TableHead>{t("dashboard.ferramentas.table.stock")}</TableHead>
-                <TableHead>{t("dashboard.ferramentas.table.status")}</TableHead>
-                <TableHead className="text-right">{t("dashboard.ferramentas.table.actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredFerramentas.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((ferramenta) => (
-                <TableRow key={ferramenta.id}>
-                  <TableCell>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[700px]">
+              <TableHeader>
+                <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50">
+                  <TableHead className="w-[40px]">
                     <Checkbox
-                      checked={selectedItems.has(ferramenta.id)}
-                      onCheckedChange={() => toggleSelection(ferramenta.id)}
+                      checked={selectedItems.size === filteredFerramentas.length && filteredFerramentas.length > 0}
+                      onCheckedChange={toggleAll}
                     />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-md bg-zinc-100 overflow-hidden relative">
-                        {ferramenta.foto_url ? (
-                          <Image src={ferramenta.foto_url} alt={ferramenta.nome} fill className="object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-zinc-300">
-                            <Package size={20} />
-                          </div>
-                        )}
-                      </div>
-                      <span className="font-medium text-zinc-700 dark:text-zinc-200">{ferramenta.nome}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-zinc-500 font-mono text-xs">{ferramenta.codigo || "-"}</TableCell>
-                  <TableCell>
-                    <span className="text-zinc-600">{ferramenta.tamanho || "Simples"}</span>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {/* Placeholder for value if not exists */}
-                    500,00
-                  </TableCell>
-                  <TableCell>
-                    <span className={cn(
-                      "font-semibold",
-                      ferramenta.quantidade_disponivel === 0 ? "text-red-600" : "text-zinc-700 dark:text-zinc-300"
-                    )}>
-                      {ferramenta.quantidade_disponivel}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={cn(
-                      ferramenta.estado === 'ok'
-                        ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 border-zinc-200"
-                        : "bg-zinc-200 text-zinc-800 hover:bg-zinc-300 border-zinc-300"
-                    )}>
-                      {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700">
-                          Ações <ChevronLeft className="h-3 w-3 rotate-[-90deg]" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => { setEditing(ferramenta); setOpen(true); }}>
-                          <Edit className="mr-2 h-4 w-4" /> Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleGenerateLabel(ferramenta)}>
-                          <Printer className="mr-2 h-4 w-4" /> Gerar etiqueta
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ferramenta.id)}>
-                          <Archive className="mr-2 h-4 w-4" /> Inativar / Excluir
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600 focus:text-red-700 focus:bg-red-50" onClick={() => setActionDialog({ type: "incident", ferramenta })}>
-                          <AlertTriangle className="mr-2 h-4 w-4" /> Reportar Problema
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  </TableHead>
+                  <TableHead>{t("dashboard.ferramentas.table.product")}</TableHead>
+                  <TableHead>{t("dashboard.ferramentas.table.sku")}</TableHead>
+                  <TableHead>{t("dashboard.ferramentas.table.format")}</TableHead>
+                  <TableHead>{t("dashboard.ferramentas.table.value")}</TableHead>
+                  <TableHead>{t("dashboard.ferramentas.table.stock")}</TableHead>
+                  <TableHead>{t("dashboard.ferramentas.table.status")}</TableHead>
+                  <TableHead className="text-right">{t("dashboard.ferramentas.table.actions")}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredFerramentas.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((ferramenta) => (
+                  <TableRow key={ferramenta.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedItems.has(ferramenta.id)}
+                        onCheckedChange={() => toggleSelection(ferramenta.id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-md bg-zinc-100 overflow-hidden relative">
+                          {ferramenta.foto_url ? (
+                            <Image src={ferramenta.foto_url} alt={ferramenta.nome} fill className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                              <Package size={20} />
+                            </div>
+                          )}
+                        </div>
+                        <span className="font-medium text-zinc-700 dark:text-zinc-200">{ferramenta.nome}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-zinc-500 font-mono text-xs">{ferramenta.codigo || "-"}</TableCell>
+                    <TableCell>
+                      <span className="text-zinc-600">{ferramenta.tamanho || "Simples"}</span>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {/* Placeholder for value if not exists */}
+                      500,00
+                    </TableCell>
+                    <TableCell>
+                      <span className={cn(
+                        "font-semibold",
+                        ferramenta.quantidade_disponivel === 0 ? "text-red-600" : "text-zinc-700 dark:text-zinc-300"
+                      )}>
+                        {ferramenta.quantidade_disponivel}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className={cn(
+                        ferramenta.estado === 'ok'
+                          ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 border-zinc-200"
+                          : "bg-zinc-200 text-zinc-800 hover:bg-zinc-300 border-zinc-300"
+                      )}>
+                        {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700">
+                            Ações <ChevronLeft className="h-3 w-3 rotate-[-90deg]" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => { setEditing(ferramenta); setOpen(true); }}>
+                            <Edit className="mr-2 h-4 w-4" /> Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleGenerateLabel(ferramenta)}>
+                            <Printer className="mr-2 h-4 w-4" /> Gerar etiqueta
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ferramenta.id)}>
+                            <Archive className="mr-2 h-4 w-4" /> Inativar / Excluir
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-red-600 focus:text-red-700 focus:bg-red-50" onClick={() => setActionDialog({ type: "incident", ferramenta })}>
+                            <AlertTriangle className="mr-2 h-4 w-4" /> Reportar Problema
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
           {/* Pagination reusable */}
           {filteredFerramentas.length > 0 && (
             <div className="flex items-center justify-between px-4 py-4 border-t">

@@ -14,6 +14,7 @@ interface QRScannerProps {
 
 export function QRScanner({ onScan, onClose, title, description }: QRScannerProps) {
     const [error, setError] = useState<string | null>(null)
+    const [isInitializing, setIsInitializing] = useState(true)
     const scannerRef = useRef<Html5QrcodeScanner | null>(null)
     const onScanRef = useRef(onScan)
     const isClosingRef = useRef(false)
@@ -46,25 +47,36 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
 
     useEffect(() => {
         // Initialize scanner
-        // Use a small timeout to ensure DOM is ready inside the Dialog
+        // Use a larger timeout on mobile to ensure DOM is ready
         const timer = setTimeout(() => {
             try {
                 // Check if element exists
-                const readerElement = document.getElementById("reader")
+                const readerElement = document.getElementById("qr-reader")
                 if (!readerElement) {
                     console.error("Reader element not found")
+                    setError("Erro ao inicializar o scanner.")
+                    setIsInitializing(false)
                     return
                 }
 
                 const scanner = new Html5QrcodeScanner(
-                    "reader",
+                    "qr-reader",
                     {
-                        fps: 5,
+                        fps: 10,
                         qrbox: { width: 250, height: 250 },
                         aspectRatio: 1.0,
-                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
+                        formatsToSupport: [
+                            Html5QrcodeSupportedFormats.QR_CODE,
+                            Html5QrcodeSupportedFormats.CODE_128,
+                            Html5QrcodeSupportedFormats.CODE_39,
+                            Html5QrcodeSupportedFormats.EAN_13,
+                            Html5QrcodeSupportedFormats.EAN_8
+                        ],
+                        experimentalFeatures: {
+                            useBarCodeDetectorIfSupported: true
+                        }
                     },
-                /* verbose= */ false
+                    /* verbose= */ false
                 )
 
                 scanner.render(
@@ -81,12 +93,14 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                 )
 
                 scannerRef.current = scanner
+                setIsInitializing(false)
 
             } catch (err: any) {
                 console.error("Error initializing scanner:", err)
                 setError("Erro ao iniciar câmera. Verifique permissões.")
+                setIsInitializing(false)
             }
-        }, 100)
+        }, 300) // Increased delay for mobile
 
         return () => {
             clearTimeout(timer)
@@ -97,49 +111,97 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                 scannerRef.current = null
             }
         }
-    }, [handleClose]) // Empty dependency array to only run once
+    }, [handleClose])
 
     return (
-        <div className="flex flex-col items-center justify-center p-4 bg-black text-white rounded-lg relative min-h-[400px]">
+        <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4">
+            {/* Close button */}
             <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-2 right-2 z-10 text-white hover:bg-white/20"
+                className="absolute top-4 right-4 z-10 text-white hover:bg-white/20 h-12 w-12"
                 onClick={handleClose}
             >
-                <X className="h-6 w-6" />
+                <X className="h-7 w-7" />
             </Button>
 
-            {title && <h3 className="text-lg font-semibold mb-4 text-center">{title}</h3>}
+            {/* Title */}
+            {title && (
+                <h3 className="text-lg sm:text-xl font-semibold mb-4 text-center text-white px-4">
+                    {title}
+                </h3>
+            )}
 
-            <div id="reader" className="w-full max-w-sm overflow-hidden rounded-lg bg-black text-white [&>div]:!border-0 !sm:w-[300px]"></div>
+            {/* Scanner container */}
+            <div className="w-full max-w-md relative">
+                {isInitializing && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg z-10">
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                    </div>
+                )}
+                <div
+                    id="qr-reader"
+                    className="w-full overflow-hidden rounded-lg bg-black"
+                ></div>
+            </div>
 
-            <p className="mt-4 text-center text-sm text-gray-300">
-                {description || "Aponte a câmera para o código QR da ferramenta."}
+            {/* Description */}
+            <p className="mt-4 text-center text-sm text-gray-300 px-6 max-w-md">
+                {description || "Aponte a câmera para o código QR ou de barras."}
             </p>
 
+            {/* Error */}
             {error && (
-                <div className="mt-4 text-red-500 font-medium bg-red-950/50 p-2 rounded">
+                <div className="mt-4 text-red-400 font-medium bg-red-950/50 p-3 rounded-lg mx-4 text-center">
                     {error}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-2 text-white hover:bg-white/10"
+                        onClick={() => window.location.reload()}
+                    >
+                        Tentar novamente
+                    </Button>
                 </div>
             )}
 
             <style jsx global>{`
-        #reader__scan_region {
-            background: rgba(0,0,0,0.5);
-        }
-        #reader__dashboard_section_csr span {
-            display: none !important;
-        }
-        /* Hide the select camera dropdown or style it */
-        #reader__dashboard_section_swaplink {
-            text-decoration: none !important;
-            color: white !important;
-            border: 1px solid white;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-      `}</style>
+                #qr-reader {
+                    border: none !important;
+                }
+                #qr-reader__scan_region {
+                    background: rgba(0,0,0,0.5);
+                }
+                #qr-reader__dashboard {
+                    padding: 12px !important;
+                }
+                #qr-reader__dashboard_section_csr span {
+                    display: none !important;
+                }
+                #qr-reader__dashboard_section_swaplink {
+                    text-decoration: none !important;
+                    color: white !important;
+                    background: rgba(255,255,255,0.1) !important;
+                    border: 1px solid rgba(255,255,255,0.3) !important;
+                    padding: 8px 16px !important;
+                    border-radius: 8px !important;
+                    font-size: 14px !important;
+                    display: inline-block !important;
+                    margin-top: 8px !important;
+                }
+                #qr-reader video {
+                    border-radius: 8px !important;
+                }
+                #qr-reader__status_span {
+                    color: white !important;
+                }
+                /* Hide file input section on mobile for cleaner UI */
+                @media (max-width: 640px) {
+                    #qr-reader__dashboard_section_fsr {
+                        display: none !important;
+                    }
+                }
+            `}</style>
         </div>
     )
 }
