@@ -158,7 +158,7 @@ export function useNotifications(userId: string): UseNotificationsReturn {
           if (!r.colaboradores || !r.ferramentas) return
           // Apenas ferramentas (não consumíveis)
           if ((r.ferramentas as any).tipo_item === "consumivel") return
-          
+
           const key = `${(r.colaboradores as any).id}-${(r.ferramentas as any).id}`
           if (!retiradasMap.has(key)) {
             retiradasMap.set(key, {
@@ -174,11 +174,11 @@ export function useNotifications(userId: string): UseNotificationsReturn {
         retiradasMap.forEach((retirada, key) => {
           const devolvido = devolucoesMap.get(key) || 0
           const pendente = retirada.total - devolvido
-          
+
           if (pendente > 0) {
             const dataRetirada = new Date(retirada.data)
             const diasPendente = Math.ceil((now.getTime() - dataRetirada.getTime()) / (1000 * 60 * 60 * 24))
-            
+
             generatedNotifications.push({
               id: `devolucao-${key}`,
               tipo: "devolucao_pendente",
@@ -205,7 +205,7 @@ export function useNotifications(userId: string): UseNotificationsReturn {
       // Carregar estado de lidas do localStorage
       const readNotifications = JSON.parse(localStorage.getItem("readNotifications") || "[]")
       const dismissedNotifications = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]")
-      
+
       const finalNotifications = generatedNotifications
         .filter((n) => !dismissedNotifications.includes(n.id))
         .map((n) => ({
@@ -225,7 +225,7 @@ export function useNotifications(userId: string): UseNotificationsReturn {
 
   useEffect(() => {
     generateNotifications()
-    
+
     // Atualizar a cada 5 minutos
     const interval = setInterval(generateNotifications, 5 * 60 * 1000)
     return () => clearInterval(interval)
@@ -242,9 +242,19 @@ export function useNotifications(userId: string): UseNotificationsReturn {
   }, [])
 
   const markAllAsRead = useCallback(() => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, lida: true })))
+    // Mark all as read AND dismiss them (clear from UI)
     const allIds = notifications.map((n) => n.id)
+
+    // Add to dismissed list so they don't reappear
+    const dismissedNotifications = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]")
+    const newDismissed = [...new Set([...dismissedNotifications, ...allIds])]
+    localStorage.setItem("dismissedNotifications", JSON.stringify(newDismissed))
+
+    // Also mark as read
     localStorage.setItem("readNotifications", JSON.stringify(allIds))
+
+    // Clear the notifications from state
+    setNotifications([])
   }, [notifications])
 
   const dismissNotification = useCallback((id: string) => {

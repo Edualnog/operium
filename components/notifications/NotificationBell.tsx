@@ -21,24 +21,24 @@ const tipoIcons = {
 }
 
 const tipoColors = {
-  estoque_critico: "text-orange-500 bg-orange-50",
-  epi_vencendo: "text-red-500 bg-red-50",
-  devolucao_pendente: "text-blue-500 bg-blue-50",
+  estoque_critico: "text-zinc-600 bg-zinc-100",
+  epi_vencendo: "text-zinc-600 bg-zinc-100",
+  devolucao_pendente: "text-zinc-600 bg-zinc-100",
   sistema: "text-zinc-500 bg-zinc-50",
 }
 
 const prioridadeColors = {
-  urgente: "border-l-red-500",
-  alta: "border-l-orange-500",
-  normal: "border-l-blue-500",
-  baixa: "border-l-zinc-300",
+  urgente: "border-l-zinc-900",
+  alta: "border-l-zinc-600",
+  normal: "border-l-zinc-400",
+  baixa: "border-l-zinc-200",
 }
 
 export default function NotificationBell({ userId }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  
+
   const {
     notifications,
     unreadCount,
@@ -98,7 +98,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ""}`}
       >
         <Bell className="h-5 w-5 text-zinc-600" />
-        
+
         {/* Badge de contagem */}
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center">
@@ -169,8 +169,8 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                  <Check className="h-6 w-6 text-green-600" />
+                <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center mb-3">
+                  <Check className="h-6 w-6 text-zinc-500" />
                 </div>
                 <p className="text-sm font-medium text-zinc-900">Tudo em dia!</p>
                 <p className="text-xs text-zinc-500 text-center mt-1">
@@ -193,7 +193,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                         "hover:bg-zinc-50 active:bg-zinc-100",
                         "border-l-4",
                         prioridadeClass,
-                        !notification.lida && "bg-blue-50/50"
+                        !notification.lida && "bg-zinc-50/80"
                       )}
                     >
                       <div className="flex gap-2 sm:gap-3">
@@ -233,20 +233,20 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                               })}
                             </span>
                             {notification.prioridade === "urgente" && (
-                              <Badge variant="destructive" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4">
+                              <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 bg-zinc-900 text-white">
                                 <AlertTriangle className="h-2 w-2 sm:h-2.5 sm:w-2.5 mr-0.5" />
                                 <span className="hidden sm:inline">Urgente</span>
                                 <span className="sm:hidden">!</span>
                               </Badge>
                             )}
                             {notification.prioridade === "alta" && (
-                              <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 bg-orange-100 text-orange-700">
+                              <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 bg-zinc-200 text-zinc-700">
                                 <span className="hidden sm:inline">Alta prioridade</span>
                                 <span className="sm:hidden">Alta</span>
                               </Badge>
                             )}
                             {!notification.lida && (
-                              <span className="w-2 h-2 rounded-full bg-blue-500" title="Não lida" />
+                              <span className="w-2 h-2 rounded-full bg-zinc-900" title="Não lida" />
                             )}
                           </div>
                         </div>
