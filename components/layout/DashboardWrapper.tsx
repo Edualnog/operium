@@ -272,7 +272,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
 
   return (
     <main
-      className="transition-all duration-300 bg-zinc-50/50 md:bg-white min-h-screen flex flex-col dark:bg-zinc-900 md:dark:bg-zinc-950"
+      className="transition-all duration-300 bg-[#F7F7F5] min-h-screen flex flex-col dark:bg-zinc-950"
       style={{
         marginLeft: isMobile ? "0" : `clamp(0px, ${width}px, 100%)`,
       }}
@@ -286,8 +286,8 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
         </div>
       </header>
 
-      {/* Main content with better mobile padding */}
-      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white md:bg-transparent w-full dark:bg-zinc-950 md:dark:bg-transparent">
+      {/* Main content with bg-[#F7F7F5] passing through */}
+      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto w-full dark:bg-zinc-950 md:dark:bg-transparent">
         {children}
       </div>
 

@@ -562,10 +562,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-center sm:text-left">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#37352f] mb-2 font-serif dark:text-zinc-50">
             {t('dashboard.header.title')}
           </h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-1.5 dark:text-zinc-400">
+          <p className="text-base sm:text-lg text-[#37352f]/70 dark:text-zinc-400">
             {t('dashboard.header.subtitle')}
           </p>
         </div>
