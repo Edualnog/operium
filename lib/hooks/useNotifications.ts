@@ -247,7 +247,7 @@ export function useNotifications(userId: string): UseNotificationsReturn {
 
     // Add to dismissed list so they don't reappear
     const dismissedNotifications = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]")
-    const newDismissed = [...new Set([...dismissedNotifications, ...allIds])]
+    const newDismissed = Array.from(new Set([...dismissedNotifications, ...allIds]))
     localStorage.setItem("dismissedNotifications", JSON.stringify(newDismissed))
 
     // Also mark as read
