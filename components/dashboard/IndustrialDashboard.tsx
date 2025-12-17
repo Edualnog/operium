@@ -34,6 +34,7 @@ import { OnboardingChecklist } from "./OnboardingChecklist"
 import { AIInsightsCard } from "./AIInsightsCard"
 import { VoiceSummaryAgent } from "./VoiceSummaryAgent"
 import { OnboardingTour } from "./OnboardingTour"
+import { InventoryBottlenecksCard } from "./InventoryBottlenecksCard"
 
 // ... (inside component)
 
@@ -575,9 +576,12 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
       <OnboardingChecklist userId={userId} />
 
-      {/* Seção de Insights IA */}
       <div className="mb-8">
         <AIInsightsCard kpis={data} recentMovements={movimentacoesMensais} />
+      </div>
+
+      <div className="mb-8">
+        <InventoryBottlenecksCard userId={userId} />
       </div>
 
       <OnboardingTour />
