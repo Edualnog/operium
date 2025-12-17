@@ -85,79 +85,6 @@ export async function middleware(request: NextRequest) {
       const { data: { user: authUser }, error } = await supabase.auth.getUser()
       if (!error && authUser) {
         user = authUser
-
-        // Verificar status do trial/assinatura para bloqueio
-        // Apenas se estiver tentando acessar dashboard
-        if (request.nextUrl.pathname.startsWith('/dashboard')) {
-          let profileData = null
-          let fromCache = false
-
-          // Tentar ler do cache
-          const cacheCookie = request.cookies.get('subscription_cache')
-          if (cacheCookie) {
-            try {
-              const cached = JSON.parse(cacheCookie.value)
-              // Validar se o cache pertence ao usuário atual e não expirou (embora o cookie tenha expiração, validamos timestamp também)
-              if (cached.userId === authUser.id) {
-                profileData = cached
-                fromCache = true
-              }
-            } catch (e) {
-              // Cache inválido, ignorar
-            }
-          }
-
-          // Se não tem cache, buscar no banco
-          if (!profileData) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('subscription_status, trial_start_date')
-              .eq('id', authUser.id)
-              .single()
-
-            if (profile) {
-              profileData = {
-                userId: authUser.id,
-                subscription_status: profile.subscription_status,
-                trial_start_date: profile.trial_start_date
-              }
-            }
-          }
-
-          if (profileData) {
-            const activeStatuses = ['active', 'trialing']
-            const hasActiveSubscription = profileData.subscription_status && activeStatuses.includes(profileData.subscription_status)
-
-            // Verificar trial
-            let isTrialValid = false
-            if (profileData.trial_start_date) {
-              const startDate = new Date(profileData.trial_start_date)
-              const now = new Date()
-              const endDate = new Date(startDate)
-              endDate.setDate(endDate.getDate() + 7)
-              isTrialValid = now < endDate
-            }
-
-            // Se não tem assinatura ativa E o trial acabou (ou nunca existiu), redirecionar para subscribe
-            // Mas permitir acesso às páginas de conta/configuração para poder assinar
-            const isSubPage = request.nextUrl.pathname.startsWith('/dashboard/conta')
-
-            if (!hasActiveSubscription && !isTrialValid && !isSubPage) {
-              return NextResponse.redirect(new URL('/subscribe', request.url))
-            }
-
-            // Se acesso permitido e não veio do cache, atualizar o cookie
-            if (!fromCache) {
-              response.cookies.set({
-                name: 'subscription_cache',
-                value: JSON.stringify(profileData),
-                maxAge: 300, // 5 minutos
-                path: '/',
-                sameSite: 'lax',
-              })
-            }
-          }
-        }
       }
     } catch (error) {
       // Ignorar erros de autenticação no middleware
@@ -176,10 +103,11 @@ export async function middleware(request: NextRequest) {
 
   // Redirecionar usuários logados que tentam acessar login ou signup para dashboard
   if ((pathname === '/login' || pathname === '/signup') && user) {
-    // Se tem parâmetro redirect=checkout, não redirecionar (deixar a página lidar)
     const redirectParam = request.nextUrl.searchParams.get('redirect')
-    if (redirectParam === 'checkout') {
-      return response
+    // Remove checkout redirect check since we removed checkout
+    if (redirectParam) {
+      // Just ignore or handle other redirects?
+      // For now just allow dashboard redirect
     }
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }

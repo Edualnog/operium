@@ -17,7 +17,6 @@ import {
   ClipboardList,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
-import TrialCheckoutPrompt from "@/components/checkout/TrialCheckoutPrompt"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -289,7 +288,6 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
 
       {/* Main content with better mobile padding */}
       <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white md:bg-transparent w-full dark:bg-zinc-950 md:dark:bg-transparent">
-        {userId && <TrialCheckoutPrompt userId={userId} />}
         {children}
       </div>
 
