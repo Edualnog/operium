@@ -49,37 +49,64 @@ export function OnboardingTour() {
     const [currentStep, setCurrentStep] = useState(0)
     const [isVisible, setIsVisible] = useState(false)
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
+    const [isMobile, setIsMobile] = useState(false)
 
     useEffect(() => {
-        // Check if user has seen the tour
-        const hasSeen = localStorage.getItem("has_seen_onboarding_v1")
-        if (!hasSeen) {
-            // Small delay to allow UI to render
-            const timer = setTimeout(() => {
-                setIsVisible(true)
-            }, 1000)
-            return () => clearTimeout(timer)
+        // Check if mobile
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768)
         }
+        checkMobile()
+        window.addEventListener("resize", checkMobile)
+        return () => window.removeEventListener("resize", checkMobile)
     }, [])
 
     useEffect(() => {
-        if (!isVisible) return
+        // Don't show on mobile
+        if (isMobile) return
+
+        // Check if user has seen the tour
+        const hasSeen = localStorage.getItem("has_seen_onboarding_v1")
+        if (!hasSeen) {
+            // Longer delay to ensure sidebar is fully rendered
+            const timer = setTimeout(() => {
+                const firstElement = document.getElementById(STEPS[0].targetId)
+                if (firstElement) {
+                    setIsVisible(true)
+                }
+            }, 1500)
+            return () => clearTimeout(timer)
+        }
+    }, [isMobile])
+
+    useEffect(() => {
+        if (!isVisible || isMobile) return
 
         const updatePosition = () => {
             const step = STEPS[currentStep]
             const element = document.getElementById(step.targetId)
             if (element) {
                 const rect = element.getBoundingClientRect()
-                setTargetRect(rect)
+                // Only set rect if element is visible (has dimensions)
+                if (rect.width > 0 && rect.height > 0) {
+                    setTargetRect(rect)
+                } else {
+                    setTargetRect(null)
+                }
+            } else {
+                setTargetRect(null)
             }
         }
 
         updatePosition()
         window.addEventListener("resize", updatePosition)
-        // Also update on scroll or mutation if needed, but resize covers most basic cases
+        window.addEventListener("scroll", updatePosition)
 
-        return () => window.removeEventListener("resize", updatePosition)
-    }, [currentStep, isVisible])
+        return () => {
+            window.removeEventListener("resize", updatePosition)
+            window.removeEventListener("scroll", updatePosition)
+        }
+    }, [currentStep, isVisible, isMobile])
 
     const handleNext = () => {
         if (currentStep < STEPS.length - 1) {
