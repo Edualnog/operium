@@ -10,7 +10,9 @@ import {
     AlertCircle,
     Loader2,
     Trash2,
-    Plus
+    Plus,
+    RotateCw,
+    Repeat
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
@@ -155,14 +157,24 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
 
     const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
     const [isCameraOpen, setIsCameraOpen] = useState(false)
+    const [facingMode, setFacingMode] = useState<"user" | "environment">("environment")
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
-    const startCamera = async () => {
+    // Função auxiliar para parar tracks atuais
+    const stopTracks = () => {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop())
+            setMediaStream(null)
+        }
+    }
+
+    const startCamera = async (mode: "user" | "environment" = facingMode) => {
         try {
-            // Usar constraints mais simples para garantir compatibilidade
+            stopTracks()
+
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: true
+                video: { facingMode: mode }
             })
             setMediaStream(stream)
             setIsCameraOpen(true)
@@ -171,6 +183,12 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
             console.error("Erro ao acessar câmera:", err)
             setError("Não foi possível acessar a câmera. Verifique as permissões.")
         }
+    }
+
+    const toggleCamera = () => {
+        const newMode = facingMode === "environment" ? "user" : "environment"
+        setFacingMode(newMode)
+        startCamera(newMode)
     }
 
     const stopCamera = useCallback(() => {
@@ -304,7 +322,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                     </div>
 
                                     <div
-                                        onClick={startCamera}
+                                        onClick={() => startCamera()}
                                         className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 md:p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex flex-col items-center justify-center gap-4 h-48 md:h-64"
                                     >
                                         <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
@@ -349,6 +367,10 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                     <canvas ref={canvasRef} className="hidden" />
                                 </div>
                                 <div className="flex gap-4">
+                                    <Button variant="outline" onClick={toggleCamera} title="Inverter Câmera">
+                                        <Repeat className="w-4 h-4 mr-2" />
+                                        Inverter
+                                    </Button>
                                     <Button variant="outline" onClick={stopCamera}>
                                         Cancelar
                                     </Button>
@@ -507,6 +529,6 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                     )}
                 </div>
             </motion.div>
-        </motion.div>
+        </motion.div >
     )
 }
