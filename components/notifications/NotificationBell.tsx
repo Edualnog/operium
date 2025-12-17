@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatDistanceToNow } from "date-fns"
-import { ptBR } from "date-fns/locale"
-
+import { ptBR, enUS } from "date-fns/locale"
+import { useTranslation } from "react-i18next"
 interface NotificationBellProps {
   userId: string
 }
@@ -35,6 +35,7 @@ const prioridadeColors = {
 }
 
 export default function NotificationBell({ userId }: NotificationBellProps) {
+  const { t, i18n } = useTranslation('common')
   const [isOpen, setIsOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -95,7 +96,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           "hover:bg-zinc-100 active:bg-zinc-200",
           isOpen && "bg-zinc-100"
         )}
-        aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ""}`}
+        aria-label={`${t('notifications.title')}${unreadCount > 0 ? ` (${unreadCount} ${t('notifications.unread')})` : ""}`}
       >
         <Bell className="h-5 w-5 text-zinc-600" />
 
@@ -128,7 +129,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-100">
             <div className="flex items-center gap-2">
               <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-700" />
-              <h3 className="font-semibold text-zinc-900 text-sm sm:text-base">Notificações</h3>
+              <h3 className="font-semibold text-zinc-900 text-sm sm:text-base">{t('notifications.title')}</h3>
               {unreadCount > 0 && (
                 <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5">
                   {unreadCount}
@@ -142,7 +143,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                 onClick={refreshNotifications}
                 disabled={loading}
                 className="h-8 w-8 p-0"
-                title="Atualizar"
+                title={t('notifications.refresh')}
               >
                 <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
               </Button>
@@ -152,10 +153,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                   size="sm"
                   onClick={markAllAsRead}
                   className="h-8 px-1.5 sm:px-2 text-[10px] sm:text-xs"
-                  title="Marcar todas como lidas"
+                  title={t('notifications.mark_all_read')}
                 >
                   <CheckCheck className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Ler todas</span>
+                  <span className="hidden sm:inline">{t('notifications.read_all')}</span>
                 </Button>
               )}
             </div>
@@ -172,9 +173,9 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                 <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center mb-3">
                   <Check className="h-6 w-6 text-zinc-500" />
                 </div>
-                <p className="text-sm font-medium text-zinc-900">Tudo em dia!</p>
+                <p className="text-sm font-medium text-zinc-900">{t('notifications.all_done')}</p>
                 <p className="text-xs text-zinc-500 text-center mt-1">
-                  Nenhum alerta no momento. Continue assim! 👍
+                  {t('notifications.no_alerts')} 👍
                 </p>
               </div>
             ) : (
@@ -217,7 +218,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                                 dismissNotification(notification.id)
                               }}
                               className="flex-shrink-0 p-1.5 rounded hover:bg-zinc-200 active:bg-zinc-300 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
-                              title="Dispensar"
+                              title={t('notifications.dismiss')}
                             >
                               <X className="h-3.5 w-3.5 text-zinc-400" />
                             </button>
@@ -229,24 +230,24 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                             <span className="text-[9px] sm:text-[10px] text-zinc-400">
                               {formatDistanceToNow(new Date(notification.data_criacao), {
                                 addSuffix: true,
-                                locale: ptBR,
+                                locale: i18n.language === 'en' ? enUS : ptBR,
                               })}
                             </span>
                             {notification.prioridade === "urgente" && (
                               <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 bg-zinc-900 text-white">
                                 <AlertTriangle className="h-2 w-2 sm:h-2.5 sm:w-2.5 mr-0.5" />
-                                <span className="hidden sm:inline">Urgente</span>
+                                <span className="hidden sm:inline">{t('notifications.urgent')}</span>
                                 <span className="sm:hidden">!</span>
                               </Badge>
                             )}
                             {notification.prioridade === "alta" && (
                               <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 bg-zinc-200 text-zinc-700">
-                                <span className="hidden sm:inline">Alta prioridade</span>
-                                <span className="sm:hidden">Alta</span>
+                                <span className="hidden sm:inline">{t('notifications.high_priority')}</span>
+                                <span className="sm:hidden">{t('notifications.high')}</span>
                               </Badge>
                             )}
                             {!notification.lida && (
-                              <span className="w-2 h-2 rounded-full bg-zinc-900" title="Não lida" />
+                              <span className="w-2 h-2 rounded-full bg-zinc-900" title={t('notifications.unread')} />
                             )}
                           </div>
                         </div>
@@ -262,7 +263,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           {notifications.length > 0 && (
             <div className="px-4 py-2 border-t border-zinc-100 bg-zinc-50/50">
               <p className="text-[10px] text-zinc-500 text-center">
-                Alertas atualizados automaticamente a cada 5 minutos
+                {t('notifications.auto_update')}
               </p>
             </div>
           )}

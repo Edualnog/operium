@@ -75,6 +75,48 @@
         "actions": "Ações",
         "search": "Buscar..."
     },
+    "notifications": {
+        "title": "Notificações",
+        "unread": "não lidas",
+        "refresh": "Atualizar",
+        "mark_all_read": "Marcar todas como lidas",
+        "read_all": "Ler todas",
+        "all_done": "Tudo em dia!",
+        "no_alerts": "Nenhum alerta no momento. Continue assim!",
+        "dismiss": "Dispensar",
+        "urgent": "Urgente",
+        "high_priority": "Alta prioridade",
+        "high": "Alta",
+        "auto_update": "Alertas atualizados automaticamente a cada 5 minutos"
+    },
+    "tour": {
+        "of": "de",
+        "skip": "Pular",
+        "next": "Próximo",
+        "finish": "Concluir",
+        "steps": {
+            "dashboard": {
+                "title": "Visão Geral",
+                "description": "Acompanhe seus KPIs, gráficos e alertas em tempo real aqui no Dashboard."
+            },
+            "movements": {
+                "title": "Movimentações",
+                "description": "Registre entradas, retiradas e devoluções de ferramentas e materiais."
+            },
+            "collaborators": {
+                "title": "Colaboradores",
+                "description": "Gerencie sua equipe, consulte históricos e rankings de responsabilidade."
+            },
+            "stock": {
+                "title": "Estoque",
+                "description": "Controle seu inventário de ferramentas, EPIs e consumíveis."
+            },
+            "settings": {
+                "title": "Configurações",
+                "description": "Acesse as configurações da sua conta e preferências do sistema."
+            }
+        }
+    },
     "onboarding": {
         "title": "Primeiros Passos",
         "subtitle": "Complete o setup para aproveitar todo o potencial do sistema",

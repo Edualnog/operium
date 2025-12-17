@@ -85,6 +85,48 @@
         "yes": "Yes",
         "no": "No"
     },
+    "notifications": {
+        "title": "Notifications",
+        "unread": "unread",
+        "refresh": "Refresh",
+        "mark_all_read": "Mark all as read",
+        "read_all": "Read all",
+        "all_done": "All done!",
+        "no_alerts": "No alerts at the moment. Keep it up!",
+        "dismiss": "Dismiss",
+        "urgent": "Urgent",
+        "high_priority": "High priority",
+        "high": "High",
+        "auto_update": "Alerts are updated automatically every 5 minutes"
+    },
+    "tour": {
+        "of": "of",
+        "skip": "Skip",
+        "next": "Next",
+        "finish": "Finish",
+        "steps": {
+            "dashboard": {
+                "title": "Overview",
+                "description": "Track your KPIs, charts and alerts in real time on the Dashboard."
+            },
+            "movements": {
+                "title": "Movements",
+                "description": "Record entries, withdrawals and returns of tools and materials."
+            },
+            "collaborators": {
+                "title": "Collaborators",
+                "description": "Manage your team, check histories and responsibility rankings."
+            },
+            "stock": {
+                "title": "Stock",
+                "description": "Control your inventory of tools, PPE and consumables."
+            },
+            "settings": {
+                "title": "Settings",
+                "description": "Access your account settings and system preferences."
+            }
+        }
+    },
     "onboarding": {
         "title": "Getting Started",
         "subtitle": "Complete setup to unlock full potential",

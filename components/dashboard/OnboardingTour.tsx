@@ -4,48 +4,50 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, ChevronRight, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "react-i18next"
 
 interface Step {
     targetId: string
-    title: string
-    description: string
+    titleKey: string
+    descriptionKey: string
     position: "right" | "bottom" | "top" | "left"
 }
 
 const STEPS: Step[] = [
     {
         targetId: "sidebar-dashboard",
-        title: "Visão Geral",
-        description: "Acompanhe seus KPIs, gráficos e alertas em tempo real aqui no Dashboard.",
+        titleKey: "tour.steps.dashboard.title",
+        descriptionKey: "tour.steps.dashboard.description",
         position: "right"
     },
     {
         targetId: "sidebar-movimentacoes",
-        title: "Movimentações",
-        description: "Registre entradas, retiradas e devoluções de ferramentas e materiais.",
+        titleKey: "tour.steps.movements.title",
+        descriptionKey: "tour.steps.movements.description",
         position: "right"
     },
     {
         targetId: "sidebar-colaboradores",
-        title: "Colaboradores",
-        description: "Gerencie sua equipe, consulte históricos e rankings de responsabilidade.",
+        titleKey: "tour.steps.collaborators.title",
+        descriptionKey: "tour.steps.collaborators.description",
         position: "right"
     },
     {
         targetId: "sidebar-estoque",
-        title: "Estoque",
-        description: "Controle seu inventário de ferramentas, EPIs e consumíveis.",
+        titleKey: "tour.steps.stock.title",
+        descriptionKey: "tour.steps.stock.description",
         position: "right"
     },
     {
         targetId: "sidebar-conta",
-        title: "Configurações",
-        description: "Acesse as configurações da sua conta e preferências do sistema.",
+        titleKey: "tour.steps.settings.title",
+        descriptionKey: "tour.steps.settings.description",
         position: "right"
     }
 ]
 
 export function OnboardingTour() {
+    const { t } = useTranslation('common')
     const [currentStep, setCurrentStep] = useState(0)
     const [isVisible, setIsVisible] = useState(false)
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
@@ -182,13 +184,13 @@ export function OnboardingTour() {
                                 <div className="space-y-4">
                                     <div>
                                         <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold mb-2">
-                                            {currentStep + 1} de {STEPS.length}
+                                            {currentStep + 1} {t('tour.of')} {STEPS.length}
                                         </span>
                                         <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 mb-1">
-                                            {step.title}
+                                            {t(step.titleKey)}
                                         </h3>
                                         <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                                            {step.description}
+                                            {t(step.descriptionKey)}
                                         </p>
                                     </div>
 
@@ -199,7 +201,7 @@ export function OnboardingTour() {
                                             onClick={handleFinish}
                                             className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
                                         >
-                                            Pular
+                                            {t('tour.skip')}
                                         </Button>
                                         <div className="flex gap-2">
                                             {currentStep > 0 && (
@@ -216,7 +218,7 @@ export function OnboardingTour() {
                                                 onClick={handleNext}
                                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                                             >
-                                                {currentStep === STEPS.length - 1 ? "Concluir" : "Próximo"}
+                                                {currentStep === STEPS.length - 1 ? t('tour.finish') : t('tour.next')}
                                                 {currentStep < STEPS.length - 1 && <ChevronRight className="w-4 h-4 ml-1" />}
                                             </Button>
                                         </div>
