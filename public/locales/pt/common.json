@@ -117,6 +117,21 @@
             }
         }
     },
+    "camera": {
+        "title": "Tirar Foto",
+        "description": "Posicione a câmera e clique em capturar.",
+        "capture": "Capturar",
+        "retry": "Tentar Novamente",
+        "flip": "Inverter Câmera",
+        "error": {
+            "general": "Não foi possível acessar a câmera.",
+            "permission": "Permissão de câmera negada. Por favor, permita o acesso nas configurações do navegador.",
+            "not_found": "Nenhuma câmera encontrada no dispositivo.",
+            "in_use": "A câmera pode estar sendo usada por outro aplicativo ou há um erro de hardware.",
+            "not_available": "A câmera solicitada não está disponível.",
+            "https": "A câmera requer uma conexão segura (HTTPS)."
+        }
+    },
     "onboarding": {
         "title": "Primeiros Passos",
         "subtitle": "Complete o setup para aproveitar todo o potencial do sistema",

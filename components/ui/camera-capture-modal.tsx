@@ -10,7 +10,8 @@ import {
     DialogFooter,
     DialogDescription,
 } from "@/components/ui/dialog"
-import { Camera, RefreshCw, Loader2 } from "lucide-react"
+import { Camera, RefreshCw, Loader2, SwitchCamera } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface CameraCaptureModalProps {
     isOpen: boolean
@@ -23,9 +24,11 @@ export function CameraCaptureModal({
     onClose,
     onCapture,
 }: CameraCaptureModalProps) {
+    const { t } = useTranslation('common')
     const [stream, setStream] = useState<MediaStream | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    const [facingMode, setFacingMode] = useState<"user" | "environment">("environment")
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const streamRef = useRef<MediaStream | null>(null)
@@ -38,7 +41,7 @@ export function CameraCaptureModal({
         }
     }, [])
 
-    const startCamera = useCallback(async () => {
+    const startCamera = useCallback(async (mode: "user" | "environment" = facingMode) => {
         setLoading(true)
         setError(null)
         // Parar stream anterior se existir
@@ -46,7 +49,7 @@ export function CameraCaptureModal({
 
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment" }, // Prefer rear camera on mobile
+                video: { facingMode: mode },
                 audio: false,
             })
             streamRef.current = mediaStream
@@ -57,16 +60,16 @@ export function CameraCaptureModal({
         } catch (err: any) {
             console.error("Error accessing camera:", err)
 
-            let errorMessage = "Não foi possível acessar a câmera."
+            let errorMessage = t('camera.error.general')
 
             if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-                errorMessage = "Permissão de câmera negada. Por favor, permita o acesso nas configurações do navegador."
+                errorMessage = t('camera.error.permission')
             } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
-                errorMessage = "Nenhuma câmera encontrada no dispositivo."
+                errorMessage = t('camera.error.not_found')
             } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
-                errorMessage = "A câmera pode estar sendo usada por outro aplicativo ou há um erro de hardware."
+                errorMessage = t('camera.error.in_use')
             } else if (err.name === "OverconstrainedError") {
-                errorMessage = "A câmera solicitada (traseira) não está disponível."
+                errorMessage = t('camera.error.not_available')
                 // Fallback: tentar qualquer câmera se a traseira falhar
                 try {
                     const fallbackStream = await navigator.mediaDevices.getUserMedia({
@@ -78,19 +81,26 @@ export function CameraCaptureModal({
                     if (videoRef.current) {
                         videoRef.current.srcObject = fallbackStream
                     }
+                    setLoading(false)
                     return // Sucesso no fallback, não mostrar erro
                 } catch (fallbackErr) {
                     console.error("Fallback camera error:", fallbackErr)
                 }
             } else if (err.name === "TypeError" && window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
-                errorMessage = "A câmera requer uma conexão segura (HTTPS)."
+                errorMessage = t('camera.error.https')
             }
 
             setError(errorMessage)
         } finally {
             setLoading(false)
         }
-    }, [stopCamera])
+    }, [stopCamera, facingMode, t])
+
+    const flipCamera = useCallback(() => {
+        const newMode = facingMode === "environment" ? "user" : "environment"
+        setFacingMode(newMode)
+        startCamera(newMode)
+    }, [facingMode, startCamera])
 
     useEffect(() => {
         if (isOpen) {
@@ -113,6 +123,12 @@ export function CameraCaptureModal({
                 canvas.width = video.videoWidth
                 canvas.height = video.videoHeight
 
+                // If using front camera, flip horizontally for mirror effect
+                if (facingMode === "user") {
+                    context.translate(canvas.width, 0)
+                    context.scale(-1, 1)
+                }
+
                 // Draw video frame to canvas
                 context.drawImage(video, 0, 0, canvas.width, canvas.height)
 
@@ -134,9 +150,9 @@ export function CameraCaptureModal({
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Tirar Foto</DialogTitle>
+                    <DialogTitle>{t('camera.title')}</DialogTitle>
                     <DialogDescription>
-                        Posicione a câmera e clique em capturar.
+                        {t('camera.description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -149,21 +165,35 @@ export function CameraCaptureModal({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={startCamera}
+                                onClick={() => startCamera()}
                                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                             >
                                 <RefreshCw className="h-4 w-4 mr-2" />
-                                Tentar Novamente
+                                {t('camera.retry')}
                             </Button>
                         </div>
                     ) : (
-                        <video
-                            ref={videoRef}
-                            autoPlay
-                            playsInline
-                            muted
-                            className="w-full h-full object-cover"
-                        />
+                        <>
+                            <video
+                                ref={videoRef}
+                                autoPlay
+                                playsInline
+                                muted
+                                className={`w-full h-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""}`}
+                            />
+                            {/* Camera flip button */}
+                            {stream && !loading && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={flipCamera}
+                                    className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10"
+                                    title={t('camera.flip')}
+                                >
+                                    <SwitchCamera className="h-5 w-5" />
+                                </Button>
+                            )}
+                        </>
                     )}
 
                     <canvas ref={canvasRef} className="hidden" />
@@ -171,11 +201,11 @@ export function CameraCaptureModal({
 
                 <DialogFooter className="flex flex-row justify-between sm:justify-between gap-2">
                     <Button variant="outline" onClick={onClose}>
-                        Cancelar
+                        {t('common.cancel')}
                     </Button>
                     <Button onClick={handleCapture} disabled={!stream || loading || !!error}>
                         <Camera className="h-4 w-4 mr-2" />
-                        Capturar
+                        {t('camera.capture')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

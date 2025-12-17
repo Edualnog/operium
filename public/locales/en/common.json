@@ -127,6 +127,21 @@
             }
         }
     },
+    "camera": {
+        "title": "Take Photo",
+        "description": "Position the camera and click capture.",
+        "capture": "Capture",
+        "retry": "Try Again",
+        "flip": "Flip Camera",
+        "error": {
+            "general": "Could not access the camera.",
+            "permission": "Camera permission denied. Please allow access in browser settings.",
+            "not_found": "No camera found on device.",
+            "in_use": "The camera may be in use by another app or there is a hardware error.",
+            "not_available": "The requested camera is not available.",
+            "https": "The camera requires a secure connection (HTTPS)."
+        }
+    },
     "onboarding": {
         "title": "Getting Started",
         "subtitle": "Complete setup to unlock full potential",
