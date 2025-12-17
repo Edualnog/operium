@@ -660,11 +660,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                                 <div className="font-semibold mb-1.5 border-b border-zinc-700 pb-1.5">{item.mes}</div>
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                    <div className="w-2 h-2 rounded-full bg-zinc-300" />
                                     <span>{t('dashboard.charts.movements.in')}: <strong>{item.entradas}</strong></span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-rose-500" />
+                                    <div className="w-2 h-2 rounded-full bg-zinc-800" />
                                     <span>{t('dashboard.charts.movements.out')}: <strong>{item.saidas}</strong></span>
                                   </div>
                                   <div className="flex items-center gap-2 pt-1 mt-1 border-t border-zinc-700">
