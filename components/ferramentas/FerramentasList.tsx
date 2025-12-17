@@ -63,6 +63,7 @@ import { cn } from "@/lib/utils"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
 import { CatalogSearch } from "./CatalogSearch"
+import { IncidentReporter } from "./IncidentReporter"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { type FilterState } from "./FerramentasFilters"
@@ -92,6 +93,7 @@ import {
   Printer,
   Archive,
   ArrowUpDown,
+  AlertTriangle,
 } from "lucide-react"
 
 import QRCode from 'qrcode'
@@ -149,7 +151,7 @@ function FerramentasList({
   const debouncedSearch = useDebounce(filters.search, 300)
   const [open, setOpen] = useState(false)
   const [actionDialog, setActionDialog] = useState<{
-    type: "entrada" | "retirada" | "devolucao" | "conserto"
+    type: "entrada" | "retirada" | "devolucao" | "conserto" | "incident"
     ferramenta: Ferramenta
     initialQuantity?: number
     initialCollaboratorId?: string
@@ -1388,6 +1390,10 @@ function FerramentasList({
                         <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ferramenta.id)}>
                           <Archive className="mr-2 h-4 w-4" /> Inativar / Excluir
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-red-600 focus:text-red-700 focus:bg-red-50" onClick={() => setActionDialog({ type: "incident", ferramenta })}>
+                          <AlertTriangle className="mr-2 h-4 w-4" /> Reportar Problema
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -1584,6 +1590,56 @@ function FerramentasList({
           </Dialog>
         )
       }
+
+      {/* Incident Wizard Dialog */}
+      {actionDialog?.type === "incident" && (
+        <Dialog open={true} onOpenChange={() => setActionDialog(null)}>
+          <DialogContent className="max-w-3xl">
+            {/* No Header here as IncidentReporter has its own progress header */}
+            <div className="pt-2">
+              <IncidentReporter
+                ferramentaNome={actionDialog.ferramenta.nome}
+                onCancel={() => setActionDialog(null)}
+                onSubmit={async (data) => {
+                  // Adapt the structured data to the existing 'conserto' action interface
+                  // We serialize the structured data into the 'observacoes' field text
+                  // Format: [FALHA: TIPO - SUBTIPO] obs
+
+                  const structuredObs = `[FALHA: ${data.category.toUpperCase()} - ${data.issue.toUpperCase()}]`
+
+                  // Trigger the backend action for "send to repair" (conserto)
+                  // We reuse registrarEnvioConserto for now as it sets status to 'em_conserto' or 'danificada' logic?
+                  // Ideally we want status 'danificada'.
+                  // registrarEnvioConserto sets status to 'em_conserto'. 
+                  // Let's us updating tool directly or using the conserto flow if that's what user expects.
+                  // User story says report problem. usually means broken.
+                  // Let's reuse 'registrarEnvioConserto' but maybe we should just update status to 'danificada'?
+                  // The prompt said "Reportar Problema" -> "Wizard".
+                  // Let's use registrarEnvioConserto which is robust, but pass specific params.
+
+                  const formData = new FormData()
+                  formData.set("local_conserto", "Interno (Triagem)")
+                  formData.set("prazo_conserto", new Date().toISOString().split('T')[0]) // Today
+                  formData.set("prioridade_conserto", "alta") // Incidents are high priority
+                  formData.set("observacoes", structuredObs)
+
+                  try {
+                    setLoading(true)
+                    await registrarEnvioConserto(actionDialog.ferramenta.id, formData)
+                    toast.success("Incidente registrado com sucesso!")
+                    setActionDialog(null)
+                  } catch (err) {
+                    toast.error("Erro ao registrar incidente")
+                  } finally {
+                    setLoading(false)
+                  }
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
     </div >
   )
 }
