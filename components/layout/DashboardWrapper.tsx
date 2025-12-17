@@ -384,7 +384,7 @@ const LogoIcon = () => {
       className="font-normal flex items-center justify-center text-sm text-foreground py-2 relative z-20 w-full"
     >
       {/* Operium Icon - Geometric brackets */}
-      <svg width="48" height="48" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
+      <svg width="64" height="64" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
         {/* Top left vertical bar */}
         <rect x="10" y="10" width="15" height="40" fill="currentColor" />
         {/* Top horizontal bar */}
