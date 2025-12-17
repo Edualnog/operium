@@ -4,7 +4,14 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { z } from "zod"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+// Initialize Stripe lazily to prevent build failures if env var is missing
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error("STRIPE_SECRET_KEY is missing")
+    return null
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY)
+}
 
 import { validateCheckoutBody, getPriceId } from "./helpers"
 
@@ -45,10 +52,11 @@ export async function POST(req: Request) {
 
     // Definir Price ID via variáveis de ambiente
     const priceId = getPriceId(plan, process.env as Record<string, string>)
+    const stripe = getStripe()
 
-    if (!process.env.STRIPE_SECRET_KEY || !priceId) {
+    if (!stripe || !priceId) {
       console.error("Missing Stripe config:", {
-        hasSecret: !!process.env.STRIPE_SECRET_KEY,
+        hasStripe: !!stripe,
         priceId,
         plan
       })

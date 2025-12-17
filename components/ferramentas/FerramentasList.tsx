@@ -64,6 +64,7 @@ import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
 import { CatalogSearch } from "./CatalogSearch"
 import { IncidentReporter } from "./IncidentReporter"
+import { QRScanner } from "./QRScanner"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { type FilterState } from "./FerramentasFilters"
@@ -94,6 +95,7 @@ import {
   Archive,
   ArrowUpDown,
   AlertTriangle,
+  Zap,
 } from "lucide-react"
 
 import QRCode from 'qrcode'
@@ -185,6 +187,42 @@ function FerramentasList({
   // New state for catalog linkage to be robust against re-renders
   const [catalogItemId, setCatalogItemId] = useState<string | null>(null)
 
+  // Scanner State
+  const [isScanning, setIsScanning] = useState(false)
+
+  const handleScanResult = (decodedText: string) => {
+    // 1. Normalize code
+    const searchCode = decodedText.trim().toUpperCase()
+    console.log("Scanned:", searchCode)
+
+    // 2. Search in local list (client-side for speed)
+    // Checks against ID, Custom Code, or Catalog Model Name
+    const found = ferramentas.find(f =>
+      f.id === searchCode ||
+      (f.codigo && f.codigo.toUpperCase() === searchCode) ||
+      (f.nome && f.nome.toUpperCase() === searchCode)
+    )
+
+    if (found) {
+      // 3. Success: Close scanner and open Action
+      setIsScanning(false)
+      // Play beep? (Optional)
+
+      // Open Checkout Dialog
+      setActionDialog({
+        type: "retirada",
+        ferramenta: found,
+        initialQuantity: 1
+      })
+
+      toast.success(`Item encontrado: ${found.nome}`)
+    } else {
+      // 4. Not found logic
+      // Don't close immediately, let user try again or realize it's wrong
+      toast.error(`Código não encontrado: ${searchCode}`)
+    }
+  }
+
   const handleVoiceCommand = (data: any) => {
     const { intent } = data
     if (!intent) return
@@ -211,6 +249,15 @@ function FerramentasList({
   const supabase = createClientComponentClient()
   const { toast } = useToast()
   const [userId, setUserId] = useState<string>("")
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const router = useRouter()
+
   useEffect(() => {
     if (editing) {
       setProductCode(editing.codigo || "")
@@ -316,14 +363,6 @@ function FerramentasList({
     link.download = `produtos_selecionados_${new Date().toISOString().split('T')[0]}.csv`
     link.click()
   }
-  const router = useRouter()
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // Estado para modal de importação
   const [importModalOpen, setImportModalOpen] = useState(false)
@@ -881,13 +920,41 @@ function FerramentasList({
   return (
     <div className="space-y-4">
       {/* Voice Assistant Section */}
-      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t("ai.title")}</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("ai.description_product")}</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Ferramentas</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Gerencie o inventário, movimentações e manutenção.
+          </p>
         </div>
-        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="ferramenta" />
+        <div className="flex gap-2 w-full sm:w-auto">
+          {/* Fast Scan Button */}
+          <Button
+            className="bg-amber-500 hover:bg-amber-600 text-white font-bold"
+            onClick={() => setIsScanning(true)}
+          >
+            <Zap className="mr-2 h-4 w-4 fill-current" />
+            Modo Rápido
+          </Button>
+
+          <Button onClick={() => {
+            setEditing(null)
+            setOpen(true)
+          }}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Ferramenta
+          </Button>
+        </div>
       </div>
+
+      {isScanning && (
+        <QRScanner
+          onScan={handleScanResult}
+          onClose={() => setIsScanning(false)}
+          title="Modo Rápido: Escanear Item"
+          description="Aponte a câmera para o código QR ou de barras do item para registrar uma retirada."
+        />
+      )}
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1613,19 +1680,20 @@ function FerramentasList({
                   // registrarEnvioConserto sets status to 'em_conserto'. 
                   // Let's us updating tool directly or using the conserto flow if that's what user expects.
                   // User story says report problem. usually means broken.
-                  // Let's reuse 'registrarEnvioConserto' but maybe we should just update status to 'danificada'?
-                  // The prompt said "Reportar Problema" -> "Wizard".
                   // Let's use registrarEnvioConserto which is robust, but pass specific params.
-
-                  const formData = new FormData()
-                  formData.set("local_conserto", "Interno (Triagem)")
-                  formData.set("prazo_conserto", new Date().toISOString().split('T')[0]) // Today
-                  formData.set("prioridade_conserto", "alta") // Incidents are high priority
-                  formData.set("observacoes", structuredObs)
 
                   try {
                     setLoading(true)
-                    await registrarEnvioConserto(actionDialog.ferramenta.id, formData)
+                    // Signature: (id, quantidade, descricao, status, local, prazo, prioridade)
+                    await registrarEnvioConserto(
+                      actionDialog.ferramenta.id,
+                      1, // Quantidade
+                      structuredObs, // Descricao/Observacoes
+                      "aguardando", // Status
+                      "Interno (Triagem)", // Local
+                      new Date().toISOString().split('T')[0], // Prazo (Hoje)
+                      "alta" // Prioridade
+                    )
                     toast.success("Incidente registrado com sucesso!")
                     setActionDialog(null)
                   } catch (err) {
@@ -1640,8 +1708,19 @@ function FerramentasList({
         </Dialog>
       )}
 
+      {/* QR Scanner Dialog */}
+      <Dialog open={isScanning} onOpenChange={setIsScanning}>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-black border-zinc-800">
+          <QRScanner
+            onScan={handleScanResult}
+            onClose={() => setIsScanning(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
     </div >
   )
 }
 
 export default memo(FerramentasList)
+
