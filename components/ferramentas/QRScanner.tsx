@@ -257,16 +257,16 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                 {cameraMode === "stream" && !isStarting && (
                     <div className="flex justify-center gap-3">
                         <Button
-                            variant="outline"
-                            className="text-white border-zinc-600 hover:bg-zinc-800 gap-2"
+                            variant="ghost"
+                            className="text-zinc-300 hover:text-white hover:bg-zinc-800/80 gap-2 border border-zinc-700"
                             onClick={switchCamera}
                         >
                             <SwitchCamera className="h-5 w-5" />
                             Trocar Câmera
                         </Button>
                         <Button
-                            variant="outline"
-                            className="text-white border-zinc-600 hover:bg-zinc-800 gap-2"
+                            variant="ghost"
+                            className="text-zinc-300 hover:text-white hover:bg-zinc-800/80 gap-2 border border-zinc-700"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <Upload className="h-5 w-5" />
