@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { X, SwitchCamera, Loader2, Camera, Upload } from "lucide-react"
 
@@ -19,52 +19,29 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
     const videoRef = useRef<HTMLVideoElement>(null)
     const streamRef = useRef<MediaStream | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const isClosingRef = useRef(false)
-    const scanIntervalRef = useRef<NodeJS.Timeout | null>(null)
+    const isMountedRef = useRef(true)
 
-    const stopCamera = useCallback(() => {
-        // Clear scan interval
-        if (scanIntervalRef.current) {
-            clearInterval(scanIntervalRef.current)
-            scanIntervalRef.current = null
-        }
-        // Stop all tracks
+    // Stop camera stream
+    const stopCamera = () => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop())
             streamRef.current = null
         }
-        // Clear video
         if (videoRef.current) {
             videoRef.current.srcObject = null
         }
-    }, [])
+    }
 
-    const handleClose = useCallback(() => {
-        if (isClosingRef.current) return
-        isClosingRef.current = true
+    // Handle close button only
+    const handleCloseClick = () => {
         stopCamera()
         onClose()
-    }, [onClose, stopCamera])
+    }
 
-    const processImage = useCallback(async (imageData: string): Promise<string | null> => {
-        try {
-            const { Html5Qrcode } = await import("html5-qrcode")
-            const scanner = new Html5Qrcode("qr-temp-element")
+    // Start camera
+    const startCamera = async (mode: "environment" | "user") => {
+        if (!isMountedRef.current) return
 
-            // Convert base64 to file
-            const response = await fetch(imageData)
-            const blob = await response.blob()
-            const file = new File([blob], "scan.jpg", { type: "image/jpeg" })
-
-            const result = await scanner.scanFile(file, true)
-            await scanner.clear()
-            return result
-        } catch (e) {
-            return null
-        }
-    }, [])
-
-    const startCamera = useCallback(async (mode: "environment" | "user" = facingMode) => {
         setIsStarting(true)
         setError(null)
         stopCamera()
@@ -74,6 +51,11 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                 video: { facingMode: { ideal: mode } },
                 audio: false
             })
+
+            if (!isMountedRef.current) {
+                stream.getTracks().forEach(track => track.stop())
+                return
+            }
 
             streamRef.current = stream
 
@@ -86,85 +68,94 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
             setIsStarting(false)
             setCameraMode("stream")
 
-            // Start frame scanning
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
-
-            scanIntervalRef.current = setInterval(async () => {
-                if (!videoRef.current || !ctx || isClosingRef.current) return
-
-                const video = videoRef.current
-                if (video.readyState < video.HAVE_ENOUGH_DATA) return
-
-                canvas.width = video.videoWidth || 640
-                canvas.height = video.videoHeight || 480
-                ctx.drawImage(video, 0, 0)
-
-                const imageData = canvas.toDataURL('image/jpeg', 0.8)
-                const result = await processImage(imageData)
-
-                if (result) {
-                    onScan(result)
-                    handleClose()
-                }
-            }, 500) // Scan every 500ms
-
         } catch (err: any) {
             console.error("Camera error:", err)
+            if (!isMountedRef.current) return
+
             setIsStarting(false)
             setCameraMode("file")
-
-            // Show fallback file mode
-            setError("Não foi possível acessar a câmera. Use o botão abaixo para tirar uma foto.")
+            setError("Não foi possível acessar a câmera. Use o botão para tirar uma foto.")
         }
-    }, [facingMode, stopCamera, onScan, handleClose, processImage])
+    }
 
+    // Switch camera - simple version
+    const handleSwitchCamera = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const newMode = facingMode === "environment" ? "user" : "environment"
+        setFacingMode(newMode)
+        startCamera(newMode)
+    }
+
+    // Handle file input click
+    const handleUsePhoto = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        fileInputRef.current?.click()
+    }
+
+    // Handle file selection
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
 
-        setIsStarting(true)
-        setError(null)
+        // For now just show message - QR scanning from file is complex
+        // This uses the native camera which is more reliable on mobile
+        setError("Foto capturada. Processando...")
 
         try {
+            // Read file and try to scan
             const reader = new FileReader()
-            reader.onload = async (event) => {
-                const imageData = event.target?.result as string
-                const result = await processImage(imageData)
+            reader.onload = async () => {
+                try {
+                    const { Html5Qrcode } = await import("html5-qrcode")
+                    const tempDiv = document.createElement('div')
+                    tempDiv.id = 'temp-scanner-' + Date.now()
+                    tempDiv.style.display = 'none'
+                    document.body.appendChild(tempDiv)
 
-                if (result) {
-                    onScan(result)
-                    handleClose()
-                } else {
-                    setError("Código não encontrado na imagem. Tente novamente.")
-                    setIsStarting(false)
+                    const scanner = new Html5Qrcode(tempDiv.id)
+                    const result = await scanner.scanFile(file, false)
+
+                    await scanner.clear()
+                    document.body.removeChild(tempDiv)
+
+                    if (result) {
+                        stopCamera()
+                        onScan(result)
+                        onClose()
+                    } else {
+                        setError("Código não encontrado. Tente novamente.")
+                    }
+                } catch (scanErr) {
+                    console.error("Scan error:", scanErr)
+                    setError("Código não encontrado na imagem.")
                 }
             }
             reader.readAsDataURL(file)
         } catch (err) {
             setError("Erro ao processar imagem.")
-            setIsStarting(false)
         }
+
+        // Reset input
+        e.target.value = ''
     }
 
-    const switchCamera = useCallback(() => {
-        const newMode = facingMode === "environment" ? "user" : "environment"
-        setFacingMode(newMode)
-        startCamera(newMode)
-    }, [facingMode, startCamera])
-
+    // Mount/unmount
     useEffect(() => {
-        const timer = setTimeout(() => startCamera(), 200)
+        isMountedRef.current = true
+        startCamera(facingMode)
+
         return () => {
-            clearTimeout(timer)
+            isMountedRef.current = false
             stopCamera()
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
-            {/* Hidden elements */}
-            <div id="qr-temp-element" style={{ display: 'none' }} />
+            {/* Hidden file input */}
             <input
                 type="file"
                 ref={fileInputRef}
@@ -175,15 +166,15 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
             />
 
             {/* Header */}
-            <div className="flex items-center justify-between p-4 pt-safe bg-black">
+            <div className="flex items-center justify-between p-4 bg-black" style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
                 <span className="text-white font-semibold text-lg">
                     {title || "Escanear Código"}
                 </span>
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="text-white hover:bg-white/20 h-11 w-11"
-                    onClick={handleClose}
+                    className="text-white hover:bg-zinc-800 h-11 w-11"
+                    onClick={handleCloseClick}
                 >
                     <X className="h-6 w-6" />
                 </Button>
@@ -191,7 +182,7 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
 
             {/* Main content */}
             <div className="flex-1 flex flex-col items-center justify-center px-4 relative">
-                {/* Video (only show in stream mode) */}
+                {/* Video area */}
                 {cameraMode === "stream" && (
                     <div className="w-full max-w-sm aspect-square relative rounded-2xl overflow-hidden bg-zinc-900">
                         <video
@@ -203,27 +194,33 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                         />
 
                         {/* Scan frame overlay */}
-                        <div className="absolute inset-0 pointer-events-none p-4">
-                            <div className="relative w-full h-full">
-                                <div className="absolute -top-1 -left-1 w-12 h-12 border-l-4 border-t-4 border-green-400 rounded-tl-xl" />
-                                <div className="absolute -top-1 -right-1 w-12 h-12 border-r-4 border-t-4 border-green-400 rounded-tr-xl" />
-                                <div className="absolute -bottom-1 -left-1 w-12 h-12 border-l-4 border-b-4 border-green-400 rounded-bl-xl" />
-                                <div className="absolute -bottom-1 -right-1 w-12 h-12 border-r-4 border-b-4 border-green-400 rounded-br-xl" />
-                            </div>
+                        <div className="absolute inset-4 pointer-events-none">
+                            <div className="absolute -top-1 -left-1 w-10 h-10 border-l-4 border-t-4 border-green-400 rounded-tl-xl" />
+                            <div className="absolute -top-1 -right-1 w-10 h-10 border-r-4 border-t-4 border-green-400 rounded-tr-xl" />
+                            <div className="absolute -bottom-1 -left-1 w-10 h-10 border-l-4 border-b-4 border-green-400 rounded-bl-xl" />
+                            <div className="absolute -bottom-1 -right-1 w-10 h-10 border-r-4 border-b-4 border-green-400 rounded-br-xl" />
                         </div>
+
+                        {/* Loading overlay */}
+                        {isStarting && (
+                            <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center">
+                                <Loader2 className="h-10 w-10 text-white animate-spin mb-3" />
+                                <p className="text-white text-sm">Iniciando câmera...</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {/* File mode fallback */}
-                {cameraMode === "file" && !isStarting && (
+                {cameraMode === "file" && (
                     <div className="w-full max-w-sm aspect-square relative rounded-2xl overflow-hidden bg-zinc-800 flex flex-col items-center justify-center p-6">
-                        <Camera className="h-20 w-20 text-zinc-600 mb-4" />
-                        <p className="text-white text-center mb-6">
-                            Toque no botão abaixo para abrir a câmera e tirar uma foto do código
+                        <Camera className="h-16 w-16 text-zinc-600 mb-4" />
+                        <p className="text-zinc-300 text-center mb-6 text-sm">
+                            A câmera ao vivo não está disponível. Use o botão abaixo para tirar uma foto.
                         </p>
                         <Button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                            onClick={handleUsePhoto}
+                            className="bg-zinc-700 hover:bg-zinc-600 text-white gap-2"
                         >
                             <Camera className="h-5 w-5" />
                             Tirar Foto
@@ -231,55 +228,44 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                     </div>
                 )}
 
-                {/* Loading overlay */}
-                {isStarting && (
-                    <div className="absolute inset-0 bg-black flex flex-col items-center justify-center">
-                        <Loader2 className="h-12 w-12 text-white animate-spin mb-4" />
-                        <p className="text-white">Iniciando...</p>
-                    </div>
-                )}
-
                 {/* Description */}
                 <p className="mt-6 text-center text-sm text-zinc-400 px-4 max-w-sm">
-                    {description || "Posicione o código QR ou de barras no centro do quadro"}
+                    {description || "Posicione o código QR ou de barras no centro"}
                 </p>
 
-                {/* Error message */}
-                {error && cameraMode === "stream" && (
-                    <div className="mt-4 bg-zinc-800 rounded-lg p-4 max-w-sm">
-                        <p className="text-yellow-400 text-sm text-center">{error}</p>
+                {/* Error/status message */}
+                {error && (
+                    <div className="mt-3 bg-zinc-800 rounded-lg px-4 py-2 max-w-sm">
+                        <p className="text-zinc-300 text-sm text-center">{error}</p>
                     </div>
                 )}
             </div>
 
             {/* Bottom actions */}
-            <div className="p-4 pb-safe flex flex-col gap-3 bg-black">
+            <div className="p-4 flex justify-center gap-3 bg-black" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}>
                 {cameraMode === "stream" && !isStarting && (
-                    <div className="flex justify-center gap-3">
+                    <>
                         <Button
                             variant="ghost"
-                            className="text-zinc-300 hover:text-white hover:bg-zinc-800/80 gap-2 border border-zinc-700"
-                            onClick={switchCamera}
+                            className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 gap-2"
+                            onClick={handleSwitchCamera}
+                            type="button"
                         >
                             <SwitchCamera className="h-5 w-5" />
                             Trocar Câmera
                         </Button>
                         <Button
                             variant="ghost"
-                            className="text-zinc-300 hover:text-white hover:bg-zinc-800/80 gap-2 border border-zinc-700"
-                            onClick={() => fileInputRef.current?.click()}
+                            className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 gap-2"
+                            onClick={handleUsePhoto}
+                            type="button"
                         >
                             <Upload className="h-5 w-5" />
                             Usar Foto
                         </Button>
-                    </div>
+                    </>
                 )}
             </div>
-
-            <style jsx global>{`
-                .pt-safe { padding-top: max(16px, env(safe-area-inset-top)); }
-                .pb-safe { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
-            `}</style>
         </div>
     )
 }
