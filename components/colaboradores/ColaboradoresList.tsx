@@ -1000,7 +1000,7 @@ function ColaboradoresList({
               >
                 {t("dashboard.colaboradores.form.cancel")}
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                 {loading ? t("dashboard.colaboradores.form.saving") : t("dashboard.colaboradores.form.save")}
               </Button>
             </DialogFooter>

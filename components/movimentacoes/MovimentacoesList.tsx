@@ -539,12 +539,12 @@ export default function MovimentacoesList({
 
   const tipoBadge = (tipo: string) => {
     const map: Record<string, "default" | "secondary" | "destructive"> = {
-      entrada: "default",
+      entrada: "secondary",
       retirada: "destructive",
-      devolucao: "default",
+      devolucao: "secondary",
       conserto: "secondary",
     }
-    return map[tipo] || "default"
+    return map[tipo] || "secondary"
   }
 
   const tipoBadgeClassName = (tipo: string) => {
@@ -951,7 +951,7 @@ export default function MovimentacoesList({
                     <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                       {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
                     </Button>
                   </DialogFooter>

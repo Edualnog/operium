@@ -103,11 +103,11 @@ export function CatalogSearch({ onSelect }: CatalogSearchProps) {
                                         }}
                                         className="flex items-center gap-3 p-2 cursor-pointer"
                                     >
-                                        <div className="h-10 w-10 bg-slate-100 rounded flex items-center justify-center shrink-0">
+                                        <div className="h-10 w-10 bg-zinc-100 rounded flex items-center justify-center shrink-0">
                                             {item.image ? (
                                                 <img src={item.image} alt="" className="h-8 w-8 object-contain" />
                                             ) : (
-                                                <Package className="h-5 w-5 text-slate-400" />
+                                                <Package className="h-5 w-5 text-zinc-400" />
                                             )}
                                         </div>
                                         <div>

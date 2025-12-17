@@ -711,7 +711,7 @@ function ConsertosList({
                     <Button type="button" variant="outline" onClick={() => setOpenNew(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                       {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.consertos.form.save")}
                     </Button>
                   </DialogFooter>
@@ -1050,7 +1050,7 @@ function ConsertosList({
               <Button type="button" variant="outline" onClick={() => setRetornoDialog(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                 {loading ? "Saving..." : t("dashboard.consertos.return_dialog.conclude_action")}
               </Button>
             </DialogFooter>

@@ -1213,7 +1213,7 @@ function FerramentasList({
                     >
                       {t("dashboard.ferramentas.form.cancel")}
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                       {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
                     </Button>
                   </DialogFooter>
@@ -1627,7 +1627,7 @@ function FerramentasList({
                   >
                     {t("dashboard.ferramentas.form.cancel")}
                   </Button>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                     {loading ? t("dashboard.ferramentas.actions.processing") : t("dashboard.ferramentas.actions.confirm")}
                   </Button>
                 </DialogFooter>
