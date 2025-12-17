@@ -99,7 +99,7 @@ import {
 } from "lucide-react"
 
 import QRCode from 'qrcode'
-import { VoiceCommandButton } from "./VoiceCommandButton"
+// VoiceCommandButton removed
 import { ProductLabel } from "./ProductLabel"
 
 interface Ferramenta {
@@ -181,8 +181,7 @@ function FerramentasList({
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
   const [exportingCsv, setExportingCsv] = useState(false)
 
-  // Estado para dados preenchidos por voz
-  const [voiceData, setVoiceData] = useState<any>(null)
+  // Voice data removed
 
   // New state for catalog linkage to be robust against re-renders
   const [catalogItemId, setCatalogItemId] = useState<string | null>(null)
@@ -223,29 +222,7 @@ function FerramentasList({
     }
   }
 
-  const handleVoiceCommand = (data: any) => {
-    const { intent } = data
-    if (!intent) return
-
-    if (intent.action === "create") {
-      // Função para formatar texto (Primeira letra maiúscula em cada palavra)
-      const formatName = (text: string) => {
-        return text
-          .toLowerCase()
-          .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase())
-      }
-
-      setVoiceData({
-        nome: intent.nome ? formatName(intent.nome) : "",
-        categoria: intent.categoria ? formatName(intent.categoria) : "",
-        quantidade_total: intent.quantidade || 0,
-        tipo_item: intent.tipo || "ferramenta"
-      })
-      if (intent.tipo) setTipoItem(intent.tipo)
-      setOpen(true)
-      toast.success("Formulário preenchido por voz!")
-    }
-  }
+  // Voice command handler removed
   const supabase = createClientComponentClient()
   const { toast } = useToast()
   const [userId, setUserId] = useState<string>("")
@@ -922,7 +899,7 @@ function FerramentasList({
       {/* Voice Assistant Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Ferramentas</h1>
+          <h1 className="text-3xl font-serif font-bold tracking-tight text-[#37352f] dark:text-zinc-50">Ferramentas</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Gerencie o inventário, movimentações e manutenção.
           </p>
@@ -930,7 +907,7 @@ function FerramentasList({
         <div className="flex gap-2 w-full sm:w-auto">
           {/* Fast Scan Button */}
           <Button
-            className="bg-amber-500 hover:bg-amber-600 text-white font-bold"
+            className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium"
             onClick={() => setIsScanning(true)}
           >
             <Zap className="mr-2 h-4 w-4 fill-current" />
@@ -940,7 +917,7 @@ function FerramentasList({
           <Button onClick={() => {
             setEditing(null)
             setOpen(true)
-          }}>
+          }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium">
             <Plus className="mr-2 h-4 w-4" />
             Nova Ferramenta
           </Button>
@@ -961,7 +938,7 @@ function FerramentasList({
           <div className="flex items-center gap-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setEditing(null)} className="bg-green-600 hover:bg-green-700 text-white">
+                <Button onClick={() => setEditing(null)} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                   {t("dashboard.ferramentas.new_button")}
                 </Button>
               </DialogTrigger>
@@ -1032,7 +1009,7 @@ function FerramentasList({
                       <Input
                         id="nome"
                         name="nome"
-                        defaultValue={editing?.nome || voiceData?.nome || ""}
+                        defaultValue={editing?.nome || ""}
                         onBlur={(e) =>
                           setProductCode(
                             gerarCodigoLocal(
@@ -1084,7 +1061,7 @@ function FerramentasList({
                             id="categoria"
                             name="categoria"
                             placeholder={t("dashboard.ferramentas.form.line_placeholder")}
-                            defaultValue={editing?.categoria || voiceData?.categoria || ""}
+                            defaultValue={editing?.categoria || ""}
                           />
                           <Button
                             type="button"
@@ -1175,7 +1152,7 @@ function FerramentasList({
                           name="quantidade_total"
                           type="number"
                           min="0"
-                          defaultValue={editing?.quantidade_total || voiceData?.quantidade_total || 0}
+                          defaultValue={editing?.quantidade_total || 0}
                           required
                         />
                       </div>
@@ -1247,7 +1224,7 @@ function FerramentasList({
 
 
             <Button variant="outline" onClick={() => setImportInvoiceOpen(true)} className="gap-2">
-              <Sparkles className="h-4 w-4 text-purple-600" />
+              <Sparkles className="h-4 w-4 text-zinc-500" />
               Adicionar com IA (Nota Fiscal)
             </Button>
 
@@ -1344,33 +1321,33 @@ function FerramentasList({
             <TabsList className="w-full justify-start bg-transparent p-0 h-auto border-b rounded-none border-transparent">
               <TabsTrigger
                 value="ativos"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-600 data-[state=active]:text-green-600 px-4 py-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#37352f] data-[state=active]:text-[#37352f] px-4 py-2"
               >
                 {t("dashboard.ferramentas.tabs.active")}
-                <span className="ml-2 text-green-600 font-semibold">{counts.ativos}</span>
+                <span className="ml-2 text-zinc-500 font-medium">{counts.ativos}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="inativos"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary px-4 py-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#37352f] data-[state=active]:text-[#37352f] px-4 py-2"
               >
                 {t("dashboard.ferramentas.tabs.inactive")}
-                <span className="ml-2 text-zinc-500 font-semibold">{counts.inativos}</span>
+                <span className="ml-2 text-zinc-400 font-medium">{counts.inativos}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="todos"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 px-4 py-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#37352f] data-[state=active]:text-[#37352f] px-4 py-2"
               >
                 {t("dashboard.ferramentas.tabs.all")}
-                <span className="ml-2 text-blue-600 font-semibold">{counts.todos}</span>
+                <span className="ml-2 text-zinc-500 font-medium">{counts.todos}</span>
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <div className="bg-blue-50/50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
+          <div className="bg-zinc-50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
             <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
               {t("dashboard.ferramentas.list.selected_count", { count: selectedItems.size, total: filteredFerramentas.length })}
             </span>
-            <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-blue-600 border-blue-200">
+            <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-zinc-700 border-zinc-200 hover:text-zinc-900">
               {t("dashboard.ferramentas.list.bulk_actions")} <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
             </Button>
           </div>
@@ -1433,8 +1410,10 @@ function FerramentasList({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={ferramenta.estado === 'ok' ? 'secondary' : 'destructive'} className={cn(
-                      ferramenta.estado === 'ok' ? "bg-green-100 text-green-700 hover:bg-green-200" : ""
+                    <Badge variant="secondary" className={cn(
+                      ferramenta.estado === 'ok'
+                        ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 border-zinc-200"
+                        : "bg-zinc-200 text-zinc-800 hover:bg-zinc-300 border-zinc-300"
                     )}>
                       {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
                     </Badge>
@@ -1442,7 +1421,7 @@ function FerramentasList({
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400">
+                        <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700">
                           Ações <ChevronLeft className="h-3 w-3 rotate-[-90deg]" />
                         </Button>
                       </DropdownMenuTrigger>
