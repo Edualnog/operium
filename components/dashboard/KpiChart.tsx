@@ -57,7 +57,7 @@ export function KpiChart({
       return (
         <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
           <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800">
-            <CardTitle className="text-base sm:text-lg font-bold font-serif text-[#37352f] dark:text-zinc-50">
+            <CardTitle className="text-base sm:text-lg font-bold text-[#37352f] dark:text-zinc-50">
               {title}
             </CardTitle>
             {description && (

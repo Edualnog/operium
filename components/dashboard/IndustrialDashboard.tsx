@@ -799,16 +799,12 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         {/* Cards de estatísticas rápidas */}
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
           <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-slate-100 text-[#37352f] rounded-lg dark:bg-zinc-800 dark:text-zinc-400">
-                  <AlertTriangle className="h-6 w-6" />
-                </div>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Package className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
                 <div>
-                  <h3 className="text-lg font-bold font-serif text-[#37352f] dark:text-zinc-50">
-                    {t('dashboard.stats.items_in_stock')}
-                  </h3>
-                  <p className="text-xl font-bold font-serif text-[#37352f] dark:text-zinc-50">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.items_in_stock')}</p>
+                  <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                     {data.totais?.itensEstoque || 0}
                   </p>
                 </div>
@@ -819,12 +815,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
-                  <Users className="h-5 w-5 text-[#37352f] dark:text-zinc-400" />
-                </div>
+                <Users className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
                 <div>
-                  <p className="text-xs text-[#37352f]/60 dark:text-zinc-400">{t('dashboard.stats.collaborators')}</p>
-                  <p className="text-xl font-bold font-serif text-[#37352f] dark:text-zinc-50">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.collaborators')}</p>
+                  <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                     {data.totais?.colaboradores || 0}
                   </p>
                 </div>
@@ -835,12 +829,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
-                  <Wrench className="h-5 w-5 text-[#37352f] dark:text-zinc-400" />
-                </div>
+                <Wrench className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
                 <div>
-                  <p className="text-xs text-[#37352f]/60 dark:text-zinc-400">{t('dashboard.stats.tools')}</p>
-                  <p className="text-xl font-bold font-serif text-[#37352f] dark:text-zinc-50">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.tools')}</p>
+                  <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                     {data.totais?.ferramentas || 0}
                   </p>
                 </div>
@@ -849,16 +841,12 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           </Card>
 
           <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-slate-100 text-[#37352f] rounded-lg dark:bg-zinc-800 dark:text-zinc-400">
-                  <Activity className="h-6 w-6" />
-                </div>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Activity className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
                 <div>
-                  <h3 className="text-lg font-bold font-serif text-[#37352f] dark:text-zinc-50">
-                    {t('dashboard.stats.movements_month')}
-                  </h3>
-                  <p className="text-xl font-bold font-serif text-[#37352f] dark:text-zinc-50">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.movements_month')}</p>
+                  <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                     {(() => {
                       // Pegar o mês atual
                       const hoje = new Date()

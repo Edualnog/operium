@@ -91,17 +91,15 @@ export function KPICard({
         <div className="flex flex-col gap-3.5">
           {/* Header com ícone e título */}
           <div className="flex items-start gap-3">
-            <div className="p-2.5 sm:p-3 rounded-lg bg-slate-100 text-[#37352f] flex-shrink-0 dark:bg-zinc-800 dark:text-zinc-400">
-              <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
-            </div>
-            <h2 className="text-sm sm:text-base lg:text-lg font-bold font-serif text-[#37352f] leading-snug flex-1 min-w-0 dark:text-zinc-50">
+            <Icon className="h-5 w-5 text-zinc-400 mt-0.5 sm:mt-1 dark:text-zinc-500" />
+            <h2 className="text-sm sm:text-base lg:text-lg font-bold text-[#37352f] leading-snug flex-1 min-w-0 dark:text-zinc-50">
               {title}
             </h2>
           </div>
 
           {/* Valor e trend */}
           <div className="flex items-baseline gap-2.5 flex-wrap">
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#37352f] tracking-tight dark:text-zinc-50 font-serif">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#37352f] tracking-tight dark:text-zinc-50">
               {typeof value === "number" ? value.toLocaleString(i18n.language) : value}
             </h3>
             {trend && (
