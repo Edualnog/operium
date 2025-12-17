@@ -149,6 +149,9 @@ function ColaboradoresList({
   const [colaboradoresSimilares, setColaboradoresSimilares] = useState<Colaborador[]>([])
   const [confirmarDuplicata, setConfirmarDuplicata] = useState(false)
 
+  // Estado para dados preenchidos por voz
+  const [voiceData, setVoiceData] = useState<any>(null)
+
 
 
   const router = useRouter()
@@ -624,19 +627,19 @@ function ColaboradoresList({
 
   return (
     <div className="space-y-4">
-      {/* Top Toolbar */}
+
 
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
-          <TabsList>
-            <TabsTrigger value="ativos">{t("dashboard.ferramentas.tabs.active")} ({counts.ativos})</TabsTrigger>
-            <TabsTrigger value="inativos">{t("dashboard.ferramentas.tabs.inactive")} ({counts.inativos})</TabsTrigger>
-            <TabsTrigger value="todos">{t("dashboard.ferramentas.tabs.all")} ({counts.todos})</TabsTrigger>
+          <TabsList className="bg-transparent p-0">
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="ativos">{t("dashboard.ferramentas.tabs.active")} ({counts.ativos})</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="inativos">{t("dashboard.ferramentas.tabs.inactive")} ({counts.inativos})</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="todos">{t("dashboard.ferramentas.tabs.all")} ({counts.todos})</TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="flex gap-2 w-full sm:w-auto items-center">
-          <Button onClick={() => setOpen(true)} className="gap-2 flex-1 sm:flex-none">
+          <Button onClick={() => setOpen(true)} className="gap-2 flex-1 sm:flex-none bg-[#37352f] hover:bg-zinc-800 text-white">
             <Plus size={16} />
             {t("dashboard.colaboradores.new_button")}
           </Button>
@@ -720,11 +723,11 @@ function ColaboradoresList({
         </div>
 
         {/* Selection Info */}
-        <div className="bg-blue-50/50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
+        <div className="bg-zinc-50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
           <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
             {t("dashboard.colaboradores.list.selected_count", { count: selectedItems.size, total: filteredAndSortedColaboradores.length })}
           </span>
-          <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-blue-600 border-blue-200">
+          <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-zinc-700 border-zinc-200 hover:text-zinc-900">
             {t("dashboard.colaboradores.list.bulk_actions")} <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
           </Button>
         </div>
@@ -912,7 +915,7 @@ function ColaboradoresList({
                     <Input
                       id="nome"
                       name="nome"
-                      defaultValue={editing?.nome || ""}
+                      defaultValue={editing?.nome || voiceData?.nome || ""}
                       value={nomeDigitado}
                       onChange={(e) => setNomeDigitado(e.target.value)}
                       required
@@ -923,7 +926,7 @@ function ColaboradoresList({
                     <Input
                       id="cargo"
                       name="cargo"
-                      defaultValue={editing?.cargo || ""}
+                      defaultValue={editing?.cargo || voiceData?.cargo || ""}
                     />
                   </div>
                 </div>
@@ -935,7 +938,7 @@ function ColaboradoresList({
                       id="email"
                       name="email"
                       type="email"
-                      defaultValue={editing?.email || ""}
+                      defaultValue={editing?.email || voiceData?.email || ""}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -943,7 +946,7 @@ function ColaboradoresList({
                     <Input
                       id="telefone"
                       name="telefone"
-                      defaultValue={editing?.telefone || ""}
+                      defaultValue={editing?.telefone || voiceData?.telefone || ""}
                     />
                   </div>
                 </div>
@@ -997,7 +1000,7 @@ function ColaboradoresList({
               >
                 {t("dashboard.colaboradores.form.cancel")}
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                 {loading ? t("dashboard.colaboradores.form.saving") : t("dashboard.colaboradores.form.save")}
               </Button>
             </DialogFooter>

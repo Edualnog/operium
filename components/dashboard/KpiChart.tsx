@@ -55,9 +55,9 @@ export function KpiChart({
   if (!data || data.length === 0) {
     if (title) {
       return (
-        <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-          <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
-            <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+        <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+          <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800">
+            <CardTitle className="text-base sm:text-lg font-bold text-[#37352f] dark:text-zinc-50">
               {title}
             </CardTitle>
             {description && (
@@ -223,8 +223,8 @@ export function KpiChart({
 
   if (title) {
     return (
-      <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-        <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
+      <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+        <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800">
           <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
             {title}
           </CardTitle>

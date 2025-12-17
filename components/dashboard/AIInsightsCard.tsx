@@ -87,25 +87,16 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
     }
 
     return (
-        <Card className="relative overflow-hidden border border-indigo-100/50 dark:border-indigo-500/20 shadow-xl bg-gradient-to-br from-white/80 via-indigo-50/30 to-purple-50/30 dark:from-zinc-900/80 dark:via-indigo-950/10 dark:to-purple-950/10 backdrop-blur-sm">
-
-            {/* Decorative background blobs */}
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            <CardHeader className="pb-4 border-b border-indigo-100/50 dark:border-indigo-500/20 relative z-10">
+        <Card className="relative overflow-hidden border border-slate-200 shadow-sm bg-white dark:bg-zinc-900 dark:border-zinc-800">
+            <CardHeader className="pb-4 border-b border-slate-100 dark:border-zinc-800">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <CardTitle className="text-lg sm:text-xl font-bold flex items-center gap-2.5">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-inner">
-                            <Sparkles className="h-5 w-5 text-white" />
-                        </div>
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-                            {t("dashboard.ai.insights.title")}
-                        </span>
+                    <CardTitle className="text-xl sm:text-2xl font-bold flex items-center gap-3 font-serif text-[#37352f] dark:text-zinc-100">
+                        <Sparkles className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />
+                        {t("dashboard.ai.insights.title")}
                     </CardTitle>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <Select value={period} onValueChange={setPeriod}>
-                            <SelectTrigger className="w-[160px] bg-white/50 dark:bg-zinc-800/50 h-10 border-indigo-200/50 dark:border-indigo-800/50 backdrop-blur-sm focus:ring-indigo-500/20 transition-all hover:bg-white/80 dark:hover:bg-zinc-800/80">
+                            <SelectTrigger className="w-[160px] bg-transparent h-9 border-slate-200 focus:ring-zinc-500">
                                 <SelectValue placeholder={t("dashboard.ai.insights.select_period")} />
                             </SelectTrigger>
                             <SelectContent>
@@ -116,12 +107,10 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             </SelectContent>
                         </Select>
 
-                        <HoverButton
+                        <Button
                             onClick={generateInsights}
                             disabled={loading}
-                            className="h-10 px-6 font-semibold shadow-lg hover:shadow-indigo-500/25 w-full sm:w-auto"
-                            backgroundColor="#4f46e5"
-                            glowColor="#a855f7"
+                            className="bg-[#1C1C1C] hover:bg-[#37352f] text-white h-9 px-4 font-medium transition-all w-full sm:w-auto flex items-center gap-2"
                         >
                             {loading ? (
                                 <RefreshCw className="h-4 w-4 animate-spin" />
@@ -129,22 +118,19 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                                 <Lightbulb className="h-4 w-4" />
                             )}
                             <span>{loading ? t("dashboard.ai.insights.button.loading") : t("dashboard.ai.insights.button.idle")}</span>
-                        </HoverButton>
+                        </Button>
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="pt-6 relative z-10 min-h-[160px] flex flex-col justify-center">
+            <CardContent className="pt-6 min-h-[160px] flex flex-col justify-center">
                 {insights.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center text-center space-y-4 py-4">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full animate-pulse" />
-                            <div className="relative p-4 bg-white dark:bg-zinc-800 rounded-full border border-indigo-100 dark:border-zinc-700 shadow-sm">
-                                <Sparkles className="h-8 w-8 text-indigo-500/70" />
-                            </div>
+                    <div className="flex flex-col items-center justify-center text-center space-y-4 py-8">
+                        <div className="p-3 bg-slate-50 dark:bg-zinc-800 rounded-full">
+                            <Sparkles className="h-6 w-6 text-slate-400" />
                         </div>
                         <div className="space-y-1">
-                            <p className="font-medium text-zinc-900 dark:text-zinc-100">{t("dashboard.ai.insights.empty.title")}</p>
-                            <p className="text-sm text-zinc-500 max-w-sm mx-auto">
+                            <p className="font-medium text-[#37352f] dark:text-zinc-100">{t("dashboard.ai.insights.empty.title")}</p>
+                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
                                 {t("dashboard.ai.insights.empty.desc")}
                             </p>
                         </div>
@@ -152,10 +138,10 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                 ) : (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="flex items-center justify-between px-1">
-                            <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
                                 {t("dashboard.ai.insights.summary_title", { days: period })}
                             </p>
-                            <span className="text-[10px] text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
+                            <span className="text-[10px] text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">
                                 {t("dashboard.ai.insights.generated_now")}
                             </span>
                         </div>
@@ -163,15 +149,13 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             {insights.map((insight, index) => (
                                 <div
                                     key={index}
-                                    className="group relative flex items-start gap-4 p-4 rounded-xl bg-white/60 dark:bg-zinc-800/60 border border-white/50 dark:border-zinc-700/50 shadow-sm hover:shadow-md hover:bg-white/80 dark:hover:bg-zinc-800/80 transition-all duration-300"
+                                    className="flex items-start gap-4 p-4 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
                                     style={{ animationDelay: `${index * 150}ms` }}
                                 >
-                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                    <div className="mt-0.5 p-1 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 shrink-0">
-                                        <Sparkles className="h-4 w-4" />
+                                    <div className="mt-1 flex-shrink-0">
+                                        <Sparkles className="h-4 w-4 text-zinc-900" />
                                     </div>
-                                    <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                                    <p className="text-sm text-[#37352f] dark:text-zinc-300 leading-relaxed font-medium">
                                         {cleanInsight(insight)}
                                     </p>
                                 </div>

@@ -62,6 +62,9 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
+import { CatalogSearch } from "./CatalogSearch"
+import { IncidentReporter } from "./IncidentReporter"
+import { QRScanner } from "./QRScanner"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { type FilterState } from "./FerramentasFilters"
@@ -91,10 +94,13 @@ import {
   Printer,
   Archive,
   ArrowUpDown,
+  AlertTriangle,
+  Zap,
 } from "lucide-react"
 
 import QRCode from 'qrcode'
-
+// VoiceCommandButton removed
+import { ProductLabel } from "./ProductLabel"
 
 interface Ferramenta {
   id: string
@@ -147,7 +153,7 @@ function FerramentasList({
   const debouncedSearch = useDebounce(filters.search, 300)
   const [open, setOpen] = useState(false)
   const [actionDialog, setActionDialog] = useState<{
-    type: "entrada" | "retirada" | "devolucao" | "conserto"
+    type: "entrada" | "retirada" | "devolucao" | "conserto" | "incident"
     ferramenta: Ferramenta
     initialQuantity?: number
     initialCollaboratorId?: string
@@ -175,10 +181,60 @@ function FerramentasList({
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
   const [exportingCsv, setExportingCsv] = useState(false)
 
+  // Voice data removed
 
+  // New state for catalog linkage to be robust against re-renders
+  const [catalogItemId, setCatalogItemId] = useState<string | null>(null)
+
+  // Scanner State
+  const [isScanning, setIsScanning] = useState(false)
+
+  const handleScanResult = (decodedText: string) => {
+    // 1. Normalize code
+    const searchCode = decodedText.trim().toUpperCase()
+    console.log("Scanned:", searchCode)
+
+    // 2. Search in local list (client-side for speed)
+    // Checks against ID, Custom Code, or Catalog Model Name
+    const found = ferramentas.find(f =>
+      f.id === searchCode ||
+      (f.codigo && f.codigo.toUpperCase() === searchCode) ||
+      (f.nome && f.nome.toUpperCase() === searchCode)
+    )
+
+    if (found) {
+      // 3. Success: Close scanner and open Action
+      setIsScanning(false)
+      // Play beep? (Optional)
+
+      // Open Checkout Dialog
+      setActionDialog({
+        type: "retirada",
+        ferramenta: found,
+        initialQuantity: 1
+      })
+
+      toast.success(`Item encontrado: ${found.nome}`)
+    } else {
+      // 4. Not found logic
+      // Don't close immediately, let user try again or realize it's wrong
+      toast.error(`Código não encontrado: ${searchCode}`)
+    }
+  }
+
+  // Voice command handler removed
   const supabase = createClientComponentClient()
   const { toast } = useToast()
   const [userId, setUserId] = useState<string>("")
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const router = useRouter()
+
   useEffect(() => {
     if (editing) {
       setProductCode(editing.codigo || "")
@@ -284,14 +340,6 @@ function FerramentasList({
     link.download = `produtos_selecionados_${new Date().toISOString().split('T')[0]}.csv`
     link.click()
   }
-  const router = useRouter()
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // Estado para modal de importação
   const [importModalOpen, setImportModalOpen] = useState(false)
@@ -847,14 +895,50 @@ function FerramentasList({
   }
 
   return (
-
     <div className="space-y-4">
+      {/* Voice Assistant Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-serif font-bold tracking-tight text-[#37352f] dark:text-zinc-50">Ferramentas</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Gerencie o inventário, movimentações e manutenção.
+          </p>
+        </div>
+        <div className="flex gap-2 w-full sm:w-auto">
+          {/* Fast Scan Button */}
+          <Button
+            className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium"
+            onClick={() => setIsScanning(true)}
+          >
+            <Zap className="mr-2 h-4 w-4 fill-current" />
+            Modo Rápido
+          </Button>
+
+          <Button onClick={() => {
+            setEditing(null)
+            setOpen(true)
+          }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium">
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Ferramenta
+          </Button>
+        </div>
+      </div>
+
+      {isScanning && (
+        <QRScanner
+          onScan={handleScanResult}
+          onClose={() => setIsScanning(false)}
+          title="Modo Rápido: Escanear Item"
+          description="Aponte a câmera para o código QR ou de barras do item para registrar uma retirada."
+        />
+      )}
+
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setEditing(null)} className="bg-green-600 hover:bg-green-700 text-white">
+                <Button onClick={() => setEditing(null)} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                   {t("dashboard.ferramentas.new_button")}
                 </Button>
               </DialogTrigger>
@@ -874,6 +958,43 @@ function FerramentasList({
                     {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
                     <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
                     <input type="hidden" name="estado" value={editing?.estado || "ok"} />
+
+                    {/* Catalog ID Hidden Field - Controlled by React State now */}
+                    <input type="hidden" name="catalog_item_id" value={catalogItemId || ""} />
+
+                    {!editing && (
+                      <div className="bg-slate-50 dark:bg-zinc-800/50 p-4 rounded-lg border border-dashed border-slate-200 dark:border-zinc-700 mb-4">
+                        <Label className="mb-2 block text-blue-600 dark:text-blue-400 font-medium">
+                          ✨ {t("dashboard.ferramentas.form.catalog_search_label") || "Comece buscando no Catálogo Global"}
+                        </Label>
+                        <CatalogSearch
+                          onSelect={(item) => {
+                            // Update State
+                            setCatalogItemId(item.id)
+                            setProductCode(item.model)
+
+                            // DOM manipulation kept for uncontrolled inputs that don't have state binding yet
+                            // Ideally we should move all to state, but this hybrid approach fixes the critical bug
+                            const nomeInput = document.getElementById("nome") as HTMLInputElement
+                            const catInput = document.getElementById("categoria") as HTMLInputElement
+                            const codInput = document.getElementById("codigo") as HTMLInputElement
+
+                            if (nomeInput) nomeInput.value = item.name
+                            if (catInput) catInput.value = item.category || ""
+                            if (codInput) codInput.value = item.model
+
+                            if (item.image) {
+                              setProductPhoto(item.image)
+                            }
+
+                            toast.success("Dados preenchidos via Catálogo Global")
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Selecione um item para preencher automaticamente nome, categoria e foto.
+                        </p>
+                      </div>
+                    )}
 
                     {userId && (
                       <ProductPhotoUpload
@@ -1087,11 +1208,12 @@ function FerramentasList({
                       onClick={() => {
                         setOpen(false)
                         setEditing(null)
+                        setCatalogItemId(null) // Reset on close
                       }}
                     >
                       {t("dashboard.ferramentas.form.cancel")}
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                       {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
                     </Button>
                   </DialogFooter>
@@ -1102,7 +1224,7 @@ function FerramentasList({
 
 
             <Button variant="outline" onClick={() => setImportInvoiceOpen(true)} className="gap-2">
-              <Sparkles className="h-4 w-4 text-purple-600" />
+              <Sparkles className="h-4 w-4 text-zinc-500" />
               Adicionar com IA (Nota Fiscal)
             </Button>
 
@@ -1199,33 +1321,33 @@ function FerramentasList({
             <TabsList className="w-full justify-start bg-transparent p-0 h-auto border-b rounded-none border-transparent">
               <TabsTrigger
                 value="ativos"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-600 data-[state=active]:text-green-600 px-4 py-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#37352f] data-[state=active]:text-[#37352f] px-4 py-2"
               >
                 {t("dashboard.ferramentas.tabs.active")}
-                <span className="ml-2 text-green-600 font-semibold">{counts.ativos}</span>
+                <span className="ml-2 text-zinc-500 font-medium">{counts.ativos}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="inativos"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary px-4 py-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#37352f] data-[state=active]:text-[#37352f] px-4 py-2"
               >
                 {t("dashboard.ferramentas.tabs.inactive")}
-                <span className="ml-2 text-zinc-500 font-semibold">{counts.inativos}</span>
+                <span className="ml-2 text-zinc-400 font-medium">{counts.inativos}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="todos"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 px-4 py-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#37352f] data-[state=active]:text-[#37352f] px-4 py-2"
               >
                 {t("dashboard.ferramentas.tabs.all")}
-                <span className="ml-2 text-blue-600 font-semibold">{counts.todos}</span>
+                <span className="ml-2 text-zinc-500 font-medium">{counts.todos}</span>
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <div className="bg-blue-50/50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
+          <div className="bg-zinc-50 p-2 border-b flex items-center justify-between dark:bg-zinc-800/50">
             <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
               {t("dashboard.ferramentas.list.selected_count", { count: selectedItems.size, total: filteredFerramentas.length })}
             </span>
-            <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-blue-600 border-blue-200">
+            <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-zinc-700 border-zinc-200 hover:text-zinc-900">
               {t("dashboard.ferramentas.list.bulk_actions")} <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
             </Button>
           </div>
@@ -1288,8 +1410,10 @@ function FerramentasList({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={ferramenta.estado === 'ok' ? 'secondary' : 'destructive'} className={cn(
-                      ferramenta.estado === 'ok' ? "bg-green-100 text-green-700 hover:bg-green-200" : ""
+                    <Badge variant="secondary" className={cn(
+                      ferramenta.estado === 'ok'
+                        ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 border-zinc-200"
+                        : "bg-zinc-200 text-zinc-800 hover:bg-zinc-300 border-zinc-300"
                     )}>
                       {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
                     </Badge>
@@ -1297,7 +1421,7 @@ function FerramentasList({
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400">
+                        <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700">
                           Ações <ChevronLeft className="h-3 w-3 rotate-[-90deg]" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -1311,6 +1435,10 @@ function FerramentasList({
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ferramenta.id)}>
                           <Archive className="mr-2 h-4 w-4" /> Inativar / Excluir
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-red-600 focus:text-red-700 focus:bg-red-50" onClick={() => setActionDialog({ type: "incident", ferramenta })}>
+                          <AlertTriangle className="mr-2 h-4 w-4" /> Reportar Problema
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -1499,7 +1627,7 @@ function FerramentasList({
                   >
                     {t("dashboard.ferramentas.form.cancel")}
                   </Button>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                     {loading ? t("dashboard.ferramentas.actions.processing") : t("dashboard.ferramentas.actions.confirm")}
                   </Button>
                 </DialogFooter>
@@ -1508,8 +1636,70 @@ function FerramentasList({
           </Dialog>
         )
       }
+
+      {/* Incident Wizard Dialog */}
+      {actionDialog?.type === "incident" && (
+        <Dialog open={true} onOpenChange={() => setActionDialog(null)}>
+          <DialogContent className="max-w-3xl">
+            {/* No Header here as IncidentReporter has its own progress header */}
+            <div className="pt-2">
+              <IncidentReporter
+                ferramentaNome={actionDialog.ferramenta.nome}
+                onCancel={() => setActionDialog(null)}
+                onSubmit={async (data) => {
+                  // Adapt the structured data to the existing 'conserto' action interface
+                  // We serialize the structured data into the 'observacoes' field text
+                  // Format: [FALHA: TIPO - SUBTIPO] obs
+
+                  const structuredObs = `[FALHA: ${data.category.toUpperCase()} - ${data.issue.toUpperCase()}]`
+
+                  // Trigger the backend action for "send to repair" (conserto)
+                  // We reuse registrarEnvioConserto for now as it sets status to 'em_conserto' or 'danificada' logic?
+                  // Ideally we want status 'danificada'.
+                  // registrarEnvioConserto sets status to 'em_conserto'. 
+                  // Let's us updating tool directly or using the conserto flow if that's what user expects.
+                  // User story says report problem. usually means broken.
+                  // Let's use registrarEnvioConserto which is robust, but pass specific params.
+
+                  try {
+                    setLoading(true)
+                    // Signature: (id, quantidade, descricao, status, local, prazo, prioridade)
+                    await registrarEnvioConserto(
+                      actionDialog.ferramenta.id,
+                      1, // Quantidade
+                      structuredObs, // Descricao/Observacoes
+                      "aguardando", // Status
+                      "Interno (Triagem)", // Local
+                      new Date().toISOString().split('T')[0], // Prazo (Hoje)
+                      "alta" // Prioridade
+                    )
+                    toast.success("Incidente registrado com sucesso!")
+                    setActionDialog(null)
+                  } catch (err) {
+                    toast.error("Erro ao registrar incidente")
+                  } finally {
+                    setLoading(false)
+                  }
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* QR Scanner Dialog */}
+      <Dialog open={isScanning} onOpenChange={setIsScanning}>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-black border-zinc-800">
+          <QRScanner
+            onScan={handleScanResult}
+            onClose={() => setIsScanning(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
     </div >
   )
 }
 
 export default memo(FerramentasList)
+

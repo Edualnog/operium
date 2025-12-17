@@ -267,7 +267,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                 <div className="px-4 md:px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
                     <div>
                         <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <Camera className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
+                            <Camera className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
                             Importar Nota Fiscal (IA)
                         </h2>
                         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
@@ -308,7 +308,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                             onChange={handleFileSelect}
                                             className="hidden"
                                         />
-                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400">
                                             <Upload className="w-6 h-6 md:w-8 md:h-8" />
                                         </div>
                                         <div>
@@ -325,7 +325,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                         onClick={() => startCamera()}
                                         className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 md:p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex flex-col items-center justify-center gap-4 h-48 md:h-64"
                                     >
-                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400">
                                             <Camera className="w-6 h-6 md:w-8 md:h-8" />
                                         </div>
                                         <div>
@@ -374,7 +374,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                     <Button variant="outline" onClick={stopCamera}>
                                         Cancelar
                                     </Button>
-                                    <Button onClick={capturePhoto} className="bg-blue-600 hover:bg-blue-700">
+                                    <Button onClick={capturePhoto} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                                         <Camera className="w-4 h-4 mr-2" />
                                         Capturar Foto
                                     </Button>
@@ -390,7 +390,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                 exit={{ opacity: 0 }}
                                 className="flex flex-col items-center justify-center py-12 h-full"
                             >
-                                <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+                                <Loader2 className="w-12 h-12 text-zinc-500 animate-spin mb-4" />
                                 <p className="text-lg font-medium text-slate-900 dark:text-white">
                                     Lendo Nota Fiscal...
                                 </p>
@@ -522,7 +522,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                         Cancelar
                     </Button>
                     {step === "review" && (
-                        <Button onClick={handleConfirm} className="bg-blue-600 hover:bg-blue-700">
+                        <Button onClick={handleConfirm} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                             <Check className="w-4 h-4 mr-2" />
                             Confirmar Importação
                         </Button>

@@ -539,12 +539,12 @@ export default function MovimentacoesList({
 
   const tipoBadge = (tipo: string) => {
     const map: Record<string, "default" | "secondary" | "destructive"> = {
-      entrada: "default",
+      entrada: "secondary",
       retirada: "destructive",
-      devolucao: "default",
+      devolucao: "secondary",
       conserto: "secondary",
     }
-    return map[tipo] || "default"
+    return map[tipo] || "secondary"
   }
 
   const tipoBadgeClassName = (tipo: string) => {
@@ -792,17 +792,17 @@ export default function MovimentacoesList({
         className="w-full space-y-4"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList>
-            <TabsTrigger value="todos">{t("dashboard.movimentacoes.filters.all_types")}</TabsTrigger>
-            <TabsTrigger value="entrada">{t("dashboard.movimentacoes.filters.entry")}</TabsTrigger>
-            <TabsTrigger value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</TabsTrigger>
-            <TabsTrigger value="devolucao">{t("dashboard.movimentacoes.filters.return")}</TabsTrigger>
+          <TabsList className="bg-transparent p-0">
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="todos">{t("dashboard.movimentacoes.filters.all_types")}</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="entrada">{t("dashboard.movimentacoes.filters.entry")}</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="devolucao">{t("dashboard.movimentacoes.filters.return")}</TabsTrigger>
           </TabsList>
 
           <div className="flex items-center gap-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2">
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">{t("dashboard.movimentacoes.new_button")}</span>
                 </Button>
@@ -951,7 +951,7 @@ export default function MovimentacoesList({
                     <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                       {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
                     </Button>
                   </DialogFooter>
@@ -1158,9 +1158,9 @@ export default function MovimentacoesList({
                 <TableRow
                   key={m.id}
                   className={cn(
-                    "cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50",
-                    selectedIds.includes(m.id) && "bg-blue-50/50 dark:bg-blue-900/10",
-                    starredIds.includes(m.id) && "bg-yellow-50/30 dark:bg-yellow-900/10"
+                    "cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors",
+                    selectedIds.includes(m.id) && "bg-zinc-100 dark:bg-zinc-800",
+                    starredIds.includes(m.id) && "bg-zinc-50 dark:bg-zinc-900"
                   )}
                   onClick={() => handleOpenDetail(m.id)}
                 >
@@ -1240,15 +1240,15 @@ export default function MovimentacoesList({
           {paginatedMovimentacoes.map((m) => (
             <Fragment key={m.id}>
               <div
-                className="p-3 border-b border-zinc-200 space-y-2 active:bg-blue-50 cursor-pointer dark:border-zinc-700 dark:active:bg-zinc-800"
+                className="p-3 border-b border-zinc-200 space-y-2 active:bg-zinc-100 cursor-pointer dark:border-zinc-700 dark:active:bg-zinc-800"
                 onClick={() => handleOpenDetail(m.id)}
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600" />}
-                    {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600" />}
-                    {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600" />}
-                    {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600" />}
+                    {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-zinc-500" />}
+                    {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-zinc-500" />}
+                    {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-zinc-500" />}
+                    {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-zinc-500" />}
                     <span className="text-xs font-medium capitalize">
                       {t(`dashboard.movimentacoes.filters.${m.tipo}`)}
                     </span>

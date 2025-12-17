@@ -3,6 +3,7 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { trackEvent } from "./events"
 
 type ConsertoStatus = "aguardando" | "em_andamento" | "concluido"
 
@@ -60,6 +61,43 @@ function gerarCodigoProduto(nome: string, tipo: string, tamanho?: string | null,
   return [siglaTipo, iniciais || "XX", tam || undefined, corSigla || undefined, rand]
     .filter(Boolean)
     .join("-")
+}
+
+// Global Catalog Search
+export async function searchCatalogItems(query: string) {
+  const supabase = await createServerComponentClient()
+
+  if (!query || query.length < 2) return []
+
+  const { data, error } = await supabase
+    .schema('hvac')
+    .from('catalog_items')
+    .select(`
+      id,
+      name,
+      model_sku,
+      image_url,
+      specs_json,
+      brand:brands(name),
+      category:categories(name)
+    `)
+    .or(`name.ilike.%${query}%,model_sku.ilike.%${query}%`)
+    .limit(10)
+
+  if (error) {
+    console.error("Error searching catalog:", error)
+    return []
+  }
+
+  return data.map((item: any) => ({
+    id: item.id,
+    name: item.name,
+    model: item.model_sku,
+    brand: item.brand?.name,
+    category: item.category?.name,
+    image: item.image_url,
+    specs: item.specs_json
+  }))
 }
 
 // Colaboradores
@@ -191,6 +229,8 @@ export async function criarFerramenta(formData: FormData) {
         ? data.codigo
         : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
 
+    const catalogItemId = getValue("catalog_item_id")
+
     // Preparar dados para inserção - começar com campos básicos obrigatórios
     const insertData: any = {
       profile_id: user.id,
@@ -199,6 +239,7 @@ export async function criarFerramenta(formData: FormData) {
       quantidade_total: data.quantidade_total,
       quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
       estado: data.estado,
+      catalog_item_id: catalogItemId,
     }
 
     // Tentar adicionar campos opcionais (podem não existir se migration não foi executada)
@@ -259,9 +300,11 @@ export async function criarFerramenta(formData: FormData) {
         error1.message?.includes("tipo_item") ||
         error1.message?.includes("foto_url") ||
         error1.message?.includes("tamanho") ||
-        error1.message?.includes("cor")) {
+        error1.message?.includes("cor") ||
+        error1.message?.includes("catalog_item_id") ||
+        error1.message?.includes("foreign key")) {
 
-        console.log("Tentando inserir apenas com campos básicos...")
+        console.log("Tentando inserir apenas com campos básicos (sem catalog_id ou opcionais)...")
 
         // Versão básica sem campos opcionais
         const basicData: any = {
@@ -481,6 +524,13 @@ export async function deletarFerramenta(id: string) {
     .eq("profile_id", user.id)
 
   if (error) throw error
+
+  // 🚀 EVENTO SILENCIOSO (Dual Write)
+  await trackEvent(supabase, 'ASSET_RETIREMENT', id, {
+    retirement_type: 'SCRAPPED',
+    notes: 'Deleted via UI'
+  }, { actor_id: user.id })
+
   revalidateAllPages()
 }
 
@@ -628,6 +678,12 @@ export async function registrarRetirada(
     console.log("✅ Movimentação registrada:", movResult)
 
     revalidateAllPages()
+
+    // 🚀 EVENTO SILENCIOSO (Dual Write)
+    await trackEvent(supabase, 'ASSET_CHECKOUT', ferramentaId, {
+      recipient_id: colaboradorId,
+      notes: observacoes
+    }, { actor_id: user.id })
   } catch (error: any) {
     console.error("❌ Erro completo ao registrar retirada:", error)
     throw error
@@ -702,6 +758,12 @@ export async function registrarDevolucao(
   console.log("✅ Movimentação registrada:", movResult)
 
   revalidateAllPages()
+
+  // 🚀 EVENTO SILENCIOSO (Dual Write)
+  await trackEvent(supabase, 'ASSET_CHECKIN', ferramentaId, {
+    condition_grade: 5, // Default for now
+    notes: observacoes
+  }, { actor_id: user.id })
 }
 
 export async function registrarEnvioConserto(
@@ -756,12 +818,21 @@ export async function registrarEnvioConserto(
       status: status || "aguardando",
       local_conserto,
       prazo: prazo ? new Date(prazo).toISOString() : null,
-      prioridade,
+      prioridade
     })
-    .select("id")
+    .select()
     .single()
 
-  if (consertoError || !consertoCriado) throw consertoError || new Error("Erro ao criar conserto")
+  if (consertoError) throw consertoError
+
+  // 🚀 EVENTO SILENCIOSO (Dual Write)
+  await trackEvent(supabase, 'ASSET_MAINTENANCE', ferramentaId, {
+    maintenance_type: 'CORRECTIVE',
+    reason_code: 'BROKEN_REPORT',
+    notes: descricao
+  }, { actor_id: user.id })
+
+  if (!consertoCriado) throw new Error("Erro ao criar conserto")
 
   // Registrar movimentação
   const { error: movError } = await supabase.from("movimentacoes").insert({

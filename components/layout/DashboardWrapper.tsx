@@ -17,7 +17,6 @@ import {
   ClipboardList,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
-import TrialCheckoutPrompt from "@/components/checkout/TrialCheckoutPrompt"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -177,8 +176,8 @@ function SidebarContent({
               "flex items-center justify-start gap-3 group/sidebar rounded-lg md:rounded-md transition-colors cursor-pointer touch-manipulation",
               "py-3.5 px-4 min-h-[52px] md:py-2.5 md:px-3 md:min-h-[44px]",
               pathname === "/dashboard/conta"
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent active:bg-accent/80",
+                ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50 font-medium"
+                : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-900",
               !open && "md:justify-center",
               open ? "md:flex-1" : "w-full"
             )}
@@ -273,7 +272,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
 
   return (
     <main
-      className="transition-all duration-300 bg-zinc-50/50 md:bg-white min-h-screen flex flex-col dark:bg-zinc-900 md:dark:bg-zinc-950"
+      className="transition-all duration-300 bg-[#F7F7F5] min-h-screen flex flex-col dark:bg-zinc-950"
       style={{
         marginLeft: isMobile ? "0" : `clamp(0px, ${width}px, 100%)`,
       }}
@@ -287,9 +286,8 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
         </div>
       </header>
 
-      {/* Main content with better mobile padding */}
-      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto bg-white md:bg-transparent w-full dark:bg-zinc-950 md:dark:bg-transparent">
-        {userId && <TrialCheckoutPrompt userId={userId} />}
+      {/* Main content with bg-[#F7F7F5] passing through */}
+      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto w-full dark:bg-zinc-950 md:dark:bg-transparent">
         {children}
       </div>
 
@@ -352,7 +350,7 @@ const Logo = () => {
       href="/dashboard"
       className="font-normal flex space-x-3 items-center text-sm text-foreground py-2 relative z-20"
     >
-      <div className="h-7 w-8 bg-primary rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="h-7 w-8 bg-zinc-900 dark:bg-zinc-50 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -371,7 +369,7 @@ const LogoIcon = () => {
       href="/dashboard"
       className="font-normal flex items-center justify-center text-sm text-foreground py-2 relative z-20 w-full"
     >
-      <div className="h-7 w-8 bg-primary rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="h-7 w-8 bg-zinc-900 dark:bg-zinc-50 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
     </Link>
   )
 }
