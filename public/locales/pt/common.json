@@ -1018,12 +1018,12 @@
         },
         "hero": {
             "badge": "Mais de 200 empresas já organizaram a casa",
-            "title_part1": "Pare de perder dinheiro com",
-            "title_part2": "ferramentas sumidas",
-            "title_part3": "e estoque parado.",
-            "description": "O sistema de gestão mais simples do Brasil para pequenas empresas organizarem o almoxarifado, controlarem EPIs e acabarem com as planilhas.",
-            "cta_button": "Começar teste grátis agora",
-            "no_card": "Sem cartão de crédito • Cancele quando quiser",
+            "title_part1": "ERP gratuito para almoxarifado",
+            "title_part2": "e controle de estoque",
+            "title_part3": "",
+            "description": "Organize ferramentas, materiais e ativos da sua empresa em um sistema simples, rápido e 100% grátis.",
+            "cta_button": "Criar conta grátis agora",
+            "no_card": "Plataforma gratuita para sempre para pequenas empresas. Sem cartão de crédito. Sem pegadinhas.",
             "partners": "Empresas parceiras que confiam no Almox Fácil"
         },
         "pain_points": {
@@ -1063,12 +1063,12 @@
             "support_desc": "Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.",
             "online_title": "Sistema 100% online",
             "online_desc": "Acesse o Almox Fácil a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.",
-            "price_title": "Sem cobranças surpresa",
-            "price_desc": "Comece seu teste grátis sem cadastrar cartão de crédito. Escolha seu plano e troque quando quiser."
+            "price_title": "Sem cobranças surpresa. Nunca.",
+            "price_desc": "Use o Almox Fácil gratuitamente, sem limite de tempo. Não pedimos cartão de crédito e não ativamos cobranças automáticas. Se no futuro lançarmos planos pagos com recursos avançados, você só contrata se quiser. O acesso gratuito continua disponível para pequenas empresas."
         },
         "how_it_works": {
             "title": "Simples como deve ser",
-            "subtitle": "Comece a usar em menos de 5 minutos",
+            "subtitle": "Comece a usar em menos de 5 minutos, totalmente grátis.",
             "step1_title": "Cadastre",
             "step1_desc": "Importe seus produtos ou cadastre em segundos.",
             "step2_title": "Movimente",
@@ -1115,10 +1115,10 @@
             "cancel_anytime": "Cancele quando quiser. Sem fidelidade."
         },
         "cta_final": {
-            "title": "Pronto para organizar sua empresa?",
-            "subtitle": "Não deixe para depois. O controle que você precisa está a um clique de distância.",
+            "title": "Almoxarifado organizado sem pagar mensalidade.",
+            "subtitle": "",
             "button": "Criar conta grátis agora",
-            "join": "Junte-se a mais de 200 empresas inteligentes"
+            "join": "Grátis para sempre para pequenas empresas. Comece agora."
         },
         "footer": {
             "terms": "Termos de Uso",

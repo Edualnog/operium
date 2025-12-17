@@ -303,6 +303,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 </button>
               </div>
 
+              <div className="w-full text-center -mt-12 mb-16">
+                <p className="text-xs sm:text-sm text-slate-500/80 font-medium">
+                  {t('landing.hero.no_card')}
+                </p>
+              </div>
+
               <div className="flex flex-col items-center justify-center gap-4 mb-12">
                 <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">{t('landing.hero.partners')}</p>
                 <div className="flex flex-row items-center justify-center w-full grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
@@ -587,7 +593,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               {t('landing.cta_final.button')}
             </button>
             <p className="mt-6 text-slate-500 text-sm">
-              {t('landing.cta_final.join')} <span className="font-bold underline">100% Gratuito</span>
+              {t('landing.cta_final.join')}
             </p>
           </div>
         </section>
