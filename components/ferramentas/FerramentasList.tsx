@@ -868,13 +868,7 @@ function FerramentasList({
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           {/* Fast Scan Button */}
-          <Button
-            className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium flex-1 sm:flex-none h-11 sm:h-10"
-            onClick={() => setIsScanning(true)}
-          >
-            <Zap className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2 fill-current" />
-            <span className="hidden sm:inline">Modo Rápido</span>
-          </Button>
+
 
           <Button onClick={() => {
             setEditing(null)
