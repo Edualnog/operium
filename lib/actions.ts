@@ -3,6 +3,7 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { trackEvent } from "./events"
 
 type ConsertoStatus = "aguardando" | "em_andamento" | "concluido"
 
@@ -523,6 +524,13 @@ export async function deletarFerramenta(id: string) {
     .eq("profile_id", user.id)
 
   if (error) throw error
+
+  // 🚀 EVENTO SILENCIOSO (Dual Write)
+  await trackEvent(supabase, 'ASSET_RETIREMENT', id, {
+    retirement_type: 'SCRAPPED',
+    notes: 'Deleted via UI'
+  }, { actor_id: user.id })
+
   revalidateAllPages()
 }
 
@@ -670,6 +678,12 @@ export async function registrarRetirada(
     console.log("✅ Movimentação registrada:", movResult)
 
     revalidateAllPages()
+
+    // 🚀 EVENTO SILENCIOSO (Dual Write)
+    await trackEvent(supabase, 'ASSET_CHECKOUT', ferramentaId, {
+      recipient_id: colaboradorId,
+      notes: observacoes
+    }, { actor_id: user.id })
   } catch (error: any) {
     console.error("❌ Erro completo ao registrar retirada:", error)
     throw error
@@ -744,6 +758,12 @@ export async function registrarDevolucao(
   console.log("✅ Movimentação registrada:", movResult)
 
   revalidateAllPages()
+
+  // 🚀 EVENTO SILENCIOSO (Dual Write)
+  await trackEvent(supabase, 'ASSET_CHECKIN', ferramentaId, {
+    condition_grade: 5, // Default for now
+    notes: observacoes
+  }, { actor_id: user.id })
 }
 
 export async function registrarEnvioConserto(
@@ -798,12 +818,21 @@ export async function registrarEnvioConserto(
       status: status || "aguardando",
       local_conserto,
       prazo: prazo ? new Date(prazo).toISOString() : null,
-      prioridade,
+      prioridade
     })
-    .select("id")
+    .select()
     .single()
 
-  if (consertoError || !consertoCriado) throw consertoError || new Error("Erro ao criar conserto")
+  if (consertoError) throw consertoError
+
+  // 🚀 EVENTO SILENCIOSO (Dual Write)
+  await trackEvent(supabase, 'ASSET_MAINTENANCE', ferramentaId, {
+    maintenance_type: 'CORRECTIVE',
+    reason_code: 'BROKEN_REPORT',
+    notes: descricao
+  }, { actor_id: user.id })
+
+  if (!consertoCriado) throw new Error("Erro ao criar conserto")
 
   // Registrar movimentação
   const { error: movError } = await supabase.from("movimentacoes").insert({
