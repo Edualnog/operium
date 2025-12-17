@@ -1,5 +1,7 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
-import { redirect } from "next/navigation"
+import { createServiceRoleClient } from "@/lib/supabase-admin" // Using Admin Client
+import { checkBlackboxAccess } from "@/lib/security" // Using Security Guard
+import { redirect, notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, Activity, Database, ShieldAlert, Award } from "lucide-react"
@@ -7,46 +9,47 @@ import { AlertTriangle, Activity, Database, ShieldAlert, Award } from "lucide-re
 export const dynamic = "force-dynamic"
 
 export default async function BlackboxConsole() {
-    const supabase = await createServerComponentClient()
+    // 1. Auth Check (Standard Client to verify identity)
+    const supabaseAuth = await createServerComponentClient()
+    const { data: { user } } = await supabaseAuth.auth.getUser()
 
-    // 1. Security Check (Hardcoded for "Founder" Access)
-    // In a real app, this would be a proper RBAC, but for now it's a "Secret Room"
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) redirect("/login")
+    // 2. Security Guard
+    const access = checkBlackboxAccess(user)
 
-    // Replace with your actual admin email if you want strict enforcement
-    // const ADMIN_EMAIL = "erisson.eduardo@gmail.com" 
-    // if (user.email !== ADMIN_EMAIL) redirect("/dashboard")
+    if (!access.allowed) {
+        // Log access attempt if needed
+        console.warn(`[Security] Blocked access to Blackbox: ${access.reason} (User: ${user?.email})`)
+        return notFound() // 404 to obscure existence
+    }
 
-    // 2. Fetch Quadrant Data
-    const { data: ironHorses } = await supabase.from("analytics.rank_iron_horses").select("*").limit(5)
-    // Note: Using raw string for table name because Types might not be updated yet
-    // If this fails, we might need to use .from("rank_iron_horses") depending on how Supabase exposes views
-    // Trying qualified name first:
+    // 3. Admin Data Fetch (Service Role Client to bypass schema lock)
+    const supabaseAdmin = createServiceRoleClient()
 
+    // 4. Fetch Quadrant Data (Using Admin Client on Locked Schema)
     // Q1: Iron Horses
-    const { data: q1Data } = await supabase.schema('analytics').from('rank_iron_horses').select('*').limit(5)
+    const { data: q1Data } = await supabaseAdmin.schema('analytics').from('rank_iron_horses').select('*').limit(5)
 
     // Q2: Lemons (Health < 50)
-    const { data: q2Data } = await supabase.schema('analytics').from('dim_asset_health_card')
+    const { data: q2Data } = await supabaseAdmin.schema('analytics').from('dim_asset_health_card')
         .select('*')
         .lt('health_score', 50)
         .order('health_score', { ascending: true })
         .limit(5)
 
     // Q3: Bounce Rate (Raw fetch from view)
-    const { data: q3Data } = await supabase.schema('analytics').from('kpi_maintenance_bounce_rate').select('*').single()
+    const { data: q3Data } = await supabaseAdmin.schema('analytics').from('kpi_maintenance_bounce_rate').select('*').single()
 
     // Q4: Raw Stream
-    const { data: q4Data } = await supabase.schema('events').from('stream')
+    const { data: q4Data } = await supabaseAdmin.schema('events').from('stream')
         .select('event_type, occurred_at, payload')
         .order('occurred_at', { ascending: false })
         .limit(10)
 
-    // 3. Calculate Confidence
-    const totalEvents = await supabase.schema('events').from('stream').select('id', { count: 'exact', head: true })
+    // 5. Calculate Confidence
+    const totalEvents = await supabaseAdmin.schema('events').from('stream').select('id', { count: 'exact', head: true })
     const confidenceLevel = (totalEvents.count || 0) > 1000 ? 'HIGH' : (totalEvents.count || 0) > 100 ? 'MEDIUM' : 'LOW'
 
+    // 6. UI Render (Light Mode)
     return (
         <div className="p-6 bg-white min-h-screen text-zinc-600 font-mono">
             {/* Header */}
@@ -54,7 +57,7 @@ export default async function BlackboxConsole() {
                 <div>
                     <h1 className="text-xl text-zinc-900 font-bold flex items-center gap-2">
                         <Database className="w-5 h-5 text-indigo-600" />
-                        BLACKBOX_CONSOLE // v1.0
+                        BLACKBOX_CONSOLE // v1.1 [SECURE]
                     </h1>
                     <p className="text-xs text-zinc-500 mt-1">INTERNAL RELIABILITY ENGINEERING ACCESS ONLY</p>
                 </div>
