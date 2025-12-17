@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getSupabaseUser } from "@/lib/supabase-server"
 import dynamic from "next/dynamic"
+import { LegalAgreementModal } from "@/components/legal/LegalAgreementModal"
 
 const DashboardWrapper = dynamic(() => import("@/components/layout/DashboardWrapper"), {
   ssr: false,
@@ -39,7 +40,7 @@ export default async function DashboardLayout({
       .select('subscription_status, stripe_customer_id, trial_start_date')
       .eq('id', user.id)
       .single()
-    
+
     if (!error && data) {
       profile = data
     }
@@ -85,6 +86,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-white">
+      <LegalAgreementModal />
       <OnboardingWrapper>
         <DashboardWrapper>
           {children}
