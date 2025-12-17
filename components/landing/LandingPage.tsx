@@ -32,11 +32,11 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
-import mockupDevices from "@/public/images/mockup-devices.png"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { LogoCloud } from "@/components/ui/logo-cloud"
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection"
+import { HeroAnimation } from "@/components/landing/HeroAnimation"
 
 
 // Ícones SVG elegantes para redes sociais
@@ -318,14 +318,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative rounded-xl border border-slate-200 shadow-2xl bg-white p-2 sm:p-4 mt-8"
             >
-              <div className="aspect-video w-full rounded-lg bg-slate-50 overflow-hidden relative">
-                <Image
-                  src="/images/mockup-devices.png"
-                  alt="Dashboard Preview"
-                  fill
-                  className="object-cover object-top hover:scale-105 transition-transform duration-700"
-                />
-              </div>
+              <HeroAnimation />
             </motion.div>
 
           </div>
