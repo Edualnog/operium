@@ -301,9 +301,6 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   )}
                   {!checkoutLoading && <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
                 </button>
-                <p className="text-xs text-slate-400">
-                  {t('landing.hero.no_card')}
-                </p>
               </div>
 
               <div className="flex flex-col items-center justify-center gap-4 mb-12">
