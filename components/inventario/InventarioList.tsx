@@ -232,11 +232,11 @@ export default function InventarioList() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "em_andamento":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-800"><Clock className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.in_progress")}</Badge>
+        return <Badge className="bg-zinc-100 text-zinc-800 border-zinc-200 dark:bg-zinc-900/20 dark:text-zinc-200 dark:border-zinc-800"><Clock className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.in_progress")}</Badge>
       case "finalizado":
-        return <Badge className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-200 dark:border-green-800"><CheckCircle2 className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.finished")}</Badge>
+        return <Badge className="bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-900/20 dark:text-zinc-200 dark:border-zinc-800"><CheckCircle2 className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.finished")}</Badge>
       case "cancelado":
-        return <Badge className="bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-200 dark:border-red-800"><XCircle className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.canceled")}</Badge>
+        return <Badge className="bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-900/20 dark:text-zinc-200 dark:border-zinc-800"><XCircle className="h-3 w-3 mr-1" />{t("dashboard.inventario.status.canceled")}</Badge>
       default:
         return null
     }
@@ -281,17 +281,16 @@ export default function InventarioList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 flex items-center gap-3 dark:text-zinc-100">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white">
-              <ClipboardList className="h-6 w-6" />
-            </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#37352f] flex items-center gap-3 dark:text-zinc-100">
+            {/* Removed Icon Container */}
+            <ClipboardList className="h-8 w-8 text-zinc-400" />
             {t("dashboard.inventario.title")}
           </h1>
           <p className="text-zinc-600 mt-1 dark:text-zinc-400">{t("dashboard.inventario.subtitle")}</p>
         </div>
         <Button
           onClick={() => setShowNewModal(true)}
-          className="gap-2 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700"
+          className="gap-2 bg-[#37352f] hover:bg-zinc-800 text-white"
         >
           <Plus className="h-4 w-4" />
           {t("dashboard.inventario.new_button")}
@@ -301,18 +300,18 @@ export default function InventarioList() {
       {/* Lista de inventários */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
         </div>
       ) : inventarios.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-2xl border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-700">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center dark:bg-purple-900/20">
-            <ClipboardList className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-zinc-100 flex items-center justify-center dark:bg-zinc-900/20">
+            <ClipboardList className="h-8 w-8 text-zinc-400 dark:text-zinc-400" />
           </div>
           <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">{t("dashboard.inventario.no_inventory")}</h3>
           <p className="text-zinc-600 mb-6 dark:text-zinc-400">{t("dashboard.inventario.no_inventory_desc")}</p>
           <Button
             onClick={() => setShowNewModal(true)}
-            className="gap-2 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700"
+            className="gap-2 bg-[#37352f] hover:bg-zinc-800 text-white"
           >
             <Plus className="h-4 w-4" />
             {t("dashboard.inventario.new_button")}
@@ -357,7 +356,7 @@ export default function InventarioList() {
                     </div>
                     <div className="h-2 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                       <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-violet-600 rounded-full transition-all"
+                        className="h-full bg-zinc-800 rounded-full transition-all"
                         style={{ width: `${getProgressPercent(inv)}%` }}
                       />
                     </div>
@@ -422,7 +421,7 @@ export default function InventarioList() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <ClipboardList className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />
               Novo Inventário
             </DialogTitle>
             <DialogDescription>
@@ -508,7 +507,7 @@ export default function InventarioList() {
             <Button
               onClick={handleCreateInventario}
               disabled={!newInventario.descricao.trim() || creating}
-              className="gap-2 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700"
+              className="gap-2 bg-[#37352f] hover:bg-zinc-800 text-white"
             >
               {creating ? (
                 <>
