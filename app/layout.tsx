@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   keywords: ["almoxarifado", "gestão de estoque", "controle de ferramentas", "ERP", "indústria"],
   authors: [{ name: "Operium" }],
   creator: "Operium",
-  metadataBase: new URL("https://almoxfacil.alnog.com.br"),
+  metadataBase: new URL("https://operium.alnog.com.br"),
   alternates: {
-    canonical: "https://almoxfacil.alnog.com.br",
+    canonical: "https://operium.alnog.com.br",
   },
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    url: "https://almoxfacil.alnog.com.br",
+    url: "https://operium.alnog.com.br",
     title: "Operium - Gestão de Almoxarifado Simples e Poderosa",
     description: "Controle seu estoque, ferramentas, colaboradores e movimentações em uma plataforma completa. 7 dias grátis para testar!",
     siteName: "Operium",
