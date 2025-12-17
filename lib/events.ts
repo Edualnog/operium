@@ -75,18 +75,23 @@ export async function trackEvent(
 ) {
     try {
         // Fire and Forget (não bloqueia a resposta ao usuário)
-        // Em server actions, await é necessário, mas não blocante de UX se tratado corretamente.
+        // Usamos RPC para garantir segurança (SECURITY DEFINER) e evitar expor o schema events na API
 
-        await supabaseClient.from('events.stream').insert({
-            event_type: eventType,
-            legacy_ferramenta_id: assetId, // Usando coluna legada por enquanto
-            payload: payload,
-            occurred_at: new Date().toISOString(),
-            actor_id: meta?.actor_id
-            // org_id e meta_industry seriam preenchidos aqui se disponíveis no contexto
+        // Mapeando para os parametros da função SQL criada:
+        // p_event_type, p_payload, p_legacy_id
+
+        const { error } = await supabaseClient.rpc('track_event', {
+            p_event_type: eventType,
+            p_payload: payload,
+            p_legacy_id: assetId
         })
+
+        if (error) console.error('EVENT_RPC_ERROR:', error)
+
     } catch (error) {
         // Fail Silently: O evento não pode quebrar a operação do usuário
         console.error('SILENT_EVENT_ERROR:', error)
     }
 }
+
+```
