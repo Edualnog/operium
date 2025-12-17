@@ -31,8 +31,6 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ContainerScroll } from "@/components/ui/container-scroll-animation"
-import { RainbowButton } from "@/components/ui/rainbow-button"
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
 import mockupDevices from "@/public/images/mockup-devices.png"
 import { useTranslation } from "react-i18next"
@@ -221,12 +219,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 {t('landing.nav.login')}
               </Link>
             )}
-            <RainbowButton
+            <button
               onClick={handleStart}
-              className="px-5 py-2.5 h-auto text-sm font-semibold rounded-xl"
+              className="bg-[#1C1C1C] hover:bg-[#37352f] text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
             >
               {t('landing.nav.start_free')}
-            </RainbowButton>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -254,191 +252,106 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 <Link href="/login" className="text-slate-600 font-medium">{t('landing.nav.login')}</Link>
                 <LanguageSwitcher />
               </div>
-              <RainbowButton
+              <button
                 onClick={handleStart}
-                className="w-full h-auto py-3 font-semibold rounded-xl"
+                className="w-full bg-[#1C1C1C] hover:bg-[#37352f] text-white py-3 rounded-md font-medium transition-colors"
               >
                 {t('landing.nav.start_free')}
-              </RainbowButton>
+              </button>
             </div>
           </motion.div>
         )}
       </header>
 
       <main>
-        {/* Hero Section with Scroll Animation */}
-        <section className="pt-20 pb-10 bg-white overflow-hidden">
-          <div className="flex flex-col overflow-hidden">
-            <ContainerScroll
-              titleComponent={
-                <>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="max-w-5xl mx-auto text-center"
-                  >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold mb-8 uppercase tracking-wide">
-                      <Star className="h-3 w-3 fill-current" />
-                      {t('landing.hero.badge')}
-                    </div>
+        {/* Hero Section */}
+        <section className="pt-32 pb-20 bg-[#FFFEFC] overflow-hidden">
+          <div className="flex flex-col text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                    <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 mb-4 sm:mb-6 leading-[1.1]">
-                      {t('landing.hero.title_part1')} <span className="text-blue-600 block sm:inline">{t('landing.hero.title_part2')}</span> {t('landing.hero.title_part3')}
-                    </h1>
-
-                    <p className="text-base sm:text-xl text-slate-600 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4">
-                      {t('landing.hero.description')}
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 sm:mb-16 px-4">
-                      <RainbowButton
-                        onClick={handleStart}
-                        disabled={checkoutLoading}
-                        className="w-full sm:w-auto h-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold flex items-center justify-center gap-2 rounded-xl"
-                      >
-                        {checkoutLoading ? <Loader2 className="animate-spin" /> : t('landing.hero.cta_button')}
-                        {!checkoutLoading && <ArrowRight className="h-5 w-5" />}
-                      </RainbowButton>
-                      <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                        {t('landing.hero.no_card')}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center gap-4 mb-8">
-                      <p className="text-sm text-slate-500 font-medium">{t('landing.hero.partners')}</p>
-                      <div className="flex flex-row items-center justify-center w-full">
-                        <AnimatedTooltip items={partners} />
-                      </div>
-                    </div>
-                  </motion.div>
-                </>
-              }
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <div className="w-full h-full relative">
-                <div className="hidden lg:block w-full h-full relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
-                  <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-20" />
+              {/* Badge Minimalista */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600 text-xs font-semibold mb-8 tracking-wide cursor-default">
+                <Star className="h-3 w-3" />
+                <span>Simples. Gratuito. Poderoso.</span>
+              </div>
 
-                  {/* Header Mockup */}
-                  <div className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 relative z-10">
-                    <div className="flex items-center gap-4">
-                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <Box className="text-white h-5 w-5" />
-                      </div>
-                      <div className="w-32 h-4 bg-slate-800 rounded" />
-                    </div>
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 bg-slate-800 rounded-full" />
-                      <div className="w-8 h-8 bg-slate-800 rounded-full" />
-                    </div>
-                  </div>
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#37352f] mb-6 leading-[1.1] font-serif">
+                {t('landing.hero.title_part1')} <span className="underline decoration-4 decoration-yellow-200 decoration-skip-ink-none">{t('landing.hero.title_part2')}</span>
+              </h1>
 
-                  {/* Content Mockup */}
-                  <div className="p-6 grid grid-cols-12 gap-6 relative z-10">
-                    <div className="col-span-3 hidden md:block space-y-4">
-                      <div className="h-10 bg-blue-600/10 border border-blue-600/20 rounded-lg w-full flex items-center px-3 gap-2">
-                        <LayoutDashboard className="h-4 w-4 text-blue-500" />
-                        <div className="h-2 w-20 bg-blue-600/20 rounded" />
-                      </div>
-                      <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
-                      <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
-                      <div className="h-8 bg-slate-800/50 rounded-lg w-full" />
-                    </div>
-                    <div className="col-span-12 md:col-span-9 space-y-6">
-                      <div className="grid grid-cols-4 gap-4">
-                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                          <div className="h-8 w-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                            <Box className="h-4 w-4 text-blue-400" />
-                          </div>
-                          <div className="h-2 w-16 bg-slate-700 rounded" />
-                        </div>
-                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                          <div className="h-8 w-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                            <TrendingUp className="h-4 w-4 text-green-400" />
-                          </div>
-                          <div className="h-2 w-16 bg-slate-700 rounded" />
-                        </div>
-                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                          <div className="h-8 w-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                            <AlertTriangle className="h-4 w-4 text-orange-400" />
-                          </div>
-                          <div className="h-2 w-16 bg-slate-700 rounded" />
-                        </div>
-                        <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 h-24 flex flex-col justify-between">
-                          <div className="h-8 w-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                            <Users className="h-4 w-4 text-purple-400" />
-                          </div>
-                          <div className="h-2 w-16 bg-slate-700 rounded" />
-                        </div>
-                      </div>
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 h-64 p-4">
-                        <div className="w-full h-8 bg-slate-800 rounded mb-4 flex items-center justify-between px-2">
-                          <div className="h-3 w-24 bg-slate-700 rounded" />
-                          <div className="h-6 w-20 bg-blue-600 rounded text-[10px] text-white flex items-center justify-center font-bold">{t('landing.mockup.new_exit')}</div>
-                        </div>
-                        <div className="space-y-3">
-                          {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="w-full h-10 border-b border-slate-700/50 flex items-center gap-4">
-                              <div className="w-8 h-8 bg-slate-800 rounded flex items-center justify-center">
-                                <Box className="h-4 w-4 text-slate-600" />
-                              </div>
-                              <div className="w-1/3 h-3 bg-slate-700 rounded" />
-                              <div className="w-1/4 h-3 bg-slate-800 rounded ml-auto" />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <p className="text-lg sm:text-xl text-[#37352f]/70 mb-10 max-w-2xl mx-auto leading-relaxed">
+                {t('landing.hero.description')}
+              </p>
 
-                  {/* Floating Badge */}
-                  <div className="absolute bottom-8 right-8 bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 animate-bounce z-20">
-                    <div className="bg-green-500/20 p-2 rounded-full">
-                      <Check className="h-5 w-5 text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-400">{t('landing.mockup.stock_updated')}</p>
-                      <p className="font-bold text-white">{t('landing.mockup.just_now')}</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                <button
+                  onClick={handleStart}
+                  disabled={checkoutLoading}
+                  className="bg-[#1C1C1C] hover:bg-[#37352f] text-white px-8 py-4 rounded-lg font-medium text-lg transition-all shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group"
+                >
+                  {checkoutLoading ? <Loader2 className="animate-spin h-5 w-5" /> : (
+                    <>
+                      {t('landing.hero.cta_button')}
+                      <span className="bg-white/20 px-2 py-0.5 rounded text-xs ml-1">100% Grátis</span>
+                    </>
+                  )}
+                  {!checkoutLoading && <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+                </button>
+                <p className="text-xs text-slate-400">
+                  {t('landing.hero.no_card')}
+                </p>
+              </div>
 
-                {/* Mobile/Tablet: carrega mockup via next/image com lazy load */}
-                <div className="relative h-full w-full overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 lg:hidden">
-                  <Image
-                    src={mockupDevices}
-                    alt="Mockup do Almox Fácil em múltiplos dispositivos"
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 1024px"
-                    className="object-cover"
-                    placeholder="blur"
-                    loading="lazy"
-                    priority={false}
-                  />
+              <div className="flex flex-col items-center justify-center gap-4 mb-12">
+                <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">{t('landing.hero.partners')}</p>
+                <div className="flex flex-row items-center justify-center w-full grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                  <AnimatedTooltip items={partners} />
                 </div>
               </div>
-            </ContainerScroll>
+            </motion.div>
+
+            {/* Mockup Container - Simplified */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative rounded-xl border border-slate-200 shadow-2xl bg-white p-2 sm:p-4 mt-8"
+            >
+              <div className="aspect-video w-full rounded-lg bg-slate-50 overflow-hidden relative">
+                <Image
+                  src="/images/mockup-devices.png"
+                  alt="Dashboard Preview"
+                  fill
+                  className="object-cover object-top hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+            </motion.div>
+
           </div>
         </section>
 
-        {/* Pain Points Section */}
-        <section id="problemas" className="py-24 bg-white">
+        {/* Pain Points Section - Minimalist Grid */}
+        <section id="problemas" className="py-24 bg-white border-y border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.pain_points.title')}</h2>
-              <p className="text-slate-600 max-w-2xl mx-auto text-lg">
+            <div className="text-left mb-16">
+              <h2 className="text-3xl font-bold text-[#37352f] mb-4 font-serif">{t('landing.pain_points.title')}</h2>
+              <p className="text-[#37352f]/70 max-w-2xl text-lg">
                 {t('landing.pain_points.subtitle')}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               {painPoints.map((pain, index) => (
-                <div key={index} className="bg-red-50/50 p-8 rounded-2xl border border-red-100">
-                  <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-red-600 mb-6">
-                    <pain.icon className="h-6 w-6" />
+                <div key={index} className="p-6 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all bg-white group">
+                  <div className="w-10 h-10 bg-red-50 rounded-md flex items-center justify-center text-red-600 mb-4 group-hover:scale-110 transition-transform">
+                    <pain.icon className="h-5 w-5" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-3">{pain.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">
+                  <h3 className="text-lg font-semibold text-[#37352f] mb-2">{pain.title}</h3>
+                  <p className="text-[#37352f]/70 leading-relaxed text-sm">
                     {pain.description}
                   </p>
                 </div>
@@ -447,31 +360,31 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           </div>
         </section>
 
-        {/* Solution Section */}
-        <section id="solucao" className="py-24 bg-slate-900 text-white overflow-hidden">
+        {/* Solution Section - Light Mode */}
+        <section id="solucao" className="py-24 bg-[#F7F7F5]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold mb-6 uppercase tracking-wide">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold mb-6 uppercase tracking-wide">
                   <Zap className="h-3 w-3" />
                   {t('landing.solution.badge')}
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-bold mb-6 leading-tight">
+                <h2 className="text-3xl sm:text-4xl font-bold mb-6 leading-tight text-[#37352f] font-serif">
                   {t('landing.solution.title')}
                 </h2>
-                <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+                <p className="text-[#37352f]/70 text-lg mb-8 leading-relaxed">
                   {t('landing.solution.description')}
                 </p>
 
                 <div className="space-y-6">
                   {benefits.map((benefit, index) => (
-                    <div key={index} className="flex gap-4">
-                      <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-blue-400 flex-shrink-0 border border-slate-700">
-                        <benefit.icon className="h-6 w-6" />
+                    <div key={index} className="flex gap-4 group">
+                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-slate-700 flex-shrink-0 border border-slate-200 shadow-sm group-hover:border-blue-300 transition-colors">
+                        <benefit.icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-white mb-1">{benefit.title}</h3>
-                        <p className="text-slate-400">{benefit.description}</p>
+                        <h3 className="text-lg font-bold text-[#37352f] mb-1">{benefit.title}</h3>
+                        <p className="text-[#37352f]/70 text-sm">{benefit.description}</p>
                       </div>
                     </div>
                   ))}
@@ -479,28 +392,28 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               </div>
 
               <div className="relative">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl -z-10" />
-                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+                {/* Simplified Mockup Container */}
+                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xl shadow-slate-200/50 rotate-2 hover:rotate-0 transition-transform duration-500">
                   {/* Mobile Interface Mockup */}
-                  <div className="bg-slate-900 rounded-xl overflow-hidden border border-slate-700 aspect-[9/16] max-w-xs mx-auto relative">
-                    <div className="absolute top-0 left-0 right-0 h-14 bg-slate-800 flex items-center justify-center border-b border-slate-700">
-                      <span className="text-white font-bold">{t('landing.mockup.new_movement')}</span>
+                  <div className="bg-white rounded-xl overflow-hidden border border-slate-200 aspect-[9/16] max-w-xs mx-auto relative shadow-inner">
+                    <div className="absolute top-0 left-0 right-0 h-14 bg-slate-50 flex items-center justify-center border-b border-slate-200">
+                      <span className="text-slate-700 font-bold text-sm">{t('landing.mockup.new_movement')}</span>
                     </div>
                     <div className="p-6 mt-14 space-y-4">
                       <div className="space-y-2">
-                        <div className="text-xs text-slate-400">{t('landing.mockup.product')}</div>
-                        <div className="h-10 bg-slate-800 rounded border border-slate-700" />
+                        <div className="text-xs text-slate-400 font-medium">{t('landing.mockup.product')}</div>
+                        <div className="h-10 bg-slate-50 rounded border border-slate-200" />
                       </div>
                       <div className="space-y-2">
-                        <div className="text-xs text-slate-400">{t('landing.mockup.quantity')}</div>
-                        <div className="h-10 bg-slate-800 rounded border border-slate-700" />
+                        <div className="text-xs text-slate-400 font-medium">{t('landing.mockup.quantity')}</div>
+                        <div className="h-10 bg-slate-50 rounded border border-slate-200" />
                       </div>
                       <div className="space-y-2">
-                        <div className="text-xs text-slate-400">{t('landing.mockup.responsible')}</div>
-                        <div className="h-10 bg-slate-800 rounded border border-slate-700" />
+                        <div className="text-xs text-slate-400 font-medium">{t('landing.mockup.responsible')}</div>
+                        <div className="h-10 bg-slate-50 rounded border border-slate-200" />
                       </div>
                       <div className="pt-4">
-                        <div className="h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                        <div className="h-10 bg-[#1C1C1C] rounded-md flex items-center justify-center text-white text-sm font-bold shadow-md">
                           {t('landing.mockup.confirm_exit')}
                         </div>
                       </div>
@@ -522,51 +435,50 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           </div>
         </div>
 
-        {/* AI Features Section */}
-        <section className="py-24 bg-slate-900 text-white overflow-hidden relative border-t border-slate-800">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* AI Features Section - Clean Light Style */}
+        <section className="py-24 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold mb-6 uppercase tracking-wide">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-700 text-xs font-bold mb-6 uppercase tracking-wide">
                 <Sparkles className="h-3 w-3" />
                 {t('landing.ai_features.badge')}
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('landing.ai_features.title')}</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-[#37352f] font-serif">{t('landing.ai_features.title')}</h2>
+              <p className="text-[#37352f]/70 max-w-2xl mx-auto text-lg">
                 {t('landing.ai_features.subtitle')}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               {/* OCR */}
-              <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 hover:border-purple-500/50 transition-colors group">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform">
-                  <Camera className="h-6 w-6" />
+              <div className="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
+                <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 mb-4 group-hover:scale-110 transition-transform">
+                  <Camera className="h-5 w-5" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{t('landing.ai_features.ocr_title')}</h3>
-                <p className="text-slate-400 leading-relaxed">
+                <h3 className="text-lg font-bold text-[#37352f] mb-2">{t('landing.ai_features.ocr_title')}</h3>
+                <p className="text-[#37352f]/70 text-sm leading-relaxed">
                   {t('landing.ai_features.ocr_desc')}
                 </p>
               </div>
 
               {/* Smart Search */}
-              <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 hover:border-blue-500/50 transition-colors group">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform">
-                  <Search className="h-6 w-6" />
+              <div className="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
+                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 transition-transform">
+                  <Search className="h-5 w-5" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{t('landing.ai_features.search_title')}</h3>
-                <p className="text-slate-400 leading-relaxed">
+                <h3 className="text-lg font-bold text-[#37352f] mb-2">{t('landing.ai_features.search_title')}</h3>
+                <p className="text-[#37352f]/70 text-sm leading-relaxed">
                   {t('landing.ai_features.search_desc')}
                 </p>
               </div>
 
               {/* Auto-fill */}
-              <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 hover:border-green-500/50 transition-colors group">
-                <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-400 mb-6 group-hover:scale-110 transition-transform">
-                  <Wand2 className="h-6 w-6" />
+              <div className="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
+                <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 mb-4 group-hover:scale-110 transition-transform">
+                  <Wand2 className="h-5 w-5" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{t('landing.ai_features.autofill_title')}</h3>
-                <p className="text-slate-400 leading-relaxed">
+                <h3 className="text-lg font-bold text-[#37352f] mb-2">{t('landing.ai_features.autofill_title')}</h3>
+                <p className="text-[#37352f]/70 text-sm leading-relaxed">
                   {t('landing.ai_features.autofill_desc')}
                 </p>
               </div>
@@ -669,24 +581,23 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </div>
 
 
-        {/* Final CTA */}
-        <section className="py-24 bg-slate-900 text-white text-center px-4 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10" />
+        {/* Final CTA - Minimalist */}
+        <section className="py-24 bg-[#F7F7F5] text-center px-4 relative overflow-hidden">
           <div className="max-w-4xl mx-auto relative z-10">
-            <h2 className="text-3xl sm:text-5xl font-bold mb-8">
+            <h2 className="text-3xl sm:text-5xl font-bold mb-6 text-[#37352f] font-serif">
               {t('landing.cta_final.title')}
             </h2>
-            <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            <p className="text-xl text-[#37352f]/70 mb-10 max-w-2xl mx-auto">
               {t('landing.cta_final.subtitle')}
             </p>
             <button
               onClick={handleStart}
-              className="px-10 py-5 rounded-full bg-white text-blue-600 font-bold text-lg hover:bg-blue-50 transition-colors shadow-2xl hover:shadow-white/20"
+              className="px-10 py-5 rounded-lg bg-[#1C1C1C] text-white font-medium text-lg hover:bg-[#37352f] transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
             >
               {t('landing.cta_final.button')}
             </button>
-            <p className="mt-6 text-blue-200 text-sm">
-              {t('landing.cta_final.join')}
+            <p className="mt-6 text-slate-500 text-sm">
+              {t('landing.cta_final.join')} <span className="font-bold underline">100% Gratuito</span>
             </p>
           </div>
         </section>
