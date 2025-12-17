@@ -190,14 +190,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-100">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-8 w-8 rounded-lg overflow-hidden">
-              <Image
-                src="/images/logo-v2.png"
-                alt="Logo Operium"
-                fill
-                className="object-cover"
-              />
-            </div>
+            {/* Operium Icon - Geometric brackets */}
+            <svg width="32" height="32" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
+              <rect x="10" y="10" width="15" height="40" fill="currentColor" />
+              <rect x="10" y="10" width="40" height="15" fill="currentColor" />
+              <rect x="50" y="75" width="40" height="15" fill="currentColor" />
+              <rect x="75" y="50" width="15" height="40" fill="currentColor" />
+            </svg>
             <span className="font-bold text-xl tracking-tight text-slate-900">Operium</span>
           </Link>
 
@@ -603,14 +602,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
       <footer className="bg-slate-50 py-12 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-8">
           <div className="flex items-center gap-2">
-            <div className="relative h-6 w-6 rounded-md overflow-hidden">
-              <Image
-                src="/images/logo-v2.png"
-                alt="Logo Operium"
-                fill
-                className="object-cover grayscale opacity-50"
-              />
-            </div>
+            {/* Operium Icon - Geometric brackets */}
+            <svg width="24" height="24" viewBox="0 0 100 100" fill="none" className="flex-shrink-0 text-slate-400">
+              <rect x="10" y="10" width="15" height="40" fill="currentColor" />
+              <rect x="10" y="10" width="40" height="15" fill="currentColor" />
+              <rect x="50" y="75" width="40" height="15" fill="currentColor" />
+              <rect x="75" y="50" width="15" height="40" fill="currentColor" />
+            </svg>
             <span className="font-bold text-slate-700">Operium</span>
           </div>
 
