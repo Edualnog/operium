@@ -62,6 +62,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import { ProductPhotoUpload } from "./ProductPhotoUpload"
+import { CatalogSearch } from "./CatalogSearch"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import Image from "next/image"
 import { type FilterState } from "./FerramentasFilters"
@@ -178,6 +179,9 @@ function FerramentasList({
 
   // Estado para dados preenchidos por voz
   const [voiceData, setVoiceData] = useState<any>(null)
+
+  // New state for catalog linkage to be robust against re-renders
+  const [catalogItemId, setCatalogItemId] = useState<string | null>(null)
 
   const handleVoiceCommand = (data: any) => {
     const { intent } = data
@@ -909,6 +913,43 @@ function FerramentasList({
                     <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
                     <input type="hidden" name="estado" value={editing?.estado || "ok"} />
 
+                    {/* Catalog ID Hidden Field - Controlled by React State now */}
+                    <input type="hidden" name="catalog_item_id" value={catalogItemId || ""} />
+
+                    {!editing && (
+                      <div className="bg-slate-50 dark:bg-zinc-800/50 p-4 rounded-lg border border-dashed border-slate-200 dark:border-zinc-700 mb-4">
+                        <Label className="mb-2 block text-blue-600 dark:text-blue-400 font-medium">
+                          ✨ {t("dashboard.ferramentas.form.catalog_search_label") || "Comece buscando no Catálogo Global"}
+                        </Label>
+                        <CatalogSearch
+                          onSelect={(item) => {
+                            // Update State
+                            setCatalogItemId(item.id)
+                            setProductCode(item.model)
+
+                            // DOM manipulation kept for uncontrolled inputs that don't have state binding yet
+                            // Ideally we should move all to state, but this hybrid approach fixes the critical bug
+                            const nomeInput = document.getElementById("nome") as HTMLInputElement
+                            const catInput = document.getElementById("categoria") as HTMLInputElement
+                            const codInput = document.getElementById("codigo") as HTMLInputElement
+
+                            if (nomeInput) nomeInput.value = item.name
+                            if (catInput) catInput.value = item.category || ""
+                            if (codInput) codInput.value = item.model
+
+                            if (item.image) {
+                              setProductPhoto(item.image)
+                            }
+
+                            toast.success("Dados preenchidos via Catálogo Global")
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Selecione um item para preencher automaticamente nome, categoria e foto.
+                        </p>
+                      </div>
+                    )}
+
                     {userId && (
                       <ProductPhotoUpload
                         currentPhotoUrl={editing?.foto_url || productPhoto}
@@ -1121,6 +1162,7 @@ function FerramentasList({
                       onClick={() => {
                         setOpen(false)
                         setEditing(null)
+                        setCatalogItemId(null) // Reset on close
                       }}
                     >
                       {t("dashboard.ferramentas.form.cancel")}

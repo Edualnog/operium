@@ -62,6 +62,43 @@ function gerarCodigoProduto(nome: string, tipo: string, tamanho?: string | null,
     .join("-")
 }
 
+// Global Catalog Search
+export async function searchCatalogItems(query: string) {
+  const supabase = await createServerComponentClient()
+
+  if (!query || query.length < 2) return []
+
+  const { data, error } = await supabase
+    .schema('hvac')
+    .from('catalog_items')
+    .select(`
+      id,
+      name,
+      model_sku,
+      image_url,
+      specs_json,
+      brand:brands(name),
+      category:categories(name)
+    `)
+    .or(`name.ilike.%${query}%,model_sku.ilike.%${query}%`)
+    .limit(10)
+
+  if (error) {
+    console.error("Error searching catalog:", error)
+    return []
+  }
+
+  return data.map((item: any) => ({
+    id: item.id,
+    name: item.name,
+    model: item.model_sku,
+    brand: item.brand?.name,
+    category: item.category?.name,
+    image: item.image_url,
+    specs: item.specs_json
+  }))
+}
+
 // Colaboradores
 export async function criarColaborador(formData: FormData) {
   const supabase = await createServerComponentClient()
@@ -191,6 +228,8 @@ export async function criarFerramenta(formData: FormData) {
         ? data.codigo
         : gerarCodigoProduto(data.nome, data.tipo_item, data.tamanho, data.cor)
 
+    const catalogItemId = getValue("catalog_item_id")
+
     // Preparar dados para inserção - começar com campos básicos obrigatórios
     const insertData: any = {
       profile_id: user.id,
@@ -199,6 +238,7 @@ export async function criarFerramenta(formData: FormData) {
       quantidade_total: data.quantidade_total,
       quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
       estado: data.estado,
+      catalog_item_id: catalogItemId,
     }
 
     // Tentar adicionar campos opcionais (podem não existir se migration não foi executada)
@@ -259,9 +299,11 @@ export async function criarFerramenta(formData: FormData) {
         error1.message?.includes("tipo_item") ||
         error1.message?.includes("foto_url") ||
         error1.message?.includes("tamanho") ||
-        error1.message?.includes("cor")) {
+        error1.message?.includes("cor") ||
+        error1.message?.includes("catalog_item_id") ||
+        error1.message?.includes("foreign key")) {
 
-        console.log("Tentando inserir apenas com campos básicos...")
+        console.log("Tentando inserir apenas com campos básicos (sem catalog_id ou opcionais)...")
 
         // Versão básica sem campos opcionais
         const basicData: any = {
