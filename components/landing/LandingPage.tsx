@@ -86,7 +86,6 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
-  const [plan, setPlan] = useState<"mensal" | "trimestral" | "anual">("trimestral")
   const router = useRouter()
 
   const logos = [
@@ -684,123 +683,6 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           />
         </div>
 
-        {/* Pricing */}
-        <section className="py-24 bg-white">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('landing.pricing.title')}</h2>
-            <p className="text-slate-600 mb-12">
-              {t('landing.pricing.subtitle')}
-            </p>
-
-            {/* Pricing Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              {/* Monthly */}
-              <div
-                onClick={() => setPlan("mensal")}
-                className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200 bg-white hover:border-slate-300
-                  ${plan === "mensal" ? "border-blue-500 scale-[1.02] shadow-xl shadow-blue-500/20" : "border-slate-200"}
-                `}
-              >
-                <div className="text-center pt-2">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.monthly')}</h3>
-                  <div className="mb-2">
-                    <span className="text-3xl font-bold text-slate-900">{t('landing.pricing.monthly_value')}</span>
-                    <span className="text-slate-500 text-sm">{t('landing.pricing.monthly_unit')}</span>
-                  </div>
-                  <div className="text-sm text-slate-500 mb-4">{t('landing.pricing.monthly_equiv')}</div>
-                  <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "mensal" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
-                    {plan === "mensal" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
-                  </div>
-                </div>
-              </div>
-
-              {/* Quarterly - Most Popular */}
-              <div
-                onClick={() => setPlan("trimestral")}
-                className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200 bg-white
-                  ${plan === "trimestral" ? "border-blue-500 scale-[1.02] shadow-xl shadow-blue-500/20" : "border-slate-200 hover:border-slate-300"}
-                  ring-2 ring-blue-500 ring-offset-2
-                `}
-              >
-                {/* Badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 bg-blue-500 text-white">
-                  <Star className="h-3 w-3" />
-                  {t('landing.pricing.most_popular')}
-                </div>
-                {/* Discount */}
-                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">-12%</div>
-                <div className="text-center pt-2">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.quarterly')}</h3>
-                  <div className="mb-2">
-                    <span className="text-3xl font-bold text-slate-900">{t('landing.pricing.quarterly_value')}</span>
-                    <span className="text-slate-500 text-sm">{t('landing.pricing.quarterly_unit')}</span>
-                  </div>
-                  <div className="text-sm text-slate-500 mb-4">{t('landing.pricing.quarterly_equiv')}</div>
-                  <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "trimestral" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
-                    {plan === "trimestral" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
-                  </div>
-                </div>
-              </div>
-
-              {/* Annual - Best Value */}
-              <div
-                onClick={() => setPlan("anual")}
-                className={`relative cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200 bg-white hover:border-slate-300
-                  ${plan === "anual" ? "border-blue-500 scale-[1.02] shadow-xl shadow-blue-500/20" : "border-slate-200"}
-                `}
-              >
-                {/* Badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white">
-                  <Crown className="h-3 w-3" />
-                  {t('landing.pricing.best_value')}
-                </div>
-                {/* Discount */}
-                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">-32%</div>
-                <div className="text-center pt-2">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{t('landing.pricing.annual')}</h3>
-                  <div className="mb-2">
-                    <span className="text-3xl font-bold text-slate-900">{t('landing.pricing.annual_value')}</span>
-                    <span className="text-slate-500 text-sm">{t('landing.pricing.annual_unit')}</span>
-                  </div>
-                  <div className="text-sm text-slate-500 mb-4">{t('landing.pricing.annual_equiv')}</div>
-                  <div className={`w-5 h-5 rounded-full border-2 mx-auto transition-all ${plan === "anual" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
-                    {plan === "anual" && <Check className="h-4 w-4 text-white m-auto" style={{ marginTop: "1px" }} />}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Features and CTA */}
-            <div className="bg-slate-50 rounded-2xl p-8 max-w-lg mx-auto">
-              <ul className="space-y-4 mb-8 text-left">
-                {[
-                  t('landing.pricing.feat_stock'),
-                  t('landing.pricing.feat_users'),
-                  t('landing.pricing.feat_tools'),
-                  t('landing.pricing.feat_epi'),
-                  t('landing.pricing.feat_support')
-                ].map((feat, i) => (
-                  <li key={i} className="flex items-center gap-3 text-slate-700">
-                    <div className="bg-green-100 p-1 rounded-full">
-                      <Check className="h-3 w-3 text-green-600 flex-shrink-0" />
-                    </div>
-                    {feat}
-                  </li>
-                ))}
-              </ul>
-
-              <RainbowButton
-                onClick={handleStart}
-                className="w-full h-auto py-4 font-bold rounded-xl"
-              >
-                {t('landing.pricing.cta')}
-              </RainbowButton>
-              <p className="text-xs text-slate-500 mt-4">
-                {t('landing.pricing.cancel_anytime')}
-              </p>
-            </div>
-          </div>
-        </section>
 
         {/* Final CTA */}
         <section className="py-24 bg-slate-900 text-white text-center px-4 relative overflow-hidden">

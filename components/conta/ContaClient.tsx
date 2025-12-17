@@ -5,15 +5,11 @@ import { motion } from "framer-motion"
 import {
   User,
   Building2,
-  CreditCard,
   Mail,
   Phone,
   Calendar,
-  Crown,
-  Zap,
-  Check,
-  ExternalLink,
-  Shield
+  Shield,
+  ExternalLink
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -59,130 +55,8 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
   const [portalLoading, setPortalLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
-  const subscriptionStatus = profile?.subscription_status || "inactive"
-  const hasStripeCustomer = !!profile?.stripe_customer_id
-  const trialStatus = checkTrialStatus(profile?.trial_start_date)
   const { t, i18n } = useTranslation()
   const dateLocale = i18n.language === 'pt' ? ptBR : enUS
-
-  const getStatusInfo = () => {
-    // Prioridade para status explícito do Stripe
-    if (subscriptionStatus === "active") {
-      return {
-        label: t("dashboard.conta.plan.professional"),
-        color: "bg-green-500 dark:bg-green-600",
-        textColor: "text-green-700 dark:text-green-300",
-        bgColor: "bg-green-50 dark:bg-green-900/20",
-        borderColor: "border-green-200 dark:border-green-800",
-        icon: Crown,
-        description: t("dashboard.conta.plan.full_access")
-      }
-    }
-
-    if (subscriptionStatus === "trialing") {
-      return {
-        label: t("dashboard.conta.plan.free_trial"),
-        color: "bg-blue-500 dark:bg-blue-600",
-        textColor: "text-blue-700 dark:text-blue-300",
-        bgColor: "bg-blue-50 dark:bg-blue-900/20",
-        borderColor: "border-blue-200 dark:border-blue-800",
-        icon: Zap,
-        description: t("dashboard.conta.plan.trial_days")
-      }
-    }
-
-    if (subscriptionStatus === "past_due") {
-      return {
-        label: t("dashboard.conta.plan.pending_payment"),
-        color: "bg-amber-500 dark:bg-amber-600",
-        textColor: "text-amber-700 dark:text-amber-300",
-        bgColor: "bg-amber-50 dark:bg-amber-900/20",
-        borderColor: "border-amber-200 dark:border-amber-800",
-        icon: CreditCard,
-        description: t("dashboard.conta.plan.update_payment")
-      }
-    }
-
-    if (subscriptionStatus === "canceled") {
-      return {
-        label: t("dashboard.conta.plan.canceled"),
-        color: "bg-red-500 dark:bg-red-600",
-        textColor: "text-red-700 dark:text-red-300",
-        bgColor: "bg-red-50 dark:bg-red-900/20",
-        borderColor: "border-red-200 dark:border-red-800",
-        icon: Shield,
-        description: t("dashboard.conta.plan.subscription_canceled")
-      }
-    }
-
-    // Se não tem status do Stripe, verifica nosso trial interno
-    if (trialStatus.isInTrial) {
-      return {
-        label: t("dashboard.conta.plan.free_trial"),
-        color: "bg-blue-500 dark:bg-blue-600",
-        textColor: "text-blue-700 dark:text-blue-300",
-        bgColor: "bg-blue-50 dark:bg-blue-900/20",
-        borderColor: "border-blue-200 dark:border-blue-800",
-        icon: Zap,
-        description: t("dashboard.conta.plan.trial_remaining", { days: trialStatus.daysRemaining })
-      }
-    }
-
-    if (hasStripeCustomer) {
-      // Se tem customer ID mas não tem status ativo/trialing, provavelmente é um checkout incompleto ou cancelado
-      // Não devemos mostrar como Profissional
-      return {
-        label: t("dashboard.conta.plan.no_plan"),
-        color: "bg-slate-400",
-        textColor: "text-slate-700",
-        bgColor: "bg-slate-50",
-        borderColor: "border-slate-200",
-        icon: User,
-        description: t("dashboard.conta.plan.subscribe_full")
-      }
-    }
-
-    return {
-      label: t("dashboard.conta.plan.no_plan"),
-      color: "bg-slate-400 dark:bg-slate-600",
-      textColor: "text-slate-700 dark:text-slate-300",
-      bgColor: "bg-slate-50 dark:bg-zinc-800",
-      borderColor: "border-slate-200 dark:border-zinc-700",
-      icon: User,
-      description: t("dashboard.conta.plan.subscribe_full")
-    }
-  }
-
-  const statusInfo = getStatusInfo()
-  const StatusIcon = statusInfo.icon
-
-  const handleManageSubscription = async () => {
-    setPortalLoading(true)
-    try {
-      const response = await fetch("/api/create-portal-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao abrir portal")
-      }
-
-      if (data.url) {
-        window.location.href = data.url
-      }
-    } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Erro ao abrir gerenciamento de assinatura" })
-      setPortalLoading(false)
-    }
-  }
-
-  const [subscribeLoading, setSubscribeLoading] = useState(false)
-
-  const handleSubscribe = () => {
-    window.location.href = "/subscribe"
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -209,16 +83,6 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     }
   }
 
-  const planFeatures = [
-    t("dashboard.conta.features.unlimited_stock"),
-    t("dashboard.conta.features.unlimited_users"),
-    t("dashboard.conta.features.unlimited_tools"),
-    t("dashboard.conta.features.full_movements"),
-    t("dashboard.conta.features.advanced_reports"),
-    t("dashboard.conta.features.industrial_dashboard"),
-    t("dashboard.conta.features.repair_management"),
-    t("dashboard.conta.features.email_support")
-  ]
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -232,69 +96,6 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         </p>
       </div>
 
-      {/* Plano Atual */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`rounded-xl border-2 ${statusInfo.borderColor} ${statusInfo.bgColor} p-6 dark:bg-zinc-900 dark:border-zinc-800`}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-xl ${statusInfo.color} text-white`}>
-              <StatusIcon className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-zinc-50">
-                  {statusInfo.label}
-                </h2>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.textColor} ${statusInfo.bgColor} border ${statusInfo.borderColor}`}>
-                  {t("dashboard.conta.plan.active")}
-                </span>
-              </div>
-              <p className="text-slate-600 mt-1 dark:text-zinc-400">
-                {statusInfo.description}
-              </p>
-
-            </div>
-          </div>
-
-          {profile?.stripe_customer_id && (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? (
-            <button
-              onClick={handleManageSubscription}
-              disabled={portalLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-700"
-            >
-              {portalLoading ? t("dashboard.conta.subscription.opening") : t("dashboard.conta.subscription.manage")}
-              <ExternalLink className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              onClick={handleSubscribe}
-              disabled={subscribeLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {subscribeLoading ? t("dashboard.conta.subscription.processing") : t("dashboard.conta.subscription.subscribe_now")}
-              <Crown className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Features do plano */}
-        {(subscriptionStatus === "active" || subscriptionStatus === "trialing" || hasStripeCustomer) && (
-          <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-zinc-800">
-            <p className="text-sm font-medium text-slate-700 mb-3 dark:text-zinc-300">{t("dashboard.conta.subscription.included")}</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {planFeatures.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-zinc-400">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                  <span>{feature}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </motion.div>
 
       {/* Informações da Conta */}
       <motion.div
