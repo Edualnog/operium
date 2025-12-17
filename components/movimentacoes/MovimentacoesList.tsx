@@ -1424,7 +1424,7 @@ export default function MovimentacoesList({
           <QRScanner
             onScan={handleScanResult}
             onClose={() => setIsScanning(false)}
-            title={t("dashboard.ferramentas.fast_mode")}
+            title={t("dashboard.movimentacoes.fast_mode")}
             description="Escaneie o código do item para iniciar uma movimentação"
           />
         )
