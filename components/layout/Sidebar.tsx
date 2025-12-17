@@ -15,6 +15,7 @@ import {
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
@@ -163,21 +164,13 @@ const Logo = () => {
       href="/dashboard"
       className="font-normal flex space-x-3 items-center text-sm text-foreground py-2 relative z-20"
     >
-      <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
-        <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
-          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-        </svg>
-      </div>
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className="font-semibold text-foreground whitespace-pre text-base"
-      >
-        Operium
-      </motion.span>
+      <Image
+        src="/images/logo-v2.png"
+        alt="Operium"
+        width={120}
+        height={32}
+        className="h-8 w-auto"
+      />
     </Link>
   )
 }
@@ -188,13 +181,13 @@ const LogoIcon = () => {
       href="/dashboard"
       className="font-normal flex items-center justify-center text-sm text-foreground py-2 relative z-20 w-full"
     >
-      <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
-        <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
-          <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-          <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-          <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-        </svg>
-      </div>
+      <Image
+        src="/icons/icon-192.png"
+        alt="Operium"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+      />
     </Link>
   )
 }

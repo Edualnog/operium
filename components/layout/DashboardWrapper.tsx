@@ -17,6 +17,7 @@ import {
   ClipboardList,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
+import Image from "next/image"
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -358,15 +359,13 @@ const Logo = () => {
       href="/dashboard"
       className="font-normal flex space-x-3 items-center text-sm text-foreground py-2 relative z-20"
     >
-      <div className="h-7 w-8 bg-zinc-900 dark:bg-zinc-50 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className="font-semibold text-foreground whitespace-pre text-base"
-      >
-        Operium
-      </motion.span>
+      <Image
+        src="/images/logo-v2.png"
+        alt="Operium"
+        width={120}
+        height={32}
+        className="h-8 w-auto"
+      />
     </Link>
   )
 }
@@ -377,7 +376,13 @@ const LogoIcon = () => {
       href="/dashboard"
       className="font-normal flex items-center justify-center text-sm text-foreground py-2 relative z-20 w-full"
     >
-      <div className="h-7 w-8 bg-zinc-900 dark:bg-zinc-50 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <Image
+        src="/icons/icon-192.png"
+        alt="Operium"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+      />
     </Link>
   )
 }
