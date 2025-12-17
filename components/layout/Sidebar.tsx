@@ -184,9 +184,9 @@ const LogoIcon = () => {
       <Image
         src="/icons/icon-192.png"
         alt="Operium"
-        width={32}
-        height={32}
-        className="h-8 w-8"
+        width={40}
+        height={40}
+        className="h-10 w-10"
       />
     </Link>
   )
