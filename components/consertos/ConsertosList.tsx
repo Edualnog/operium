@@ -27,7 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { registrarEnvioConserto } from "@/lib/actions"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
-import { VoiceCommandButton } from "../ferramentas/VoiceCommandButton"
+
 import {
   Table,
   TableBody,
@@ -125,38 +125,7 @@ function ConsertosList({
     produtoId: "",
   })
 
-  const handleVoiceCommand = (data: any) => {
-    const { intent } = data
-    if (!intent) return
 
-    if (intent.item_name) {
-      // Tentar encontrar o produto
-      const termo = intent.item_name.toLowerCase()
-      const produtoEncontrado = produtos.find(p => p.nome.toLowerCase().includes(termo))
-
-      if (produtoEncontrado) {
-        setForm(prev => ({
-          ...prev,
-          produto: produtoEncontrado.nome,
-          produtoId: produtoEncontrado.id,
-          quantidade: (intent.quantity || 1).toString(),
-          descricao: intent.action === "conserto" ? "Solicitado via voz" : ""
-        }))
-        setOpenNew(true)
-        toast.success(`Produto identificado: ${produtoEncontrado.nome}`)
-      } else {
-        toast.error(`Produto "${intent.item_name}" não encontrado.`)
-        // Preenche o nome mesmo assim para o usuário buscar
-        setForm(prev => ({
-          ...prev,
-          produto: intent.item_name,
-          produtoId: "",
-          quantidade: (intent.quantity || 1).toString()
-        }))
-        setOpenNew(true)
-      }
-    }
-  }
 
   const filteredConsertos = useMemo(() => {
     let result = [...consertos]
@@ -625,13 +594,7 @@ function ConsertosList({
   return (
     <div className="space-y-8 px-2 md:px-0">
       {/* Voice Assistant Section */}
-      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t("ai.title")}</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("ai.description_movement")}</p>
-        </div>
-        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="movimentacao" />
-      </div>
+
 
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setSearch(""); }} className="w-full space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

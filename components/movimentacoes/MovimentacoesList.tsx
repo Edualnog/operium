@@ -50,7 +50,7 @@ import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabili
 import MovimentacaoDetailModal from "./MovimentacaoDetailModal"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
-import { VoiceCommandButton } from "../ferramentas/VoiceCommandButton"
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
@@ -124,45 +124,7 @@ export default function MovimentacoesList({
     initialSignature?: string | null
   } | null>(null)
 
-  const handleVoiceCommand = (data: any) => {
-    const { intent } = data
-    if (!intent) return
 
-    // 1. Encontrar ferramenta (fuzzy match simples)
-    let foundTool = null
-    if (intent.item_name) {
-      const search = intent.item_name.toLowerCase()
-      foundTool = ferramentas.find(f =>
-        f.nome.toLowerCase().includes(search)
-      )
-    }
-
-    // 2. Encontrar colaborador
-    let foundCollaborator = null
-    if (intent.collaborator_name) {
-      const search = intent.collaborator_name.toLowerCase()
-      foundCollaborator = colaboradores.find(c =>
-        c.nome.toLowerCase().includes(search)
-      )
-    }
-
-    // 3. Preencher formulário e abrir dialog
-    if (foundTool) {
-      setForm(prev => ({
-        ...prev,
-        tipo: (intent.action as any) || "retirada",
-        produto: foundTool.nome,
-        produtoId: foundTool.id,
-        quantidade: String(intent.quantity || 1),
-        colaboradorId: foundCollaborator?.id || "",
-        colaboradorNome: foundCollaborator?.nome || "",
-      }))
-      setOpen(true)
-      toast.success(`Comando entendido: ${intent.action} de ${intent.quantity} ${foundTool.nome}`)
-    } else {
-      toast.error(`Ferramenta "${intent.item_name}" não encontrada.`)
-    }
-  }
 
   const [openExportDialog, setOpenExportDialog] = useState(false)
   const [exportingCsv, setExportingCsv] = useState(false)
@@ -819,14 +781,7 @@ export default function MovimentacoesList({
 
   return (
     <div className="space-y-4">
-      {/* Voice Assistant Section */}
-      <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm mb-6">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t("ai.title")}</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("ai.description_movement")}</p>
-        </div>
-        <VoiceCommandButton onCommandReceived={handleVoiceCommand} context="movimentacao" />
-      </div>
+
 
       <Tabs
         value={activeTab}
