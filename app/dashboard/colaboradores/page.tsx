@@ -11,7 +11,7 @@ async function getColaboradores(userId: string) {
   const supabase = await createServerComponentClient()
   const { data } = await supabase
     .from("colaboradores")
-    .select("id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at")
+    .select("id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at, almox_score, level")
     .eq("profile_id", userId)
     .order("nome", { ascending: true })
   return data || []

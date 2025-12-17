@@ -98,6 +98,8 @@ interface Colaborador {
   endereco?: string | null
   observacoes?: string | null
   created_at?: string
+  almox_score?: number
+  level?: string
 }
 
 interface MovimentacoesStats {
@@ -769,8 +771,27 @@ function ColaboradoresList({
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-zinc-700 dark:text-zinc-200">{colaborador.nome}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1 items-start">
+                    <span className="font-medium text-zinc-700 dark:text-zinc-200">{colaborador.nome}</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      {/* Notion-style Badge */}
+                      <span className={cn(
+                        "inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium leading-4", // Notion tag shape
+                        (colaborador.level === 'MASTER' || !colaborador.level) ? "bg-[#fdecc8] text-[#442a1d]" : // Notion Yellow (Gold)
+                          colaborador.level === 'PRO' ? "bg-[#e3e2e0] text-[#32302c]" : // Notion Gray (Silver)
+                            colaborador.level === 'MEMBER' ? "bg-[#fadec9] text-[#49290e]" : // Notion Orange (Bronze)
+                              "bg-[#f1f0ef] text-[#37352f]" // Default
+                      )}>
+                        <span className="mr-1 opacity-80">
+                          {colaborador.level === 'MASTER' ? '🥇' :
+                            colaborador.level === 'PRO' ? '🥈' :
+                              colaborador.level === 'MEMBER' ? '👷' : '🐣'}
+                        </span>
+                        {colaborador.almox_score || 500}
+                      </span>
                     </div>
                   </div>
                 </TableCell>
