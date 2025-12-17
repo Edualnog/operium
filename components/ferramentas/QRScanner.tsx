@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { X, SwitchCamera, Loader2, Camera } from "lucide-react"
+import { X, SwitchCamera, Loader2, Camera, Upload } from "lucide-react"
 
 interface QRScannerProps {
     onScan: (decodedText: string) => void
@@ -14,32 +14,28 @@ interface QRScannerProps {
 export function QRScanner({ onScan, onClose, title, description }: QRScannerProps) {
     const [error, setError] = useState<string | null>(null)
     const [isStarting, setIsStarting] = useState(true)
+    const [cameraMode, setCameraMode] = useState<"stream" | "file">("stream")
     const [facingMode, setFacingMode] = useState<"environment" | "user">("environment")
     const videoRef = useRef<HTMLVideoElement>(null)
     const streamRef = useRef<MediaStream | null>(null)
-    const scannerRef = useRef<any>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const isClosingRef = useRef(false)
+    const scanIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
     const stopCamera = useCallback(() => {
+        // Clear scan interval
+        if (scanIntervalRef.current) {
+            clearInterval(scanIntervalRef.current)
+            scanIntervalRef.current = null
+        }
         // Stop all tracks
         if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => {
-                track.stop()
-            })
+            streamRef.current.getTracks().forEach(track => track.stop())
             streamRef.current = null
         }
-        // Clear video source
+        // Clear video
         if (videoRef.current) {
             videoRef.current.srcObject = null
-        }
-        // Stop scanner
-        if (scannerRef.current) {
-            try {
-                scannerRef.current.stop()
-            } catch (e) {
-                // Ignore
-            }
-            scannerRef.current = null
         }
     }, [])
 
@@ -50,113 +46,106 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
         onClose()
     }, [onClose, stopCamera])
 
+    const processImage = useCallback(async (imageData: string): Promise<string | null> => {
+        try {
+            const { Html5Qrcode } = await import("html5-qrcode")
+            const scanner = new Html5Qrcode("qr-temp-element")
+
+            // Convert base64 to file
+            const response = await fetch(imageData)
+            const blob = await response.blob()
+            const file = new File([blob], "scan.jpg", { type: "image/jpeg" })
+
+            const result = await scanner.scanFile(file, true)
+            await scanner.clear()
+            return result
+        } catch (e) {
+            return null
+        }
+    }, [])
+
     const startCamera = useCallback(async (mode: "environment" | "user" = facingMode) => {
         setIsStarting(true)
         setError(null)
         stopCamera()
 
         try {
-            // Request camera with specific facing mode
-            const constraints: MediaStreamConstraints = {
-                video: {
-                    facingMode: { ideal: mode },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: mode } },
                 audio: false
-            }
+            })
 
-            const stream = await navigator.mediaDevices.getUserMedia(constraints)
             streamRef.current = stream
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream
                 videoRef.current.setAttribute('playsinline', 'true')
-                videoRef.current.setAttribute('autoplay', 'true')
                 await videoRef.current.play()
             }
 
-            // Dynamically import html5-qrcode for scanning
-            const { Html5Qrcode } = await import("html5-qrcode")
-
-            // Create a scanner that uses the existing stream
-            // We'll scan video frames instead
             setIsStarting(false)
+            setCameraMode("stream")
 
-            // Start periodic frame scanning
+            // Start frame scanning
             const canvas = document.createElement('canvas')
             const ctx = canvas.getContext('2d')
 
-            const scanFrame = async () => {
+            scanIntervalRef.current = setInterval(async () => {
                 if (!videoRef.current || !ctx || isClosingRef.current) return
 
                 const video = videoRef.current
-                if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-                    requestAnimationFrame(scanFrame)
-                    return
-                }
+                if (video.readyState < video.HAVE_ENOUGH_DATA) return
 
-                canvas.width = video.videoWidth
-                canvas.height = video.videoHeight
+                canvas.width = video.videoWidth || 640
+                canvas.height = video.videoHeight || 480
                 ctx.drawImage(video, 0, 0)
 
-                try {
-                    const imageData = canvas.toDataURL('image/png')
-                    // Try to scan using Html5Qrcode
-                    const scanner = new Html5Qrcode("temp-scanner", { verbose: false })
-                    const result = await scanner.scanFile(
-                        await fetch(imageData).then(r => r.blob()).then(b => new File([b], "frame.png", { type: "image/png" })),
-                        false
-                    )
-                    if (result) {
-                        onScan(result)
-                        handleClose()
-                        return
-                    }
-                } catch (e) {
-                    // No QR found in this frame, continue scanning
-                }
+                const imageData = canvas.toDataURL('image/jpeg', 0.8)
+                const result = await processImage(imageData)
 
-                if (!isClosingRef.current) {
-                    requestAnimationFrame(scanFrame)
+                if (result) {
+                    onScan(result)
+                    handleClose()
                 }
-            }
-
-            // Start scanning after a short delay
-            setTimeout(() => {
-                if (!isClosingRef.current) {
-                    scanFrame()
-                }
-            }, 500)
+            }, 500) // Scan every 500ms
 
         } catch (err: any) {
             console.error("Camera error:", err)
             setIsStarting(false)
+            setCameraMode("file")
 
-            if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-                setError("Permissão negada. Permita o acesso à câmera.")
-            } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
-                setError("Nenhuma câmera encontrada.")
-            } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
-                setError("Câmera em uso. Feche outros apps.")
-            } else if (err.name === "OverconstrainedError") {
-                // Try again without facing mode constraint
-                try {
-                    const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-                    streamRef.current = fallbackStream
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = fallbackStream
-                        await videoRef.current.play()
-                    }
-                    setIsStarting(false)
-                } catch (fallbackErr) {
-                    setError("Erro ao acessar câmera.")
-                }
-            } else {
-                setError("Erro ao abrir câmera. Tente novamente.")
-            }
+            // Show fallback file mode
+            setError("Não foi possível acessar a câmera. Use o botão abaixo para tirar uma foto.")
         }
-    }, [facingMode, stopCamera, onScan, handleClose])
+    }, [facingMode, stopCamera, onScan, handleClose, processImage])
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsStarting(true)
+        setError(null)
+
+        try {
+            const reader = new FileReader()
+            reader.onload = async (event) => {
+                const imageData = event.target?.result as string
+                const result = await processImage(imageData)
+
+                if (result) {
+                    onScan(result)
+                    handleClose()
+                } else {
+                    setError("Código não encontrado na imagem. Tente novamente.")
+                    setIsStarting(false)
+                }
+            }
+            reader.readAsDataURL(file)
+        } catch (err) {
+            setError("Erro ao processar imagem.")
+            setIsStarting(false)
+        }
+    }
 
     const switchCamera = useCallback(() => {
         const newMode = facingMode === "environment" ? "user" : "environment"
@@ -165,11 +154,7 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
     }, [facingMode, startCamera])
 
     useEffect(() => {
-        // Start camera with delay to ensure component is mounted
-        const timer = setTimeout(() => {
-            startCamera()
-        }, 100)
-
+        const timer = setTimeout(() => startCamera(), 200)
         return () => {
             clearTimeout(timer)
             stopCamera()
@@ -177,103 +162,124 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-black">
-            {/* Hidden element for scanner */}
-            <div id="temp-scanner" style={{ display: 'none' }}></div>
+        <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
+            {/* Hidden elements */}
+            <div id="qr-temp-element" style={{ display: 'none' }} />
+            <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileChange}
+                className="hidden"
+            />
 
             {/* Header */}
-            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
-                <span className="text-white font-medium">
+            <div className="flex items-center justify-between p-4 pt-safe bg-black">
+                <span className="text-white font-semibold text-lg">
                     {title || "Escanear Código"}
                 </span>
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="text-white hover:bg-white/20 h-10 w-10"
+                    className="text-white hover:bg-white/20 h-11 w-11"
                     onClick={handleClose}
                 >
-                    <X className="h-5 w-5" />
+                    <X className="h-6 w-6" />
                 </Button>
             </div>
 
-            {/* Video */}
-            <video
-                ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover"
-                playsInline
-                autoPlay
-                muted
-            />
+            {/* Main content */}
+            <div className="flex-1 flex flex-col items-center justify-center px-4 relative">
+                {/* Video (only show in stream mode) */}
+                {cameraMode === "stream" && (
+                    <div className="w-full max-w-sm aspect-square relative rounded-2xl overflow-hidden bg-zinc-900">
+                        <video
+                            ref={videoRef}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            playsInline
+                            autoPlay
+                            muted
+                        />
 
-            {/* Overlay with scan area */}
-            <div className="absolute inset-0 pointer-events-none">
-                {/* Darkened areas around scan box */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative w-72 h-72">
-                        {/* Scan box border */}
-                        <div className="absolute inset-0 border-2 border-white/50 rounded-lg" />
-                        {/* Corner indicators */}
-                        <div className="absolute -top-1 -left-1 w-10 h-10 border-l-4 border-t-4 border-white rounded-tl-lg" />
-                        <div className="absolute -top-1 -right-1 w-10 h-10 border-r-4 border-t-4 border-white rounded-tr-lg" />
-                        <div className="absolute -bottom-1 -left-1 w-10 h-10 border-l-4 border-b-4 border-white rounded-bl-lg" />
-                        <div className="absolute -bottom-1 -right-1 w-10 h-10 border-r-4 border-b-4 border-white rounded-br-lg" />
-                        {/* Scanning line animation */}
-                        <div className="absolute inset-x-2 h-0.5 bg-green-400 animate-pulse top-1/2" />
+                        {/* Scan frame overlay */}
+                        <div className="absolute inset-0 pointer-events-none p-4">
+                            <div className="relative w-full h-full">
+                                <div className="absolute -top-1 -left-1 w-12 h-12 border-l-4 border-t-4 border-green-400 rounded-tl-xl" />
+                                <div className="absolute -top-1 -right-1 w-12 h-12 border-r-4 border-t-4 border-green-400 rounded-tr-xl" />
+                                <div className="absolute -bottom-1 -left-1 w-12 h-12 border-l-4 border-b-4 border-green-400 rounded-bl-xl" />
+                                <div className="absolute -bottom-1 -right-1 w-12 h-12 border-r-4 border-b-4 border-green-400 rounded-br-xl" />
+                            </div>
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {/* File mode fallback */}
+                {cameraMode === "file" && !isStarting && (
+                    <div className="w-full max-w-sm aspect-square relative rounded-2xl overflow-hidden bg-zinc-800 flex flex-col items-center justify-center p-6">
+                        <Camera className="h-20 w-20 text-zinc-600 mb-4" />
+                        <p className="text-white text-center mb-6">
+                            Toque no botão abaixo para abrir a câmera e tirar uma foto do código
+                        </p>
+                        <Button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                        >
+                            <Camera className="h-5 w-5" />
+                            Tirar Foto
+                        </Button>
+                    </div>
+                )}
+
+                {/* Loading overlay */}
+                {isStarting && (
+                    <div className="absolute inset-0 bg-black flex flex-col items-center justify-center">
+                        <Loader2 className="h-12 w-12 text-white animate-spin mb-4" />
+                        <p className="text-white">Iniciando...</p>
+                    </div>
+                )}
+
+                {/* Description */}
+                <p className="mt-6 text-center text-sm text-zinc-400 px-4 max-w-sm">
+                    {description || "Posicione o código QR ou de barras no centro do quadro"}
+                </p>
+
+                {/* Error message */}
+                {error && cameraMode === "stream" && (
+                    <div className="mt-4 bg-zinc-800 rounded-lg p-4 max-w-sm">
+                        <p className="text-yellow-400 text-sm text-center">{error}</p>
+                    </div>
+                )}
             </div>
 
-            {/* Loading overlay */}
-            {isStarting && (
-                <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-20">
-                    <Loader2 className="h-12 w-12 text-white animate-spin mb-4" />
-                    <p className="text-white text-lg">Iniciando câmera...</p>
-                    <p className="text-white/60 text-sm mt-2">Permita o acesso quando solicitado</p>
-                </div>
-            )}
-
-            {/* Error overlay */}
-            {error && (
-                <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-20 p-6">
-                    <Camera className="h-16 w-16 text-red-400 mb-4" />
-                    <p className="text-white text-lg text-center mb-2">Erro ao acessar câmera</p>
-                    <p className="text-white/60 text-sm text-center mb-6">{error}</p>
-                    <div className="flex gap-3">
+            {/* Bottom actions */}
+            <div className="p-4 pb-safe flex flex-col gap-3 bg-black">
+                {cameraMode === "stream" && !isStarting && (
+                    <div className="flex justify-center gap-3">
                         <Button
                             variant="outline"
-                            className="text-white border-white/30 hover:bg-white/10"
-                            onClick={() => startCamera()}
+                            className="text-white border-zinc-600 hover:bg-zinc-800 gap-2"
+                            onClick={switchCamera}
                         >
-                            Tentar novamente
+                            <SwitchCamera className="h-5 w-5" />
+                            Trocar Câmera
                         </Button>
                         <Button
-                            variant="ghost"
-                            className="text-white/70"
-                            onClick={handleClose}
+                            variant="outline"
+                            className="text-white border-zinc-600 hover:bg-zinc-800 gap-2"
+                            onClick={() => fileInputRef.current?.click()}
                         >
-                            Fechar
+                            <Upload className="h-5 w-5" />
+                            Usar Foto
                         </Button>
                     </div>
-                </div>
-            )}
-
-            {/* Bottom controls */}
-            <div className="absolute bottom-0 left-0 right-0 z-10 p-6 pb-10 bg-gradient-to-t from-black/80 to-transparent">
-                <p className="text-center text-white/80 text-sm mb-4">
-                    {description || "Posicione o código QR no centro"}
-                </p>
-                <div className="flex justify-center">
-                    <Button
-                        variant="outline"
-                        className="text-white border-white/40 hover:bg-white/20"
-                        onClick={switchCamera}
-                        disabled={isStarting}
-                    >
-                        <SwitchCamera className="h-5 w-5 mr-2" />
-                        Trocar Câmera
-                    </Button>
-                </div>
+                )}
             </div>
+
+            <style jsx global>{`
+                .pt-safe { padding-top: max(16px, env(safe-area-inset-top)); }
+                .pb-safe { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+            `}</style>
         </div>
     )
 }

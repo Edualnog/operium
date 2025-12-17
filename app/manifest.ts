@@ -36,6 +36,8 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any',
       },
     ],
+    // @ts-ignore - permissions is valid in web manifest but not in Next.js types
+    permissions: ['camera', 'microphone'],
   }
 }
 
