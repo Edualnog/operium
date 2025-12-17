@@ -357,15 +357,22 @@ const Logo = () => {
   return (
     <Link
       href="/dashboard"
-      className="font-normal flex space-x-3 items-center text-sm text-foreground py-2 relative z-20"
+      className="font-normal flex items-center gap-3 text-sm text-foreground py-2 relative z-20"
     >
-      <Image
-        src="/images/logo-v2.png"
-        alt="Operium"
-        width={120}
-        height={32}
-        className="h-8 w-auto"
-      />
+      {/* Operium Icon - Geometric brackets */}
+      <svg width="32" height="32" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
+        {/* Top left vertical bar */}
+        <rect x="10" y="10" width="15" height="40" fill="currentColor" />
+        {/* Top horizontal bar */}
+        <rect x="10" y="10" width="40" height="15" fill="currentColor" />
+        {/* Bottom horizontal bar */}
+        <rect x="50" y="75" width="40" height="15" fill="currentColor" />
+        {/* Bottom right vertical bar */}
+        <rect x="75" y="50" width="15" height="40" fill="currentColor" />
+      </svg>
+      <span className="font-semibold text-foreground text-lg tracking-wider">
+        OPERIUM
+      </span>
     </Link>
   )
 }
@@ -376,13 +383,17 @@ const LogoIcon = () => {
       href="/dashboard"
       className="font-normal flex items-center justify-center text-sm text-foreground py-2 relative z-20 w-full"
     >
-      <Image
-        src="/icons/icon-192.png"
-        alt="Operium"
-        width={40}
-        height={40}
-        className="h-10 w-10"
-      />
+      {/* Operium Icon - Geometric brackets */}
+      <svg width="36" height="36" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
+        {/* Top left vertical bar */}
+        <rect x="10" y="10" width="15" height="40" fill="currentColor" />
+        {/* Top horizontal bar */}
+        <rect x="10" y="10" width="40" height="15" fill="currentColor" />
+        {/* Bottom horizontal bar */}
+        <rect x="50" y="75" width="40" height="15" fill="currentColor" />
+        {/* Bottom right vertical bar */}
+        <rect x="75" y="50" width="15" height="40" fill="currentColor" />
+      </svg>
     </Link>
   )
 }
