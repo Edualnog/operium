@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from "html5-qrcode"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
@@ -15,12 +15,47 @@ interface QRScannerProps {
 export function QRScanner({ onScan, onClose, title, description }: QRScannerProps) {
     const [error, setError] = useState<string | null>(null)
     const scannerRef = useRef<Html5QrcodeScanner | null>(null)
+    const onScanRef = useRef(onScan)
+    const isClosingRef = useRef(false)
+
+    // Keep the callback ref updated without triggering re-initialization
+    useEffect(() => {
+        onScanRef.current = onScan
+    }, [onScan])
+
+    const handleClose = useCallback(() => {
+        if (isClosingRef.current) return
+        isClosingRef.current = true
+
+        // Clear the scanner first
+        if (scannerRef.current) {
+            scannerRef.current.clear()
+                .then(() => {
+                    scannerRef.current = null
+                    onClose()
+                })
+                .catch((err) => {
+                    console.error("Failed to clear scanner:", err)
+                    scannerRef.current = null
+                    onClose()
+                })
+        } else {
+            onClose()
+        }
+    }, [onClose])
 
     useEffect(() => {
         // Initialize scanner
         // Use a small timeout to ensure DOM is ready inside the Dialog
         const timer = setTimeout(() => {
             try {
+                // Check if element exists
+                const readerElement = document.getElementById("reader")
+                if (!readerElement) {
+                    console.error("Reader element not found")
+                    return
+                }
+
                 const scanner = new Html5QrcodeScanner(
                     "reader",
                     {
@@ -34,12 +69,10 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
 
                 scanner.render(
                     (decodedText) => {
-                        // Success callback
-                        onScan(decodedText)
-                        // Optional: Close scanner automatically?
-                        // Usually better to let parent handle closing to avoid race conditions
-                        // or pause it.
-                        scanner.clear().catch(err => console.error("Failed to clear scanner", err))
+                        // Success callback - use the ref to get latest callback
+                        onScanRef.current(decodedText)
+                        // Clear scanner and close
+                        handleClose()
                     },
                     (errorMessage) => {
                         // Parse error, usually harmless "no QR code found"
@@ -61,9 +94,10 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                 scannerRef.current.clear().catch(error => {
                     console.error("Failed to clear html5-qrcode scanner during cleanup", error)
                 })
+                scannerRef.current = null
             }
         }
-    }, [onScan])
+    }, [handleClose]) // Empty dependency array to only run once
 
     return (
         <div className="flex flex-col items-center justify-center p-4 bg-black text-white rounded-lg relative min-h-[400px]">
@@ -71,7 +105,7 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
                 variant="ghost"
                 size="icon"
                 className="absolute top-2 right-2 z-10 text-white hover:bg-white/20"
-                onClick={onClose}
+                onClick={handleClose}
             >
                 <X className="h-6 w-6" />
             </Button>
