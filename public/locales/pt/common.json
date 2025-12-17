@@ -790,7 +790,7 @@
                     "cost": "Custo"
                 },
                 "footer_page": "Gerado em {{date}} - Página {{current}} de {{total}}",
-                "footer_generated_by": "Gerado por Almox Fácil"
+                "footer_generated_by": "Gerado por Operium"
             }
         },
         "ferramentas": {
