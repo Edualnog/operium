@@ -1024,12 +1024,12 @@
         },
         "hero": {
             "badge": "More than 200 companies have already organized their house",
-            "title_part1": "Stop losing money with",
-            "title_part2": "lost tools",
-            "title_part3": "and stagnant stock.",
-            "description": "The simplest management system in Brazil for small companies to organize the warehouse, control PPE and end spreadsheets.",
-            "cta_button": "Start free trial now",
-            "no_card": "No credit card required • Cancel anytime",
+            "title_part1": "Free ERP for warehouse",
+            "title_part2": "and inventory control",
+            "title_part3": "",
+            "description": "Organize your company's tools, materials, and assets in a simple, fast, and 100% free system.",
+            "cta_button": "Create free account now",
+            "no_card": "Free forever platform for small businesses. No credit card. No catches.",
             "partners": "Partner companies that trust Almox Fácil"
         },
         "pain_points": {
@@ -1069,12 +1069,12 @@
             "support_desc": "Agile and humanized service. Talk to those who understand the subject via WhatsApp, email or chat.",
             "online_title": "100% online system",
             "online_desc": "Access Almox Fácil anytime, anywhere. From the office, home or directly from the work.",
-            "price_title": "No surprise charges",
-            "price_desc": "Start your free trial without registering a credit card. Choose your plan and change whenever you want."
+            "price_title": "No surprise charges. Ever.",
+            "price_desc": "Use Almox Fácil for free, with no time limit. We don't ask for a credit card and we don't enable automatic charges. If we launch paid plans with advanced features in the future, you only upgrade if you want to. Free access remains available for small businesses."
         },
         "how_it_works": {
             "title": "Simple as it should be",
-            "subtitle": "Start using in less than 5 minutes",
+            "subtitle": "Start using in less than 5 minutes, completely free.",
             "step1_title": "Register",
             "step1_desc": "Import your products or register in seconds.",
             "step2_title": "Move",
@@ -1121,10 +1121,10 @@
             "cancel_anytime": "Cancel anytime. No loyalty."
         },
         "cta_final": {
-            "title": "Ready to organize your company?",
-            "subtitle": "Don't leave it for later. The control you need is a click away.",
+            "title": "Organized warehouse without paying monthly fees.",
+            "subtitle": "",
             "button": "Create free account now",
-            "join": "Join more than 200 smart companies"
+            "join": "Free forever for small businesses. Start now."
         },
         "footer": {
             "terms": "Terms of Use",
