@@ -191,7 +191,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             {/* Operium Icon - Geometric brackets */}
-            <svg width="28" height="28" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
+            <svg width="36" height="36" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
               <rect x="10" y="10" width="15" height="40" fill="currentColor" />
               <rect x="10" y="10" width="40" height="15" fill="currentColor" />
               <rect x="50" y="75" width="40" height="15" fill="currentColor" />
