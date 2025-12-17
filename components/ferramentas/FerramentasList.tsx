@@ -1713,19 +1713,7 @@ function FerramentasList({
         </Dialog>
       )}
 
-      {/* QR Scanner Dialog */}
-      <Dialog open={isScanning} onOpenChange={setIsScanning}>
-        <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-black border-zinc-800">
-          <DialogHeader className="sr-only">
-            <DialogTitle>QR Scanner</DialogTitle>
-            <DialogDescription>Scan a QR code or barcode to find a product</DialogDescription>
-          </DialogHeader>
-          <QRScanner
-            onScan={handleScanResult}
-            onClose={() => setIsScanning(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* QR Scanner is now rendered standalone above, not in a Dialog */}
 
     </div >
   )
