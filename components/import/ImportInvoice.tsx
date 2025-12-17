@@ -41,32 +41,67 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
     const [error, setError] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
+    const compressImage = async (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = (event) => {
+                const img = document.createElement("img")
+                img.src = event.target?.result as string
+                img.onload = () => {
+                    const canvas = document.createElement("canvas")
+                    let width = img.width
+                    let height = img.height
+
+                    // Redimensionar se maior que 1024px
+                    const MAX_SIZE = 1024
+                    if (width > MAX_SIZE || height > MAX_SIZE) {
+                        if (width > height) {
+                            height *= MAX_SIZE / width
+                            width = MAX_SIZE
+                        } else {
+                            width *= MAX_SIZE / height
+                            height = MAX_SIZE
+                        }
+                    }
+
+                    canvas.width = width
+                    canvas.height = height
+                    const ctx = canvas.getContext("2d")
+                    ctx?.drawImage(img, 0, 0, width, height)
+
+                    // Comprimir para JPEG com qualidade 0.7
+                    const base64 = canvas.toDataURL("image/jpeg", 0.7)
+                    resolve(base64)
+                }
+                img.onerror = (err) => reject(err)
+            }
+            reader.onerror = (err) => reject(err)
+        })
+    }
+
     const processImage = async (file: File) => {
         setStep("processing")
         setError(null)
 
         try {
-            // Converter para base64
-            const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onload = async () => {
-                const base64Image = reader.result as string
+            // Comprimir imagem antes de enviar
+            const base64Image = await compressImage(file)
 
-                const res = await fetch("/api/ai/ocr", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ image: base64Image })
-                })
+            const res = await fetch("/api/ai/ocr", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: base64Image })
+            })
 
-                if (!res.ok) throw new Error("Erro ao processar imagem")
+            if (!res.ok) throw new Error("Erro ao processar imagem")
 
-                const data = await res.json()
-                if (data.items && Array.isArray(data.items)) {
-                    setItems(data.items)
-                    setStep("review")
-                } else {
-                    throw new Error("Formato de resposta inválido")
-                }
+            const data = await res.json()
+            if (data.items && Array.isArray(data.items)) {
+                setItems(data.items)
+                setStep("review")
+            } else {
+                throw new Error("Formato de resposta inválido")
             }
         } catch (err) {
             console.error(err)
