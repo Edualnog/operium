@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import Image from "next/image"
-import Script from "next/script"
 import { motion } from "framer-motion"
 import {
   ArrowRight,
@@ -41,13 +40,6 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { LogoCloud } from "@/components/ui/logo-cloud"
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection"
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'elevenlabs-convai': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & { 'agent-id': string };
-    }
-  }
-}
 
 // Ícones SVG elegantes para redes sociais
 const YouTubeIcon = ({ className }: { className?: string }) => (
@@ -76,13 +68,6 @@ interface LandingPageProps {
 
 export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: LandingPageProps) {
   const { t } = useTranslation('common')
-  const convaiRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    if (convaiRef.current) {
-      convaiRef.current.setAttribute("agent-id", "agent_9101kbpggtvkffq8thjkahnbqg1w")
-    }
-  }, [])
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
@@ -740,8 +725,6 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </div>
       </footer>
 
-      <elevenlabs-convai ref={convaiRef} agent-id="agent_9101kbpggtvkffq8thjkahnbqg1w"></elevenlabs-convai>
-      <Script src="https://unpkg.com/@elevenlabs/convai-widget-embed" strategy="afterInteractive" />
     </div >
   )
 }
