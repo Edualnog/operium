@@ -599,13 +599,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50">
-                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                    <span className="text-xs text-emerald-700 font-medium">{t('dashboard.charts.movements.in')}</span>
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800">
+                    <div className="w-3 h-3 rounded-full bg-zinc-400" />
+                    <span className="text-xs text-zinc-600 font-medium dark:text-zinc-300">{t('dashboard.charts.movements.in')}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-50">
-                    <div className="w-3 h-3 rounded-full bg-rose-500" />
-                    <span className="text-xs text-rose-700 font-medium">{t('dashboard.charts.movements.out')}</span>
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800">
+                    <div className="w-3 h-3 rounded-full bg-zinc-800 dark:bg-zinc-200" />
+                    <span className="text-xs text-zinc-600 font-medium dark:text-zinc-300">{t('dashboard.charts.movements.out')}</span>
                   </div>
                 </div>
               </div>
@@ -685,13 +685,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
                             {/* Barra de Saídas (vermelho) */}
                             <div
-                              className={`w-full bg-gradient-to-t from-rose-500 to-rose-400 rounded-t-sm transition-all duration-300 hover:from-rose-600 hover:to-rose-500 hover:shadow-lg hover:scale-105 ${item.saidas === 0 ? 'opacity-0' : 'opacity-100'
+                              className={`w-full bg-zinc-800 rounded-t-sm transition-all duration-300 hover:bg-zinc-900 transition-all ${item.saidas === 0 ? 'opacity-0' : 'opacity-100'
                                 }`}
                               style={{ height: `${heightSaidas}%` }}
                             />
-                            {/* Barra de Entradas (verde) */}
+                            {/* Barra de Entradas (Claro) */}
                             <div
-                              className={`w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm transition-all duration-300 hover:from-emerald-600 hover:to-emerald-500 hover:shadow-lg hover:scale-105 ${item.entradas === 0 ? 'opacity-0' : 'opacity-100'
+                              className={`w-full bg-zinc-300 rounded-t-sm transition-all duration-300 hover:bg-zinc-400 transition-all ${item.entradas === 0 ? 'opacity-0' : 'opacity-100'
                                 }`}
                               style={{ height: `${heightEntradas}%` }}
                             />
@@ -718,19 +718,19 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_in')}</p>
-                      <p className="text-lg font-bold text-emerald-600">
+                      <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.entradas, 0)}
                       </p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_out')}</p>
-                      <p className="text-lg font-bold text-rose-600">
+                      <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.saidas, 0)}
                       </p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.monthly_avg')}</p>
-                      <p className="text-lg font-bold text-blue-600">
+                      <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {Math.round(movimentacoesMensais.reduce((acc, m) => acc + m.total, 0) / 12)}
                       </p>
                     </div>
@@ -759,7 +759,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                   <div
-                    className="h-full bg-green-500 rounded-full transition-all duration-500"
+                    className="h-full bg-zinc-900 rounded-full transition-all duration-500 dark:bg-zinc-50"
                     style={{ width: `${statusFerramentas.disponiveis}%` }}
                   />
                 </div>
@@ -773,7 +773,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                   <div
-                    className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                    className="h-full bg-zinc-500 rounded-full transition-all duration-500 dark:bg-zinc-400"
                     style={{ width: `${statusFerramentas.emUso}%` }}
                   />
                 </div>
@@ -787,7 +787,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 </div>
                 <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
                   <div
-                    className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                    className="h-full bg-zinc-300 rounded-full transition-all duration-500 dark:bg-zinc-600"
                     style={{ width: `${statusFerramentas.manutencao}%` }}
                   />
                 </div>
@@ -917,8 +917,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge
-                            variant={index === 0 ? "destructive" : index === 1 ? "default" : "secondary"}
-                            className="text-xs font-semibold"
+                            variant="secondary"
+                            className={`text-xs font-semibold ${index === 0 ? "bg-zinc-900 text-zinc-50 hover:bg-zinc-800" : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"}`}
                           >
                             #{index + 1}
                           </Badge>
@@ -937,7 +937,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">{t('dashboard.labels.stock')}</span>
                               <span className={`text-xs font-medium ${item.quantidade_disponivel <= item.ponto_ressuprimento
-                                ? "text-red-600 dark:text-red-400"
+                                ? "text-zinc-900 font-bold dark:text-zinc-100"
                                 : "text-zinc-700 dark:text-zinc-300"
                                 }`}>
                                 {item.quantidade_disponivel} / {t('dashboard.labels.min')} {item.ponto_ressuprimento}
@@ -1122,7 +1122,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs text-zinc-500">{t('dashboard.labels.score')}</span>
                               <Badge
-                                variant={item.score >= 80 ? "default" : item.score >= 60 ? "secondary" : "destructive"}
+                                variant={item.score >= 80 ? "default" : "secondary"}
                                 className="font-semibold text-xs"
                               >
                                 {item.score.toFixed(0)}%
@@ -1290,7 +1290,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 key: "deficit",
                 label: t('dashboard.columns.deficit'),
                 render: (item) => (
-                  <Badge variant="destructive" className="font-semibold">
+                  <Badge variant="secondary" className="font-semibold bg-zinc-900 text-zinc-50 hover:bg-zinc-800">
                     -{item.deficit}
                   </Badge>
                 ),
@@ -1365,8 +1365,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 label: t('dashboard.columns.days_remaining'),
                 render: (item) => (
                   <Badge
-                    variant={item.dias_restantes <= 7 ? "destructive" : "secondary"}
-                    className="font-semibold"
+                    variant="secondary"
+                    className={`font-semibold ${item.dias_restantes <= 7 ? "bg-zinc-900 text-zinc-50 hover:bg-zinc-800" : ""}`}
                   >
                     {item.dias_restantes} dias
                   </Badge>
@@ -1425,10 +1425,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <Badge
                   variant={
                     item.prioridade === "alta"
-                      ? "destructive"
-                      : item.prioridade === "media"
-                        ? "secondary"
-                        : "outline"
+                      ? "default"
+                      : "secondary"
                   }
                   className="font-semibold"
                 >
