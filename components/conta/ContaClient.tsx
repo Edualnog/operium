@@ -88,10 +88,10 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
     <div className="max-w-4xl space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-zinc-50">
+        <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#37352f] dark:text-zinc-50">
           {t("dashboard.conta.title")}
         </h1>
-        <p className="text-slate-600 mt-1 dark:text-zinc-400">
+        <p className="text-zinc-500 mt-1 dark:text-zinc-400">
           {t("dashboard.conta.subtitle")}
         </p>
       </div>
@@ -105,8 +105,8 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         className="rounded-xl border border-slate-200 bg-white p-6 dark:bg-zinc-900 dark:border-zinc-800"
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
-            <Mail className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
+          <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+            <Mail className="h-5 w-5 text-zinc-500 dark:text-zinc-400" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-zinc-50">{t("dashboard.conta.account_info.title")}</h3>
@@ -149,8 +149,8 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         className="rounded-xl border border-slate-200 bg-white p-6 dark:bg-zinc-900 dark:border-zinc-800"
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
-            <Building2 className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
+          <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+            <Building2 className="h-5 w-5 text-zinc-500 dark:text-zinc-400" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-zinc-50">{t("dashboard.conta.company_info.title")}</h3>
@@ -207,7 +207,7 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
           )}
 
           <div className="flex justify-end pt-2">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
               {loading ? t("dashboard.conta.company_info.saving") : t("dashboard.conta.company_info.save_changes")}
             </Button>
           </div>
@@ -222,8 +222,8 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         className="rounded-xl border border-slate-200 bg-white p-6 dark:bg-zinc-900 dark:border-zinc-800"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">
-            <Shield className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
+          <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+            <Shield className="h-5 w-5 text-zinc-500 dark:text-zinc-400" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-zinc-50">{t("dashboard.conta.security.title")}</h3>
@@ -244,12 +244,12 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
               })
               setMessage({ type: "success", text: t("dashboard.conta.security.reset_email_sent") })
             }}
+            className="border-zinc-300 text-zinc-700 hover:bg-zinc-50"
           >
             {t("dashboard.conta.security.send_reset_email")}
           </Button>
         </div>
-      </motion.div>
-    </div>
+      </motion.div >
+    </div >
   )
 }
-
