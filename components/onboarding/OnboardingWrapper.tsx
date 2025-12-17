@@ -5,7 +5,7 @@ import { AnimatePresence } from "framer-motion"
 import OnboardingTutorial from "./OnboardingTutorial"
 import { createClientComponentClient } from "@/lib/supabase-client"
 
-const ONBOARDING_KEY = "almoxfacil_onboarding_completed"
+const ONBOARDING_KEY = "operium_onboarding_completed"
 
 interface OnboardingWrapperProps {
   children: React.ReactNode
@@ -25,7 +25,7 @@ export default function OnboardingWrapper({ children }: OnboardingWrapperProps) 
     try {
       // Primeiro, verificar no localStorage
       const localCompleted = localStorage.getItem(ONBOARDING_KEY)
-      
+
       if (localCompleted === "true") {
         setIsChecking(false)
         return
@@ -34,12 +34,12 @@ export default function OnboardingWrapper({ children }: OnboardingWrapperProps) 
       // Se não tem no localStorage, verificar se é um novo usuário
       // Checando se foi criado há menos de 24 horas
       const { data: { user } } = await supabase.auth.getUser()
-      
+
       if (user) {
         const createdAt = new Date(user.created_at)
         const now = new Date()
         const hoursSinceCreation = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60)
-        
+
         // Se o usuário foi criado nas últimas 24 horas e não completou o onboarding
         if (hoursSinceCreation < 24 && !localCompleted) {
           setShowTutorial(true)

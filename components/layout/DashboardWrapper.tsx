@@ -318,7 +318,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 <Mail className="h-4 w-4" />
               </a>
               <a
-                href="https://www.youtube.com/@almoxfacil"
+                href="https://www.youtube.com/@operium"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-red-100 hover:text-red-500 active:bg-red-200 transition-all touch-manipulation"
@@ -327,7 +327,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 <YouTubeIcon className="h-4 w-4" />
               </a>
               <a
-                href="https://www.instagram.com/almoxfacil"
+                href="https://www.instagram.com/operium"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-pink-100 hover:text-pink-500 active:bg-pink-200 transition-all touch-manipulation"
@@ -336,7 +336,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 <InstagramIcon className="h-4 w-4" />
               </a>
               <a
-                href="https://www.linkedin.com/company/almoxfacil"
+                href="https://www.linkedin.com/company/operium"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation"

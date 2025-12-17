@@ -617,13 +617,13 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
             <Link href="/terms" className="hover:text-blue-600">{t('landing.footer.terms')}</Link>
             <Link href="/privacy" className="hover:text-blue-600">{t('landing.footer.privacy')}</Link>
-            <a href="mailto:contato@almoxfacil.com.br" className="hover:text-blue-600">{t('landing.footer.contact')}</a>
+            <a href="mailto:contato@operium.alnog.com.br" className="hover:text-blue-600">{t('landing.footer.contact')}</a>
           </div>
 
           <div className="flex gap-4 text-slate-400">
             <a href="#" className="hover:text-blue-600"><InstagramIcon className="h-5 w-5" /></a>
             <a href="#" className="hover:text-blue-600"><YouTubeIcon className="h-5 w-5" /></a>
-            <a href="https://www.linkedin.com/company/almoxfacil" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600"><LinkedInIcon className="h-5 w-5" /></a>
+            <a href="https://www.linkedin.com/company/operium" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600"><LinkedInIcon className="h-5 w-5" /></a>
           </div>
 
           <div className="text-xs text-slate-400 mt-2">
