@@ -872,6 +872,7 @@
                 "title_new": "Novo Produto",
                 "title_edit": "Editar Produto",
                 "desc_new": "Adicione um novo produto ao estoque",
+                "catalog_search_label": "Buscar no Catálogo Global",
                 "desc_edit": "Atualize as informações do produto",
                 "name": "Nome",
                 "type": "Categoria",
