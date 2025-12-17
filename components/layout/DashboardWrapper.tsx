@@ -73,6 +73,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     {
       label: t('dashboard.sidebar.dashboard'),
       href: "/dashboard",
+      id: "sidebar-dashboard",
       icon: (
         <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
       ),
@@ -80,6 +81,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     {
       label: t('dashboard.sidebar.movements'),
       href: "/dashboard/movimentacoes",
+      id: "sidebar-movimentacoes",
       icon: (
         <Package className="h-5 w-5 flex-shrink-0" />
       ),
@@ -87,6 +89,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     {
       label: t('dashboard.sidebar.collaborators'),
       href: "/dashboard/colaboradores",
+      id: "sidebar-colaboradores",
       icon: (
         <Users className="h-5 w-5 flex-shrink-0" />
       ),
@@ -94,6 +97,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     {
       label: t('dashboard.sidebar.stock'),
       href: "/dashboard/estoque",
+      id: "sidebar-estoque",
       icon: (
         <Wrench className="h-5 w-5 flex-shrink-0" />
       ),
@@ -101,6 +105,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     {
       label: t('dashboard.sidebar.repairs'),
       href: "/dashboard/consertos",
+      id: "sidebar-consertos",
       icon: (
         <Hammer className="h-5 w-5 flex-shrink-0" />
       ),
@@ -108,6 +113,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     {
       label: t('dashboard.sidebar.inventory'),
       href: "/dashboard/inventario",
+      id: "sidebar-inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
       ),
@@ -162,6 +168,7 @@ function SidebarContent({
               key={link.href}
               link={link}
               active={pathname === link.href}
+              id={(link as any).id}
             />
           ))}
         </div>
@@ -181,6 +188,7 @@ function SidebarContent({
               !open && "md:justify-center",
               open ? "md:flex-1" : "w-full"
             )}
+            id="sidebar-conta"
           >
             <span className="flex-shrink-0">
               <Settings className="h-5 w-5 flex-shrink-0" />
