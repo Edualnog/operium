@@ -44,13 +44,13 @@ export function KpiList({
   const hasMoreItems = items.length > maxItems
 
   return (
-    <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-      <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
-        <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+    <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+      <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800">
+        <CardTitle className="text-base sm:text-lg font-bold font-serif text-[#37352f] dark:text-zinc-50">
           {title}
         </CardTitle>
         {description && (
-          <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">{description}</p>
+          <p className="text-xs sm:text-sm text-[#37352f]/60 mt-1 dark:text-zinc-400">{description}</p>
         )}
       </CardHeader>
       <CardContent className="pt-4">
@@ -61,7 +61,7 @@ export function KpiList({
             {displayItems.map((item, index) => (
               <div
                 key={item.id || index}
-                className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors dark:border-zinc-800 dark:hover:bg-zinc-800/50"
+                className="flex items-center justify-between gap-4 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors dark:border-zinc-800 dark:hover:bg-zinc-800/50"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
