@@ -598,18 +598,18 @@ function ConsertosList({
 
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setSearch(""); }} className="w-full space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList>
-            <TabsTrigger value="todos">{t("dashboard.consertos.status.all")}</TabsTrigger>
-            <TabsTrigger value="aguardando">{t("dashboard.consertos.status.waiting")}</TabsTrigger>
-            <TabsTrigger value="em_andamento">{t("dashboard.consertos.status.in_progress")}</TabsTrigger>
-            <TabsTrigger value="concluido">{t("dashboard.consertos.status.completed")}</TabsTrigger>
+          <TabsList className="bg-transparent p-0">
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="todos">{t("dashboard.consertos.status.all")}</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="aguardando">{t("dashboard.consertos.status.waiting")}</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="em_andamento">{t("dashboard.consertos.status.in_progress")}</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="concluido">{t("dashboard.consertos.status.completed")}</TabsTrigger>
           </TabsList>
 
           <div className="flex items-center gap-2">
             {/* New Conserto Dialog */}
             <Dialog open={openNew} onOpenChange={setOpenNew}>
               <DialogTrigger asChild>
-                <Button onClick={() => setOpenNew(true)} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                <Button onClick={() => setOpenNew(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2">
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">{t("dashboard.consertos.new_button")}</span>
                 </Button>
