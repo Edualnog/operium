@@ -1379,7 +1379,7 @@ function FerramentasList({
                   <TableHead>{t("dashboard.ferramentas.table.value")}</TableHead>
                   <TableHead>{t("dashboard.ferramentas.table.stock")}</TableHead>
                   <TableHead>{t("dashboard.ferramentas.table.status")}</TableHead>
-                  <TableHead className="text-right">{t("dashboard.ferramentas.table.actions")}</TableHead>
+                  <TableHead className="w-[100px] text-right">{t("dashboard.ferramentas.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1430,7 +1430,7 @@ function FerramentasList({
                         {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="w-[100px] text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700">
