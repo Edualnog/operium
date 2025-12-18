@@ -186,6 +186,34 @@
             "desc": "Add more products or register transactions whenever you need."
         }
     },
+    "onboarding_setup": {
+        "title": "Set up your business",
+        "subtitle": "We need some information to personalize your experience",
+        "company_name": {
+            "label": "Business name",
+            "placeholder": "E.g. ABC Construction, John's Workshop...",
+            "hint": "How you want your business to be identified"
+        },
+        "segment": {
+            "label": "What is your industry sector?"
+        },
+        "segments": {
+            "manufacturing": "Manufacturing / Industry",
+            "construction": "Construction",
+            "logistics": "Logistics / Transportation",
+            "maintenance": "Maintenance Services",
+            "agro": "Agriculture",
+            "other": "Other / Not sure yet"
+        },
+        "button": {
+            "submit": "Continue",
+            "loading": "Saving..."
+        },
+        "errors": {
+            "generic": "An error occurred. Please try again."
+        },
+        "footer": "You can change this information later in settings."
+    },
     "dashboard": {
         "title": "Dashboard",
         "overview": "Overview",

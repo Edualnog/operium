@@ -175,6 +175,34 @@
             "desc": "Adicione mais produtos ou registre transações sempre que precisar."
         }
     },
+    "onboarding_setup": {
+        "title": "Configure seu negócio",
+        "subtitle": "Precisamos de algumas informações para personalizar sua experiência",
+        "company_name": {
+            "label": "Nome do seu negócio",
+            "placeholder": "Ex: Construtora ABC, Oficina do João...",
+            "hint": "Como você deseja que seu negócio seja identificado"
+        },
+        "segment": {
+            "label": "Qual é o seu setor de atuação?"
+        },
+        "segments": {
+            "manufacturing": "Indústria / Manufatura",
+            "construction": "Construção Civil",
+            "logistics": "Logística / Transporte",
+            "maintenance": "Serviços de Manutenção",
+            "agro": "Agronegócio",
+            "other": "Outro / Não sei ainda"
+        },
+        "button": {
+            "submit": "Continuar",
+            "loading": "Salvando..."
+        },
+        "errors": {
+            "generic": "Ocorreu um erro. Tente novamente."
+        },
+        "footer": "Você pode alterar essas informações depois nas configurações."
+    },
     "dashboard": {
         "title": "Painel de Controle",
         "overview": "Visão Geral",
