@@ -1328,11 +1328,11 @@ function FerramentasList({
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{t("dashboard.ferramentas.list.bulk_actions")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={exportSelectedToCSV} disabled={selectedItems.size === 0}>
+                <DropdownMenuItem onClick={handleExportSelectedCSV} disabled={selectedItems.size === 0}>
                   <Download className="h-4 w-4 mr-2" />
                   Exportar CSV ({selectedItems.size})
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportSelectedToPDF} disabled={selectedItems.size === 0}>
+                <DropdownMenuItem onClick={handleExportPDF} disabled={selectedItems.size === 0}>
                   <Download className="h-4 w-4 mr-2" />
                   Exportar PDF ({selectedItems.size})
                 </DropdownMenuItem>
