@@ -10,6 +10,14 @@ export async function GET(request: NextRequest) {
   const error_description = requestUrl.searchParams.get('error_description')
   const origin = requestUrl.origin
 
+  // Debug: listar todos os cookies disponíveis
+  const allCookies = request.cookies.getAll()
+  console.log('[OAuth Callback] All cookies:', allCookies.map(c => c.name))
+
+  // Procurar pelo cookie de code_verifier
+  const codeVerifierCookie = allCookies.find(c => c.name.includes('code-verifier'))
+  console.log('[OAuth Callback] Code verifier cookie found:', !!codeVerifierCookie)
+
   console.log('[OAuth Callback] Starting...', { code: !!code, error, origin })
 
   // Se houver erro do OAuth
