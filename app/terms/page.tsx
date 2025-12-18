@@ -1,8 +1,12 @@
 import React from 'react'
+import Link from 'next/link'
 
 export default function TermsPage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
+            <Link href="/" className="text-blue-600 hover:underline text-sm mb-6 inline-block">
+                ← Voltar
+            </Link>
             <h1 className="text-3xl font-bold mb-6">Termos de Uso</h1>
             <div className="prose prose-slate max-w-none">
                 <p>Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
@@ -21,6 +25,9 @@ export default function TermsPage() {
 
                 <h2>5. Cancelamento</h2>
                 <p>Você pode cancelar sua assinatura a qualquer momento através do painel de controle.</p>
+
+                <h2>6. Contato</h2>
+                <p>Para questões sobre estes termos, entre em contato: <a href="mailto:operiumtechnologies@gmail.com" className="text-blue-600 hover:underline">operiumtechnologies@gmail.com</a></p>
             </div>
         </div>
     )

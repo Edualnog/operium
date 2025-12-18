@@ -615,7 +615,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
             <Link href="/terms" className="hover:text-blue-600">{t('landing.footer.terms')}</Link>
             <Link href="/privacy" className="hover:text-blue-600">{t('landing.footer.privacy')}</Link>
-            <a href="mailto:contato@operium.alnog.com.br" className="hover:text-blue-600">{t('landing.footer.contact')}</a>
+            <a href="mailto:operiumtechnologies@gmail.com" className="hover:text-blue-600">{t('landing.footer.contact')}</a>
           </div>
 
           <div className="flex gap-4 text-slate-400">
