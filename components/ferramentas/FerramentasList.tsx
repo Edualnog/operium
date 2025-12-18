@@ -1318,9 +1318,43 @@ function FerramentasList({
             <span className="text-sm text-zinc-600 dark:text-zinc-400 pl-2">
               {t("dashboard.ferramentas.list.selected_count", { count: selectedItems.size, total: filteredFerramentas.length })}
             </span>
-            <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-zinc-700 border-zinc-200 hover:text-zinc-900">
-              {t("dashboard.ferramentas.list.bulk_actions")} <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-white dark:bg-zinc-800 text-zinc-700 border-zinc-200 hover:text-zinc-900">
+                  {t("dashboard.ferramentas.list.bulk_actions")} <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{t("dashboard.ferramentas.list.bulk_actions")}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={exportSelectedToCSV} disabled={selectedItems.size === 0}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar CSV ({selectedItems.size})
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportSelectedToPDF} disabled={selectedItems.size === 0}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar PDF ({selectedItems.size})
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (selectedItems.size === 0) {
+                      toast.warning("Selecione pelo menos um item")
+                      return
+                    }
+                    if (confirm(`Tem certeza que deseja excluir ${selectedItems.size} item(s)?`)) {
+                      selectedItems.forEach(id => handleDelete(id))
+                      setSelectedItems(new Set())
+                    }
+                  }}
+                  disabled={selectedItems.size === 0}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir Selecionados ({selectedItems.size})
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="overflow-x-auto">
