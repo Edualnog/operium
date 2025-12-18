@@ -13,7 +13,7 @@ async function getAccountData() {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, name, company_name, cnpj, company_email, phone, subscription_status, stripe_customer_id, created_at, trial_start_date")
+    .select("id, name, company_name, cnpj, company_email, phone, subscription_status, stripe_customer_id, created_at, trial_start_date, industry_segment, company_size")
     .eq("id", user.id)
     .single()
 

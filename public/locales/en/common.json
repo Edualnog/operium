@@ -779,6 +779,13 @@
                 "success": "Data updated successfully!",
                 "error": "Error saving data"
             },
+            "onboarding_data": {
+                "title": "Registration Data",
+                "subtitle": "Information set during initial registration (not editable)",
+                "company_name": "Company Name",
+                "industry_segment": "Industry Sector",
+                "company_size": "Company Size"
+            },
             "security": {
                 "title": "Security",
                 "subtitle": "Account security options",

@@ -763,6 +763,13 @@
                 "success": "Dados atualizados com sucesso!",
                 "error": "Erro ao salvar dados"
             },
+            "onboarding_data": {
+                "title": "Dados do Cadastro",
+                "subtitle": "Informações definidas no cadastro inicial (não editáveis)",
+                "company_name": "Nome da Empresa",
+                "industry_segment": "Setor de Atuação",
+                "company_size": "Porte da Empresa"
+            },
             "security": {
                 "title": "Segurança",
                 "subtitle": "Opções de segurança da conta",

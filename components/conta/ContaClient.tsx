@@ -9,7 +9,10 @@ import {
   Phone,
   Calendar,
   Shield,
-  ExternalLink
+  ExternalLink,
+  Factory,
+  Users,
+  Lock
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -41,16 +44,43 @@ interface ContaClientProps {
     stripe_customer_id?: string | null
     created_at?: string | null
     trial_start_date?: string | null
+    industry_segment?: string | null
+    company_size?: string | null
   } | null
 }
 
 export default function ContaClient({ user, profile }: ContaClientProps) {
   const supabase = createClientComponentClient()
   const [form, setForm] = useState({
-    company_name: profile?.company_name || "",
     cnpj: profile?.cnpj || "",
     phone: profile?.phone || "",
   })
+
+  // Helper para traduzir segmentos
+  const getSegmentLabel = (segment: string | null | undefined) => {
+    if (!segment) return "-"
+    const labels: Record<string, string> = {
+      MANUFACTURING: t("onboarding_setup.segments.manufacturing"),
+      CONSTRUCTION: t("onboarding_setup.segments.construction"),
+      LOGISTICS: t("onboarding_setup.segments.logistics"),
+      MAINTENANCE_SERVICES: t("onboarding_setup.segments.maintenance"),
+      AGRO: t("onboarding_setup.segments.agro"),
+      OTHER: t("onboarding_setup.segments.other"),
+    }
+    return labels[segment] || segment
+  }
+
+  const getSizeLabel = (size: string | null | undefined) => {
+    if (!size) return "-"
+    const labels: Record<string, string> = {
+      SOLO: t("onboarding_setup.sizes.solo"),
+      SMALL: t("onboarding_setup.sizes.small"),
+      MEDIUM: t("onboarding_setup.sizes.medium"),
+      LARGE: t("onboarding_setup.sizes.large"),
+      ENTERPRISE: t("onboarding_setup.sizes.enterprise"),
+    }
+    return labels[size] || size
+  }
   const [loading, setLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -67,7 +97,6 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
       const { error } = await supabase
         .from("profiles")
         .update({
-          company_name: form.company_name || null,
           cnpj: form.cnpj || null,
           phone: form.phone || null,
           company_email: user.email,
@@ -141,6 +170,50 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
         </div>
       </motion.div>
 
+      {/* Dados do Onboarding (Imutáveis) */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="rounded-xl border border-slate-200 bg-white p-6 dark:bg-zinc-900 dark:border-zinc-800"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+            <Lock className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-50">{t("dashboard.conta.onboarding_data.title")}</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{t("dashboard.conta.onboarding_data.subtitle")}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-1.5">
+            <Label className="text-slate-600 dark:text-zinc-400">{t("dashboard.conta.onboarding_data.company_name")}</Label>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
+              <Building2 className="h-4 w-4 text-slate-400" />
+              <span className="text-slate-700 dark:text-zinc-200">{profile?.company_name || "-"}</span>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-slate-600 dark:text-zinc-400">{t("dashboard.conta.onboarding_data.industry_segment")}</Label>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
+              <Factory className="h-4 w-4 text-slate-400" />
+              <span className="text-slate-700 dark:text-zinc-200">{getSegmentLabel(profile?.industry_segment)}</span>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-slate-600 dark:text-zinc-400">{t("dashboard.conta.onboarding_data.company_size")}</Label>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 dark:bg-zinc-800 dark:border-zinc-700">
+              <Users className="h-4 w-4 text-slate-400" />
+              <span className="text-slate-700 dark:text-zinc-200">{getSizeLabel(profile?.company_size)}</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Dados da Empresa */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -160,16 +233,6 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="company_name" className="dark:text-zinc-300">{t("dashboard.conta.company_info.company_name")}</Label>
-              <Input
-                id="company_name"
-                value={form.company_name}
-                onChange={(e) => setForm(f => ({ ...f, company_name: e.target.value }))}
-                placeholder={t("dashboard.conta.company_info.company_name")}
-                className="bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200"
-              />
-            </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="cnpj" className="dark:text-zinc-300">{t("dashboard.conta.company_info.cnpj")}</Label>
