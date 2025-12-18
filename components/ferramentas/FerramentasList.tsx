@@ -1379,7 +1379,7 @@ function FerramentasList({
                   <TableHead className="w-[100px]">{t("dashboard.ferramentas.table.value")}</TableHead>
                   <TableHead className="w-[80px]">{t("dashboard.ferramentas.table.stock")}</TableHead>
                   <TableHead className="w-[100px]">{t("dashboard.ferramentas.table.status")}</TableHead>
-                  <TableHead className="w-[100px] text-right">{t("dashboard.ferramentas.table.actions")}</TableHead>
+                  <TableHead className="w-[100px] text-center">{t("dashboard.ferramentas.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1430,10 +1430,10 @@ function FerramentasList({
                         {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="w-[100px] text-right">
+                    <TableCell className="w-[100px] text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 flex items-center gap-1 data-[state=open]:bg-muted bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700">
+                          <Button variant="ghost" className="h-8 w-20 flex items-center justify-center gap-1 mx-auto data-[state=open]:bg-muted bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700">
                             Ações <ChevronLeft className="h-3 w-3 rotate-[-90deg]" />
                           </Button>
                         </DropdownMenuTrigger>
