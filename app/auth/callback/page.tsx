@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClientComponentClient, getOAuthClient } from '@/lib/supabase-client'
 
@@ -10,13 +10,19 @@ export default function AuthCallbackPage() {
     const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
     const [errorMessage, setErrorMessage] = useState('')
 
+    const processingRef = useRef(false)
+
     useEffect(() => {
         const handleCallback = async () => {
+            if (processingRef.current) return
+            processingRef.current = true
+
             const code = searchParams.get('code')
             const error = searchParams.get('error')
             const errorDescription = searchParams.get('error_description')
 
             console.log('[OAuth Callback Client] Starting...', { code: !!code, error })
+            console.log('[OAuth Callback Client] Current Cookies:', document.cookie)
 
             if (error) {
                 console.error('[OAuth Callback Client] Error from OAuth:', error, errorDescription)
