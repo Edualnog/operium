@@ -37,10 +37,10 @@ export default function AuthCallbackPage() {
             try {
                 console.log('[OAuth Callback Client] Exchanging code for session...')
 
-                // Usar o mesmo cliente OAuth que foi usado para iniciar o login
-                // Ele tem acesso ao code_verifier armazenado no localStorage
-                const oauthClient = getOAuthClient()
-                const { data, error: exchangeError } = await oauthClient.auth.exchangeCodeForSession(code)
+                // O exchangeCodeForSession usa o code_verifier que deve estar no cookie
+                // createClientComponentClient usa createBrowserClient que gerencia cookies automaticamente
+                const supabase = createClientComponentClient()
+                const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
                 if (exchangeError) {
                     console.error('[OAuth Callback Client] Exchange error:', exchangeError.message)
@@ -60,8 +60,7 @@ export default function AuthCallbackPage() {
 
                 console.log('[OAuth Callback Client] Session created successfully for user:', data.user?.email)
 
-                // Usar createClientComponentClient para operações de banco de dados (tem tipagem correta)
-                const supabase = createClientComponentClient()
+                // Usar createClientComponentClient para operações de banco de dados (já instanciado)
 
                 // Verificar se o perfil existe
                 const user = data.user
