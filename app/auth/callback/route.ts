@@ -10,14 +10,6 @@ export async function GET(request: NextRequest) {
   const error_description = requestUrl.searchParams.get('error_description')
   const origin = requestUrl.origin
 
-  // Debug: listar todos os cookies disponíveis
-  const allCookies = request.cookies.getAll()
-  console.log('[OAuth Callback] All cookies:', allCookies.map(c => c.name))
-
-  // Procurar pelo cookie de code_verifier
-  const codeVerifierCookie = allCookies.find(c => c.name.includes('code-verifier'))
-  console.log('[OAuth Callback] Code verifier cookie found:', !!codeVerifierCookie)
-
   console.log('[OAuth Callback] Starting...', { code: !!code, error, origin })
 
   // Se houver erro do OAuth
@@ -32,11 +24,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=no_code`)
   }
 
-  // Variável para armazenar a URL de destino final
-  let redirectUrl = `${origin}/dashboard`
+  // Obter o cookieStore - IMPORTANTE: isso força a leitura dos cookies
+  const cookieStore = await cookies()
 
-  // Criar response para poder manipular cookies (será atualizado no final)
-  let response = NextResponse.redirect(redirectUrl)
+  // Debug: listar todos os cookies disponíveis
+  const allCookies = cookieStore.getAll()
+  console.log('[OAuth Callback] All cookies from cookieStore:', allCookies.map(c => c.name))
+
+  // Procurar pelo cookie de code_verifier
+  const codeVerifierCookie = allCookies.find(c => c.name.includes('code-verifier'))
+  console.log('[OAuth Callback] Code verifier cookie found:', !!codeVerifierCookie, codeVerifierCookie?.name)
+
+  // Criar response para poder manipular cookies
+  let response = NextResponse.redirect(`${origin}/dashboard`)
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,9 +44,12 @@ export async function GET(request: NextRequest) {
     {
       cookies: {
         get(name: string) {
-          return request.cookies.get(name)?.value
+          // Primeiro tenta do cookieStore, depois do request
+          const cookie = cookieStore.get(name) || request.cookies.get(name)
+          return cookie?.value
         },
         set(name: string, value: string, options: any) {
+          // Setar no response
           response.cookies.set({
             name,
             value,
@@ -54,6 +57,12 @@ export async function GET(request: NextRequest) {
             sameSite: 'lax',
             httpOnly: true,
           })
+          // Também tentar setar no cookieStore
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch {
+            // Ignorar erros pois já estamos setando no response
+          }
         },
         remove(name: string, options: any) {
           response.cookies.set({
@@ -62,12 +71,18 @@ export async function GET(request: NextRequest) {
             ...options,
             maxAge: 0,
           })
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch {
+            // Ignorar
+          }
         },
       },
     }
   )
 
   try {
+    console.log('[OAuth Callback] Exchanging code for session...')
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
     if (exchangeError) {
@@ -136,3 +151,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(err.message || 'callback_error')}`)
   }
 }
+
