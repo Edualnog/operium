@@ -4,6 +4,7 @@
         "description": "Control your stock, tools, employees and movements in a complete platform. 7 days free to test!"
     },
     "auth": {
+        "back": "Back",
         "login": {
             "title": "Welcome Back",
             "subtitle": "Sign in to your Operium account"
