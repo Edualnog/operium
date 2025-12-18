@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { getOAuthClient } from '@/lib/supabase-client'
+import { createClientComponentClient, getOAuthClient } from '@/lib/supabase-client'
 
 export default function AuthCallbackPage() {
     const router = useRouter()
@@ -60,10 +60,13 @@ export default function AuthCallbackPage() {
 
                 console.log('[OAuth Callback Client] Session created successfully for user:', data.user?.email)
 
+                // Usar createClientComponentClient para operações de banco de dados (tem tipagem correta)
+                const supabase = createClientComponentClient()
+
                 // Verificar se o perfil existe
                 const user = data.user
                 if (user) {
-                    const { data: existingProfile, error: profileError } = await oauthClient
+                    const { data: existingProfile, error: profileError } = await supabase
                         .from('profiles')
                         .select('id')
                         .eq('id', user.id)
@@ -78,7 +81,7 @@ export default function AuthCallbackPage() {
                             user.email?.split('@')[0] ||
                             'Usuário'
 
-                        const { error: insertError } = await oauthClient.from('profiles').insert({
+                        const { error: insertError } = await supabase.from('profiles').insert({
                             id: user.id,
                             name: userName,
                             company_name: 'Minha Empresa',
