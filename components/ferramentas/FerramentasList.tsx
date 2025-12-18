@@ -1385,13 +1385,13 @@ function FerramentasList({
               <TableBody>
                 {filteredFerramentas.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((ferramenta) => (
                   <TableRow key={ferramenta.id}>
-                    <TableCell>
+                    <TableCell className="w-[40px]">
                       <Checkbox
                         checked={selectedItems.has(ferramenta.id)}
                         onCheckedChange={() => toggleSelection(ferramenta.id)}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-[200px]">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-md bg-zinc-100 overflow-hidden relative">
                           {ferramenta.foto_url ? (
@@ -1405,15 +1405,15 @@ function FerramentasList({
                         <span className="font-medium text-zinc-700 dark:text-zinc-200">{ferramenta.nome}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-zinc-500 font-mono text-xs">{ferramenta.codigo || "-"}</TableCell>
-                    <TableCell>
+                    <TableCell className="w-[120px] text-zinc-500 font-mono text-xs">{ferramenta.codigo || "-"}</TableCell>
+                    <TableCell className="w-[100px]">
                       <span className="text-zinc-600">{ferramenta.tamanho || "Simples"}</span>
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="w-[100px] font-medium">
                       {/* Placeholder for value if not exists */}
                       500,00
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-[80px]">
                       <span className={cn(
                         "font-semibold",
                         ferramenta.quantidade_disponivel === 0 ? "text-red-600" : "text-zinc-700 dark:text-zinc-300"
@@ -1421,7 +1421,7 @@ function FerramentasList({
                         {ferramenta.quantidade_disponivel}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-[100px]">
                       <Badge variant="secondary" className={cn(
                         ferramenta.estado === 'ok'
                           ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 border-zinc-200"
