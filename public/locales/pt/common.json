@@ -271,6 +271,23 @@
                 }
             }
         },
+        "columns": {
+            "collaborator": "Colaborador",
+            "qty": "Qtd",
+            "days_in_use": "Dias em Uso",
+            "deadline": "Prazo",
+            "current": "Atual",
+            "prd": "PRD",
+            "deficit": "Déficit",
+            "total_30d": "Total 30d",
+            "avg_day": "Média/Dia",
+            "total_epis": "Total EPIs",
+            "days_remaining": "Dias Restantes",
+            "validity": "Validade",
+            "reason": "Motivo",
+            "priority": "Prioridade",
+            "action": "Ação"
+        },
         "kpi": {
             "last_30_days": "Últimos 30 dias",
             "last_days": "Últimos {{days}} dias",
