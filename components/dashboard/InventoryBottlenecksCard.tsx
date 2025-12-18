@@ -90,8 +90,8 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                             bottlenecks.push({
                                 id: item.id,
                                 name: item.nome,
-                                metric: "Parado desde",
-                                value: lastMove?.[0]?.data ? new Date(lastMove[0].data).toLocaleDateString() : 'N/A',
+                                metric: "Estoque estagnado",
+                                value: lastMove?.[0]?.data ? new Date(lastMove[0].data).toLocaleDateString('pt-BR') : 'Sem movimentação',
                                 type: "zombie_inventory"
                             })
                         }
@@ -154,12 +154,12 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                             </div>
 
                             <div className="text-right">
-                                <Badge variant={item.type === 'high_breakage' ? 'destructive' : 'secondary'} className="mb-1 font-normal">
-                                    {item.value}
-                                </Badge>
-                                <div className="text-xs text-zinc-400">
+                                <div className="text-xs text-zinc-400 mb-1">
                                     {item.metric}
                                 </div>
+                                <Badge variant={item.type === 'high_breakage' ? 'destructive' : 'secondary'} className="font-normal">
+                                    {item.value}
+                                </Badge>
                             </div>
                         </div>
                     ))}
