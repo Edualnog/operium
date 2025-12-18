@@ -78,7 +78,6 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { useSidebar } from "@/components/ui/sidebar"
@@ -939,6 +938,14 @@ function ColaboradoresList({
               User,
               Mail,
               Phone,
+import {
+              Plus,
+              Search,
+              Trash2,
+              Edit,
+              User,
+              Mail,
+              Phone,
               Calendar,
               MapPin,
               FileDown,
@@ -954,7 +961,7 @@ function ColaboradoresList({
               MoreHorizontal,
               HardHat,
               AlertTriangle,
-              Briefcase // Added
+              Briefcase
             } from "lucide-react"
 
             // ... imports remain the same ...
