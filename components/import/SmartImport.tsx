@@ -60,9 +60,12 @@ interface SmartImportProps {
     open: boolean
     onClose: () => void
     onImport: (data: Record<string, any>[]) => Promise<{ success: number; errors: string[] }>
+    entityType?: "products" | "collaborators"
+    requiredFields?: string[]
+    title?: string
 }
 
-export default function SmartImport({ open, onClose, onImport }: SmartImportProps) {
+export default function SmartImport({ open, onClose, onImport, entityType = "products", requiredFields = ["nome"], title }: SmartImportProps) {
     const { t } = useTranslation()
     const { toast } = useToast()
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -121,7 +124,8 @@ export default function SmartImport({ open, onClose, onImport }: SmartImportProp
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     headers: fileHeaders,
-                    sampleRows: fileRows.slice(0, 5)
+                    sampleRows: fileRows.slice(0, 5),
+                    entityType
                 })
             })
 
@@ -220,9 +224,12 @@ export default function SmartImport({ open, onClose, onImport }: SmartImportProp
 
     // Check if required mappings are present
     const hasRequiredMappings = () => {
-        const requiredFields = ["nome", "quantidade_total"]
         const mappedDbColumns = mappings.filter(m => m.dbColumn !== "ignore").map(m => m.dbColumn)
         return requiredFields.every(field => mappedDbColumns.includes(field))
+    }
+
+    const getRequiredFieldsLabel = () => {
+        return requiredFields.join(", ")
     }
 
     return (
@@ -231,7 +238,7 @@ export default function SmartImport({ open, onClose, onImport }: SmartImportProp
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-amber-500" />
-                        Importação Inteligente
+                        {title || "Importação Inteligente"}
                     </DialogTitle>
                     <DialogDescription>
                         {step === "upload" && "Faça upload de qualquer planilha. A IA irá identificar as colunas automaticamente."}
@@ -457,7 +464,7 @@ export default function SmartImport({ open, onClose, onImport }: SmartImportProp
                             {!hasRequiredMappings() && (
                                 <p className="text-sm text-amber-600">
                                     <AlertCircle className="h-4 w-4 inline mr-1" />
-                                    Campos obrigatórios: Nome e Quantidade
+                                    Campos obrigatórios: {getRequiredFieldsLabel()}
                                 </p>
                             )}
                             <Button

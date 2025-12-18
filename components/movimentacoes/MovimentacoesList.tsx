@@ -42,8 +42,7 @@ import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, Upload, FileSignature, Eye, Printer, MoreHorizontal, Star, ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Settings, ArrowRight, ArrowLeft, Zap } from "lucide-react"
-import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
+import { Search, Plus, Package, RotateCcw, PackageMinus, PackagePlus, FileDown, Filter, FileSignature, Eye, Printer, MoreHorizontal, Star, ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Settings, ArrowRight, ArrowLeft, Zap } from "lucide-react"
 import { MovimentacoesFilters, type FilterState } from "./MovimentacoesFilters"
 import { cn } from "@/lib/utils"
 import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabilidadeModal"
@@ -250,94 +249,10 @@ export default function MovimentacoesList({
     colaboradorId: "",
   })
 
-  // Estado para modal de importação
-  const [importModalOpen, setImportModalOpen] = useState(false)
 
   // Estado para modal de detalhes da movimentação
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [selectedMovimentacaoId, setSelectedMovimentacaoId] = useState<string | null>(null)
-
-  // Configuração de importação de Excel para Movimentações
-  const importConfig: ImportConfig = {
-    title: t("dashboard.movimentacoes.import.title"),
-    description: t("dashboard.movimentacoes.import.description"),
-    templateFileName: "modelo_movimentacoes.xlsx",
-    columns: [
-      { excelColumn: "tipo", dbColumn: "tipo", label: t("dashboard.movimentacoes.filters.type"), required: true, type: "select", options: ["entrada", "retirada", "devolucao", "ajuste"] },
-      { excelColumn: "produto", dbColumn: "produto", label: t("dashboard.movimentacoes.table.product"), required: true, type: "text" },
-      { excelColumn: "quantidade", dbColumn: "quantidade", label: t("dashboard.movimentacoes.table.quantity"), required: true, type: "number" },
-      { excelColumn: "colaborador", dbColumn: "colaborador", label: t("dashboard.movimentacoes.table.collaborator"), required: false, type: "text" },
-      { excelColumn: "observacoes", dbColumn: "observacoes", label: t("dashboard.movimentacoes.table.observations"), required: false, type: "text" },
-      { excelColumn: "data", dbColumn: "data", label: t("dashboard.movimentacoes.table.date"), required: false, type: "date" },
-    ],
-    onImport: async (data) => {
-      let success = 0
-      const errors: string[] = []
-
-      for (let i = 0; i < data.length; i++) {
-        const row = data[i]
-        try {
-          // Buscar ferramenta pelo nome
-          const ferramenta = ferramentas.find(
-            f => f.nome.toLowerCase() === row.produto?.toString().toLowerCase()
-          )
-          if (!ferramenta) {
-            errors.push(t("dashboard.movimentacoes.import.product_not_found", { line: i + 2, name: row.produto }))
-            continue
-          }
-
-          // Buscar colaborador pelo nome (se informado)
-          let colaboradorId = ""
-          if (row.colaborador && row.colaborador.toString().trim() !== "") {
-            const colaborador = colaboradores.find(
-              c => c.nome.toLowerCase() === row.colaborador?.toString().toLowerCase()
-            )
-            if (!colaborador) {
-              errors.push(t("dashboard.movimentacoes.import.collaborator_not_found", { line: i + 2, name: row.colaborador }))
-              continue
-            }
-            colaboradorId = colaborador.id
-          }
-
-          // Criar movimentação via API
-          const { data: { user } } = await supabase.auth.getUser()
-          if (!user) throw new Error(t("dashboard.movimentacoes.import.error_creating", { line: i + 2, error: "User not authenticated" }))
-
-          const movData = {
-            profile_id: user.id,
-            ferramenta_id: ferramenta.id,
-            colaborador_id: colaboradorId || null,
-            tipo: row.tipo,
-            quantidade: parseInt(row.quantidade) || 1,
-            observacoes: row.observacoes || null,
-            data: row.data ? new Date(row.data).toISOString() : new Date().toISOString(),
-          }
-
-          const { error } = await supabase.from("movimentacoes").insert(movData)
-          if (error) throw error
-
-          // Atualizar quantidade da ferramenta
-          const qtdAtual = ferramenta.quantidade_disponivel || 0
-          let novaQtd = qtdAtual
-          if (row.tipo === "entrada") novaQtd = qtdAtual + parseInt(row.quantidade)
-          else if (row.tipo === "retirada") novaQtd = qtdAtual - parseInt(row.quantidade)
-          else if (row.tipo === "devolucao") novaQtd = qtdAtual + parseInt(row.quantidade)
-
-          await supabase
-            .from("ferramentas")
-            .update({ quantidade_disponivel: Math.max(0, novaQtd) })
-            .eq("id", ferramenta.id)
-
-          success++
-        } catch (error: any) {
-          errors.push(t("dashboard.movimentacoes.import.error_creating", { line: i + 2, error: error.message }))
-        }
-      }
-
-      router.refresh()
-      return { success, errors }
-    }
-  }
 
   // Atualizar lista quando initialMovs mudar (após router.refresh())
   useEffect(() => {
@@ -1009,10 +924,7 @@ export default function MovimentacoesList({
               </DialogContent>
             </Dialog>
 
-            <Button variant="outline" onClick={() => setImportModalOpen(true)}>
-              <Upload className="h-4 w-4 mr-2" />
-              {t("dashboard.movimentacoes.import_button")}
-            </Button>
+
 
             <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
               <DialogTrigger asChild>
@@ -1371,15 +1283,7 @@ export default function MovimentacoesList({
         )
       }
 
-      {/* Modal de Importação */}
-      {
-        importModalOpen && (
-          <ImportExcel
-            config={importConfig}
-            onClose={() => setImportModalOpen(false)}
-          />
-        )
-      }
+
 
       {/* Modal de Termo de Responsabilidade */}
       {

@@ -41,7 +41,7 @@ import {
   AlertTriangle,
   HardHat
 } from "lucide-react"
-import ImportExcel, { ImportConfig } from "@/components/import/ImportExcel"
+import SmartImport from "@/components/import/SmartImport"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import { PhotoUpload } from "./PhotoUpload"
@@ -242,8 +242,8 @@ function ColaboradoresList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Configuração de importação de Excel
-  const importConfig: ImportConfig = {
+  // Configuração de importação
+  const importConfig = {
     title: t("dashboard.colaboradores.import.title"),
     description: t("dashboard.colaboradores.import.description"),
     templateFileName: "modelo_colaboradores.xlsx",
@@ -1040,9 +1040,13 @@ function ColaboradoresList({
       </Dialog>
 
       {importModalOpen && (
-        <ImportExcel
-          config={importConfig}
+        <SmartImport
+          open={importModalOpen}
           onClose={() => setImportModalOpen(false)}
+          onImport={importConfig.onImport}
+          entityType="collaborators"
+          requiredFields={["nome"]}
+          title={t("dashboard.colaboradores.import.title")}
         />
       )}
 

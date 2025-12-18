@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { openai } from '@/lib/openai';
 
 // Target columns for ferramentas table
-const TARGET_COLUMNS = [
+const PRODUCT_COLUMNS = [
     { dbColumn: 'nome', label: 'Nome do Produto', required: true, examples: ['Nome', 'Descrição', 'Produto', 'Item', 'Ferramenta', 'Material', 'Description', 'Name'] },
     { dbColumn: 'categoria', label: 'Categoria', required: false, examples: ['Categoria', 'Tipo', 'Grupo', 'Category', 'Type', 'Setor'] },
     { dbColumn: 'codigo', label: 'Código', required: false, examples: ['Código', 'SKU', 'Ref', 'Referência', 'Code', 'ID', 'Part Number'] },
@@ -15,9 +15,21 @@ const TARGET_COLUMNS = [
     { dbColumn: 'ponto_ressuprimento', label: 'Ponto de Ressuprimento', required: false, examples: ['Ressuprimento', 'Ponto Mínimo', 'Mín', 'Reorder Point', 'Min Stock'] },
 ];
 
+// Target columns for colaboradores table
+const COLLABORATOR_COLUMNS = [
+    { dbColumn: 'nome', label: 'Nome Completo', required: true, examples: ['Nome', 'Nome Completo', 'Funcionário', 'Colaborador', 'Name', 'Full Name', 'Employee'] },
+    { dbColumn: 'cargo', label: 'Cargo/Função', required: false, examples: ['Cargo', 'Função', 'Position', 'Role', 'Job Title', 'Ocupação'] },
+    { dbColumn: 'email', label: 'Email', required: false, examples: ['Email', 'E-mail', 'Correio', 'Mail'] },
+    { dbColumn: 'telefone', label: 'Telefone', required: false, examples: ['Telefone', 'Tel', 'Phone', 'Celular', 'Mobile', 'Contato'] },
+    { dbColumn: 'cpf', label: 'CPF', required: false, examples: ['CPF', 'Documento', 'Doc', 'ID', 'RG'] },
+    { dbColumn: 'endereco', label: 'Endereço', required: false, examples: ['Endereço', 'Address', 'Rua', 'Logradouro', 'Local'] },
+    { dbColumn: 'data_admissao', label: 'Data de Admissão', required: false, examples: ['Admissão', 'Data Admissão', 'Hire Date', 'Start Date', 'Entrada', 'Início'] },
+    { dbColumn: 'observacoes', label: 'Observações', required: false, examples: ['Observações', 'Obs', 'Notas', 'Notes', 'Comments', 'Comentários'] },
+];
+
 export async function POST(req: Request) {
     try {
-        const { headers, sampleRows } = await req.json();
+        const { headers, sampleRows, entityType = 'products' } = await req.json();
 
         if (!headers || !Array.isArray(headers)) {
             return NextResponse.json(
@@ -33,6 +45,11 @@ export async function POST(req: Request) {
             );
         }
 
+        // Select target columns based on entity type
+        const TARGET_COLUMNS = entityType === 'collaborators' ? COLLABORATOR_COLUMNS : PRODUCT_COLUMNS;
+        const entityLabel = entityType === 'collaborators' ? 'colaboradores' : 'produtos';
+        const requiredFieldsHint = entityType === 'collaborators' ? 'nome' : 'nome, quantidade_total';
+
         // Build prompt for AI
         const targetColumnsDescription = TARGET_COLUMNS.map(col =>
             `- "${col.dbColumn}" (${col.label})${col.required ? ' [OBRIGATÓRIO]' : ''}: Exemplos de nomes comuns: ${col.examples.join(', ')}`
@@ -46,7 +63,7 @@ export async function POST(req: Request) {
 
         const prompt = `Você é um especialista em mapeamento de colunas de planilhas.
 
-O usuário está importando uma planilha com as seguintes colunas:
+O usuário está importando uma planilha de ${entityLabel} com as seguintes colunas:
 ${headers.map((h: string, i: number) => `${i + 1}. "${h}"`).join('\n')}
 ${sampleDataPreview}
 
@@ -57,7 +74,7 @@ ${targetColumnsDescription}
 REGRAS:
 1. Cada coluna da planilha só pode mapear para UM campo do banco
 2. Se uma coluna não corresponder a nenhum campo, use "ignore" como dbColumn
-3. Priorize os campos obrigatórios (nome, quantidade_total)
+3. Priorize os campos obrigatórios (${requiredFieldsHint})
 4. Use o conteúdo das amostras para ajudar na inferência
 5. Retorne um array de objetos com: { excelColumn, dbColumn, confidence }
 6. confidence deve ser: "high" (90%+), "medium" (60-90%), "low" (<60%)
@@ -73,7 +90,7 @@ Responda APENAS com JSON válido no formato:
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "Você é um assistente de importação de dados para sistemas de almoxarifado." },
+                { role: "system", content: `Você é um assistente de importação de dados para sistemas de almoxarifado. Está importando ${entityLabel}.` },
                 { role: "user", content: prompt }
             ],
             response_format: { type: "json_object" },
@@ -106,3 +123,4 @@ Responda APENAS com JSON válido no formato:
         );
     }
 }
+
