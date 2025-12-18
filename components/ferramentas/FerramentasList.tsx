@@ -1340,7 +1340,7 @@ function FerramentasList({
                 <DropdownMenuItem
                   onClick={() => {
                     if (selectedItems.size === 0) {
-                      toast.warning("Selecione pelo menos um item")
+                      toast.info("Selecione pelo menos um item")
                       return
                     }
                     if (confirm(`Tem certeza que deseja excluir ${selectedItems.size} item(s)?`)) {
