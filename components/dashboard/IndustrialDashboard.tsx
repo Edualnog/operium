@@ -578,17 +578,18 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
       <OnboardingChecklist userId={userId} />
 
-      {/* URGENTE: Gargalos e Alertas primeiro */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      {/* AI Insights + Gargalos - lado a lado */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <AIInsightsCard kpis={data} recentMovements={movimentacoesMensais} />
         <InventoryBottlenecksCard userId={userId} />
-        {/* Memory Layer (Internal Only) */}
-        {FEATURES.OBSERVER_INTERNAL_VIEW && <OrgMaturityCard />}
       </div>
 
-      {/* AI Insights - agora auto-gera automaticamente */}
-      <div className="mb-8">
-        <AIInsightsCard kpis={data} recentMovements={movimentacoesMensais} />
-      </div>
+      {/* Memory Layer (Internal Only) */}
+      {FEATURES.OBSERVER_INTERNAL_VIEW && (
+        <div className="mb-8">
+          <OrgMaturityCard />
+        </div>
+      )}
 
       <OnboardingTour />
 
