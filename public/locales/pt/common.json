@@ -38,14 +38,14 @@
         "errors": {
             "captcha_required": "Por favor, complete a verificação de segurança.",
             "invalid_credentials": "Email ou senha incorretos.",
-            "email_not_confirmed": "Email não confirmado. Verifique sua caixa de entrada.",
+            "email_not_confirmed": "Email não confirmado. Verifique sua caixa de entrada e Spam.",
             "generic_login": "Ocorreu um erro ao entrar. Tente novamente.",
             "email_required_reset": "Digite seu email para recuperar a senha.",
             "generic_signup": "Ocorreu um erro ao criar a conta. Tente novamente."
         },
         "success": {
-            "reset_email_sent": "Email de recuperação enviado! Verifique sua caixa de entrada.",
-            "account_created": "Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro."
+            "reset_email_sent": "Email de recuperação enviado! Verifique sua caixa de entrada (e Spam).",
+            "account_created": "Conta criada com sucesso! Verifique seu e-mail (inclusive a pasta de Spam) para confirmar o cadastro."
         }
     },
     "ai": {

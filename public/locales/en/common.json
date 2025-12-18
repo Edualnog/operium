@@ -46,14 +46,14 @@
         "errors": {
             "captcha_required": "Please complete the security verification.",
             "invalid_credentials": "Incorrect email or password.",
-            "email_not_confirmed": "Email not confirmed. Check your inbox.",
+            "email_not_confirmed": "Email not confirmed. Check your inbox and spam folder.",
             "generic_login": "An error occurred while logging in. Try again.",
             "email_required_reset": "Enter your email to recover password.",
             "generic_signup": "An error occurred while creating the account. Try again."
         },
         "success": {
-            "reset_email_sent": "Recovery email sent! Check your inbox.",
-            "account_created": "Account created successfully! Check your email to confirm registration."
+            "reset_email_sent": "Recovery email sent! Check your inbox (and spam folder).",
+            "account_created": "Account created successfully! Check your email (including spam folder) to confirm registration."
         }
     },
     "ai": {
