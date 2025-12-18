@@ -116,13 +116,17 @@ function SignupForm() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: false,
         },
       })
       if (error) throw error
+      if (!data.url) {
+        throw new Error('No redirect URL returned')
+      }
     } catch (err: any) {
       console.error("Google signup error:", err)
       setError(err.message || "Erro ao entrar com Google")
