@@ -966,9 +966,15 @@
         "ferramentas": {
             "title": "Inventory",
             "subtitle": "Manage your tools and products",
+            "section_title": "Tools",
+            "section_subtitle": "Manage inventory, movements and maintenance.",
             "new_button": "New Product",
-            "import_button": "Import Excel",
+            "import_products": "Import Products",
+            "add_invoice_ai": "Add with AI (Invoice)",
+            "export": "Export",
             "export_csv": "Export CSV",
+            "export_pdf": "Export PDF",
+            "import_button": "Import Excel",
             "generating_csv": "Generating CSV...",
             "search_placeholder": "Search products...",
             "photo_upload": {

@@ -950,10 +950,16 @@
         "ferramentas": {
             "title": "Estoque",
             "subtitle": "Gerencie suas ferramentas e produtos",
+            "section_title": "Ferramentas",
+            "section_subtitle": "Gerencie o inventário, movimentações e manutenção.",
             "description": "Gerencie suas ferramentas e produtos",
             "new_button": "Novo Produto",
-            "import_button": "Importar Excel",
+            "import_products": "Importar Produtos",
+            "add_invoice_ai": "Adicionar com IA (Nota Fiscal)",
+            "export": "Exportar",
             "export_csv": "Exportar CSV",
+            "export_pdf": "Exportar PDF",
+            "import_button": "Importar Excel",
             "generating_csv": "Gerando CSV...",
             "search_placeholder": "Buscar produtos...",
             "photo_upload": {

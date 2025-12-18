@@ -862,26 +862,20 @@ function FerramentasList({
 
   return (
     <div className="space-y-4">
-      {/* Voice Assistant Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        <div className="flex flex-col gap-0.5 sm:gap-1">
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#37352f] dark:text-zinc-50">Ferramentas</h1>
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-            Gerencie o inventário, movimentações e manutenção.
-          </p>
-        </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          {/* Fast Scan Button */}
+      {/* Action buttons - aligned to the right */}
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={() => setSmartImportOpen(true)} className="h-10 gap-2">
+          <Upload className="h-4 w-4" />
+          <span className="hidden sm:inline">{t("dashboard.ferramentas.import_products")}</span>
+        </Button>
 
-
-          <Button onClick={() => {
-            setEditing(null)
-            setOpen(true)
-          }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium flex-1 sm:flex-none h-11 sm:h-10">
-            <Plus className="h-5 w-5 sm:h-4 sm:w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Nova Ferramenta</span>
-          </Button>
-        </div>
+        <Button onClick={() => {
+          setEditing(null)
+          setOpen(true)
+        }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium h-10">
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t("dashboard.ferramentas.new_button")}</span>
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">
@@ -1184,27 +1178,22 @@ function FerramentasList({
 
             <Button variant="outline" onClick={() => setImportInvoiceOpen(true)} className="gap-2">
               <Sparkles className="h-4 w-4 text-zinc-500" />
-              Adicionar com IA (Nota Fiscal)
-            </Button>
-
-            <Button variant="outline" onClick={() => setSmartImportOpen(true)} className="gap-2">
-              <Upload className="h-4 w-4 text-zinc-500" />
-              Importar Planilha
+              {t("dashboard.ferramentas.add_invoice_ai")}
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
-                  Exportar
+                  {t("dashboard.ferramentas.export")}
                   <ChevronLeft className="ml-2 h-4 w-4 rotate-[-90deg]" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleExportSelectedCSV}>
-                  <FileDown className="mr-2 h-4 w-4" /> Exportar CSV
+                  <FileDown className="mr-2 h-4 w-4" /> {t("dashboard.ferramentas.export_csv")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleExportPDF}>
-                  <FileDown className="mr-2 h-4 w-4" /> Exportar PDF
+                  <FileDown className="mr-2 h-4 w-4" /> {t("dashboard.ferramentas.export_pdf")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1216,17 +1205,13 @@ function FerramentasList({
         <div className="flex sm:hidden gap-2 overflow-x-auto pb-2">
           <Button variant="outline" size="sm" onClick={() => setImportInvoiceOpen(true)} className="flex-shrink-0 text-xs">
             <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            IA (Nota Fiscal)
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setSmartImportOpen(true)} className="flex-shrink-0 text-xs">
-            <Upload className="h-3.5 w-3.5 mr-1.5" />
-            Importar
+            {t("dashboard.ferramentas.add_invoice_ai")}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="flex-shrink-0 text-xs">
                 <FileDown className="h-3.5 w-3.5 mr-1.5" />
-                Exportar
+                {t("dashboard.ferramentas.export")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
