@@ -797,24 +797,38 @@ export async function registrarEnvioConserto(
   }
 
   // Atualizar ferramenta
+  // Calcular nova quantidade disponível
+  const novaQuantidadeDisponivel = ferramenta.quantidade_disponivel - quantidade
+
+  // Atualizar ferramenta
+  // Só alteramos o estado do produto para "em_conserto" se NÃO houver mais itens disponíveis.
+  // Caso contrário, mantemos o estado atual (provavelmente "ok"), pois ainda existem unidades operacionais.
+  const updateData: any = {
+    quantidade_disponivel: novaQuantidadeDisponivel,
+  }
+
+  if (novaQuantidadeDisponivel === 0) {
+    updateData.estado = "em_conserto"
+  }
+
   const { error: updateError } = await supabase
     .from("ferramentas")
-    .update({
-      quantidade_disponivel: ferramenta.quantidade_disponivel - quantidade,
-      estado: "em_conserto",
-    })
+    .update(updateData)
     .eq("id", ferramentaId)
-    .eq("profile_id", user.id) // Validação de segurança adicional
+    .eq("profile_id", user.id)
 
   if (updateError) throw updateError
 
   // Criar registro de conserto
+  // Como não temos coluna de quantidade na tabela consertos, adicionamos à descrição
+  const descricaoComQuantidade = `[Qtd: ${quantidade}] ${descricao || ''}`
+
   const { data: consertoCriado, error: consertoError } = await supabase
     .from("consertos")
     .insert({
       profile_id: user.id,
       ferramenta_id: ferramentaId,
-      descricao,
+      descricao: descricaoComQuantidade,
       status: status || "aguardando",
       local_conserto,
       prazo: prazo ? new Date(prazo).toISOString() : null,
@@ -829,7 +843,8 @@ export async function registrarEnvioConserto(
   await trackEvent(supabase, 'ASSET_MAINTENANCE', ferramentaId, {
     maintenance_type: 'CORRECTIVE',
     reason_code: 'BROKEN_REPORT',
-    notes: descricao
+    notes: descricaoComQuantidade,
+    quantity_affected: quantidade
   }, { actor_id: user.id })
 
   if (!consertoCriado) throw new Error("Erro ao criar conserto")
