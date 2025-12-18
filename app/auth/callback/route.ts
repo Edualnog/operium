@@ -24,8 +24,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=no_code`)
   }
 
-  // Criar response para poder manipular cookies
-  const response = NextResponse.redirect(`${origin}/dashboard`)
+  // Variável para armazenar a URL de destino final
+  let redirectUrl = `${origin}/dashboard`
+
+  // Criar response para poder manipular cookies (será atualizado no final)
+  let response = NextResponse.redirect(redirectUrl)
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -100,7 +103,19 @@ export async function GET(request: NextRequest) {
           console.error('[OAuth Callback] Profile insert error:', insertError.message)
         } else {
           console.log('[OAuth Callback] New profile created, redirecting to setup')
-          return NextResponse.redirect(`${origin}/dashboard/setup`)
+          // Recriar o response com a nova URL de redirect mantendo os cookies
+          const setupResponse = NextResponse.redirect(`${origin}/dashboard/setup`)
+          // Copiar todos os cookies do response original para o novo
+          response.cookies.getAll().forEach(cookie => {
+            setupResponse.cookies.set(cookie.name, cookie.value, {
+              path: cookie.path,
+              domain: cookie.domain,
+              sameSite: 'lax' as const,
+              httpOnly: true,
+              secure: cookie.secure,
+            })
+          })
+          return setupResponse
         }
       }
     }
