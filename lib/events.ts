@@ -15,6 +15,7 @@ export type CanonicalEventType =
 interface BaseEventPayload {
     reason_code?: string // Código estruturado do porquê (ex: 'PROJECT_END', 'BROKEN', 'LOST')
     notes?: string       // Texto livre (opcional, secundário)
+    quantity_affected?: number // Quantidade afetada pelo evento
 }
 
 // 1. CHEKCOUT (Saída)
