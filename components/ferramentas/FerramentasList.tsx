@@ -1667,6 +1667,7 @@ function FerramentasList({
             <div className="pt-2">
               <IncidentReporter
                 ferramentaNome={actionDialog.ferramenta.nome}
+                maxQuantity={actionDialog.ferramenta.quantidade_disponivel}
                 onCancel={() => setActionDialog(null)}
                 onSubmit={async (data) => {
                   // Adapt the structured data to the existing 'conserto' action interface
@@ -1688,7 +1689,7 @@ function FerramentasList({
                     // Signature: (id, quantidade, descricao, status, local, prazo, prioridade)
                     await registrarEnvioConserto(
                       actionDialog.ferramenta.id,
-                      1, // Quantidade
+                      data.quantity, // Quantidade selecionada
                       structuredObs, // Descricao/Observacoes
                       "aguardando", // Status
                       "Interno (Triagem)", // Local

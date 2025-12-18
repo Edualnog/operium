@@ -10,7 +10,8 @@ import {
     HelpCircle,
     Camera,
     CheckCircle2,
-    AlertTriangle
+    AlertTriangle,
+    ChevronLeft
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -64,24 +65,29 @@ const ISSUE_TYPES: IssueType[] = [
 
 interface IncidentReporterProps {
     ferramentaNome: string
-    onSubmit: (data: { category: string; issue: string; photoUrl?: string }) => void
+    onSubmit: (data: { category: string; issue: string; photoUrl?: string, quantity: number }) => void
     onCancel: () => void
 }
 
-export function IncidentReporter({ ferramentaNome, onSubmit, onCancel }: IncidentReporterProps) {
-    const [step, setStep] = React.useState<1 | 2 | 3>(1)
+export function IncidentReporter({ ferramentaNome, maxQuantity = 1, onSubmit, onCancel }: IncidentReporterProps & { maxQuantity?: number }) {
+    const [step, setStep] = React.useState<1 | 2 | 3 | 4>(1) // Step 1: Quantity, 2: Category, 3: Issue, 4: Photo/Confirm
+    const [quantity, setQuantity] = React.useState(1)
     const [selectedCategory, setSelectedCategory] = React.useState<IssueType | null>(null)
     const [selectedSubIssue, setSelectedSubIssue] = React.useState<string | null>(null)
     const [photoUrl, setPhotoUrl] = React.useState<string | undefined>(undefined)
 
+    const handleQuantityConfirm = () => {
+        setStep(2)
+    }
+
     const handleCategorySelect = (category: IssueType) => {
         setSelectedCategory(category)
-        setStep(2)
+        setStep(3)
     }
 
     const handleSubIssueSelect = (issue: string) => {
         setSelectedSubIssue(issue)
-        setStep(3)
+        setStep(4)
     }
 
     const handleSubmit = () => {
@@ -89,13 +95,15 @@ export function IncidentReporter({ ferramentaNome, onSubmit, onCancel }: Inciden
             onSubmit({
                 category: selectedCategory.id,
                 issue: selectedSubIssue,
-                photoUrl
+                photoUrl,
+                quantity
             })
         }
     }
 
     const reset = () => {
         setStep(1)
+        setQuantity(1)
         setSelectedCategory(null)
         setSelectedSubIssue(null)
         setPhotoUrl(undefined)
@@ -107,40 +115,87 @@ export function IncidentReporter({ ferramentaNome, onSubmit, onCancel }: Inciden
             <div className="mb-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                     <span>Reportar Problema: {ferramentaNome}</span>
-                    <span>Passo {step} de 3</span>
+                    <span>Passo {step} de 4</span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div
                         className="h-full bg-red-500 transition-all duration-300 ease-out"
-                        style={{ width: `${(step / 3) * 100}%` }}
+                        style={{ width: `${(step / 4) * 100}%` }}
                     />
                 </div>
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center p-2">
 
-                {/* STEP 1: CATEGORY */}
+                {/* STEP 1: QUANTITY */}
                 {step === 1 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
-                        {ISSUE_TYPES.map((type) => (
+                    <div className="w-full max-w-sm space-y-6 text-center animate-in fade-in slide-in-from-bottom-4">
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-semibold">Quantos itens apresentam problema?</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Você possui {maxQuantity} unidade{maxQuantity > 1 ? 's' : ''} em estoque.
+                            </p>
+                        </div>
+
+                        <div className="flex items-center justify-center gap-4">
                             <Button
-                                key={type.id}
                                 variant="outline"
-                                className="h-32 flex flex-col items-center justify-center gap-2 border-2 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 text-wrap text-center"
-                                onClick={() => handleCategorySelect(type)}
+                                size="icon"
+                                className="h-12 w-12 rounded-full"
+                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                disabled={quantity <= 1}
                             >
-                                <div className={cn("p-2 rounded-full bg-slate-100 dark:bg-zinc-800", type.id === 'eletrica' ? "text-yellow-500" : type.id === 'mecanica' ? "text-slate-600" : type.id === 'bateria' ? "text-green-500" : "text-blue-500")}>
-                                    {type.icon}
-                                </div>
-                                <span className="font-semibold text-sm">{type.label}</span>
+                                -
                             </Button>
-                        ))}
+                            <span className="text-4xl font-bold w-16 tabular-nums">{quantity}</span>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-12 w-12 rounded-full"
+                                onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+                                disabled={quantity >= maxQuantity}
+                            >
+                                +
+                            </Button>
+                        </div>
+
+                        <div className="pt-4">
+                            <Button className="w-full" onClick={handleQuantityConfirm}>
+                                Continuar
+                            </Button>
+                        </div>
                     </div>
                 )}
 
-                {/* STEP 2: SUB-ISSUE */}
-                {step === 2 && selectedCategory && (
-                    <div className="w-full space-y-3">
+                {/* STEP 2: CATEGORY */}
+                {step === 2 && (
+                    <div className="space-y-4 w-full">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Button variant="ghost" size="sm" className="h-6 px-2 -ml-2" onClick={() => setStep(1)}>
+                                <ChevronLeft className="h-4 w-4" /> Voltar
+                            </Button>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full animate-in fade-in slide-in-from-right-4">
+                            {ISSUE_TYPES.map((type) => (
+                                <Button
+                                    key={type.id}
+                                    variant="outline"
+                                    className="h-32 flex flex-col items-center justify-center gap-2 border-2 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 text-wrap text-center"
+                                    onClick={() => handleCategorySelect(type)}
+                                >
+                                    <div className={cn("p-2 rounded-full bg-slate-100 dark:bg-zinc-800", type.id === 'eletrica' ? "text-yellow-500" : type.id === 'mecanica' ? "text-slate-600" : type.id === 'bateria' ? "text-green-500" : "text-blue-500")}>
+                                        {type.icon}
+                                    </div>
+                                    <span className="font-semibold text-sm">{type.label}</span>
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* STEP 3: SUB-ISSUE */}
+                {step === 3 && selectedCategory && (
+                    <div className="w-full space-y-3 animate-in fade-in slide-in-from-right-4">
                         <h3 className="text-center font-medium text-lg mb-4 flex items-center justify-center gap-2">
                             {selectedCategory.icon} O que aconteceu na parte {selectedCategory.label}?
                         </h3>
@@ -157,42 +212,37 @@ export function IncidentReporter({ ferramentaNome, onSubmit, onCancel }: Inciden
                                 </Button>
                             ))}
                         </div>
-                        <Button variant="ghost" className="w-full mt-4" onClick={() => setStep(1)}>
+                        <Button variant="ghost" className="w-full mt-4" onClick={() => setStep(2)}>
                             Voltar
                         </Button>
                     </div>
                 )}
 
-                {/* STEP 3: PHOTO & CONFIRM */}
-                {step === 3 && selectedCategory && selectedSubIssue && (
-                    <div className="w-full space-y-6 text-center animate-in fade-in slide-in-from-bottom-4">
+                {/* STEP 4: PHOTO & CONFIRM */}
+                {step === 4 && selectedCategory && selectedSubIssue && (
+                    <div className="w-full space-y-6 text-center animate-in fade-in slide-in-from-right-4">
                         <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-900/50">
                             <h4 className="font-semibold text-red-900 dark:text-red-300 mb-1">Resumo da Falha</h4>
-                            <p className="text-lg">
+                            <p className="text-lg mb-1">
                                 <span className="font-bold">{selectedCategory.label}</span> • {selectedSubIssue}
                             </p>
+                            <div className="text-sm text-red-700 dark:text-red-400 font-medium">
+                                Quantidade Afetada: {quantity} de {maxQuantity}
+                            </div>
                         </div>
 
                         <div className="space-y-3">
                             <Label className="block text-left font-medium">Foto da Avaria (Opcional, mas recomendado)</Label>
-                            {/* Reuse Logic: Passing a dummy user ID since we are client side or handle upload differently. 
-                  Actually ProductPhotoUpload expects userId. 
-                  For MVP we might skip upload or mock it if userId isn't handy here, but FerramentasList has userId.
-                  Let's assume we pass userId or make it optional in ProductPhotoUpload? 
-                  Checking ProductPhotoUpload contract... it needs props.
-                  We will use a simplified mock for now or just the standard Input type=file if simpler.
-                  Let's try to simulate a simple file input for speed in MVP Phase 2.
-              */}
                             <div className="border-2 border-dashed border-slate-200 dark:border-zinc-700 rounded-lg p-8 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer relative">
                                 <input
                                     type="file"
                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                     accept="image/*"
-                                    capture="environment" // Forces camera on mobile
+                                    capture="environment"
                                     onChange={(e) => {
                                         const file = e.target.files?.[0]
                                         if (file) {
-                                            setPhotoUrl(URL.createObjectURL(file)) // Local preview
+                                            setPhotoUrl(URL.createObjectURL(file))
                                         }
                                     }}
                                 />
@@ -218,7 +268,7 @@ export function IncidentReporter({ ferramentaNome, onSubmit, onCancel }: Inciden
                         </div>
 
                         <div className="flex gap-3 pt-4">
-                            <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
+                            <Button variant="outline" className="flex-1" onClick={() => setStep(3)}>
                                 Voltar
                             </Button>
                             <Button className="flex-[2] bg-red-600 hover:bg-red-700 text-white" onClick={handleSubmit}>
