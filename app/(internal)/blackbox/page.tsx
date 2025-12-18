@@ -55,14 +55,14 @@ export default async function BlackboxConsole() {
                 <div>
                     <h1 className="text-lg text-emerald-400 font-bold flex items-center gap-2">
                         <Terminal className="w-5 h-5" />
-                        <span className="text-zinc-500">:::</span> BLACKBOX_CONSOLE <span className="text-zinc-600">// v1.1</span>
+                        <span className="text-zinc-500">:::</span> BLACKBOX_CONSOLE <span className="text-zinc-600">{'// v1.1'}</span>
                     </h1>
                     <p className="text-[10px] text-zinc-600 mt-1 uppercase tracking-widest">INTERNAL RELIABILITY ENGINEERING ACCESS ONLY</p>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className={`px-3 py-1 rounded text-xs font-bold border ${confidenceLevel === 'HIGH' ? 'text-emerald-400 border-emerald-900 bg-emerald-950/50' :
-                            confidenceLevel === 'MEDIUM' ? 'text-amber-400 border-amber-900 bg-amber-950/50' :
-                                'text-rose-400 border-rose-900 bg-rose-950/50'
+                        confidenceLevel === 'MEDIUM' ? 'text-amber-400 border-amber-900 bg-amber-950/50' :
+                            'text-rose-400 border-rose-900 bg-rose-950/50'
                         }`}>
                         DATA_CONFIDENCE: {confidenceLevel}
                     </div>
