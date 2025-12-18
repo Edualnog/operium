@@ -117,6 +117,32 @@ O sistema utiliza autenticação do Supabase:
 - Proteção de rotas com middleware
 - Redirecionamento automático após login
 
+## 🧠 Observer Layer (Inteligência de Dados)
+
+A plataforma possui uma camada analítica interna que transforma operações em inteligência industrial:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                    SCHEMA: analytics                       │
+├────────────────────────────────────────────────────────────┤
+│  events_log          → Stream unificado de eventos        │
+│  asset_usage_metrics → Ciclos de uso e tempo de posse     │
+│  collaborator_behavior → Comportamento e confiabilidade   │
+│  asset_health_score  → Saúde do ativo + MTBF              │
+│  memory_*            → Perfis comportamentais persistentes│
+└────────────────────────────────────────────────────────────┘
+```
+
+**Sinais Estratégicos Capturados:**
+- Tempo médio de posse por ativo
+- Taxa de atraso de devoluções
+- Reincidência de consertos (MTBF)
+- Divergências inventário vs sistema
+- Benchmarking por segmento industrial
+
+📖 **Documentação completa**: [docs/DATA_INTELLIGENCE.md](./docs/DATA_INTELLIGENCE.md)
+
+
 ## 📊 Funcionalidades
 
 ### Dashboard
@@ -217,6 +243,7 @@ O projeto pode ser deployado em qualquer plataforma que suporte Next.js:
 - [SETUP.md](./SETUP.md) - Guia detalhado de configuração do Supabase
 - [PERFORMANCE.md](./PERFORMANCE.md) - Otimizações e métricas de performance
 - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - Solução de problemas comuns
+- [DATA_INTELLIGENCE.md](./docs/DATA_INTELLIGENCE.md) - Arquitetura Observer Layer e Data Equity
 
 ## 📝 Licença
 
