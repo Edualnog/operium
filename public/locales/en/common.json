@@ -121,6 +121,14 @@
                 "title": "Stock",
                 "description": "Control your inventory of tools, PPE and consumables."
             },
+            "repairs": {
+                "title": "Repairs",
+                "description": "Manage tools under maintenance, track deadlines and costs."
+            },
+            "inventory": {
+                "title": "Inventory",
+                "description": "Perform comparative inventories and audit your warehouse."
+            },
             "settings": {
                 "title": "Settings",
                 "description": "Access your account settings and system preferences."

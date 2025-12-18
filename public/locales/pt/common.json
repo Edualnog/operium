@@ -111,6 +111,14 @@
                 "title": "Estoque",
                 "description": "Controle seu inventário de ferramentas, EPIs e consumíveis."
             },
+            "repairs": {
+                "title": "Consertos",
+                "description": "Gerencie ferramentas em manutenção, acompanhe prazos e custos."
+            },
+            "inventory": {
+                "title": "Inventário",
+                "description": "Faça inventários comparativos e audite seu almoxarifado."
+            },
             "settings": {
                 "title": "Configurações",
                 "description": "Acesse as configurações da sua conta e preferências do sistema."

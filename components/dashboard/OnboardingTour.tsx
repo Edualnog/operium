@@ -39,6 +39,18 @@ const STEPS: Step[] = [
         position: "right"
     },
     {
+        targetId: "sidebar-consertos",
+        titleKey: "tour.steps.repairs.title",
+        descriptionKey: "tour.steps.repairs.description",
+        position: "right"
+    },
+    {
+        targetId: "sidebar-inventario",
+        titleKey: "tour.steps.inventory.title",
+        descriptionKey: "tour.steps.inventory.description",
+        position: "right"
+    },
+    {
         targetId: "sidebar-conta",
         titleKey: "tour.steps.settings.title",
         descriptionKey: "tour.steps.settings.description",
