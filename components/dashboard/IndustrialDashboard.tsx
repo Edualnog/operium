@@ -686,18 +686,18 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                           <div className="w-full flex flex-col-reverse gap-0.5 justify-end transition-all duration-300" style={{ height: '12rem' }}>
                             {/* Indicador de "sem dados" */}
                             {!temDados && (
-                              <div className="w-full h-1 bg-zinc-100 rounded-full opacity-50" />
+                              <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-700 rounded-full opacity-50" />
                             )}
 
-                            {/* Barra de Saídas (vermelho) */}
+                            {/* Barra de Saídas (escuro) */}
                             <div
-                              className={`w-full bg-zinc-800 rounded-t-sm transition-all duration-300 hover:bg-zinc-900 transition-all ${item.saidas === 0 ? 'opacity-0' : 'opacity-100'
+                              className={`w-full bg-zinc-800 dark:bg-zinc-200 rounded-t-sm transition-all duration-300 hover:bg-zinc-900 dark:hover:bg-zinc-100 ${item.saidas === 0 ? 'opacity-0' : 'opacity-100'
                                 }`}
                               style={{ height: `${heightSaidas}%` }}
                             />
                             {/* Barra de Entradas (Claro) */}
                             <div
-                              className={`w-full bg-zinc-300 rounded-t-sm transition-all duration-300 hover:bg-zinc-400 transition-all ${item.entradas === 0 ? 'opacity-0' : 'opacity-100'
+                              className={`w-full bg-zinc-300 dark:bg-zinc-600 rounded-t-sm transition-all duration-300 hover:bg-zinc-400 dark:hover:bg-zinc-500 ${item.entradas === 0 ? 'opacity-0' : 'opacity-100'
                                 }`}
                               style={{ height: `${heightEntradas}%` }}
                             />
@@ -714,7 +714,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
               {/* Estatísticas do período */}
               {!loadingMovMensais && movimentacoesMensais.length > 0 && (
-                <div className="mt-6 pt-4 border-t border-zinc-100">
+                <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-700">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="text-center">
                       <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_movements')}</p>

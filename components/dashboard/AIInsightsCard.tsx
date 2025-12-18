@@ -160,10 +160,10 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                 ) : (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="flex items-center justify-between px-1">
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest dark:text-zinc-400">
                                 {t("dashboard.ai.insights.summary_title", { days: period })}
                             </p>
-                            <span className="text-[10px] text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full dark:text-zinc-400 dark:border-zinc-600">
                                 {t("dashboard.ai.insights.generated_now")}
                             </span>
                         </div>
@@ -171,13 +171,13 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             {insights.map((insight, index) => (
                                 <div
                                     key={index}
-                                    className="flex items-start gap-4 p-4 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+                                    className="flex items-start gap-4 p-4 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:bg-zinc-800"
                                     style={{ animationDelay: `${index * 150}ms` }}
                                 >
                                     <div className="mt-1 flex-shrink-0">
-                                        <Sparkles className="h-4 w-4 text-zinc-900" />
+                                        <Sparkles className="h-4 w-4 text-zinc-900 dark:text-zinc-100" />
                                     </div>
-                                    <p className="text-sm text-[#37352f] dark:text-zinc-300 leading-relaxed font-medium">
+                                    <p className="text-sm text-[#37352f] dark:text-zinc-200 leading-relaxed font-medium">
                                         {cleanInsight(insight)}
                                     </p>
                                 </div>

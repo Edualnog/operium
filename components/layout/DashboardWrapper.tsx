@@ -303,7 +303,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
       {/* Footer - more compact on mobile */}
       <footer className="border-t border-zinc-200 bg-white py-3 md:py-4 mt-auto dark:bg-zinc-950 dark:border-zinc-800">
         <div className="max-w-[1920px] mx-auto px-3 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 text-sm text-zinc-600">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 text-sm text-zinc-600 dark:text-zinc-400">
             {/* Copyright - smaller on mobile */}
             <p className="text-center md:text-left text-xs md:text-sm order-2 md:order-1">
               © {new Date().getFullYear()} Operium
@@ -313,7 +313,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
             <div className="flex items-center justify-center gap-2 md:gap-3 order-1 md:order-2">
               <a
                 href="mailto:suporte@alnog.com.br"
-                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
                 title="Suporte por email"
               >
                 <Mail className="h-4 w-4" />
@@ -322,7 +322,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 href="https://www.youtube.com/@operium"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-red-100 hover:text-red-500 active:bg-red-200 transition-all touch-manipulation"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-red-100 hover:text-red-500 active:bg-red-200 transition-all touch-manipulation dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                 title="YouTube - Tutoriais"
               >
                 <YouTubeIcon className="h-4 w-4" />
@@ -331,7 +331,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 href="https://www.instagram.com/operium"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-pink-100 hover:text-pink-500 active:bg-pink-200 transition-all touch-manipulation"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-pink-100 hover:text-pink-500 active:bg-pink-200 transition-all touch-manipulation dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-pink-900/30 dark:hover:text-pink-400"
                 title="Instagram"
               >
                 <InstagramIcon className="h-4 w-4" />
@@ -340,7 +340,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 href="https://www.linkedin.com/company/operium"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation"
+                className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
                 title="LinkedIn"
               >
                 <LinkedInIcon className="h-4 w-4" />
