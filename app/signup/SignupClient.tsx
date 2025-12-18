@@ -116,7 +116,11 @@ function SignupForm() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true)
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      // Importar dinamicamente para evitar problemas de SSR
+      const { getOAuthClient } = await import('@/lib/supabase-client')
+      const oauthClient = getOAuthClient()
+
+      const { data, error } = await oauthClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
