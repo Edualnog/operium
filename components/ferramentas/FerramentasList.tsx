@@ -98,6 +98,8 @@ import {
 } from "lucide-react"
 
 import QRCode from 'qrcode'
+import { AssetMemoryCard } from "@/components/dashboard/AssetMemoryCard"
+import { FEATURES } from "@/lib/features"
 // VoiceCommandButton removed
 import { ProductLabel } from "./ProductLabel"
 
@@ -902,6 +904,14 @@ function FerramentasList({
                         : t("dashboard.ferramentas.form.desc_new")}
                     </DialogDescription>
                   </DialogHeader>
+
+                  {/* Memory Layer (Internal Only) */}
+                  {editing && FEATURES.OBSERVER_INTERNAL_VIEW && (
+                    <div className="mb-4">
+                      <AssetMemoryCard ferramentaId={editing.id} />
+                    </div>
+                  )}
+
                   <div className="grid gap-4 py-4">
                     {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
                     <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />

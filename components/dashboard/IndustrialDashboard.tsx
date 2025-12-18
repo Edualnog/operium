@@ -35,6 +35,8 @@ import { AIInsightsCard } from "./AIInsightsCard"
 
 import { OnboardingTour } from "./OnboardingTour"
 import { InventoryBottlenecksCard } from "./InventoryBottlenecksCard"
+import { OrgMaturityCard } from "./OrgMaturityCard"
+import { FEATURES } from "@/lib/features"
 
 // ... (inside component)
 
@@ -577,8 +579,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       <OnboardingChecklist userId={userId} />
 
       {/* URGENTE: Gargalos e Alertas primeiro */}
-      <div className="mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <InventoryBottlenecksCard userId={userId} />
+        {/* Memory Layer (Internal Only) */}
+        {FEATURES.OBSERVER_INTERNAL_VIEW && <OrgMaturityCard />}
       </div>
 
       {/* AI Insights - agora auto-gera automaticamente */}

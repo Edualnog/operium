@@ -46,6 +46,8 @@ import { useRouter } from "next/navigation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import { PhotoUpload } from "./PhotoUpload"
 import { createClientComponentClient } from "@/lib/supabase-client"
+import { CollaboratorTrustCard } from "@/components/dashboard/CollaboratorTrustCard"
+import { FEATURES } from "@/lib/features"
 import Image from "next/image"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -884,6 +886,13 @@ function ColaboradoresList({
                 {editing ? t("dashboard.colaboradores.form.desc_edit") : t("dashboard.colaboradores.form.desc_new")}
               </DialogDescription>
             </DialogHeader>
+
+            {/* Memory Layer (Internal Only) */}
+            {editing && FEATURES.OBSERVER_INTERNAL_VIEW && (
+              <div className="mb-4">
+                <CollaboratorTrustCard colaboradorId={editing.id} />
+              </div>
+            )}
 
             {!editing && colaboradoresSimilares.length > 0 && !confirmarDuplicata && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
