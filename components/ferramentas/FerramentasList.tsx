@@ -57,6 +57,7 @@ import {
 } from "lucide-react"
 import ImportExcel, { ImportConfig } from "../import/ImportExcel"
 import ImportInvoice from "../import/ImportInvoice"
+import SmartImport from "../import/SmartImport"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
@@ -306,9 +307,9 @@ function FerramentasList({
     link.click()
   }
 
-  // Estado para modal de importação
   const [importModalOpen, setImportModalOpen] = useState(false)
   const [importInvoiceOpen, setImportInvoiceOpen] = useState(false)
+  const [smartImportOpen, setSmartImportOpen] = useState(false)
 
   // Configuração de importação de Excel
   const importConfig: ImportConfig = {
@@ -1186,6 +1187,11 @@ function FerramentasList({
               Adicionar com IA (Nota Fiscal)
             </Button>
 
+            <Button variant="outline" onClick={() => setSmartImportOpen(true)} className="gap-2">
+              <Upload className="h-4 w-4 text-zinc-500" />
+              Importar Planilha
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
@@ -1211,6 +1217,10 @@ function FerramentasList({
           <Button variant="outline" size="sm" onClick={() => setImportInvoiceOpen(true)} className="flex-shrink-0 text-xs">
             <Sparkles className="h-3.5 w-3.5 mr-1.5" />
             IA (Nota Fiscal)
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setSmartImportOpen(true)} className="flex-shrink-0 text-xs">
+            <Upload className="h-3.5 w-3.5 mr-1.5" />
+            Importar
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -1528,6 +1538,15 @@ function FerramentasList({
                 toast.error(err.message)
               } finally { setLoading(false) }
             }}
+          />
+        )
+      }
+      {
+        smartImportOpen && (
+          <SmartImport
+            open={smartImportOpen}
+            onClose={() => setSmartImportOpen(false)}
+            onImport={importConfig.onImport}
           />
         )
       }
