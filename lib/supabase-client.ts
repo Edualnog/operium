@@ -12,7 +12,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // IMPORTANTE: Para OAuth com PKCE funcionar corretamente, este mesmo cliente deve ser usado
 // tanto no inicio do fluxo (login) quanto no callback.
 export const createClientComponentClient = () => {
-  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+  return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: {
+      path: '/',
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    }
+  } as any)
 }
 
 // Alias para manter compatibilidade com componentes que já importam getOAuthClient
