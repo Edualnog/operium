@@ -3,8 +3,35 @@ import { openai } from '@/lib/openai';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+async function createApiClient() {
+    const cookieStore = await cookies();
+    return createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+            get(name: string) {
+                return cookieStore.get(name)?.value;
+            },
+            set() { },
+            remove() { },
+        },
+    });
+}
+
 export async function POST(req: Request) {
     try {
+        // 🔐 Auth Check - Verificar autenticação
+        const supabase = await createApiClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+            return NextResponse.json(
+                { error: 'Não autenticado' },
+                { status: 401 }
+            );
+        }
+
         const { kpis, recentMovements, period } = await req.json();
 
         if (!process.env.OPENAI_API_KEY) {
