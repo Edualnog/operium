@@ -187,15 +187,22 @@
         }
     },
     "onboarding_setup": {
-        "title": "Set up your business",
-        "subtitle": "We need some information to personalize your experience",
+        "step1": {
+            "title": "What is your company name?",
+            "subtitle": "Let's start by identifying your business"
+        },
+        "step2": {
+            "title": "What is your industry sector?",
+            "subtitle": "This helps us personalize your experience"
+        },
+        "step3": {
+            "title": "How many people work at your company?",
+            "subtitle": "Helps us understand the size of your operation"
+        },
         "company_name": {
             "label": "Business name",
             "placeholder": "E.g. ABC Construction, John's Workshop...",
             "hint": "How you want your business to be identified"
-        },
-        "segment": {
-            "label": "What is your industry sector?"
         },
         "segments": {
             "manufacturing": "Manufacturing / Industry",
@@ -205,14 +212,23 @@
             "agro": "Agriculture",
             "other": "Other / Not sure yet"
         },
+        "sizes": {
+            "solo": "Just me (1 person)",
+            "small": "Small (2-10 people)",
+            "medium": "Medium (11-50 people)",
+            "large": "Large (51-200 people)",
+            "enterprise": "Enterprise (200+ people)"
+        },
         "button": {
-            "submit": "Continue",
+            "next": "Next",
+            "back": "Back",
+            "submit": "Start using",
             "loading": "Saving..."
         },
         "errors": {
             "generic": "An error occurred. Please try again."
         },
-        "footer": "You can change this information later in settings."
+        "footer": "This data is only used to personalize your experience."
     },
     "dashboard": {
         "title": "Dashboard",

@@ -176,15 +176,22 @@
         }
     },
     "onboarding_setup": {
-        "title": "Configure seu negócio",
-        "subtitle": "Precisamos de algumas informações para personalizar sua experiência",
+        "step1": {
+            "title": "Qual o nome da sua empresa?",
+            "subtitle": "Vamos começar identificando seu negócio"
+        },
+        "step2": {
+            "title": "Qual o setor da sua empresa?",
+            "subtitle": "Isso nos ajuda a personalizar sua experiência"
+        },
+        "step3": {
+            "title": "Quantas pessoas trabalham na empresa?",
+            "subtitle": "Nos ajuda a entender o tamanho da sua operação"
+        },
         "company_name": {
-            "label": "Nome do seu negócio",
+            "label": "Nome do negócio",
             "placeholder": "Ex: Construtora ABC, Oficina do João...",
             "hint": "Como você deseja que seu negócio seja identificado"
-        },
-        "segment": {
-            "label": "Qual é o seu setor de atuação?"
         },
         "segments": {
             "manufacturing": "Indústria / Manufatura",
@@ -194,14 +201,23 @@
             "agro": "Agronegócio",
             "other": "Outro / Não sei ainda"
         },
+        "sizes": {
+            "solo": "Só eu (1 pessoa)",
+            "small": "Pequena (2-10 pessoas)",
+            "medium": "Média (11-50 pessoas)",
+            "large": "Grande (51-200 pessoas)",
+            "enterprise": "Empresa (200+ pessoas)"
+        },
         "button": {
-            "submit": "Continuar",
+            "next": "Próximo",
+            "back": "Voltar",
+            "submit": "Começar a usar",
             "loading": "Salvando..."
         },
         "errors": {
             "generic": "Ocorreu um erro. Tente novamente."
         },
-        "footer": "Você pode alterar essas informações depois nas configurações."
+        "footer": "Esses dados são usados apenas para personalizar sua experiência."
     },
     "dashboard": {
         "title": "Painel de Controle",

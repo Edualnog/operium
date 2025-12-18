@@ -2,11 +2,15 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Building2, Factory, Truck, Wrench, Wheat, HelpCircle, ArrowRight, Loader2 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+    Building2, Factory, Truck, Wrench, Wheat, HelpCircle,
+    ArrowRight, ArrowLeft, Loader2, Check,
+    User, Users, Building, Landmark
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { createClientComponentClient } from "@/lib/supabase-client"
 import { useTranslation } from "react-i18next"
 
 const INDUSTRY_SEGMENTS = [
@@ -18,22 +22,52 @@ const INDUSTRY_SEGMENTS = [
     { value: "OTHER", labelKey: "onboarding_setup.segments.other", icon: HelpCircle },
 ] as const
 
+const COMPANY_SIZES = [
+    { value: "SOLO", labelKey: "onboarding_setup.sizes.solo", icon: User },
+    { value: "SMALL", labelKey: "onboarding_setup.sizes.small", icon: Users },
+    { value: "MEDIUM", labelKey: "onboarding_setup.sizes.medium", icon: Building },
+    { value: "LARGE", labelKey: "onboarding_setup.sizes.large", icon: Building2 },
+    { value: "ENTERPRISE", labelKey: "onboarding_setup.sizes.enterprise", icon: Landmark },
+] as const
+
+const TOTAL_STEPS = 3
+
 export default function OnboardingSetupForm() {
     const router = useRouter()
-    const supabase = createClientComponentClient()
     const { t } = useTranslation()
 
+    const [currentStep, setCurrentStep] = useState(1)
     const [companyName, setCompanyName] = useState("")
     const [selectedSegment, setSelectedSegment] = useState<string | null>(null)
+    const [selectedSize, setSelectedSize] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
 
-    const isValid = companyName.trim().length >= 2 && selectedSegment !== null
+    const canProceed = () => {
+        switch (currentStep) {
+            case 1: return companyName.trim().length >= 2
+            case 2: return selectedSegment !== null
+            case 3: return selectedSize !== null
+            default: return false
+        }
+    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleNext = () => {
+        if (currentStep < TOTAL_STEPS && canProceed()) {
+            setCurrentStep(prev => prev + 1)
+            setError("")
+        }
+    }
 
-        if (!isValid) return
+    const handleBack = () => {
+        if (currentStep > 1) {
+            setCurrentStep(prev => prev - 1)
+            setError("")
+        }
+    }
+
+    const handleSubmit = async () => {
+        if (!canProceed()) return
 
         setLoading(true)
         setError("")
@@ -45,6 +79,7 @@ export default function OnboardingSetupForm() {
                 body: JSON.stringify({
                     company_name: companyName.trim(),
                     industry_segment: selectedSegment,
+                    company_size: selectedSize,
                 }),
             })
 
@@ -54,7 +89,6 @@ export default function OnboardingSetupForm() {
                 throw new Error(data.error || t("onboarding_setup.errors.generic"))
             }
 
-            // Redirect to dashboard
             router.push("/dashboard")
             router.refresh()
         } catch (err: any) {
@@ -64,117 +98,232 @@ export default function OnboardingSetupForm() {
         }
     }
 
+    const slideVariants = {
+        enter: (direction: number) => ({ x: direction > 0 ? 100 : -100, opacity: 0 }),
+        center: { x: 0, opacity: 1 },
+        exit: (direction: number) => ({ x: direction < 0 ? 100 : -100, opacity: 0 }),
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900 flex items-center justify-center p-4">
             <div className="w-full max-w-lg">
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
-                        <Building2 className="w-8 h-8 text-white" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
-                        {t("onboarding_setup.title")}
-                    </h1>
-                    <p className="text-zinc-600 dark:text-zinc-400">
-                        {t("onboarding_setup.subtitle")}
-                    </p>
+                {/* Progress Indicator */}
+                <div className="flex items-center justify-center gap-2 mb-8">
+                    {[1, 2, 3].map((step) => (
+                        <div key={step} className="flex items-center">
+                            <div className={`
+                w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all
+                ${step < currentStep
+                                    ? "bg-emerald-500 text-white"
+                                    : step === currentStep
+                                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg"
+                                        : "bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+                                }
+              `}>
+                                {step < currentStep ? <Check className="w-5 h-5" /> : step}
+                            </div>
+                            {step < 3 && (
+                                <div className={`w-12 h-1 mx-1 rounded ${step < currentStep ? "bg-emerald-500" : "bg-zinc-200 dark:bg-zinc-700"}`} />
+                            )}
+                        </div>
+                    ))}
                 </div>
 
                 {/* Form Card */}
-                <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 p-6 space-y-6">
-                    {/* Company Name */}
-                    <div className="space-y-2">
-                        <Label htmlFor="company_name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            {t("onboarding_setup.company_name.label")} <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="company_name"
-                            type="text"
-                            value={companyName}
-                            onChange={(e) => setCompanyName(e.target.value)}
-                            placeholder={t("onboarding_setup.company_name.placeholder")}
-                            className="h-12 text-base"
-                            autoFocus
-                            required
-                            minLength={2}
-                        />
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {t("onboarding_setup.company_name.hint")}
-                        </p>
-                    </div>
-
-                    {/* Industry Segment */}
-                    <div className="space-y-3">
-                        <Label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            {t("onboarding_setup.segment.label")} <span className="text-red-500">*</span>
-                        </Label>
-                        <div className="grid grid-cols-2 gap-3">
-                            {INDUSTRY_SEGMENTS.map((segment) => {
-                                const Icon = segment.icon
-                                const isSelected = selectedSegment === segment.value
-                                return (
-                                    <button
-                                        key={segment.value}
-                                        type="button"
-                                        onClick={() => setSelectedSegment(segment.value)}
-                                        className={`
-                      flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left
-                      ${isSelected
-                                                ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/20"
-                                                : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-800/50"
-                                            }
-                    `}
-                                    >
-                                        <div className={`
-                      flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center
-                      ${isSelected
-                                                ? "bg-emerald-500 text-white"
-                                                : "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400"
-                                            }
-                    `}>
-                                            <Icon className="w-5 h-5" />
+                <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 p-6 overflow-hidden">
+                    <AnimatePresence mode="wait" custom={currentStep}>
+                        <motion.div
+                            key={currentStep}
+                            custom={currentStep}
+                            variants={slideVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{ duration: 0.2 }}
+                        >
+                            {/* Step 1: Company Name */}
+                            {currentStep === 1 && (
+                                <div className="space-y-6">
+                                    <div className="text-center">
+                                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
+                                            <Building2 className="w-7 h-7 text-white" />
                                         </div>
-                                        <span className={`
-                      text-sm font-medium
-                      ${isSelected
-                                                ? "text-emerald-700 dark:text-emerald-400"
-                                                : "text-zinc-700 dark:text-zinc-300"
-                                            }
-                    `}>
-                                            {t(segment.labelKey)}
-                                        </span>
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    </div>
+                                        <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
+                                            {t("onboarding_setup.step1.title")}
+                                        </h2>
+                                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                            {t("onboarding_setup.step1.subtitle")}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="company_name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                            {t("onboarding_setup.company_name.label")}
+                                        </Label>
+                                        <Input
+                                            id="company_name"
+                                            type="text"
+                                            value={companyName}
+                                            onChange={(e) => setCompanyName(e.target.value)}
+                                            placeholder={t("onboarding_setup.company_name.placeholder")}
+                                            className="h-12 text-base"
+                                            autoFocus
+                                        />
+                                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                            {t("onboarding_setup.company_name.hint")}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 2: Industry Segment */}
+                            {currentStep === 2 && (
+                                <div className="space-y-6">
+                                    <div className="text-center">
+                                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
+                                            <Factory className="w-7 h-7 text-white" />
+                                        </div>
+                                        <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
+                                            {t("onboarding_setup.step2.title")}
+                                        </h2>
+                                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                            {t("onboarding_setup.step2.subtitle")}
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {INDUSTRY_SEGMENTS.map((segment) => {
+                                            const Icon = segment.icon
+                                            const isSelected = selectedSegment === segment.value
+                                            return (
+                                                <button
+                                                    key={segment.value}
+                                                    type="button"
+                                                    onClick={() => setSelectedSegment(segment.value)}
+                                                    className={`
+                            flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left
+                            ${isSelected
+                                                            ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/20"
+                                                            : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-800/50"
+                                                        }
+                          `}
+                                                >
+                                                    <div className={`
+                            flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center
+                            ${isSelected ? "bg-emerald-500 text-white" : "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400"}
+                          `}>
+                                                        <Icon className="w-4 h-4" />
+                                                    </div>
+                                                    <span className={`text-sm font-medium ${isSelected ? "text-emerald-700 dark:text-emerald-400" : "text-zinc-700 dark:text-zinc-300"}`}>
+                                                        {t(segment.labelKey)}
+                                                    </span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 3: Company Size */}
+                            {currentStep === 3 && (
+                                <div className="space-y-6">
+                                    <div className="text-center">
+                                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
+                                            <Users className="w-7 h-7 text-white" />
+                                        </div>
+                                        <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
+                                            {t("onboarding_setup.step3.title")}
+                                        </h2>
+                                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                            {t("onboarding_setup.step3.subtitle")}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {COMPANY_SIZES.map((size) => {
+                                            const Icon = size.icon
+                                            const isSelected = selectedSize === size.value
+                                            return (
+                                                <button
+                                                    key={size.value}
+                                                    type="button"
+                                                    onClick={() => setSelectedSize(size.value)}
+                                                    className={`
+                            w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left
+                            ${isSelected
+                                                            ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/20"
+                                                            : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-800/50"
+                                                        }
+                          `}
+                                                >
+                                                    <div className={`
+                            flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center
+                            ${isSelected ? "bg-emerald-500 text-white" : "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400"}
+                          `}>
+                                                        <Icon className="w-5 h-5" />
+                                                    </div>
+                                                    <span className={`text-sm font-medium ${isSelected ? "text-emerald-700 dark:text-emerald-400" : "text-zinc-700 dark:text-zinc-300"}`}>
+                                                        {t(size.labelKey)}
+                                                    </span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
 
                     {/* Error Message */}
                     {error && (
-                        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+                        <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
                             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                         </div>
                     )}
 
-                    {/* Submit Button */}
-                    <Button
-                        type="submit"
-                        disabled={!isValid || loading}
-                        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                {t("onboarding_setup.button.loading")}
-                            </>
-                        ) : (
-                            <>
-                                {t("onboarding_setup.button.submit")}
-                                <ArrowRight className="w-5 h-5 ml-2" />
-                            </>
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-3 mt-6">
+                        {currentStep > 1 && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleBack}
+                                className="flex-1 h-12"
+                            >
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                {t("onboarding_setup.button.back")}
+                            </Button>
                         )}
-                    </Button>
-                </form>
+
+                        {currentStep < TOTAL_STEPS ? (
+                            <Button
+                                type="button"
+                                onClick={handleNext}
+                                disabled={!canProceed()}
+                                className="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
+                            >
+                                {t("onboarding_setup.button.next")}
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={!canProceed() || loading}
+                                className="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        {t("onboarding_setup.button.loading")}
+                                    </>
+                                ) : (
+                                    <>
+                                        {t("onboarding_setup.button.submit")}
+                                        <ArrowRight className="w-4 h-4 ml-2" />
+                                    </>
+                                )}
+                            </Button>
+                        )}
+                    </div>
+                </div>
 
                 {/* Footer */}
                 <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 mt-6">

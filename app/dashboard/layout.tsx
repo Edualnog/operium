@@ -37,7 +37,7 @@ export default async function DashboardLayout({
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('subscription_status, stripe_customer_id, trial_start_date, company_name, industry_segment')
+      .select('subscription_status, stripe_customer_id, trial_start_date, company_name, industry_segment, company_size')
       .eq('id', user.id)
       .single()
 
@@ -49,8 +49,8 @@ export default async function DashboardLayout({
     console.error('Erro ao buscar profile:', error)
   }
 
-  // Verificar se onboarding foi completado (company_name e industry_segment preenchidos)
-  const hasCompletedOnboarding = profile?.company_name && profile?.industry_segment
+  // Verificar se onboarding foi completado (todos os 3 campos obrigatórios preenchidos)
+  const hasCompletedOnboarding = profile?.company_name && profile?.industry_segment && profile?.company_size
   if (!hasCompletedOnboarding) {
     redirect("/onboarding")
   }
