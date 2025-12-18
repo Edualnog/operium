@@ -1373,12 +1373,12 @@ function FerramentasList({
                       onCheckedChange={toggleAll}
                     />
                   </TableHead>
-                  <TableHead>{t("dashboard.ferramentas.table.product")}</TableHead>
-                  <TableHead>{t("dashboard.ferramentas.table.sku")}</TableHead>
-                  <TableHead>{t("dashboard.ferramentas.table.format")}</TableHead>
-                  <TableHead>{t("dashboard.ferramentas.table.value")}</TableHead>
-                  <TableHead>{t("dashboard.ferramentas.table.stock")}</TableHead>
-                  <TableHead>{t("dashboard.ferramentas.table.status")}</TableHead>
+                  <TableHead className="w-[200px]">{t("dashboard.ferramentas.table.product")}</TableHead>
+                  <TableHead className="w-[120px]">{t("dashboard.ferramentas.table.sku")}</TableHead>
+                  <TableHead className="w-[100px]">{t("dashboard.ferramentas.table.format")}</TableHead>
+                  <TableHead className="w-[100px]">{t("dashboard.ferramentas.table.value")}</TableHead>
+                  <TableHead className="w-[80px]">{t("dashboard.ferramentas.table.stock")}</TableHead>
+                  <TableHead className="w-[100px]">{t("dashboard.ferramentas.table.status")}</TableHead>
                   <TableHead className="w-[100px] text-right">{t("dashboard.ferramentas.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
