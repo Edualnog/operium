@@ -1272,25 +1272,7 @@ export default function MovimentacoesList({
         </div>
       </div>
 
-      {
-        filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-dashed border-zinc-300 mt-4 dark:bg-zinc-900 dark:border-zinc-700">
-            <div className="bg-blue-50 p-4 rounded-full mb-4 dark:bg-blue-900/20">
-              <RotateCcw className="h-10 w-10 text-blue-500 dark:text-blue-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-zinc-900 mb-2 dark:text-zinc-100">
-              {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
-                ? t("dashboard.movimentacoes.empty.no_results")
-                : t("dashboard.movimentacoes.empty.no_records")}
-            </h3>
-            <p className="text-zinc-500 max-w-sm mb-6 dark:text-zinc-400">
-              {search || filters.tipo !== "todos" || filters.produtoId || filters.colaboradorId || filters.dataInicio || filters.dataFim
-                ? t("dashboard.movimentacoes.empty.adjust_filters")
-                : t("dashboard.movimentacoes.empty.start_registering")}
-            </p>
-          </div>
-        )
-      }
+
 
 
 
