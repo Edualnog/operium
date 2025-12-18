@@ -60,15 +60,13 @@ export async function GET(request: Request) {
           user.email?.split('@')[0] ||
           'Usuário'
 
-        // Se não existir, criar perfil com trial
+        // Se não existir, criar perfil básico
         if (!existingProfile) {
           await supabase.from('profiles').insert({
             id: user.id,
             name: userName,
             company_name: 'Minha Empresa',
             company_email: user.email,
-            trial_start_date: new Date().toISOString(),
-            subscription_status: 'trialing',
           })
 
           // Novo usuário - redirecionar para setup
