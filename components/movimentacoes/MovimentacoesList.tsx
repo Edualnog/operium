@@ -772,79 +772,97 @@ export default function MovimentacoesList({
                   <span className="sm:hidden">Novo</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-[95vw] md:max-w-md max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh] overflow-y-auto">
                 <form onSubmit={handleSubmit}>
                   <DialogHeader>
                     <DialogTitle>{t("dashboard.movimentacoes.form.title")}</DialogTitle>
                     <DialogDescription>{t("dashboard.movimentacoes.form.desc")}</DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-3 py-4">
-                    <div className="grid gap-2">
-                      <Label>{t("dashboard.movimentacoes.form.type")}</Label>
-                      <Select
-                        value={form.tipo}
-                        onValueChange={(val: any) => setForm((f) => ({ ...f, tipo: val }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
-                          <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
-                          <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label>{t("dashboard.movimentacoes.form.product")}</Label>
-                      <Input
-                        placeholder={t("dashboard.movimentacoes.form.select_product")}
-                        value={form.produto}
-                        onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
-                        className="text-sm md:text-base"
-                      />
-                      {suggestions.length > 0 && (
-                        <div className="border rounded-md divide-y bg-white shadow-sm max-h-48 overflow-auto">
-                          {suggestions.map((s) => (
-                            <button
-                              type="button"
-                              key={s.id}
-                              className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm dark:hover:bg-zinc-800"
-                              onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
-                            >
-                              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{s.nome}</div>
-                              <div className="text-xs text-zinc-500 dark:text-zinc-400">{s.tipo_item || t("dashboard.ferramentas.form.tool")}</div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-4 py-4">
+                    {/* Tipo de Movimentação */}
+                    <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-3">
                       <div className="grid gap-2">
-                        <Label>{t("dashboard.movimentacoes.form.quantity")}</Label>
+                        <Label className="font-medium">{t("dashboard.movimentacoes.form.type")}</Label>
+                        <Select
+                          value={form.tipo}
+                          onValueChange={(val: any) => setForm((f) => ({ ...f, tipo: val }))}
+                        >
+                          <SelectTrigger className="bg-white dark:bg-zinc-900">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="entrada">{t("dashboard.movimentacoes.filters.entry")}</SelectItem>
+                            <SelectItem value="retirada">{t("dashboard.movimentacoes.filters.withdrawal")}</SelectItem>
+                            <SelectItem value="devolucao">{t("dashboard.movimentacoes.filters.return")}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="grid gap-2">
+                        <Label className="font-medium">{t("dashboard.movimentacoes.form.product")}</Label>
                         <Input
-                          type="number"
-                          min={form.tipo === "entrada" ? 1 : 1}
-                          value={form.quantidade}
-                          onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
-                          required
+                          placeholder={t("dashboard.movimentacoes.form.select_product")}
+                          value={form.produto}
+                          onChange={(e) => setForm((f) => ({ ...f, produto: e.target.value, produtoId: "" }))}
+                          className="text-sm md:text-base bg-white dark:bg-zinc-900"
                         />
+                        {suggestions.length > 0 && (
+                          <div className="border rounded-md divide-y bg-white shadow-sm max-h-48 overflow-auto dark:bg-zinc-900 dark:border-zinc-700">
+                            {suggestions.map((s) => (
+                              <button
+                                type="button"
+                                key={s.id}
+                                className="w-full text-left px-3 py-2 hover:bg-zinc-50 text-sm dark:hover:bg-zinc-800"
+                                onClick={() => setForm((f) => ({ ...f, produto: s.nome, produtoId: s.id }))}
+                              >
+                                <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{s.nome}</div>
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400">{s.tipo_item || t("dashboard.ferramentas.form.tool")}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Detalhes */}
+                    <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="grid gap-2">
+                          <Label className="font-medium">{t("dashboard.movimentacoes.form.quantity")}</Label>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={form.quantidade}
+                            onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
+                            required
+                            className="bg-white dark:bg-zinc-900"
+                          />
+                        </div>
+
+                        <div className="grid gap-2">
+                          <Label className="font-medium">{t("dashboard.movimentacoes.form.date")}</Label>
+                          <Input
+                            type="datetime-local"
+                            value={form.dataMov}
+                            onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
+                            className="bg-white dark:bg-zinc-900"
+                          />
+                        </div>
                       </div>
 
                       {(form.tipo === "retirada" || form.tipo === "devolucao") && (
                         <div className="grid gap-2">
-                          <Label>{t("dashboard.movimentacoes.form.collaborator")}</Label>
+                          <Label className="font-medium">{t("dashboard.movimentacoes.form.collaborator")}</Label>
                           <Input
                             placeholder={t("dashboard.movimentacoes.form.select_collaborator")}
                             value={form.colaboradorNome}
                             onChange={(e) =>
                               setForm((f) => ({ ...f, colaboradorNome: e.target.value, colaboradorId: "" }))
                             }
+                            className="bg-white dark:bg-zinc-900"
                           />
                           {colabSuggestions.length > 0 && (
-                            <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto">
+                            <div className="border rounded-md divide-y bg-white shadow-sm max-h-40 overflow-auto dark:bg-zinc-900 dark:border-zinc-700">
                               {colabSuggestions.map((c) => (
                                 <button
                                   type="button"
@@ -868,30 +886,21 @@ export default function MovimentacoesList({
                           </div>
                         </div>
                       )}
-                    </div>
 
-                    <div className="grid gap-2">
-                      <Label>{t("dashboard.movimentacoes.form.date")}</Label>
-                      <Input
-                        type="datetime-local"
-                        value={form.dataMov}
-                        onChange={(e) => setForm((f) => ({ ...f, dataMov: e.target.value }))}
-                      />
-                      <div className="text-xs text-zinc-500">{t("dashboard.movimentacoes.form.date_hint")}</div>
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label>{t("dashboard.movimentacoes.form.observations")}</Label>
-                      <Input
-                        placeholder={t("dashboard.ferramentas.actions.optional")}
-                        value={form.observacoes}
-                        onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
-                      />
+                      <div className="grid gap-2">
+                        <Label className="font-medium">{t("dashboard.movimentacoes.form.observations")}</Label>
+                        <Input
+                          placeholder={t("dashboard.ferramentas.actions.optional")}
+                          value={form.observacoes}
+                          onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))}
+                          className="bg-white dark:bg-zinc-900"
+                        />
+                      </div>
                     </div>
 
                     {/* Checkbox de assinatura - só aparece para retirada/devolução */}
                     {(form.tipo === "retirada" || form.tipo === "devolucao") && (
-                      <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
+                      <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
                         <Checkbox
                           id="solicitar-assinatura"
                           checked={solicitarAssinatura}
