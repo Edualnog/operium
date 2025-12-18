@@ -26,6 +26,11 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // Bypass para rotas de autenticação OAuth (callback, verify, etc.)
+  if (request.nextUrl.pathname.startsWith('/auth/')) {
+    return response
+  }
+
   // Se Supabase não está configurado, seguir fluxo padrão sem tentativa de autenticação
   if (!supabaseUrl || !supabaseAnonKey) {
     return response
