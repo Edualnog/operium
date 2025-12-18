@@ -129,7 +129,11 @@ function LoginForm() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true)
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      // Importar dinamicamente para evitar problemas de SSR
+      const { getOAuthClient } = await import('@/lib/supabase-client')
+      const oauthClient = getOAuthClient()
+
+      const { data, error } = await oauthClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -147,6 +151,7 @@ function LoginForm() {
       setGoogleLoading(false)
     }
   }
+
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center font-sans text-zinc-900 bg-zinc-50">

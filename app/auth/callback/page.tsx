@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createClientComponentClient } from '@/lib/supabase-client'
+import { getOAuthClient } from '@/lib/supabase-client'
 
 export default function AuthCallbackPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
     const [errorMessage, setErrorMessage] = useState('')
-    const supabase = createClientComponentClient()
 
     useEffect(() => {
         const handleCallback = async () => {
@@ -38,8 +37,10 @@ export default function AuthCallbackPage() {
             try {
                 console.log('[OAuth Callback Client] Exchanging code for session...')
 
-                // O exchangeCodeForSession usa o code_verifier que está armazenado no cookie do browser
-                const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+                // Usar o mesmo cliente OAuth que foi usado para iniciar o login
+                // Ele tem acesso ao code_verifier armazenado no localStorage
+                const oauthClient = getOAuthClient()
+                const { data, error: exchangeError } = await oauthClient.auth.exchangeCodeForSession(code)
 
                 if (exchangeError) {
                     console.error('[OAuth Callback Client] Exchange error:', exchangeError.message)
@@ -62,7 +63,7 @@ export default function AuthCallbackPage() {
                 // Verificar se o perfil existe
                 const user = data.user
                 if (user) {
-                    const { data: existingProfile, error: profileError } = await supabase
+                    const { data: existingProfile, error: profileError } = await oauthClient
                         .from('profiles')
                         .select('id')
                         .eq('id', user.id)
@@ -77,7 +78,7 @@ export default function AuthCallbackPage() {
                             user.email?.split('@')[0] ||
                             'Usuário'
 
-                        const { error: insertError } = await supabase.from('profiles').insert({
+                        const { error: insertError } = await oauthClient.from('profiles').insert({
                             id: user.id,
                             name: userName,
                             company_name: 'Minha Empresa',
@@ -108,7 +109,7 @@ export default function AuthCallbackPage() {
         }
 
         handleCallback()
-    }, [searchParams, supabase, router])
+    }, [searchParams, router])
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900">
