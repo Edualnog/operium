@@ -177,9 +177,22 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                                     <div className="mt-1 flex-shrink-0">
                                         <Sparkles className="h-4 w-4 text-zinc-900 dark:text-zinc-100" />
                                     </div>
-                                    <p className="text-sm text-[#37352f] dark:text-zinc-200 leading-relaxed font-medium">
-                                        {cleanInsight(insight)}
-                                    </p>
+                                    <div className="text-sm text-[#37352f] dark:text-zinc-200 leading-relaxed font-medium">
+                                        {(() => {
+                                            const text = cleanInsight(insight)
+                                            // Check for **Title:** format or similar
+                                            const match = text.match(/\*\*(.*?)\*\*:?\s*(.*)/)
+                                            if (match) {
+                                                return (
+                                                    <>
+                                                        <span className="block font-bold mb-0.5 text-zinc-900 dark:text-zinc-50">{match[1]}</span>
+                                                        <span className="text-zinc-600 dark:text-zinc-400 font-normal">{match[2]}</span>
+                                                    </>
+                                                )
+                                            }
+                                            return text
+                                        })()}
+                                    </div>
                                 </div>
                             ))}
                         </div>

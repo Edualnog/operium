@@ -566,7 +566,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-center sm:text-left">
         <div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#37352f] mb-2 font-serif dark:text-zinc-50">
-            {t('dashboard.header.title')}
+            Resumo do Almoxarifado Hoje
           </h1>
           <p className="text-base sm:text-lg text-[#37352f]/70 dark:text-zinc-400">
             {t('dashboard.header.subtitle')}
@@ -594,9 +594,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
       {/* SESSÃO OVERVIEW - Gráficos principais */}
       <section className="space-y-6 mb-8">
-        <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1">
           {/* Gráfico de Movimentações */}
-          <Card className="lg:col-span-2 border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+          <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
             <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800">
               <div className="flex items-center justify-between">
                 <div>
@@ -749,61 +749,6 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               )}
             </CardContent>
           </Card>
-
-          {/* Status das Ferramentas */}
-          <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-            <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800">
-              <CardTitle className="text-base sm:text-lg font-bold font-serif text-[#37352f] dark:text-zinc-50">
-                {t('dashboard.charts.status.title')}
-              </CardTitle>
-              <p className="text-xs sm:text-sm text-[#37352f]/60 mt-1 dark:text-zinc-400">
-                {t('dashboard.charts.status.subtitle')}
-              </p>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-4">
-              {/* Disponível */}
-              <div>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.available')}</span>
-                  <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.disponiveis}%</span>
-                </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
-                  <div
-                    className="h-full bg-zinc-900 rounded-full transition-all duration-500 dark:bg-zinc-50"
-                    style={{ width: `${statusFerramentas.disponiveis}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Em uso */}
-              <div>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.in_use')}</span>
-                  <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.emUso}%</span>
-                </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
-                  <div
-                    className="h-full bg-zinc-500 rounded-full transition-all duration-500 dark:bg-zinc-400"
-                    style={{ width: `${statusFerramentas.emUso}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Manutenção */}
-              <div>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.maintenance')}</span>
-                  <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.manutencao}%</span>
-                </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
-                  <div
-                    className="h-full bg-zinc-300 rounded-full transition-all duration-500 dark:bg-zinc-600"
-                    style={{ width: `${statusFerramentas.manutencao}%` }}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Cards de estatísticas rápidas */}
@@ -914,9 +859,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <p className="text-sm text-zinc-500">{t('common.loading')}</p>
                 </div>
               ) : itensComprarUrgente.length === 0 ? (
-                <p className="text-sm text-zinc-500 text-center py-8">
-                  {t('dashboard.kpi.urgent_restock.empty')}
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-zinc-900 font-medium dark:text-zinc-100">Tudo em dia aqui.</p>
+                  <p className="text-sm text-zinc-500 mt-1">Você será avisado automaticamente se algo entrar em risco.</p>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {itensComprarUrgente.map((item, index) => (
@@ -962,6 +908,117 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               )}
             </CardContent>
           </Card>
+        </div>
+
+        {/* --- CONSOLIDATED USAGE OVERVIEW --- */}
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 lg:items-start mb-6">
+          {/* 1. Visão Geral de Status e Métrica Principal */}
+          <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800 h-full">
+            <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <CardTitle className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                Panorama de Uso e Status
+              </CardTitle>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                Monitoramento de utilização e disponibilidade em tempo real.
+              </p>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {/* Big Metric */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-zinc-100 rounded-lg dark:bg-zinc-800">
+                  <Activity className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />
+                </div>
+                <div>
+                  <p className="text-sm text-zinc-500 font-medium">Total em Uso Agora</p>
+                  <h3 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{data.ferramentasEmUso.reduce((acc, curr) => acc + (curr.quantidade_em_uso || 0), 0) || totalEmUsoUnidades} itens</h3>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* Disponível */}
+                <div>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.available')}</span>
+                    <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.disponiveis}%</span>
+                  </div>
+                  <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
+                    <div
+                      className="h-full bg-zinc-900 rounded-full transition-all duration-500 dark:bg-zinc-50"
+                      style={{ width: `${statusFerramentas.disponiveis}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Em uso */}
+                <div>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.in_use')}</span>
+                    <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.emUso}%</span>
+                  </div>
+                  <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
+                    <div
+                      className="h-full bg-zinc-500 rounded-full transition-all duration-500 dark:bg-zinc-400"
+                      style={{ width: `${statusFerramentas.emUso}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Manutenção */}
+                <div>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="text-zinc-600 dark:text-zinc-400">{t('dashboard.status.maintenance')}</span>
+                    <span className="text-zinc-900 font-semibold dark:text-zinc-50">{statusFerramentas.manutencao}%</span>
+                  </div>
+                  <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden dark:bg-zinc-800">
+                    <div
+                      className="h-full bg-zinc-300 rounded-full transition-all duration-500 dark:bg-zinc-600"
+                      style={{ width: `${statusFerramentas.manutencao}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 2. Lista Detalhada (Movida do final) */}
+          <div className="h-full">
+            {data.ferramentasEmUso.length > 0 ? (
+              <KpiList
+                title={t('dashboard.kpi.tools_active.title')}
+                description={t('dashboard.kpi.tools_active.desc')}
+                items={data.ferramentasEmUso}
+                columns={[
+                  {
+                    key: "colaborador",
+                    label: t('dashboard.columns.collaborator'),
+                  },
+                  {
+                    key: "quantidade_em_uso",
+                    label: t('dashboard.columns.qty'),
+                    render: (item) => item.quantidade_em_uso || 0,
+                  },
+                  {
+                    key: "prazo_devolucao",
+                    label: t('dashboard.columns.deadline'),
+                    render: (item) =>
+                      item.prazo_devolucao
+                        ? formatDistanceToNow(new Date(item.prazo_devolucao), {
+                          addSuffix: true,
+                          locale: i18n.language === 'pt' ? ptBR : enUS,
+                        })
+                        : t('dashboard.labels.no_deadline'),
+                  },
+                ]}
+                maxItems={5}
+                showViewMore={true}
+                viewMoreLink="/dashboard/movimentacoes"
+              />
+            ) : (
+              <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800 h-full flex flex-col justify-center items-center p-8">
+                <p className="text-zinc-500">Nenhuma ferramenta em uso no momento.</p>
+              </Card>
+            )}
+          </div>
         </div>
 
         {/* Rankings - Ferramentas */}
@@ -1161,44 +1218,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           </Card>
         </div>
 
-        {/* Lista de Ferramentas em Uso */}
-        {data.ferramentasEmUso.length > 0 && (
-          <KpiList
-            title={t('dashboard.kpi.tools_active.title')}
-            description={t('dashboard.kpi.tools_active.desc')}
-            items={data.ferramentasEmUso}
-            columns={[
-              {
-                key: "colaborador",
-                label: t('dashboard.columns.collaborator'),
-              },
-              {
-                key: "quantidade_em_uso",
-                label: t('dashboard.columns.qty'),
-                render: (item) => item.quantidade_em_uso || 0,
-              },
-              {
-                key: "dias_em_uso",
-                label: t('dashboard.columns.days_in_use'),
-                render: (item) => `${item.dias_em_uso} dias`,
-              },
-              {
-                key: "prazo_devolucao",
-                label: t('dashboard.columns.deadline'),
-                render: (item) =>
-                  item.prazo_devolucao
-                    ? formatDistanceToNow(new Date(item.prazo_devolucao), {
-                      addSuffix: true,
-                      locale: i18n.language === 'pt' ? ptBR : enUS,
-                    })
-                    : t('dashboard.labels.no_deadline'),
-              },
-            ]}
-            maxItems={5}
-            showViewMore={true}
-            viewMoreLink="/dashboard/movimentacoes"
-          />
-        )}
+
       </section>
 
       {/* SESSÃO 2: CONSUMÍVEIS */}
@@ -1307,6 +1327,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               },
             ]}
             maxItems={3}
+            emptyMessage="Tudo em dia aqui. Você será avisado automaticamente se algo entrar em risco."
           />
 
           <KpiList
@@ -1390,6 +1411,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               },
             ]}
             maxItems={3}
+            emptyMessage="Tudo em dia aqui. Você será avisado automaticamente se algo entrar em risco."
           />
         </div>
       </section>
@@ -1450,6 +1472,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             },
           ]}
           maxItems={15}
+          emptyMessage="Tudo em dia aqui. Você será avisado automaticamente se algo entrar em risco."
         />
 
         {/* Gráfico de Risco de Ruptura */}
