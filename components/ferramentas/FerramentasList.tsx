@@ -639,8 +639,8 @@ function FerramentasList({
 
   const handleGenerateLabel = async (ferramenta: Ferramenta) => {
     try {
-      // Generate QR Code Data URI
-      const qrCodeDataUri = await QRCode.toDataURL(ferramenta.codigo || 'SEM_CODIGO', { margin: 0 })
+      // Generate QR Code Data URI with product ID (for scanner)
+      const qrCodeDataUri = await QRCode.toDataURL(ferramenta.id, { margin: 0 })
 
       // Manual HTML construction with corrected styling for A4 Grid
       const html = `
@@ -681,7 +681,7 @@ function FerramentasList({
           </div>
 
           <div style="font-size: 8px; font-weight: bold;">
-            ${ferramenta.codigo || '-'}
+            ${ferramenta.codigo || ferramenta.id.substring(0, 8)}
           </div>
           
           <div style="font-size: 7px; margin-top: 1px;">
