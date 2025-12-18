@@ -39,7 +39,8 @@ import {
   Archive,
   MoreHorizontal,
   AlertTriangle,
-  HardHat
+  HardHat,
+  Briefcase
 } from "lucide-react"
 import SmartImport from "@/components/import/SmartImport"
 import { useRouter } from "next/navigation"
@@ -78,6 +79,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { useSidebar } from "@/components/ui/sidebar"
@@ -929,44 +931,6 @@ function ColaboradoresList({
               </div>
             )}
 
-// Add Briefcase to imports
-            import {
-              Plus,
-              Search,
-              Trash2,
-              Edit,
-              User,
-              Mail,
-              Phone,
-import {
-              Plus,
-              Search,
-              Trash2,
-              Edit,
-              User,
-              Mail,
-              Phone,
-              Calendar,
-              MapPin,
-              FileDown,
-              ChevronDown,
-              Download,
-              History,
-              TrendingUp,
-              Upload,
-              ChevronLeft,
-              ChevronRight,
-              Loader2,
-              Archive,
-              MoreHorizontal,
-              HardHat,
-              AlertTriangle,
-              Briefcase
-            } from "lucide-react"
-
-            // ... imports remain the same ...
-
-            // Inside the component return, replacing ScrollableFormContent children:
 
             <ScrollableFormContent>
               <div className="space-y-4 py-2">
