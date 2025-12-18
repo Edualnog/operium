@@ -129,12 +129,20 @@ function LoginForm() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="relative z-10 w-full max-w-[400px] p-8 sm:p-10 bg-white rounded-xl shadow-xl shadow-zinc-200/50 border border-zinc-200/60"
       >
-        {/* Logo Icon */}
+        {/* Logo Operium */}
         <div className="flex justify-center mb-8">
-          <div className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center shadow-md">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          <div className="flex items-center gap-3">
+            <svg width="48" height="48" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
+              {/* Top left vertical bar */}
+              <rect x="10" y="10" width="15" height="40" fill="currentColor" className="text-zinc-900" />
+              {/* Top horizontal bar */}
+              <rect x="10" y="10" width="40" height="15" fill="currentColor" className="text-zinc-900" />
+              {/* Bottom horizontal bar */}
+              <rect x="50" y="75" width="40" height="15" fill="currentColor" className="text-zinc-900" />
+              {/* Bottom right vertical bar */}
+              <rect x="75" y="50" width="15" height="40" fill="currentColor" className="text-zinc-900" />
             </svg>
+            <span className="font-semibold text-zinc-900 text-2xl tracking-wider">OPERIUM</span>
           </div>
         </div>
 
