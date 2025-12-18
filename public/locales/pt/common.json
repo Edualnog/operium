@@ -1,6 +1,9 @@
 {
     "auth": {
         "back": "Voltar",
+        "or": "ou",
+        "google_login": "Entrar com Google",
+        "google_signup": "Cadastrar com Google",
         "fields": {
             "email": "Email",
             "password": "Senha",

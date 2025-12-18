@@ -5,6 +5,9 @@
     },
     "auth": {
         "back": "Back",
+        "or": "or",
+        "google_login": "Sign in with Google",
+        "google_signup": "Sign up with Google",
         "login": {
             "title": "Welcome Back",
             "subtitle": "Sign in to your Operium account"
