@@ -8,6 +8,7 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 import { useTranslation } from "react-i18next"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface BottleneckItem {
     id: string
@@ -135,8 +136,8 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                         <div key={item.id} className="flex items-center justify-between py-3 group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 px-2 -mx-2 rounded-md transition-colors">
                             <div className="flex items-start gap-3">
                                 <div className={`mt-1 p-1.5 rounded-full ${item.type === 'high_breakage' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
-                                        item.type === 'zombie_inventory' ? 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400' :
-                                            'bg-amber-100 text-amber-600'
+                                    item.type === 'zombie_inventory' ? 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400' :
+                                        'bg-amber-100 text-amber-600'
                                     }`}>
                                     {item.type === 'high_breakage' ? <AlertCircle className="h-4 w-4" /> :
                                         item.type === 'zombie_inventory' ? <Package className="h-4 w-4" /> :
@@ -165,9 +166,11 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-center">
-                    <Button variant="ghost" className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 w-full h-auto py-2">
-                        Ver Relatório Completo de Anomalias <ArrowRight className="ml-1 h-3 w-3" />
-                    </Button>
+                    <Link href="/dashboard/estoque">
+                        <Button variant="ghost" className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 w-full h-auto py-2">
+                            Ver Relatório Completo de Anomalias <ArrowRight className="ml-1 h-3 w-3" />
+                        </Button>
+                    </Link>
                 </div>
             </CardContent>
         </Card>

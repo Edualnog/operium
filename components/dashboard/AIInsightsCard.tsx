@@ -133,7 +133,19 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                 </div>
             </CardHeader>
             <CardContent className="pt-6 min-h-[160px] flex flex-col justify-center">
-                {insights.length === 0 ? (
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center text-center space-y-4 py-8">
+                        <div className="p-3 bg-slate-50 dark:bg-zinc-800 rounded-full animate-pulse">
+                            <Sparkles className="h-6 w-6 text-slate-400 animate-spin" />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="font-medium text-[#37352f] dark:text-zinc-100">{t("dashboard.ai.insights.button.loading")}</p>
+                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                                Analisando seus dados...
+                            </p>
+                        </div>
+                    </div>
+                ) : insights.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-center space-y-4 py-8">
                         <div className="p-3 bg-slate-50 dark:bg-zinc-800 rounded-full">
                             <Sparkles className="h-6 w-6 text-slate-400" />
