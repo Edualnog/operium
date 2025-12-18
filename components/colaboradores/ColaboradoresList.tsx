@@ -930,96 +930,180 @@ function ColaboradoresList({
               </div>
             )}
 
+// Add Briefcase to imports
+            import {
+              Plus,
+              Search,
+              Trash2,
+              Edit,
+              User,
+              Mail,
+              Phone,
+              Calendar,
+              MapPin,
+              FileDown,
+              ChevronDown,
+              Download,
+              History,
+              TrendingUp,
+              Upload,
+              ChevronLeft,
+              ChevronRight,
+              Loader2,
+              Archive,
+              MoreHorizontal,
+              HardHat,
+              AlertTriangle,
+              Briefcase // Added
+            } from "lucide-react"
+
+            // ... imports remain the same ...
+
+            // Inside the component return, replacing ScrollableFormContent children:
+
             <ScrollableFormContent>
-              <div className="grid gap-4 py-4">
-                <div className="flex justify-center mb-4">
-                  <PhotoUpload
-                    currentPhotoUrl={photoUrl}
-                    onPhotoUploaded={setPhotoUrl}
-                    userId={userId}
-                  />
-                </div>
+              <div className="space-y-4 py-2">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="nome">{t("dashboard.colaboradores.form.name")} *</Label>
-                    <Input
-                      id="nome"
-                      name="nome"
-                      defaultValue={editing?.nome || voiceData?.nome || ""}
-                      value={nomeDigitado}
-                      onChange={(e) => setNomeDigitado(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="cargo">{t("dashboard.colaboradores.form.role")}</Label>
-                    <Input
-                      id="cargo"
-                      name="cargo"
-                      defaultValue={editing?.cargo || voiceData?.cargo || ""}
-                    />
-                  </div>
-                </div>
+                {/* 1. DADOS PESSOAIS */}
+                <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-4">
+                  <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                    <User className="h-4 w-4 text-zinc-500" />
+                    {t("dashboard.colaboradores.form.section_personal")}
+                  </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">{t("dashboard.colaboradores.form.email")}</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      defaultValue={editing?.email || voiceData?.email || ""}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="telefone">{t("dashboard.colaboradores.form.phone")}</Label>
-                    <Input
-                      id="telefone"
-                      name="telefone"
-                      defaultValue={editing?.telefone || voiceData?.telefone || ""}
-                    />
-                  </div>
-                </div>
+                  <div className="flex flex-col sm:flex-row gap-6">
+                    {/* Foto à esquerda em Desktop */}
+                    <div className="flex-shrink-0 flex justify-center sm:justify-start">
+                      <PhotoUpload
+                        currentPhotoUrl={photoUrl}
+                        onPhotoUploaded={setPhotoUrl}
+                        userId={userId}
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="cpf">CPF</Label>
-                    <Input
-                      id="cpf"
-                      name="cpf"
-                      defaultValue={editing?.cpf || ""}
-                      placeholder="000.000.000-00"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="data_admissao">{t("dashboard.colaboradores.form.admission_date")}</Label>
-                    <Input
-                      id="data_admissao"
-                      name="data_admissao"
-                      type="date"
-                      defaultValue={editing?.data_admissao ? new Date(editing.data_admissao).toISOString().split('T')[0] : ""}
-                    />
+                    <div className="flex-1 w-full grid gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="nome">{t("dashboard.colaboradores.form.name")} *</Label>
+                        <Input
+                          id="nome"
+                          name="nome"
+                          defaultValue={editing?.nome || voiceData?.nome || ""}
+                          value={nomeDigitado}
+                          onChange={(e) => setNomeDigitado(e.target.value)}
+                          placeholder="Nome completo"
+                          required
+                          className="bg-white dark:bg-zinc-900"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="cpf">CPF</Label> {/* CPF sem tradução no momento, mantendo hardcoded ou chave nova se existisse */}
+                          <Input
+                            id="cpf"
+                            name="cpf"
+                            defaultValue={editing?.cpf || ""}
+                            placeholder="000.000.000-00"
+                            className="bg-white dark:bg-zinc-900"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="cargo">{t("dashboard.colaboradores.form.role")}</Label>
+                          <Input
+                            id="cargo"
+                            name="cargo"
+                            defaultValue={editing?.cargo || voiceData?.cargo || ""}
+                            placeholder="Ex: Eletricista"
+                            className="bg-white dark:bg-zinc-900"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="endereco">{t("dashboard.colaboradores.form.address")}</Label>
-                  <Input
-                    id="endereco"
-                    name="endereco"
-                    defaultValue={editing?.endereco || ""}
-                  />
+                {/* 2. CONTATO */}
+                <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-4">
+                  <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-zinc-500" />
+                    {t("dashboard.colaboradores.form.section_contact")}
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">{t("dashboard.colaboradores.form.email")}</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          defaultValue={editing?.email || voiceData?.email || ""}
+                          className="pl-9 bg-white dark:bg-zinc-900"
+                          placeholder="email@empresa.com"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="telefone">{t("dashboard.colaboradores.form.phone")}</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+                        <Input
+                          id="telefone"
+                          name="telefone"
+                          defaultValue={editing?.telefone || voiceData?.telefone || ""}
+                          className="pl-9 bg-white dark:bg-zinc-900"
+                          placeholder="(00) 00000-0000"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-2 sm:col-span-2">
+                      <Label htmlFor="endereco">{t("dashboard.colaboradores.form.address")}</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+                        <Input
+                          id="endereco"
+                          name="endereco"
+                          defaultValue={editing?.endereco || ""}
+                          className="pl-9 bg-white dark:bg-zinc-900"
+                          placeholder="Endereço completo"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="observacoes">{t("dashboard.colaboradores.form.observations")}</Label>
-                  <Input
-                    id="observacoes"
-                    name="observacoes"
-                    defaultValue={editing?.observacoes || ""}
-                  />
+                {/* 3. PROFISSIONAL */}
+                <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-4">
+                  <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-zinc-500" />
+                    {t("dashboard.colaboradores.form.section_professional")}
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="data_admissao">{t("dashboard.colaboradores.form.admission_date")}</Label>
+                      <Input
+                        id="data_admissao"
+                        name="data_admissao"
+                        type="date"
+                        defaultValue={editing?.data_admissao ? new Date(editing.data_admissao).toISOString().split('T')[0] : ""}
+                        className="bg-white dark:bg-zinc-900"
+                      />
+                    </div>
+                    <div className="grid gap-2 sm:col-span-2">
+                      <Label htmlFor="observacoes">{t("dashboard.colaboradores.form.observations")}</Label>
+                      <Input
+                        id="observacoes"
+                        name="observacoes"
+                        defaultValue={editing?.observacoes || ""}
+                        placeholder="Observações adicionais..."
+                        className="bg-white dark:bg-zinc-900"
+                      />
+                    </div>
+                  </div>
                 </div>
+
               </div>
             </ScrollableFormContent>
 
