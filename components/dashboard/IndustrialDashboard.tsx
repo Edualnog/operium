@@ -576,12 +576,14 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
       <OnboardingChecklist userId={userId} />
 
-      <div className="mb-8">
-        <AIInsightsCard kpis={data} recentMovements={movimentacoesMensais} />
-      </div>
-
+      {/* URGENTE: Gargalos e Alertas primeiro */}
       <div className="mb-8">
         <InventoryBottlenecksCard userId={userId} />
+      </div>
+
+      {/* AI Insights - agora auto-gera automaticamente */}
+      <div className="mb-8">
+        <AIInsightsCard kpis={data} recentMovements={movimentacoesMensais} />
       </div>
 
       <OnboardingTour />
