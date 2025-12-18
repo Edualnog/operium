@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import {
     Zap,
     Wrench,
@@ -197,7 +198,7 @@ export function IncidentReporter({ ferramentaNome, onSubmit, onCancel }: Inciden
                                 />
                                 {photoUrl ? (
                                     <div className="relative h-40 w-full">
-                                        <img src={photoUrl} className="h-full w-full object-contain rounded" alt="Preview" />
+                                        <Image src={photoUrl} fill className="object-contain rounded" alt="Preview" unoptimized />
                                         <Button
                                             variant="destructive"
                                             size="sm"

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { Check, ChevronsUpDown, Search, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -103,9 +104,9 @@ export function CatalogSearch({ onSelect }: CatalogSearchProps) {
                                         }}
                                         className="flex items-center gap-3 p-2 cursor-pointer"
                                     >
-                                        <div className="h-10 w-10 bg-zinc-100 rounded flex items-center justify-center shrink-0">
+                                        <div className="h-10 w-10 bg-zinc-100 rounded flex items-center justify-center shrink-0 relative">
                                             {item.image ? (
-                                                <img src={item.image} alt="" className="h-8 w-8 object-contain" />
+                                                <Image src={item.image} alt="" fill className="object-contain p-1" unoptimized />
                                             ) : (
                                                 <Package className="h-5 w-5 text-zinc-400" />
                                             )}
