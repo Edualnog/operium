@@ -190,7 +190,7 @@
         "profile": "Profile",
         "logout": "Logout",
         "header": {
-            "title": "Industrial Dashboard",
+            "title": "Warehouse Summary Today",
             "subtitle": "Complete overview of your warehouse in real time"
         },
         "sidebar": {
@@ -359,6 +359,23 @@
             "consumables": "Consumables",
             "epis": "PPE (Personal Protective Equipment)",
             "predictions": "Predictions and Alerts"
+        },
+        "bottlenecks": {
+            "title": "Bottleneck Alerts",
+            "desc": "Idle tools may indicate waste and risk of shortage on site.",
+            "empty_title": "All clear here.",
+            "empty_desc": "You will be notified automatically if anything becomes at risk."
+        },
+        "usage_panorama": {
+            "title": "Usage & Status Overview",
+            "desc": "Real-time utilization and availability monitoring.",
+            "total_in_use": "Total in Use Now",
+            "items": "items",
+            "no_tools_in_use": "No tools in use at the moment."
+        },
+        "empty_states": {
+            "all_clear": "All clear here.",
+            "auto_notify": "You will be notified automatically if anything becomes at risk."
         },
         "filters": {
             "best": "Best",

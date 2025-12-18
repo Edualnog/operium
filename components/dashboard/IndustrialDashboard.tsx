@@ -566,7 +566,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-center sm:text-left">
         <div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#37352f] mb-2 font-serif dark:text-zinc-50">
-            Resumo do Almoxarifado Hoje
+            {t('dashboard.header.title')}
           </h1>
           <p className="text-base sm:text-lg text-[#37352f]/70 dark:text-zinc-400">
             {t('dashboard.header.subtitle')}
@@ -861,8 +861,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 </div>
               ) : itensComprarUrgente.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-zinc-900 font-medium dark:text-zinc-100">Tudo em dia aqui.</p>
-                  <p className="text-sm text-zinc-500 mt-1">Você será avisado automaticamente se algo entrar em risco.</p>
+                  <p className="text-zinc-900 font-medium dark:text-zinc-100">{t('dashboard.empty_states.all_clear')}</p>
+                  <p className="text-sm text-zinc-500 mt-1">{t('dashboard.empty_states.auto_notify')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -917,10 +917,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800 h-full">
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <CardTitle className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-50">
-                Panorama de Uso e Status
+                {t('dashboard.usage_panorama.title')}
               </CardTitle>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Monitoramento de utilização e disponibilidade em tempo real.
+                {t('dashboard.usage_panorama.desc')}
               </p>
             </CardHeader>
             <CardContent className="pt-6">
@@ -930,8 +930,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <Activity className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />
                 </div>
                 <div>
-                  <p className="text-sm text-zinc-500 font-medium">Total em Uso Agora</p>
-                  <h3 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{data.ferramentasEmUso.reduce((acc, curr) => acc + (curr.quantidade_em_uso || 0), 0) || totalEmUsoUnidades} itens</h3>
+                  <p className="text-sm text-zinc-500 font-medium">{t('dashboard.usage_panorama.total_in_use')}</p>
+                  <h3 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{data.ferramentasEmUso.reduce((acc, curr) => acc + (curr.quantidade_em_uso || 0), 0) || totalEmUsoUnidades} {t('dashboard.usage_panorama.items')}</h3>
                 </div>
               </div>
 
@@ -1016,7 +1016,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               />
             ) : (
               <Card className="border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800 h-full flex flex-col justify-center items-center p-8">
-                <p className="text-zinc-500">Nenhuma ferramenta em uso no momento.</p>
+                <p className="text-zinc-500">{t('dashboard.usage_panorama.no_tools_in_use')}</p>
               </Card>
             )}
           </div>
@@ -1328,7 +1328,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               },
             ]}
             maxItems={3}
-            emptyMessage="Tudo em dia aqui. Você será avisado automaticamente se algo entrar em risco."
+            emptyMessage={`${t('dashboard.empty_states.all_clear')} ${t('dashboard.empty_states.auto_notify')}`}
           />
 
           <KpiList
@@ -1412,7 +1412,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
               },
             ]}
             maxItems={3}
-            emptyMessage="Tudo em dia aqui. Você será avisado automaticamente se algo entrar em risco."
+            emptyMessage={`${t('dashboard.empty_states.all_clear')} ${t('dashboard.empty_states.auto_notify')}`}
           />
         </div>
       </section>

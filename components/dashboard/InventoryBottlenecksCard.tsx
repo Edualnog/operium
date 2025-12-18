@@ -119,12 +119,12 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                 <CardHeader className="pb-3 border-b border-slate-100 dark:border-zinc-800">
                     <CardTitle className="text-base sm:text-lg font-bold font-serif text-[#37352f] flex items-center gap-2 dark:text-zinc-50">
                         <AlertTriangle className="h-5 w-5 text-green-500" />
-                        Sinalização de Gargalos
+                        {t('dashboard.bottlenecks.title')}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 pb-6 text-center">
-                    <p className="text-zinc-600 dark:text-zinc-300 font-medium">Tudo em dia aqui.</p>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Você será avisado automaticamente se algo entrar em risco.</p>
+                    <p className="text-zinc-600 dark:text-zinc-300 font-medium">{t('dashboard.bottlenecks.empty_title')}</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{t('dashboard.bottlenecks.empty_desc')}</p>
                 </CardContent>
             </Card>
         )
@@ -136,10 +136,10 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                 <div>
                     <CardTitle className="text-base sm:text-lg font-bold font-serif text-[#37352f] flex items-center gap-2 dark:text-zinc-50">
                         <AlertTriangle className="h-5 w-5 text-amber-500" />
-                        Sinalização de Gargalos
+                        {t('dashboard.bottlenecks.title')}
                     </CardTitle>
                     <p className="text-xs sm:text-sm text-[#37352f]/60 mt-1 dark:text-zinc-400">
-                        Ferramentas paradas podem indicar desperdício e risco de falta na obra.
+                        {t('dashboard.bottlenecks.desc')}
                     </p>
                 </div>
             </CardHeader>

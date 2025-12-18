@@ -180,7 +180,7 @@
         "profile": "Perfil",
         "logout": "Sair",
         "header": {
-            "title": "Dashboard Industrial",
+            "title": "Resumo do Almoxarifado Hoje",
             "subtitle": "Visão completa do seu almoxarifado em tempo real"
         },
         "sidebar": {
@@ -349,6 +349,23 @@
             "consumables": "Consumíveis",
             "epis": "EPIs (Equipamentos de Proteção Individual)",
             "predictions": "Previsões e Alertas"
+        },
+        "bottlenecks": {
+            "title": "Sinalização de Gargalos",
+            "desc": "Ferramentas paradas podem indicar desperdício e risco de falta na obra.",
+            "empty_title": "Tudo em dia aqui.",
+            "empty_desc": "Você será avisado automaticamente se algo entrar em risco."
+        },
+        "usage_panorama": {
+            "title": "Panorama de Uso e Status",
+            "desc": "Monitoramento de utilização e disponibilidade em tempo real.",
+            "total_in_use": "Total em Uso Agora",
+            "items": "itens",
+            "no_tools_in_use": "Nenhuma ferramenta em uso no momento."
+        },
+        "empty_states": {
+            "all_clear": "Tudo em dia aqui.",
+            "auto_notify": "Você será avisado automaticamente se algo entrar em risco."
         },
         "filters": {
             "best": "Melhores",
