@@ -122,12 +122,12 @@ export async function criarColaborador(formData: FormData) {
   const dataAdmissao = formData.get("data_admissao")
   const data = colaboradorSchema.parse({
     nome: formData.get("nome"),
-    cargo: formData.get("cargo"),
+    cargo: undefined, // Removed from form - use role_function instead
     telefone: formData.get("telefone"),
     foto_url: formData.get("foto_url") || undefined,
     data_admissao: dataAdmissao && dataAdmissao !== "" ? dataAdmissao : undefined,
     email: formData.get("email") || undefined,
-    cpf: formData.get("cpf") || undefined,
+    cpf: undefined, // Removed from form
     endereco: formData.get("endereco") || undefined,
     observacoes: formData.get("observacoes") || undefined,
     role_function: formData.get("role_function"),
@@ -177,12 +177,12 @@ export async function atualizarColaborador(id: string, formData: FormData) {
   const dataAdmissao = formData.get("data_admissao")
   const data = colaboradorSchema.parse({
     nome: formData.get("nome"),
-    cargo: formData.get("cargo"),
+    cargo: undefined, // Removed from form - use role_function instead
     telefone: formData.get("telefone"),
     foto_url: formData.get("foto_url") || undefined,
     data_admissao: dataAdmissao && dataAdmissao !== "" ? dataAdmissao : undefined,
     email: formData.get("email") || undefined,
-    cpf: formData.get("cpf") || undefined,
+    cpf: undefined, // Removed from form
     endereco: formData.get("endereco") || undefined,
     observacoes: formData.get("observacoes") || undefined,
     role_function: formData.get("role_function"),
