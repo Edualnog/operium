@@ -151,7 +151,7 @@ export function VehicleStats() {
                         <div className="flex items-center gap-3">
                             <Wrench className="h-5 w-5 text-orange-400 dark:text-orange-500" />
                             <div>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('vehicles.maintenance')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('vehicles.maintenance.title')}</p>
                                 <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                                     {stats.maintenance}
                                 </p>
