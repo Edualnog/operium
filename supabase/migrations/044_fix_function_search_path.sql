@@ -32,6 +32,11 @@ BEGIN
     IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'protect_behavior_features') THEN
         ALTER FUNCTION public.protect_behavior_features() SET search_path = public;
     END IF;
+    
+    -- calculate_vehicle_features (tem parâmetro UUID)
+    IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'calculate_vehicle_features') THEN
+        ALTER FUNCTION public.calculate_vehicle_features(UUID) SET search_path = public;
+    END IF;
 END $$;
 
 -- Para funções no schema analytics
