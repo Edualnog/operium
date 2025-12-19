@@ -1432,11 +1432,42 @@
             "assign_button": "Atribuir",
             "return_button": "Devolver"
         },
+        "maintenance": {
+            "title": "Histórico de Manutenções",
+            "new": "Nova Manutenção",
+            "date": "Data",
+            "type": "Tipo",
+            "description": "Descrição",
+            "cost": "Custo (R$)",
+            "next_date": "Próxima Manutenção",
+            "save": "Salvar Manutenção",
+            "types": {
+                "PREVENTIVE": "Preventiva",
+                "CORRECTIVE": "Corretiva",
+                "PREDICTIVE": "Preditiva"
+            }
+        },
         "usage": {
             "date": "Data",
             "event": "Evento",
             "collaborator": "Colaborador",
             "notes": "Descrição"
+        },
+        "costs": {
+            "title": "Histórico de Custos",
+            "new": "Novo Custo",
+            "month": "Mês de Referência",
+            "type": "Tipo",
+            "amount": "Valor",
+            "notes": "Observações",
+            "save": "Salvar Custo",
+            "types": {
+                "FUEL": "Combustível",
+                "INSURANCE": "Seguro",
+                "TAX": "IPVA/Taxas",
+                "FINE": "Multa",
+                "OTHER": "Outro"
+            }
         }
     }
 }

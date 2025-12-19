@@ -63,7 +63,7 @@ export function VehicleCostForm({
                         <Label htmlFor="cost_type">{t('vehicles.costs.type')} *</Label>
                         <Select name="cost_type" required>
                             <SelectTrigger>
-                                <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
+                                <SelectValue placeholder={t('common.select')} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="FUEL">{t('vehicles.costs.types.FUEL')}</SelectItem>

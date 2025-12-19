@@ -64,7 +64,7 @@ export function VehicleMaintenanceForm({
                         <Label htmlFor="maintenance_type">{t('vehicles.maintenance.type')} *</Label>
                         <Select name="maintenance_type" required>
                             <SelectTrigger>
-                                <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
+                                <SelectValue placeholder={t('common.select')} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="PREVENTIVE">{t('vehicles.maintenance.types.PREVENTIVE')}</SelectItem>

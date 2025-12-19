@@ -86,7 +86,7 @@ export function VehicleForm({
                             <Label htmlFor="vehicle_type">{t('vehicles.form.type')} *</Label>
                             <Select name="vehicle_type" defaultValue={initialData?.vehicle_type || "CAR"} required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
+                                    <SelectValue placeholder={t('common.select')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="CAR">{t('vehicles.types.CAR')}</SelectItem>
@@ -127,7 +127,7 @@ export function VehicleForm({
                             <Label htmlFor="fuel_type">{t('vehicles.form.fuel')} *</Label>
                             <Select name="fuel_type" defaultValue={initialData?.fuel_type || "FLEX"} required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
+                                    <SelectValue placeholder={t('common.select')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="GASOLINE">{t('vehicles.fuel.GASOLINE')}</SelectItem>
@@ -190,7 +190,7 @@ export function VehicleForm({
                             <Label htmlFor="status">{t('vehicles.details.status')}</Label>
                             <Select name="status" defaultValue={initialData?.status || "active"} required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
+                                    <SelectValue placeholder={t('common.select')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="active">{t('vehicles.status.active')}</SelectItem>
