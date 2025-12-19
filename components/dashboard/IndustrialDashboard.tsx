@@ -33,7 +33,6 @@ import {
 import { OnboardingChecklist } from "./OnboardingChecklist"
 import { AIInsightsCard } from "./AIInsightsCard"
 
-import { OnboardingTour } from "./OnboardingTour"
 import { InventoryBottlenecksCard } from "./InventoryBottlenecksCard"
 import { OrgMaturityCard } from "./OrgMaturityCard"
 import { FEATURES } from "@/lib/features"
@@ -593,8 +592,6 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <OrgMaturityCard />
         </div>
       )}
-
-      <OnboardingTour />
 
       {/* SESSÃO OVERVIEW - Gráficos principais */}
       <section className="space-y-6 mb-8">
