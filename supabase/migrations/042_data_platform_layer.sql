@@ -299,24 +299,21 @@ SELECT
     v.profile_id,
     'vehicle' AS entity_type,
     vu.vehicle_id AS entity_id,
-    CASE 
-        WHEN vu.end_time IS NULL THEN 'VEHICLE_CHECKOUT'
-        ELSE 'VEHICLE_RETURNED'
+    CASE vu.usage_type
+        WHEN 'assignment' THEN 'VEHICLE_ASSIGNED'
+        WHEN 'return' THEN 'VEHICLE_RETURNED'
+        WHEN 'trip' THEN 'VEHICLE_TRIP'
+        ELSE 'VEHICLE_USAGE'
     END AS event_type,
     'system' AS event_source,
     jsonb_build_object(
         'vehicle_plate', v.plate,
-        'driver_id', vu.driver_id,
-        'start_time', vu.start_time,
-        'end_time', vu.end_time,
-        'start_odometer', vu.start_odometer,
-        'end_odometer', vu.end_odometer,
-        'purpose', vu.purpose,
-        'distance_km', CASE WHEN vu.end_odometer IS NOT NULL AND vu.start_odometer IS NOT NULL 
-            THEN vu.end_odometer - vu.start_odometer ELSE NULL END
+        'collaborator_id', vu.collaborator_id,
+        'usage_type', vu.usage_type,
+        'notes', vu.notes
     ) AS payload,
-    COALESCE(vu.end_time, vu.start_time) AS occurred_at,
-    vu.created_at AS ingested_at
+    vu.usage_date AS occurred_at,
+    vu.usage_date AS ingested_at
 FROM public.vehicle_usage_events vu
 JOIN public.vehicles v ON v.id = vu.vehicle_id;
 
