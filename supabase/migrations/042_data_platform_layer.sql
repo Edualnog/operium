@@ -18,7 +18,7 @@
 
 CREATE TABLE IF NOT EXISTS public.domain_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    org_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     
     -- Identificação da entidade
     entity_type TEXT NOT NULL CHECK (entity_type IN (
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS public.domain_events (
 );
 
 -- Índices para performance
-CREATE INDEX IF NOT EXISTS idx_domain_events_org_id ON public.domain_events(org_id);
+CREATE INDEX IF NOT EXISTS idx_domain_events_profile_id ON public.domain_events(profile_id);
 CREATE INDEX IF NOT EXISTS idx_domain_events_entity ON public.domain_events(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_domain_events_type ON public.domain_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_domain_events_occurred ON public.domain_events(occurred_at DESC);
@@ -131,7 +131,7 @@ COMMENT ON COLUMN public.event_context.deviation_reason IS 'Razão do desvio de 
 
 CREATE TABLE IF NOT EXISTS public.derived_metrics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    org_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     
     -- Identificação da métrica
     metric_key TEXT NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS public.derived_metrics (
 );
 
 -- Índices
-CREATE INDEX IF NOT EXISTS idx_derived_metrics_org_id ON public.derived_metrics(org_id);
+CREATE INDEX IF NOT EXISTS idx_derived_metrics_profile_id ON public.derived_metrics(profile_id);
 CREATE INDEX IF NOT EXISTS idx_derived_metrics_key ON public.derived_metrics(metric_key);
 CREATE INDEX IF NOT EXISTS idx_derived_metrics_entity ON public.derived_metrics(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_derived_metrics_current ON public.derived_metrics(is_current) WHERE is_current = TRUE;
@@ -184,7 +184,7 @@ COMMENT ON COLUMN public.derived_metrics.based_on_event_count IS 'Quantidade de 
 
 CREATE TABLE IF NOT EXISTS public.operational_baselines (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    org_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     
     -- Identificação
     entity_type TEXT NOT NULL,
@@ -212,11 +212,11 @@ CREATE TABLE IF NOT EXISTS public.operational_baselines (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     
     -- Unique constraint
-    CONSTRAINT operational_baselines_unique UNIQUE(org_id, entity_type, metric_key)
+    CONSTRAINT operational_baselines_unique UNIQUE(profile_id, entity_type, metric_key)
 );
 
 -- Índices
-CREATE INDEX IF NOT EXISTS idx_operational_baselines_org ON public.operational_baselines(org_id);
+CREATE INDEX IF NOT EXISTS idx_operational_baselines_profile ON public.operational_baselines(profile_id);
 CREATE INDEX IF NOT EXISTS idx_operational_baselines_entity ON public.operational_baselines(entity_type);
 CREATE INDEX IF NOT EXISTS idx_operational_baselines_active ON public.operational_baselines(is_active) WHERE is_active = TRUE;
 
@@ -232,102 +232,14 @@ COMMENT ON COLUMN public.operational_baselines.sample_size IS 'Quantidade de amo
 
 -- ============================================================================
 -- PARTE 5: VIEWS DE PROJEÇÃO DE EVENTOS
+-- Nota: Usando JOINs para obter profile_id através das tabelas pai
 -- ============================================================================
 
--- View: Movimentações → Eventos
-CREATE OR REPLACE VIEW public.v_events_movements AS
-SELECT 
-    gen_random_uuid() AS id,
-    m.org_id,
-    'movement' AS entity_type,
-    m.id AS entity_id,
-    CASE 
-        WHEN m.tipo = 'ENTRADA' THEN 'MOVEMENT_IN'
-        WHEN m.tipo = 'SAIDA' THEN 'MOVEMENT_OUT'
-        WHEN m.tipo = 'DEVOLUCAO' THEN 'MOVEMENT_RETURN'
-        ELSE 'MOVEMENT_OTHER'
-    END AS event_type,
-    'system' AS event_source,
-    jsonb_build_object(
-        'tipo', m.tipo,
-        'quantidade', m.quantidade,
-        'produto_id', m.produto_id,
-        'colaborador_id', m.colaborador_id,
-        'observacao', m.observacao
-    ) AS payload,
-    m.created_at AS occurred_at,
-    NOW() AS ingested_at
-FROM public.movimentacoes m;
-
-COMMENT ON VIEW public.v_events_movements IS 
-'View de projeção: Transforma movimentações em eventos normalizados.
-NÃO ALTERA dados originais. Apenas projeta para formato de evento.';
-
--- View: Consertos → Eventos
-CREATE OR REPLACE VIEW public.v_events_repairs AS
-SELECT 
-    gen_random_uuid() AS id,
-    c.org_id,
-    'repair' AS entity_type,
-    c.id AS entity_id,
-    CASE 
-        WHEN c.status = 'PENDENTE' THEN 'REPAIR_REQUESTED'
-        WHEN c.status = 'EM_ANDAMENTO' THEN 'REPAIR_STARTED'
-        WHEN c.status = 'CONCLUIDO' THEN 'REPAIR_COMPLETED'
-        WHEN c.status = 'CANCELADO' THEN 'REPAIR_CANCELLED'
-        ELSE 'REPAIR_STATUS_CHANGED'
-    END AS event_type,
-    'system' AS event_source,
-    jsonb_build_object(
-        'status', c.status,
-        'ferramenta_id', c.ferramenta_id,
-        'descricao', c.descricao,
-        'custo', c.custo
-    ) AS payload,
-    COALESCE(c.data_conclusao, c.created_at) AS occurred_at,
-    NOW() AS ingested_at
-FROM public.consertos c;
-
-COMMENT ON VIEW public.v_events_repairs IS 
-'View de projeção: Transforma consertos em eventos normalizados.
-NÃO ALTERA dados originais. Apenas projeta para formato de evento.';
-
--- View: Uso de Veículos → Eventos
-CREATE OR REPLACE VIEW public.v_events_vehicle_usage AS
-SELECT 
-    gen_random_uuid() AS id,
-    v.org_id,
-    'vehicle' AS entity_type,
-    vu.vehicle_id AS entity_id,
-    CASE 
-        WHEN vu.end_time IS NULL THEN 'VEHICLE_CHECKOUT'
-        ELSE 'VEHICLE_RETURNED'
-    END AS event_type,
-    'system' AS event_source,
-    jsonb_build_object(
-        'driver_id', vu.driver_id,
-        'start_time', vu.start_time,
-        'end_time', vu.end_time,
-        'start_odometer', vu.start_odometer,
-        'end_odometer', vu.end_odometer,
-        'purpose', vu.purpose,
-        'distance_km', CASE WHEN vu.end_odometer IS NOT NULL AND vu.start_odometer IS NOT NULL 
-            THEN vu.end_odometer - vu.start_odometer ELSE NULL END
-    ) AS payload,
-    COALESCE(vu.end_time, vu.start_time) AS occurred_at,
-    NOW() AS ingested_at
-FROM public.vehicle_usage_events vu
-JOIN public.vehicles v ON v.id = vu.vehicle_id;
-
-COMMENT ON VIEW public.v_events_vehicle_usage IS 
-'View de projeção: Transforma uso de veículos em eventos normalizados.
-NÃO ALTERA dados originais. Apenas projeta para formato de evento.';
-
--- View: Manutenções de Veículos → Eventos
+-- View: Veículos → Eventos de Manutenção
 CREATE OR REPLACE VIEW public.v_events_vehicle_maintenance AS
 SELECT 
     gen_random_uuid() AS id,
-    v.org_id,
+    v.profile_id,
     'maintenance' AS entity_type,
     vm.id AS entity_id,
     CASE vm.maintenance_type
@@ -339,13 +251,14 @@ SELECT
     'system' AS event_source,
     jsonb_build_object(
         'vehicle_id', vm.vehicle_id,
+        'vehicle_plate', v.plate,
         'maintenance_type', vm.maintenance_type,
         'description', vm.description,
         'cost', vm.cost,
         'next_maintenance_date', vm.next_maintenance_date
     ) AS payload,
     vm.maintenance_date AS occurred_at,
-    NOW() AS ingested_at
+    vm.created_at AS ingested_at
 FROM public.vehicle_maintenances vm
 JOIN public.vehicles v ON v.id = vm.vehicle_id;
 
@@ -353,24 +266,25 @@ COMMENT ON VIEW public.v_events_vehicle_maintenance IS
 'View de projeção: Transforma manutenções de veículos em eventos normalizados.
 NÃO ALTERA dados originais. Apenas projeta para formato de evento.';
 
--- View: Custos de Veículos → Eventos
+-- View: Veículos → Eventos de Custos
 CREATE OR REPLACE VIEW public.v_events_vehicle_costs AS
 SELECT 
     gen_random_uuid() AS id,
-    v.org_id,
+    v.profile_id,
     'cost' AS entity_type,
     vc.id AS entity_id,
     'VEHICLE_COST_' || vc.cost_type AS event_type,
     'system' AS event_source,
     jsonb_build_object(
         'vehicle_id', vc.vehicle_id,
+        'vehicle_plate', v.plate,
         'cost_type', vc.cost_type,
         'amount', vc.amount,
         'reference_month', vc.reference_month,
         'notes', vc.notes
     ) AS payload,
-    COALESCE(vc.reference_month::date, vc.created_at) AS occurred_at,
-    NOW() AS ingested_at
+    COALESCE(vc.reference_month::timestamptz, vc.created_at) AS occurred_at,
+    vc.created_at AS ingested_at
 FROM public.vehicle_costs vc
 JOIN public.vehicles v ON v.id = vc.vehicle_id;
 
@@ -378,53 +292,86 @@ COMMENT ON VIEW public.v_events_vehicle_costs IS
 'View de projeção: Transforma custos de veículos em eventos normalizados.
 NÃO ALTERA dados originais. Apenas projeta para formato de evento.';
 
--- View: Inventário → Eventos
-CREATE OR REPLACE VIEW public.v_events_inventory AS
+-- View: Veículos → Eventos de Uso
+CREATE OR REPLACE VIEW public.v_events_vehicle_usage AS
 SELECT 
     gen_random_uuid() AS id,
-    i.org_id,
-    'inventory' AS entity_type,
-    i.id AS entity_id,
+    v.profile_id,
+    'vehicle' AS entity_type,
+    vu.vehicle_id AS entity_id,
     CASE 
-        WHEN i.status = 'PENDENTE' THEN 'INVENTORY_STARTED'
-        WHEN i.status = 'EM_ANDAMENTO' THEN 'INVENTORY_IN_PROGRESS'
-        WHEN i.status = 'CONCLUIDO' THEN 'INVENTORY_COMPLETED'
-        ELSE 'INVENTORY_STATUS_CHANGED'
+        WHEN vu.end_time IS NULL THEN 'VEHICLE_CHECKOUT'
+        ELSE 'VEHICLE_RETURNED'
     END AS event_type,
     'system' AS event_source,
     jsonb_build_object(
-        'status', i.status,
-        'observacoes', i.observacoes
+        'vehicle_plate', v.plate,
+        'driver_id', vu.driver_id,
+        'start_time', vu.start_time,
+        'end_time', vu.end_time,
+        'start_odometer', vu.start_odometer,
+        'end_odometer', vu.end_odometer,
+        'purpose', vu.purpose,
+        'distance_km', CASE WHEN vu.end_odometer IS NOT NULL AND vu.start_odometer IS NOT NULL 
+            THEN vu.end_odometer - vu.start_odometer ELSE NULL END
     ) AS payload,
-    COALESCE(i.data_finalizacao, i.data_inicio) AS occurred_at,
-    NOW() AS ingested_at
-FROM public.inventarios i;
+    COALESCE(vu.end_time, vu.start_time) AS occurred_at,
+    vu.created_at AS ingested_at
+FROM public.vehicle_usage_events vu
+JOIN public.vehicles v ON v.id = vu.vehicle_id;
 
-COMMENT ON VIEW public.v_events_inventory IS 
-'View de projeção: Transforma inventários em eventos normalizados.
+COMMENT ON VIEW public.v_events_vehicle_usage IS 
+'View de projeção: Transforma uso de veículos em eventos normalizados.
 NÃO ALTERA dados originais. Apenas projeta para formato de evento.';
 
+-- View: Ferramentas → Eventos (se tabela existir)
+-- Nota: Usando DO block para criar view condicionalmente
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ferramentas' AND table_schema = 'public') THEN
+        EXECUTE '
+            CREATE OR REPLACE VIEW public.v_events_tools AS
+            SELECT 
+                gen_random_uuid() AS id,
+                f.user_id AS profile_id,
+                ''tool'' AS entity_type,
+                f.id AS entity_id,
+                CASE f.estado
+                    WHEN ''disponivel'' THEN ''TOOL_AVAILABLE''
+                    WHEN ''emprestada'' THEN ''TOOL_LOANED''
+                    WHEN ''danificada'' THEN ''TOOL_DAMAGED''
+                    WHEN ''em_conserto'' THEN ''TOOL_IN_REPAIR''
+                    ELSE ''TOOL_STATUS_CHANGED''
+                END AS event_type,
+                ''system'' AS event_source,
+                jsonb_build_object(
+                    ''nome'', f.nome,
+                    ''estado'', f.estado,
+                    ''categoria'', f.categoria,
+                    ''quantidade_disponivel'', f.quantidade_disponivel
+                ) AS payload,
+                f.updated_at AS occurred_at,
+                f.created_at AS ingested_at
+            FROM public.ferramentas f
+        ';
+    END IF;
+END $$;
+
 -- ============================================================================
--- PARTE 6: VIEW UNIFICADA DE TODOS OS EVENTOS
+-- PARTE 6: VIEW UNIFICADA DE EVENTOS DISPONÍVEIS
 -- ============================================================================
 
-CREATE OR REPLACE VIEW public.v_all_projected_events AS
-SELECT * FROM public.v_events_movements
-UNION ALL
-SELECT * FROM public.v_events_repairs
-UNION ALL
-SELECT * FROM public.v_events_vehicle_usage
-UNION ALL
+CREATE OR REPLACE VIEW public.v_all_vehicle_events AS
 SELECT * FROM public.v_events_vehicle_maintenance
 UNION ALL
 SELECT * FROM public.v_events_vehicle_costs
 UNION ALL
-SELECT * FROM public.v_events_inventory;
+SELECT * FROM public.v_events_vehicle_usage;
 
-COMMENT ON VIEW public.v_all_projected_events IS 
-'View unificada de todos os eventos projetados a partir das tabelas operacionais.
+COMMENT ON VIEW public.v_all_vehicle_events IS 
+'View unificada de todos os eventos de veículos projetados.
 Use esta view para sincronizar dados históricos com domain_events.
-IMPORTANTE: Esta view NÃO substitui domain_events. É apenas para migração inicial.';
+IMPORTANTE: Esta view NÃO substitui domain_events. É apenas para referência.';
 
 -- ============================================================================
 -- PARTE 7: RLS POLICIES
@@ -437,36 +384,36 @@ ALTER TABLE public.derived_metrics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.operational_baselines ENABLE ROW LEVEL SECURITY;
 
 -- Policy: domain_events
-CREATE POLICY "Users can view events of their org" ON public.domain_events
-    FOR SELECT USING (org_id = auth.uid());
+CREATE POLICY "Users can view events of their profile" ON public.domain_events
+    FOR SELECT USING (profile_id = auth.uid());
 
-CREATE POLICY "Users can insert events for their org" ON public.domain_events
-    FOR INSERT WITH CHECK (org_id = auth.uid());
+CREATE POLICY "Users can insert events for their profile" ON public.domain_events
+    FOR INSERT WITH CHECK (profile_id = auth.uid());
 
 -- Policy: event_context
 CREATE POLICY "Users can view context of their events" ON public.event_context
     FOR SELECT USING (
-        event_id IN (SELECT id FROM public.domain_events WHERE org_id = auth.uid())
+        event_id IN (SELECT id FROM public.domain_events WHERE profile_id = auth.uid())
     );
 
 CREATE POLICY "Users can insert context for their events" ON public.event_context
     FOR INSERT WITH CHECK (
-        event_id IN (SELECT id FROM public.domain_events WHERE org_id = auth.uid())
+        event_id IN (SELECT id FROM public.domain_events WHERE profile_id = auth.uid())
     );
 
 -- Policy: derived_metrics
-CREATE POLICY "Users can view metrics of their org" ON public.derived_metrics
-    FOR SELECT USING (org_id = auth.uid());
+CREATE POLICY "Users can view metrics of their profile" ON public.derived_metrics
+    FOR SELECT USING (profile_id = auth.uid());
 
-CREATE POLICY "Users can insert metrics for their org" ON public.derived_metrics
-    FOR INSERT WITH CHECK (org_id = auth.uid());
+CREATE POLICY "Users can insert metrics for their profile" ON public.derived_metrics
+    FOR INSERT WITH CHECK (profile_id = auth.uid());
 
 -- Policy: operational_baselines
-CREATE POLICY "Users can view baselines of their org" ON public.operational_baselines
-    FOR SELECT USING (org_id = auth.uid());
+CREATE POLICY "Users can view baselines of their profile" ON public.operational_baselines
+    FOR SELECT USING (profile_id = auth.uid());
 
-CREATE POLICY "Users can manage baselines for their org" ON public.operational_baselines
-    FOR ALL USING (org_id = auth.uid());
+CREATE POLICY "Users can manage baselines for their profile" ON public.operational_baselines
+    FOR ALL USING (profile_id = auth.uid());
 
 -- ============================================================================
 -- PARTE 8: DOCUMENTAÇÃO GERAL
@@ -487,7 +434,7 @@ FLUXO DE DADOS:
 Tabelas Operacionais → Views de Projeção → domain_events → derived_metrics → AI/Analytics
 
 CAMADAS:
-1. Operacional: movimentacoes, consertos, vehicles, etc.
+1. Operacional: ferramentas, consertos, vehicles, etc.
 2. Eventos: domain_events (imutável)
 3. Contexto: event_context (causalidade)
 4. Métricas: derived_metrics (versionadas)
