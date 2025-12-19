@@ -15,6 +15,7 @@ import {
   Mail,
   PlayCircle,
   ClipboardList,
+  Truck,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
 import Image from "next/image"
@@ -117,6 +118,14 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       id: "sidebar-inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Veículos", // Pending translation key 'dashboard.sidebar.vehicles'
+      href: "/dashboard/veiculos",
+      id: "sidebar-veiculos",
+      icon: (
+        <Truck className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
