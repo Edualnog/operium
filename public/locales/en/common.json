@@ -1330,6 +1330,14 @@
             "inactive": "Inactive",
             "out_of_service": "Out of Service"
         },
+        "filters": {
+            "status": "Status",
+            "type": "Type",
+            "all_statuses": "All Statuses",
+            "all_types": "All Types",
+            "clear": "Clear",
+            "results": "vehicle(s)"
+        },
         "form": {
             "title_new": "New Vehicle",
             "title_edit": "Edit Vehicle",

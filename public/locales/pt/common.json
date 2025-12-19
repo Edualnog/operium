@@ -1349,6 +1349,14 @@
             "maintenance": "Em Manutenção",
             "out_of_service": "Fora de Serviço"
         },
+        "filters": {
+            "status": "Status",
+            "type": "Tipo",
+            "all_statuses": "Todos os Status",
+            "all_types": "Todos os Tipos",
+            "clear": "Limpar",
+            "results": "veículo(s)"
+        },
         "form": {
             "title_new": "Novo Veículo",
             "title_edit": "Editar Veículo",

@@ -1,10 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useVehicles } from "@/lib/hooks/useVehicles"
 import { Vehicle } from "@/lib/types/vehicles"
 import { VehicleForm } from "./VehicleForm"
 import { Button } from "@/components/ui/button"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -28,6 +35,8 @@ import {
     Bike,
     Edit,
     Trash2,
+    Filter,
+    X,
 } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR, enUS } from "date-fns/locale"
@@ -51,8 +60,28 @@ export function VehiclesList() {
     const router = useRouter()
     const { t, i18n } = useTranslation('common')
 
+    // Filter state
+    const [statusFilter, setStatusFilter] = useState<string>("all")
+    const [typeFilter, setTypeFilter] = useState<string>("all")
+
     // date-fns locale based on i18n
     const dateLocale = i18n.language === 'pt' ? ptBR : enUS
+
+    // Filtered vehicles
+    const filteredVehicles = useMemo(() => {
+        return vehicles.filter(vehicle => {
+            const matchesStatus = statusFilter === "all" || (vehicle.status || 'active') === statusFilter
+            const matchesType = typeFilter === "all" || vehicle.vehicle_type === typeFilter
+            return matchesStatus && matchesType
+        })
+    }, [vehicles, statusFilter, typeFilter])
+
+    const hasActiveFilters = statusFilter !== "all" || typeFilter !== "all"
+
+    const clearFilters = () => {
+        setStatusFilter("all")
+        setTypeFilter("all")
+    }
 
     const handleCreate = async (data: any) => {
         try {
@@ -110,6 +139,43 @@ export function VehiclesList() {
                 </Button>
             </div>
 
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                <Filter className="h-4 w-4 text-zinc-500" />
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[160px] h-9 bg-white dark:bg-zinc-900">
+                        <SelectValue placeholder={t('vehicles.filters.status')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">{t('vehicles.filters.all_statuses')}</SelectItem>
+                        <SelectItem value="active">{t('vehicles.status.active')}</SelectItem>
+                        <SelectItem value="maintenance">{t('vehicles.status.maintenance')}</SelectItem>
+                        <SelectItem value="out_of_service">{t('vehicles.status.out_of_service')}</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-[160px] h-9 bg-white dark:bg-zinc-900">
+                        <SelectValue placeholder={t('vehicles.filters.type')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">{t('vehicles.filters.all_types')}</SelectItem>
+                        <SelectItem value="CAR">{t('vehicles.types.CAR')}</SelectItem>
+                        <SelectItem value="TRUCK">{t('vehicles.types.TRUCK')}</SelectItem>
+                        <SelectItem value="VAN">{t('vehicles.types.VAN')}</SelectItem>
+                        <SelectItem value="MOTORCYCLE">{t('vehicles.types.MOTORCYCLE')}</SelectItem>
+                        <SelectItem value="OTHER">{t('vehicles.types.OTHER')}</SelectItem>
+                    </SelectContent>
+                </Select>
+                {hasActiveFilters && (
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100">
+                        <X className="h-4 w-4 mr-1" /> {t('vehicles.filters.clear')}
+                    </Button>
+                )}
+                <span className="ml-auto text-sm text-zinc-500">
+                    {filteredVehicles.length} {t('vehicles.filters.results')}
+                </span>
+            </div>
+
             <div className="rounded-lg border border-zinc-200 bg-white dark:bg-zinc-900 dark:border-zinc-800 overflow-hidden">
                 <Table>
                     <TableHeader className="bg-zinc-50 dark:bg-zinc-800/50">
@@ -131,7 +197,7 @@ export function VehiclesList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            vehicles.map((vehicle) => (
+                            filteredVehicles.map((vehicle) => (
                                 <TableRow
                                     key={vehicle.id}
                                     className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800/50 transition-colors"
