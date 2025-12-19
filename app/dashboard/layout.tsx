@@ -49,8 +49,8 @@ export default async function DashboardLayout({
     console.error('Erro ao buscar profile:', error)
   }
 
-  // Verificar se onboarding foi completado (todos os 3 campos obrigatórios preenchidos)
-  const hasCompletedOnboarding = profile?.company_name && profile?.industry_segment && profile?.company_size
+  // Verificar se onboarding foi completado (apenas company_name e industry_segment são obrigatórios)
+  const hasCompletedOnboarding = profile?.company_name && profile?.industry_segment
   if (!hasCompletedOnboarding) {
     redirect("/onboarding")
   }
