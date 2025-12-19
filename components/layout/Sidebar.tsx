@@ -78,7 +78,7 @@ export default function AppSidebar() {
       ),
     },
     {
-      label: "Veículos", // TODO: Add translation key 'dashboard.sidebar.vehicles'
+      label: "Veículos", // Pending translation key 'dashboard.sidebar.vehicles'
       href: "/dashboard/veiculos", // Using Portuguese URL as per context
       icon: (
         <Truck className="h-5 w-5 flex-shrink-0" />
