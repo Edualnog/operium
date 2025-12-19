@@ -11,6 +11,7 @@ import {
   LogOut,
   Settings,
   ClipboardList,
+  Truck,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -74,6 +75,13 @@ export default function AppSidebar() {
       href: "/dashboard/inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Veículos", // TODO: Add translation key 'dashboard.sidebar.vehicles'
+      href: "/dashboard/veiculos", // Using Portuguese URL as per context
+      icon: (
+        <Truck className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
