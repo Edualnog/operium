@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 import { useVehicle } from "@/lib/hooks/useVehicles"
 import { VehicleMaintenanceList } from "@/components/vehicles/VehicleMaintenanceList"
