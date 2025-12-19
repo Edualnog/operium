@@ -103,6 +103,9 @@ interface Colaborador {
   created_at?: string
   almox_score?: number
   level?: string
+  // Operational profile fields
+  role_function?: string
+  seniority_bucket?: 'LESS_THAN_6_MONTHS' | '6_TO_24_MONTHS' | 'MORE_THAN_24_MONTHS'
 }
 
 interface MovimentacoesStats {
@@ -1048,6 +1051,40 @@ function ColaboradoresList({
                   </h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="role_function">{t("dashboard.colaboradores.form.role_function")} *</Label>
+                      <Input
+                        id="role_function"
+                        name="role_function"
+                        defaultValue={editing?.role_function || ""}
+                        placeholder={t("dashboard.colaboradores.form.role_function_placeholder")}
+                        required
+                        className="bg-white dark:bg-zinc-900"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="seniority_bucket">{t("dashboard.colaboradores.form.seniority_bucket")} *</Label>
+                      <Select
+                        name="seniority_bucket"
+                        defaultValue={editing?.seniority_bucket || ""}
+                        required
+                      >
+                        <SelectTrigger className="bg-white dark:bg-zinc-900">
+                          <SelectValue placeholder={t("dashboard.colaboradores.form.seniority_placeholder")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="LESS_THAN_6_MONTHS">
+                            {t("dashboard.colaboradores.form.seniority_options.LESS_THAN_6_MONTHS")}
+                          </SelectItem>
+                          <SelectItem value="6_TO_24_MONTHS">
+                            {t("dashboard.colaboradores.form.seniority_options.6_TO_24_MONTHS")}
+                          </SelectItem>
+                          <SelectItem value="MORE_THAN_24_MONTHS">
+                            {t("dashboard.colaboradores.form.seniority_options.MORE_THAN_24_MONTHS")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="grid gap-2">
                       <Label htmlFor="data_admissao">{t("dashboard.colaboradores.form.admission_date")}</Label>
                       <Input

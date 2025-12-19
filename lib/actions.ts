@@ -28,7 +28,17 @@ const colaboradorSchema = z.object({
   cpf: z.string().optional(),
   endereco: z.string().optional(),
   observacoes: z.string().optional(),
+  // Operational profile fields
+  role_function: z.string().min(1, "Função operacional é obrigatória"),
+  seniority_bucket: z.enum([
+    'LESS_THAN_6_MONTHS',
+    '6_TO_24_MONTHS',
+    'MORE_THAN_24_MONTHS'
+  ], { errorMap: () => ({ message: "Tempo na função é obrigatório" }) }),
 })
+
+// Type for seniority bucket
+type SeniorityBucket = 'LESS_THAN_6_MONTHS' | '6_TO_24_MONTHS' | 'MORE_THAN_24_MONTHS'
 
 const ferramentaSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -120,14 +130,39 @@ export async function criarColaborador(formData: FormData) {
     cpf: formData.get("cpf") || undefined,
     endereco: formData.get("endereco") || undefined,
     observacoes: formData.get("observacoes") || undefined,
+    role_function: formData.get("role_function"),
+    seniority_bucket: formData.get("seniority_bucket"),
   })
 
-  const { error } = await supabase.from("colaboradores").insert({
-    profile_id: user.id,
-    ...data,
-  })
+  // Extract operational profile fields
+  const { role_function, seniority_bucket, ...colaboradorData } = data
+
+  // Insert collaborator
+  const { data: newColaborador, error } = await supabase
+    .from("colaboradores")
+    .insert({
+      profile_id: user.id,
+      ...colaboradorData,
+    })
+    .select('id')
+    .single()
 
   if (error) throw error
+
+  // Insert operational profile
+  const { error: profileError } = await supabase
+    .from("collaborator_operational_profile")
+    .insert({
+      collaborator_id: newColaborador.id,
+      role_function,
+      seniority_bucket,
+    })
+
+  if (profileError) {
+    console.error("Error creating operational profile:", profileError)
+    // Don't throw - the collaborator was created, profile is secondary
+  }
+
   revalidateAllPages()
 }
 
@@ -150,15 +185,39 @@ export async function atualizarColaborador(id: string, formData: FormData) {
     cpf: formData.get("cpf") || undefined,
     endereco: formData.get("endereco") || undefined,
     observacoes: formData.get("observacoes") || undefined,
+    role_function: formData.get("role_function"),
+    seniority_bucket: formData.get("seniority_bucket"),
   })
 
+  // Extract operational profile fields
+  const { role_function, seniority_bucket, ...colaboradorData } = data
+
+  // Update collaborator
   const { error } = await supabase
     .from("colaboradores")
-    .update(data)
+    .update(colaboradorData)
     .eq("id", id)
     .eq("profile_id", user.id)
 
   if (error) throw error
+
+  // Upsert operational profile
+  const { error: profileError } = await supabase
+    .from("collaborator_operational_profile")
+    .upsert({
+      collaborator_id: id,
+      role_function,
+      seniority_bucket,
+      updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'collaborator_id'
+    })
+
+  if (profileError) {
+    console.error("Error updating operational profile:", profileError)
+    // Don't throw - the collaborator was updated, profile is secondary
+  }
+
   revalidateAllPages()
 }
 

@@ -557,7 +557,19 @@
                 "duplicate_confirm": "Do you want to register anyway?",
                 "duplicate_yes": "Yes, register duplicate",
                 "duplicate_no": "No, cancel",
-                "error_save": "Error saving collaborator"
+                "error_save": "Error saving collaborator",
+                "role_function": "Operational Role",
+                "role_function_placeholder": "E.g., Machine Operator, Electrician",
+                "seniority_bucket": "Time in Role",
+                "seniority_placeholder": "Select time in role",
+                "seniority_options": {
+                    "LESS_THAN_6_MONTHS": "Less than 6 months",
+                    "6_TO_24_MONTHS": "6 to 24 months",
+                    "MORE_THAN_24_MONTHS": "More than 24 months"
+                },
+                "section_personal": "Personal Information",
+                "section_contact": "Contact Information",
+                "section_professional": "Professional Data"
             },
             "card": {
                 "withdrawals": "Withdrawals",

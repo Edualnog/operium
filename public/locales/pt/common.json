@@ -544,7 +544,16 @@
                 "duplicate_confirm": "Deseja cadastrar mesmo assim?",
                 "duplicate_yes": "Sim, cadastrar duplicado",
                 "duplicate_no": "Não, cancelar",
-                "error_save": "Erro ao salvar colaborador"
+                "error_save": "Erro ao salvar colaborador",
+                "role_function": "Função Operacional",
+                "role_function_placeholder": "Ex: Operador de Máquinas, Eletricista",
+                "seniority_bucket": "Tempo na Função",
+                "seniority_placeholder": "Selecione o tempo na função",
+                "seniority_options": {
+                    "LESS_THAN_6_MONTHS": "Menos de 6 meses",
+                    "6_TO_24_MONTHS": "6 a 24 meses",
+                    "MORE_THAN_24_MONTHS": "Mais de 24 meses"
+                }
             },
             "card": {
                 "withdrawals": "Retiradas",

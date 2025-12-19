@@ -2,7 +2,7 @@ import { createServerComponentClient } from "@/lib/supabase-server"
 import { createServiceRoleClient } from "@/lib/supabase-admin" // Using Admin Client
 import { checkBlackboxAccess } from "@/lib/security" // Using Security Guard
 import { notFound } from "next/navigation"
-import { AlertTriangle, Activity, Database, ShieldAlert, Award, Terminal } from "lucide-react"
+import { AlertTriangle, Activity, Database, ShieldAlert, Award, Terminal, Users, TrendingUp } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -43,6 +43,34 @@ export default async function BlackboxConsole() {
         .order('occurred_at', { ascending: false })
         .limit(10)
 
+    // Q5: Collaborator Trust (Top by responsibility_score)
+    const { data: q5Data } = await supabaseAdmin.from('collaborator_behavior_features')
+        .select(`
+            collaborator_id,
+            responsibility_score,
+            process_adherence_score,
+            colaboradores!inner(nome, cargo)
+        `)
+        .order('responsibility_score', { ascending: false })
+        .limit(5)
+
+    // Q6: Risk Exposure (High risk collaborators)
+    const { data: q6Data } = await supabaseAdmin.from('collaborator_behavior_features')
+        .select(`
+            collaborator_id,
+            risk_exposure_score,
+            incident_rate,
+            colaboradores!inner(nome, cargo)
+        `)
+        .order('risk_exposure_score', { ascending: false })
+        .limit(5)
+
+    // Q7: Behavior Aggregates (by segment/size)
+    const { data: q7Data } = await supabaseAdmin.schema('analytics').from('collaborator_behavior_aggregates')
+        .select('*')
+        .order('sample_size', { ascending: false })
+        .limit(5)
+
     // 5. Calculate Confidence
     const totalEvents = await supabaseAdmin.schema('events').from('stream').select('id', { count: 'exact', head: true })
     const confidenceLevel = (totalEvents.count || 0) > 1000 ? 'HIGH' : (totalEvents.count || 0) > 100 ? 'MEDIUM' : 'LOW'
@@ -55,7 +83,7 @@ export default async function BlackboxConsole() {
                 <div>
                     <h1 className="text-lg text-emerald-400 font-bold flex items-center gap-2">
                         <Terminal className="w-5 h-5" />
-                        <span className="text-zinc-500">:::</span> BLACKBOX_CONSOLE <span className="text-zinc-600">{'// v1.1'}</span>
+                        <span className="text-zinc-500">:::</span> BLACKBOX_CONSOLE <span className="text-zinc-600">{'// v1.2'}</span>
                     </h1>
                     <p className="text-[10px] text-zinc-600 mt-1 uppercase tracking-widest">INTERNAL RELIABILITY ENGINEERING ACCESS ONLY</p>
                 </div>
@@ -183,6 +211,114 @@ export default async function BlackboxConsole() {
                                 <li className="py-4 text-center text-zinc-700 italic text-xs">No events yet</li>
                             )}
                         </ul>
+                    </div>
+                </div>
+
+                {/* Q5: COLLABORATOR TRUST */}
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden">
+                    <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-cyan-500" />
+                        <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">::: COLLABORATOR TRUST</span>
+                        <span className="text-[10px] text-zinc-600 ml-auto">Top Responsibility</span>
+                    </div>
+                    <div className="p-4">
+                        <table className="w-full text-xs">
+                            <thead>
+                                <tr className="text-zinc-600 border-b border-zinc-800">
+                                    <th className="py-2 text-left">COLLABORATOR</th>
+                                    <th className="py-2 text-right">RESP</th>
+                                    <th className="py-2 text-right">ADHERENCE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {q5Data?.map((item: any) => (
+                                    <tr key={item.collaborator_id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                                        <td className="py-2">
+                                            <span className="text-zinc-300">{item.colaboradores?.nome}</span>
+                                            <span className="text-zinc-600 text-[10px] ml-2">{item.colaboradores?.cargo}</span>
+                                        </td>
+                                        <td className="py-2 text-right font-bold text-cyan-400">{item.responsibility_score}</td>
+                                        <td className="py-2 text-right text-zinc-500">{item.process_adherence_score}</td>
+                                    </tr>
+                                ))}
+                                {(!q5Data || q5Data.length === 0) && (
+                                    <tr><td colSpan={3} className="py-4 text-center text-zinc-700 italic">Run score calculation first</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Q6: RISK EXPOSURE */}
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden">
+                    <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4 text-orange-500" />
+                        <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">::: RISK EXPOSURE</span>
+                        <span className="text-[10px] text-zinc-600 ml-auto">High Risk Actors</span>
+                    </div>
+                    <div className="p-4">
+                        <table className="w-full text-xs">
+                            <thead>
+                                <tr className="text-zinc-600 border-b border-zinc-800">
+                                    <th className="py-2 text-left">COLLABORATOR</th>
+                                    <th className="py-2 text-right">RISK</th>
+                                    <th className="py-2 text-right">INC_RATE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {q6Data?.map((item: any) => (
+                                    <tr key={item.collaborator_id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                                        <td className="py-2">
+                                            <span className="text-orange-300">{item.colaboradores?.nome}</span>
+                                            <span className="text-zinc-600 text-[10px] ml-2">{item.colaboradores?.cargo}</span>
+                                        </td>
+                                        <td className="py-2 text-right font-bold text-orange-400">{item.risk_exposure_score}</td>
+                                        <td className="py-2 text-right text-zinc-500">{(item.incident_rate * 100).toFixed(2)}%</td>
+                                    </tr>
+                                ))}
+                                {(!q6Data || q6Data.length === 0) && (
+                                    <tr><td colSpan={3} className="py-4 text-center text-zinc-700 italic">Run score calculation first</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Q7: BEHAVIOR AGGREGATES */}
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden md:col-span-2">
+                    <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-violet-500" />
+                        <span className="text-xs font-bold text-violet-400 uppercase tracking-wider">::: BEHAVIOR AGGREGATES</span>
+                        <span className="text-[10px] text-zinc-600 ml-auto">Benchmark by Segment</span>
+                    </div>
+                    <div className="p-4">
+                        <table className="w-full text-xs">
+                            <thead>
+                                <tr className="text-zinc-600 border-b border-zinc-800">
+                                    <th className="py-2 text-left">SEGMENT</th>
+                                    <th className="py-2 text-left">SIZE</th>
+                                    <th className="py-2 text-right">SAMPLE</th>
+                                    <th className="py-2 text-right">AVG_RESP</th>
+                                    <th className="py-2 text-right">AVG_RISK</th>
+                                    <th className="py-2 text-right">P90_RESP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {q7Data?.map((item: any, i: number) => (
+                                    <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                                        <td className="py-2 text-violet-300">{item.industry_segment || '-'}</td>
+                                        <td className="py-2 text-zinc-400">{item.company_size || '-'}</td>
+                                        <td className="py-2 text-right text-zinc-500">{item.sample_size}</td>
+                                        <td className="py-2 text-right font-bold text-emerald-400">{item.avg_responsibility}</td>
+                                        <td className="py-2 text-right text-orange-400">{item.avg_risk}</td>
+                                        <td className="py-2 text-right text-zinc-500">{item.p90_responsibility}</td>
+                                    </tr>
+                                ))}
+                                {(!q7Data || q7Data.length === 0) && (
+                                    <tr><td colSpan={6} className="py-4 text-center text-zinc-700 italic">Need 5+ collaborators per segment for anonymity</td></tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
