@@ -766,7 +766,7 @@ function ColaboradoresList({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-zinc-100 overflow-hidden relative border">
+                    <div className="h-10 w-10 rounded-full bg-zinc-100 overflow-hidden relative border flex-shrink-0">
                       {colaborador.foto_url ? (
                         <Image src={colaborador.foto_url} alt={colaborador.nome} fill className="object-cover" />
                       ) : (
@@ -775,27 +775,25 @@ function ColaboradoresList({
                         </div>
                       )}
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col gap-1 items-start">
-                    <span className="font-medium text-zinc-700 dark:text-zinc-200">{colaborador.nome}</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      {/* Notion-style Badge */}
-                      <span className={cn(
-                        "inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium leading-4", // Notion tag shape
-                        (colaborador.level === 'MASTER' || !colaborador.level) ? "bg-[#fdecc8] text-[#442a1d]" : // Notion Yellow (Gold)
-                          colaborador.level === 'PRO' ? "bg-[#e3e2e0] text-[#32302c]" : // Notion Gray (Silver)
-                            colaborador.level === 'MEMBER' ? "bg-[#fadec9] text-[#49290e]" : // Notion Orange (Bronze)
-                              "bg-[#f1f0ef] text-[#37352f]" // Default
-                      )}>
-                        <span className="mr-1 opacity-80">
-                          {colaborador.level === 'MASTER' ? '🥇' :
-                            colaborador.level === 'PRO' ? '🥈' :
-                              colaborador.level === 'MEMBER' ? '👷' : '🐣'}
+                    <div className="flex flex-col gap-1 items-start">
+                      <span className="font-medium text-zinc-700 dark:text-zinc-200">{colaborador.nome}</span>
+                      <div className="flex items-center gap-2">
+                        {/* Notion-style Badge */}
+                        <span className={cn(
+                          "inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium leading-4",
+                          (colaborador.level === 'MASTER' || !colaborador.level) ? "bg-[#fdecc8] text-[#442a1d]" :
+                            colaborador.level === 'PRO' ? "bg-[#e3e2e0] text-[#32302c]" :
+                              colaborador.level === 'MEMBER' ? "bg-[#fadec9] text-[#49290e]" :
+                                "bg-[#f1f0ef] text-[#37352f]"
+                        )}>
+                          <span className="mr-1 opacity-80">
+                            {colaborador.level === 'MASTER' ? '🥇' :
+                              colaborador.level === 'PRO' ? '🥈' :
+                                colaborador.level === 'MEMBER' ? '👷' : '🐣'}
+                          </span>
+                          {colaborador.almox_score || 500}
                         </span>
-                        {colaborador.almox_score || 500}
-                      </span>
+                      </div>
                     </div>
                   </div>
                 </TableCell>
@@ -942,53 +940,51 @@ function ColaboradoresList({
                     {t("dashboard.colaboradores.form.section_personal")}
                   </h3>
 
-                  <div className="flex flex-col sm:flex-row gap-6">
-                    {/* Foto à esquerda em Desktop */}
-                    <div className="flex-shrink-0 flex justify-center sm:justify-start">
-                      <PhotoUpload
-                        currentPhotoUrl={photoUrl}
-                        onPhotoUploaded={setPhotoUrl}
-                        userId={userId}
+                  {/* Foto centralizada no topo */}
+                  <div className="flex justify-center">
+                    <PhotoUpload
+                      currentPhotoUrl={photoUrl}
+                      onPhotoUploaded={setPhotoUrl}
+                      userId={userId}
+                    />
+                  </div>
+
+                  {/* Campos empilhados verticalmente */}
+                  <div className="grid gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="nome">{t("dashboard.colaboradores.form.name")} *</Label>
+                      <Input
+                        id="nome"
+                        name="nome"
+                        defaultValue={editing?.nome || voiceData?.nome || ""}
+                        value={nomeDigitado}
+                        onChange={(e) => setNomeDigitado(e.target.value)}
+                        placeholder="Nome completo"
+                        required
+                        className="bg-white dark:bg-zinc-900"
                       />
                     </div>
 
-                    <div className="flex-1 w-full grid gap-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="nome">{t("dashboard.colaboradores.form.name")} *</Label>
-                        <Input
-                          id="nome"
-                          name="nome"
-                          defaultValue={editing?.nome || voiceData?.nome || ""}
-                          value={nomeDigitado}
-                          onChange={(e) => setNomeDigitado(e.target.value)}
-                          placeholder="Nome completo"
-                          required
-                          className="bg-white dark:bg-zinc-900"
-                        />
-                      </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="cpf">CPF</Label>
+                      <Input
+                        id="cpf"
+                        name="cpf"
+                        defaultValue={editing?.cpf || ""}
+                        placeholder="000.000.000-00"
+                        className="bg-white dark:bg-zinc-900"
+                      />
+                    </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="cpf">CPF</Label> {/* CPF sem tradução no momento, mantendo hardcoded ou chave nova se existisse */}
-                          <Input
-                            id="cpf"
-                            name="cpf"
-                            defaultValue={editing?.cpf || ""}
-                            placeholder="000.000.000-00"
-                            className="bg-white dark:bg-zinc-900"
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="cargo">{t("dashboard.colaboradores.form.role")}</Label>
-                          <Input
-                            id="cargo"
-                            name="cargo"
-                            defaultValue={editing?.cargo || voiceData?.cargo || ""}
-                            placeholder="Ex: Eletricista"
-                            className="bg-white dark:bg-zinc-900"
-                          />
-                        </div>
-                      </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="cargo">{t("dashboard.colaboradores.form.role")}</Label>
+                      <Input
+                        id="cargo"
+                        name="cargo"
+                        defaultValue={editing?.cargo || voiceData?.cargo || ""}
+                        placeholder="Ex: Eletricista"
+                        className="bg-white dark:bg-zinc-900"
+                      />
                     </div>
                   </div>
                 </div>
