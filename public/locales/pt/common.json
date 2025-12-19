@@ -48,6 +48,36 @@
             "account_created": "Conta criada com sucesso! Verifique seu e-mail (inclusive a pasta de Spam) para confirmar o cadastro."
         }
     },
+    "export": {
+        "title": "Exportar Dados",
+        "description": "Exporte seus dados em formato CSV para análise externa",
+        "select_dataset": "Selecione o dataset para exportar",
+        "filters": "Filtros",
+        "start_date": "Data Início",
+        "end_date": "Data Fim",
+        "all": "Todos",
+        "preview": "Prévia (primeiros 10 registros)",
+        "total_records": "{{count}} registro(s) encontrado(s)",
+        "download_csv": "Baixar CSV",
+        "no_data": "Nenhum dado para exportar",
+        "no_data_preview": "Selecione um dataset e aplique os filtros",
+        "success": "{{count}} registros exportados com sucesso!",
+        "error_loading": "Erro ao carregar dados",
+        "error_exporting": "Erro ao exportar dados",
+        "datasets": {
+            "movements": "Movimentações",
+            "products": "Produtos",
+            "collaborators": "Colaboradores",
+            "vehicles": "Veículos",
+            "vehicle_maintenances": "Manutenções de Veículos",
+            "vehicle_costs": "Custos de Veículos",
+            "tools": "Ferramentas"
+        },
+        "filters": {
+            "type": "Tipo",
+            "status": "Status"
+        }
+    },
     "ai": {
         "title": "Assistente de Voz IA",
         "description_collaborator": "Fale para cadastrar colaboradores rapidamente",

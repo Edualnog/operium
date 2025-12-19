@@ -53,6 +53,36 @@
             "account_created": "Account created successfully! Check your email (including spam folder) to confirm registration."
         }
     },
+    "export": {
+        "title": "Export Data",
+        "description": "Export your data in CSV format for external analysis",
+        "select_dataset": "Select dataset to export",
+        "filters": "Filters",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "all": "All",
+        "preview": "Preview (first 10 records)",
+        "total_records": "{{count}} record(s) found",
+        "download_csv": "Download CSV",
+        "no_data": "No data to export",
+        "no_data_preview": "Select a dataset and apply filters",
+        "success": "{{count}} records exported successfully!",
+        "error_loading": "Error loading data",
+        "error_exporting": "Error exporting data",
+        "datasets": {
+            "movements": "Movements",
+            "products": "Products",
+            "collaborators": "Collaborators",
+            "vehicles": "Vehicles",
+            "vehicle_maintenances": "Vehicle Maintenances",
+            "vehicle_costs": "Vehicle Costs",
+            "tools": "Tools"
+        },
+        "filters": {
+            "type": "Type",
+            "status": "Status"
+        }
+    },
     "ai": {
         "title": "AI Voice Assistant",
         "description_collaborator": "Speak to register collaborators quickly",
