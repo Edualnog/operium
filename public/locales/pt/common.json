@@ -78,6 +78,62 @@
             "status": "Status"
         }
     },
+    "observability": {
+        "title": "Observabilidade",
+        "subtitle": "Monitoramento em tempo real do sistema",
+        "refresh": "Atualizar",
+        "run_observer": "Executar Observer",
+        "running": "Executando...",
+        "tabs": {
+            "alerts": "Alertas",
+            "metrics": "Métricas",
+            "events": "Eventos",
+            "health": "Health"
+        },
+        "status": {
+            "healthy": "Saudável",
+            "warning": "Atenção",
+            "degraded": "Degradado",
+            "critical": "Crítico"
+        },
+        "cards": {
+            "system_status": "Status do Sistema",
+            "active_alerts": "Alertas Ativos",
+            "active_metrics": "Métricas Ativas",
+            "last_execution": "Última Execução",
+            "with_baseline": "com baseline"
+        },
+        "alerts": {
+            "title": "Alertas Operacionais",
+            "description": "Desvios detectados automaticamente pelo observador",
+            "no_alerts": "Nenhum alerta ativo",
+            "all_normal": "Tudo está funcionando normalmente",
+            "observed": "Observado",
+            "expected": "Esperado",
+            "deviation": "Desvio"
+        },
+        "metrics": {
+            "title": "Status das Métricas",
+            "description": "Todas as métricas do catálogo e seus valores atuais",
+            "no_baseline": "Sem baseline"
+        },
+        "events": {
+            "title": "Stream de Eventos",
+            "description": "Últimos 50 eventos capturados pelo sistema",
+            "no_events": "Nenhum evento registrado ainda",
+            "no_events_hint": "Execute operações no sistema para gerar eventos"
+        },
+        "health": {
+            "title": "Detalhes de Saúde",
+            "description": "Informações detalhadas do sistema de observabilidade",
+            "execution_stats": "Estatísticas de Execução (24h)",
+            "total_executions": "Total Execuções",
+            "errors": "Erros",
+            "error_rate": "Taxa de Erro",
+            "recommendations": "Recomendações",
+            "raw_data": "Dados Brutos"
+        }
+    },
     "ai": {
         "title": "Assistente de Voz IA",
         "description_collaborator": "Fale para cadastrar colaboradores rapidamente",

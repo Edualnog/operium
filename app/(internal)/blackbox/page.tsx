@@ -1,10 +1,12 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
+import { ObservabilityDashboard } from "@/components/observability/ObservabilityDashboard"
 import { ExportCenter } from "@/components/export/ExportCenter"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export const dynamic = "force-dynamic"
 
-export default async function ExportPage() {
+export default async function BlackboxPage() {
     const supabase = await createServerComponentClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -13,8 +15,25 @@ export default async function ExportPage() {
     }
 
     return (
-        <div className="p-6 max-w-6xl mx-auto">
-            <ExportCenter />
+        <div className="p-6 max-w-7xl mx-auto">
+            <Tabs defaultValue="observability" className="w-full">
+                <TabsList className="mb-6">
+                    <TabsTrigger value="observability">
+                        🔭 Observabilidade
+                    </TabsTrigger>
+                    <TabsTrigger value="export">
+                        📁 Exportar Dados
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="observability">
+                    <ObservabilityDashboard />
+                </TabsContent>
+
+                <TabsContent value="export">
+                    <ExportCenter />
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }
