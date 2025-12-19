@@ -63,12 +63,11 @@ export default function OnboardingSetupForm() {
                     .eq("id", user.id)
                     .single()
 
-                if (profile?.company_name && profile?.industry_segment && profile?.company_size) {
+                // Only require company_name and industry_segment (matching server-side check)
+                if (profile?.company_name && profile?.industry_segment) {
                     setAlreadyCompleted(true)
-                    // Redirect to dashboard after a brief moment
-                    setTimeout(() => {
-                        router.push("/dashboard")
-                    }, 1500)
+                    // Redirect immediately
+                    router.push("/dashboard")
                 }
             } catch (err) {
                 console.error("Error checking onboarding:", err)
