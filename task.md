@@ -1,0 +1,43 @@
+# Vehicles Module Implementation
+
+- [x] Database Schema Setup <!-- id: 0 -->
+    - [ ] Create migration for `vehicles` table
+    - [ ] Create migration for `vehicle_maintenances` table
+    - [ ] Create migration for `vehicle_costs` table
+    - [ ] Create migration for `vehicle_usage_events` table
+    - [ ] Create migration for `vehicle_behavior_features` table
+    - [ ] Create migration for `analytics.vehicle_operational_aggregates` view
+    - [ ] Apply RLS policies to all new tables
+- [/] Frontend - Vehicles List <!-- id: 1 -->
+    - [x] Create `VehiclesPage` component
+    - [x] Implement `VehiclesList` table/grid
+    - [x] Add "New Vehicle" modal/form
+- [x] Frontend - Vehicle Details <!-- id: 2 -->
+    - [x] Create `VehicleDetailsPage` (dynamic route `[id]`)
+    - [x] Implement Overview tab (basic info, status)
+    - [x] Implement Maintenance History tab
+    - [x] Implement Costs History tab
+    - [x] Implement Usage/Assignment tab
+- [ ] Logic & Integration <!-- id: 3 -->
+    - [x] Create `useVehicles` hook (CRUD)
+    - [x] Create `VehicleMaintenanceForm` component
+- [x] Create `VehicleCostForm` component
+- [x] Integrate forms into `VehicleDetailsPage`
+- [x] Refine Vehicle Module
+    - [x] Fix i18n `pt-BR` fallback issue
+    - [x] Create migration for `current_driver_id`
+    - [x] Update `Vehicle` type definition
+    - [x] Create `VehicleAssignmentDialog` component
+    - [x] update `VehicleDetailsPage` with assignment UI
+- [ ] Create `VehicleMaintenanceList` component
+- [ ] Create `VehicleCostList` component
+- [ ] Implement PDF export logic (`generateVehicleReport`)
+- [x] Add Vehicle KPIs to Dashboard
+    - [x] Create `VehicleStatsCard` component
+    - [x] Calculate Fleet Status (Active, Maintenance) (Done inside component)
+    - [x] Calculate Monthly Fleet Costs (Done inside component)
+    - [x] Integrate into `IndustrialDashboard.tsx` (Refactored to match Tools style and repositioned)
+- [ ] Verification <!-- id: 4 -->
+    - [ ] Verify data persistence
+    - [ ] Verify RLS isolation
+    - [ ] Check UI responsiveness and aesthetics
