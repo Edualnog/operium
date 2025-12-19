@@ -51,6 +51,7 @@ export function VehicleForm({
             model: formData.get("model") as string,
             year: formData.get("year") ? parseInt(formData.get("year") as string) : undefined,
             acquisition_date: formData.get("acquisition_date") as string,
+            acquisition_value: formData.get("acquisition_value") ? parseFloat(formData.get("acquisition_value") as string) : 0,
         }
 
         await onSubmit(data)
@@ -98,21 +99,23 @@ export function VehicleForm({
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="brand">{t('vehicles.form.brand')}</Label>
+                            <Label htmlFor="brand">{t('vehicles.form.brand')} *</Label>
                             <Input
                                 id="brand"
                                 name="brand"
                                 defaultValue={initialData?.brand}
                                 placeholder={t('vehicles.form.placeholder_brand')}
+                                required
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="model">{t('vehicles.form.model')}</Label>
+                            <Label htmlFor="model">{t('vehicles.form.model')} *</Label>
                             <Input
                                 id="model"
                                 name="model"
                                 defaultValue={initialData?.model}
                                 placeholder={t('vehicles.form.placeholder_model')}
+                                required
                             />
                         </div>
                     </div>
@@ -145,15 +148,28 @@ export function VehicleForm({
                         </div>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="acquisition_date">{t('vehicles.form.acquisition_date')} *</Label>
-                        <Input
-                            id="acquisition_date"
-                            name="acquisition_date"
-                            type="date"
-                            defaultValue={initialData?.acquisition_date ? new Date(initialData.acquisition_date).toISOString().split('T')[0] : ''}
-                            required
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="acquisition_date">{t('vehicles.form.acquisition_date')} *</Label>
+                            <Input
+                                id="acquisition_date"
+                                name="acquisition_date"
+                                type="date"
+                                defaultValue={initialData?.acquisition_date ? new Date(initialData.acquisition_date).toISOString().split('T')[0] : ''}
+                                required
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="acquisition_value">{t('vehicles.form.acquisition_value')}</Label>
+                            <Input
+                                id="acquisition_value"
+                                name="acquisition_value"
+                                type="number"
+                                step="0.01"
+                                defaultValue={initialData?.acquisition_value}
+                                placeholder="0.00"
+                            />
+                        </div>
                     </div>
 
                     <DialogFooter>

@@ -909,6 +909,37 @@
                 "title": "Atualizar Status / Retorno",
                 "status_label": "Novo Status",
                 "cost": "Custo (R$)",
+                "maintenance": {
+                    "title": "Histórico de Manutenções",
+                    "new": "Nova Manutenção",
+                    "date": "Data",
+                    "type": "Tipo",
+                    "description": "Descrição",
+                    "cost": "Custo",
+                    "next_date": "Próxima Manutenção",
+                    "save": "Salvar Manutenção",
+                    "types": {
+                        "PREVENTIVE": "Preventiva",
+                        "CORRECTIVE": "Corretiva",
+                        "PREDICTIVE": "Preditiva"
+                    }
+                },
+                "costs": {
+                    "title": "Histórico de Custos",
+                    "new": "Novo Custo",
+                    "month": "Mês de Referência",
+                    "type": "Tipo",
+                    "amount": "Valor",
+                    "notes": "Observações",
+                    "save": "Salvar Custo",
+                    "types": {
+                        "FUEL": "Combustível",
+                        "INSURANCE": "Seguro",
+                        "TAX": "Imposto",
+                        "FINE": "Multa",
+                        "OTHER": "Outro"
+                    }
+                },
                 "quantity_returned": "Quantidade Retornada",
                 "quantity_max": "Máximo disponível: {{count}}",
                 "conclude_action": "Salvar Alterações"
@@ -1331,6 +1362,7 @@
             "fuel": "Combustível",
             "year": "Ano",
             "acquisition_date": "Data de Aquisição",
+            "acquisition_value": "Valor de Aquisição (R$)",
             "placeholder_plate": "ABC-1234",
             "placeholder_brand": "Ex: Fiat",
             "placeholder_model": "Ex: Strada",

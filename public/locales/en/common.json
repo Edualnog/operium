@@ -1345,6 +1345,7 @@
             "fuel": "Fuel",
             "year": "Year",
             "acquisition_date": "Acquisition Date",
+            "acquisition_value": "Acquisition Value ($)",
             "placeholder_plate": "ABC-1234",
             "placeholder_brand": "Ex: Ford",
             "placeholder_model": "Ex: F-150",
@@ -1381,6 +1382,37 @@
                 "maintenance": "Maintenance",
                 "costs": "Costs",
                 "usage": "Usage"
+            }
+        },
+        "maintenance": {
+            "title": "Maintenance History",
+            "new": "New Maintenance",
+            "date": "Date",
+            "type": "Type",
+            "description": "Description",
+            "cost": "Cost",
+            "next_date": "Next Maintenance",
+            "save": "Save Maintenance",
+            "types": {
+                "PREVENTIVE": "Preventive",
+                "CORRECTIVE": "Corrective",
+                "PREDICTIVE": "Predictive"
+            }
+        },
+        "costs": {
+            "title": "Cost History",
+            "new": "New Cost",
+            "month": "Reference Month",
+            "type": "Type",
+            "amount": "Amount",
+            "notes": "Notes",
+            "save": "Save Cost",
+            "types": {
+                "FUEL": "Fuel",
+                "INSURANCE": "Insurance",
+                "TAX": "Tax",
+                "FINE": "Fine",
+                "OTHER": "Other"
             }
         }
     }

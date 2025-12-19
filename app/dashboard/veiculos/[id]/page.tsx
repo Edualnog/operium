@@ -1,5 +1,4 @@
-"use client"
-
+import { useState } from "react"
 import { useVehicle } from "@/lib/hooks/useVehicles"
 import { VehicleMaintenanceList } from "@/components/vehicles/VehicleMaintenanceList"
 import { VehicleCostList } from "@/components/vehicles/VehicleCostList"
@@ -12,47 +11,166 @@ import {
 } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Car, Calendar, Fuel, Truck } from "lucide-react"
+import { ArrowLeft, Car, Calendar, Fuel, Truck, FileText } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
+import { useTranslation } from "react-i18next"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { createClientComponentClient } from "@/lib/supabase-client"
+import { generateVehicleReport } from "@/lib/utils/generateVehicleReport"
+import { toast } from "sonner"
 
 export default function VehicleDetailsPage({ params }: { params: { id: string } }) {
     const { vehicle, loading, error } = useVehicle(params.id)
     const router = useRouter()
+    const { t } = useTranslation('common')
 
-    if (loading) return <div className="p-8">Carregando detalhes...</div>
-    if (error || !vehicle) return <div className="p-8 text-red-500">Veículo não encontrado</div>
+    // Report State
+    const [isReportOpen, setIsReportOpen] = useState(false)
+    const [reportLoading, setReportLoading] = useState(false)
+    const [reportConfig, setReportConfig] = useState({
+        startDate: '',
+        endDate: ''
+    })
+
+    const supabase = createClientComponentClient()
+
+    const handleGenerateReport = async () => {
+        if (!vehicle) return
+
+        try {
+            setReportLoading(true)
+
+            // Build query filters
+            let maintQuery = supabase
+                .from("vehicle_maintenances")
+                .select("*")
+                .eq("vehicle_id", vehicle.id)
+
+            let costQuery = supabase
+                .from("vehicle_costs")
+                .select("*")
+                .eq("vehicle_id", vehicle.id)
+
+            if (reportConfig.startDate) {
+                maintQuery = maintQuery.gte('maintenance_date', reportConfig.startDate)
+                costQuery = costQuery.gte('reference_month', reportConfig.startDate)
+            }
+            if (reportConfig.endDate) {
+                maintQuery = maintQuery.lte('maintenance_date', reportConfig.endDate)
+                costQuery = costQuery.lte('reference_month', reportConfig.endDate)
+            }
+
+            const [maintRes, costRes] = await Promise.all([
+                maintQuery.order("maintenance_date", { ascending: false }),
+                costQuery.order("reference_month", { ascending: false })
+            ])
+
+            if (maintRes.error) throw maintRes.error
+            if (costRes.error) throw costRes.error
+
+            await generateVehicleReport({
+                vehicle,
+                maintenances: maintRes.data || [],
+                costs: costRes.data || [],
+                startDate: reportConfig.startDate,
+                endDate: reportConfig.endDate
+            })
+
+            toast.success("Relatório gerado com sucesso!")
+            setIsReportOpen(false)
+        } catch (error: any) {
+            console.error("Error generating report:", error)
+            toast.error("Erro ao gerar relatório: " + error.message)
+        } finally {
+            setReportLoading(false)
+        }
+    }
+
+    if (loading) return <div className="p-8">{t('vehicles.details.loading')}</div>
+    if (error || !vehicle) return <div className="p-8 text-red-500">{t('vehicles.details.not_found')}</div>
 
     return (
         <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
-            <div className="flex items-center space-x-4">
-                <Button variant="outline" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight">{vehicle.plate}</h2>
-                    <p className="text-muted-foreground">
-                        {vehicle.brand} {vehicle.model} • {vehicle.year}
-                    </p>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                    <Button variant="outline" size="icon" onClick={() => router.back()}>
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight">{vehicle.plate}</h2>
+                        <p className="text-muted-foreground">
+                            {vehicle.brand || '-'} {vehicle.model || '-'} • {vehicle.year || '-'}
+                        </p>
+                    </div>
                 </div>
+
+                <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline">
+                            <FileText className="mr-2 h-4 w-4" /> Exportar PDF
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Gerar Relatório PDF</DialogTitle>
+                            <DialogDescription>
+                                Escolha o período para o relatório. Deixe em branco para todo o histórico.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                                <Label>Data Inicial</Label>
+                                <Input
+                                    type="date"
+                                    value={reportConfig.startDate}
+                                    onChange={(e) => setReportConfig(prev => ({ ...prev, startDate: e.target.value }))}
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>Data Final</Label>
+                                <Input
+                                    type="date"
+                                    value={reportConfig.endDate}
+                                    onChange={(e) => setReportConfig(prev => ({ ...prev, endDate: e.target.value }))}
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button onClick={handleGenerateReport} disabled={reportLoading}>
+                                {reportLoading ? "Gerando..." : "Gerar Relatório"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Status</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('vehicles.details.status')}</CardTitle>
                         <Truck className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-green-600">Ativo</div>
+                        <div className="text-2xl font-bold text-green-600">{t('vehicles.details.active')}</div>
                         <p className="text-xs text-muted-foreground">
-                            Operacional
+                            {t('vehicles.details.operational')}
                         </p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Aquisição</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('vehicles.details.acquisition')}</CardTitle>
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -66,29 +184,29 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Combustível</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('vehicles.details.fuel')}</CardTitle>
                         <Fuel className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{vehicle.fuel_type}</div>
+                        <div className="text-2xl font-bold">{t(`vehicles.fuel.${vehicle.fuel_type}`)}</div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Tipo</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('vehicles.details.type')}</CardTitle>
                         <Car className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{vehicle.vehicle_type}</div>
+                        <div className="text-2xl font-bold">{t(`vehicles.types.${vehicle.vehicle_type}`)}</div>
                     </CardContent>
                 </Card>
             </div>
 
             <Tabs defaultValue="maintenance" className="space-y-4">
                 <TabsList>
-                    <TabsTrigger value="maintenance">Manutenções</TabsTrigger>
-                    <TabsTrigger value="costs">Custos</TabsTrigger>
-                    <TabsTrigger value="usage">Uso</TabsTrigger>
+                    <TabsTrigger value="maintenance">{t('vehicles.details.tabs.maintenance')}</TabsTrigger>
+                    <TabsTrigger value="costs">{t('vehicles.details.tabs.costs')}</TabsTrigger>
+                    <TabsTrigger value="usage">{t('vehicles.details.tabs.usage')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="maintenance" className="space-y-4">
                     <VehicleMaintenanceList vehicleId={vehicle.id} />

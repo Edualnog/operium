@@ -11,6 +11,7 @@ export interface Vehicle {
     model?: string;
     year?: number;
     acquisition_date: string;
+    acquisition_value?: number;
     created_at: string;
     updated_at: string;
 }
