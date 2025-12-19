@@ -46,7 +46,7 @@ export function VehicleUsageList({ vehicleId }: { vehicleId: string }) {
                                 <TableRow key={e.id}>
                                     <TableCell>{format(new Date(e.usage_date), 'dd/MM/yyyy HH:mm')}</TableCell>
                                     <TableCell>{e.usage_type}</TableCell>
-                                    <TableCell>{(e as any).colaborador?.name || '-'}</TableCell>
+                                    <TableCell>{(e as any).colaboradores?.nome || '-'}</TableCell>
                                     <TableCell>{e.notes}</TableCell>
                                 </TableRow>
                             ))

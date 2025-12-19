@@ -127,7 +127,7 @@ export function useVehicle(id: string) {
                     *,
                     driver:current_driver_id (
                         id,
-                        name
+                        name:nome
                     )
                 `)
                 .eq("id", id)

@@ -51,7 +51,7 @@ export function VehicleAssignmentDialog({
     const fetchCollaborators = async () => {
         const { data } = await supabase
             .from('colaboradores')
-            .select('id, name, status')
+            .select('id, name:nome, status')
             .eq('status', 'ATIVO')
             .order('name')
 
