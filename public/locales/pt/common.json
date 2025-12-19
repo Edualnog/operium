@@ -76,7 +76,9 @@
         "delete": "Excluir",
         "edit": "Editar",
         "actions": "Ações",
-        "search": "Buscar..."
+        "search": "Buscar...",
+        "select": "Selecione",
+        "saving": "Salvando..."
     },
     "notifications": {
         "title": "Notificações",

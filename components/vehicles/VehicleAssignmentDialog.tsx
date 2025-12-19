@@ -53,7 +53,7 @@ export function VehicleAssignmentDialog({
             .from('colaboradores')
             .select('id, name:nome, status')
             .eq('status', 'ATIVO')
-            .order('name')
+            .order('nome')
 
         if (data) setCollaborators(data)
     }
@@ -119,7 +119,7 @@ export function VehicleAssignmentDialog({
                             <Label htmlFor="driver_id">{t('vehicles.assignment.collaborator')}</Label>
                             <Select name="driver_id" required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={t('common.actions.select')} />
+                                    <SelectValue placeholder={t('common.select')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {collaborators.map(c => (

@@ -82,6 +82,8 @@
         "edit": "Edit",
         "actions": "Actions",
         "search": "Search...",
+        "select": "Select",
+        "saving": "Saving...",
         "confirm_delete": "Are you sure you want to delete?",
         "yes": "Yes",
         "no": "No"
