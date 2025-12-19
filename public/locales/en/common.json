@@ -257,6 +257,10 @@
         "errors": {
             "generic": "An error occurred. Please try again."
         },
+        "already_completed": {
+            "title": "Onboarding already completed!",
+            "message": "Redirecting to dashboard..."
+        },
         "footer": "This data is only used to personalize your experience."
     },
     "dashboard": {

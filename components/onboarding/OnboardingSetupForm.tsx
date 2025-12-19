@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useTranslation } from "react-i18next"
+import { createClientComponentClient } from "@/lib/supabase-client"
 
 const INDUSTRY_SEGMENTS = [
     { value: "MANUFACTURING", labelKey: "onboarding_setup.segments.manufacturing", icon: Factory },
@@ -35,6 +36,7 @@ const TOTAL_STEPS = 3
 export default function OnboardingSetupForm() {
     const router = useRouter()
     const { t } = useTranslation()
+    const supabase = createClientComponentClient()
 
     const [currentStep, setCurrentStep] = useState(1)
     const [companyName, setCompanyName] = useState("")
@@ -42,6 +44,41 @@ export default function OnboardingSetupForm() {
     const [selectedSize, setSelectedSize] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+    const [isChecking, setIsChecking] = useState(true)
+    const [alreadyCompleted, setAlreadyCompleted] = useState(false)
+
+    // Check if user already completed onboarding on mount
+    useEffect(() => {
+        const checkOnboarding = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    router.push("/login")
+                    return
+                }
+
+                const { data: profile } = await supabase
+                    .from("profiles")
+                    .select("company_name, industry_segment, company_size")
+                    .eq("id", user.id)
+                    .single()
+
+                if (profile?.company_name && profile?.industry_segment && profile?.company_size) {
+                    setAlreadyCompleted(true)
+                    // Redirect to dashboard after a brief moment
+                    setTimeout(() => {
+                        router.push("/dashboard")
+                    }, 1500)
+                }
+            } catch (err) {
+                console.error("Error checking onboarding:", err)
+            } finally {
+                setIsChecking(false)
+            }
+        }
+
+        checkOnboarding()
+    }, [supabase, router])
 
     const canProceed = () => {
         switch (currentStep) {
@@ -102,6 +139,36 @@ export default function OnboardingSetupForm() {
         enter: (direction: number) => ({ x: direction > 0 ? 100 : -100, opacity: 0 }),
         center: { x: 0, opacity: 1 },
         exit: (direction: number) => ({ x: direction < 0 ? 100 : -100, opacity: 0 }),
+    }
+
+    // Show loading state while checking
+    if (isChecking) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900 flex items-center justify-center p-4">
+                <div className="text-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-emerald-500 mx-auto mb-4" />
+                    <p className="text-zinc-600 dark:text-zinc-400">{t("common.loading")}</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Show redirect message if already completed
+    if (alreadyCompleted) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900 flex items-center justify-center p-4">
+                <div className="text-center">
+                    <Check className="w-10 h-10 text-emerald-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+                        {t("onboarding_setup.already_completed.title")}
+                    </h2>
+                    <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                        {t("onboarding_setup.already_completed.message")}
+                    </p>
+                    <Loader2 className="w-5 h-5 animate-spin text-emerald-500 mx-auto" />
+                </div>
+            </div>
+        )
     }
 
     return (

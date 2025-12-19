@@ -249,6 +249,10 @@
         "errors": {
             "generic": "Ocorreu um erro. Tente novamente."
         },
+        "already_completed": {
+            "title": "Onboarding já concluído!",
+            "message": "Redirecionando para o dashboard..."
+        },
         "footer": "Esses dados são usados apenas para personalizar sua experiência."
     },
     "dashboard": {
