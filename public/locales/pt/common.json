@@ -1307,5 +1307,67 @@
             "responsible": "Responsável",
             "confirm_exit": "Confirmar Saída"
         }
+    },
+    "vehicles": {
+        "title": "Gestão de Veículos",
+        "subtitle": "Gerencie sua frota, monitore custos e manutenções.",
+        "fleet": "Frota",
+        "new_vehicle": "Novo Veículo",
+        "loading": "Carregando frota...",
+        "error_loading": "Erro ao carregar veículos: {{error}}",
+        "no_vehicles": "Nenhum veículo cadastrado.",
+        "delete_confirm": "Tem certeza que deseja excluir este veículo?",
+        "edit": "Editar Veículo",
+        "create": "Cadastrar Veículo",
+        "form": {
+            "title_new": "Novo Veículo",
+            "title_edit": "Editar Veículo",
+            "description_new": "Preencha as informações para cadastrar um novo veículo.",
+            "description_edit": "Atualize as informações do veículo abaixo.",
+            "plate": "Placa",
+            "type": "Tipo",
+            "brand": "Marca",
+            "model": "Modelo",
+            "fuel": "Combustível",
+            "year": "Ano",
+            "acquisition_date": "Data de Aquisição",
+            "placeholder_plate": "ABC-1234",
+            "placeholder_brand": "Ex: Fiat",
+            "placeholder_model": "Ex: Strada",
+            "placeholder_year": "Ex: 2023",
+            "save_creating": "Criando...",
+            "save_updating": "Salvando...",
+            "create": "Criar",
+            "update": "Atualizar"
+        },
+        "types": {
+            "CAR": "Carro",
+            "TRUCK": "Caminhão",
+            "VAN": "Van/Utilitário",
+            "MOTORCYCLE": "Moto",
+            "OTHER": "Outro"
+        },
+        "fuel": {
+            "GASOLINE": "Gasolina",
+            "DIESEL": "Diesel",
+            "FLEX": "Flex",
+            "ELECTRIC": "Elétrico",
+            "HYBRID": "Híbrido"
+        },
+        "details": {
+            "loading": "Carregando detalhes...",
+            "not_found": "Veículo não encontrado",
+            "status": "Status",
+            "acquisition": "Aquisição",
+            "fuel": "Combustível",
+            "type": "Tipo",
+            "active": "Ativo",
+            "operational": "Operacional",
+            "tabs": {
+                "maintenance": "Manutenções",
+                "costs": "Custos",
+                "usage": "Uso"
+            }
+        }
     }
 }

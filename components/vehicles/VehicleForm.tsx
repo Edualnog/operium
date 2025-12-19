@@ -20,6 +20,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Vehicle, VehicleType, FuelType } from "@/lib/types/vehicles"
+import { useTranslation } from "react-i18next"
 
 interface VehicleFormProps {
     open: boolean
@@ -36,6 +37,8 @@ export function VehicleForm({
     initialData,
     loading,
 }: VehicleFormProps) {
+    const { t } = useTranslation('common')
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
@@ -57,37 +60,37 @@ export function VehicleForm({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{initialData ? "Editar Veículo" : "Novo Veículo"}</DialogTitle>
+                    <DialogTitle>{initialData ? t('vehicles.form.title_edit') : t('vehicles.form.title_new')}</DialogTitle>
                     <DialogDescription>
                         {initialData
-                            ? "Atualize as informações do veículo abaixo."
-                            : "Preencha as informações para cadastrar um novo veículo."}
+                            ? t('vehicles.form.description_edit')
+                            : t('vehicles.form.description_new')}
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="plate">Placa *</Label>
+                            <Label htmlFor="plate">{t('vehicles.form.plate')} *</Label>
                             <Input
                                 id="plate"
                                 name="plate"
                                 defaultValue={initialData?.plate}
                                 required
-                                placeholder="ABC-1234"
+                                placeholder={t('vehicles.form.placeholder_plate')}
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="vehicle_type">Tipo *</Label>
+                            <Label htmlFor="vehicle_type">{t('vehicles.form.type')} *</Label>
                             <Select name="vehicle_type" defaultValue={initialData?.vehicle_type || "CAR"} required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Selecione" />
+                                    <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="CAR">Carro</SelectItem>
-                                    <SelectItem value="TRUCK">Caminhão</SelectItem>
-                                    <SelectItem value="VAN">Van/Utilitário</SelectItem>
-                                    <SelectItem value="MOTORCYCLE">Moto</SelectItem>
-                                    <SelectItem value="OTHER">Outro</SelectItem>
+                                    <SelectItem value="CAR">{t('vehicles.types.CAR')}</SelectItem>
+                                    <SelectItem value="TRUCK">{t('vehicles.types.TRUCK')}</SelectItem>
+                                    <SelectItem value="VAN">{t('vehicles.types.VAN')}</SelectItem>
+                                    <SelectItem value="MOTORCYCLE">{t('vehicles.types.MOTORCYCLE')}</SelectItem>
+                                    <SelectItem value="OTHER">{t('vehicles.types.OTHER')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -95,55 +98,55 @@ export function VehicleForm({
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="brand">Marca</Label>
+                            <Label htmlFor="brand">{t('vehicles.form.brand')}</Label>
                             <Input
                                 id="brand"
                                 name="brand"
                                 defaultValue={initialData?.brand}
-                                placeholder="Ex: Fiat"
+                                placeholder={t('vehicles.form.placeholder_brand')}
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="model">Modelo</Label>
+                            <Label htmlFor="model">{t('vehicles.form.model')}</Label>
                             <Input
                                 id="model"
                                 name="model"
                                 defaultValue={initialData?.model}
-                                placeholder="Ex: Strada"
+                                placeholder={t('vehicles.form.placeholder_model')}
                             />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="fuel_type">Combustível *</Label>
+                            <Label htmlFor="fuel_type">{t('vehicles.form.fuel')} *</Label>
                             <Select name="fuel_type" defaultValue={initialData?.fuel_type || "FLEX"} required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Selecione" />
+                                    <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="GASOLINE">Gasolina</SelectItem>
-                                    <SelectItem value="DIESEL">Diesel</SelectItem>
-                                    <SelectItem value="FLEX">Flex</SelectItem>
-                                    <SelectItem value="ELECTRIC">Elétrico</SelectItem>
-                                    <SelectItem value="HYBRID">Híbrido</SelectItem>
+                                    <SelectItem value="GASOLINE">{t('vehicles.fuel.GASOLINE')}</SelectItem>
+                                    <SelectItem value="DIESEL">{t('vehicles.fuel.DIESEL')}</SelectItem>
+                                    <SelectItem value="FLEX">{t('vehicles.fuel.FLEX')}</SelectItem>
+                                    <SelectItem value="ELECTRIC">{t('vehicles.fuel.ELECTRIC')}</SelectItem>
+                                    <SelectItem value="HYBRID">{t('vehicles.fuel.HYBRID')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="year">Ano</Label>
+                            <Label htmlFor="year">{t('vehicles.form.year')}</Label>
                             <Input
                                 id="year"
                                 name="year"
                                 type="number"
                                 defaultValue={initialData?.year}
-                                placeholder="Ex: 2023"
+                                placeholder={t('vehicles.form.placeholder_year')}
                             />
                         </div>
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="acquisition_date">Data de Aquisição *</Label>
+                        <Label htmlFor="acquisition_date">{t('vehicles.form.acquisition_date')} *</Label>
                         <Input
                             id="acquisition_date"
                             name="acquisition_date"
@@ -154,8 +157,10 @@ export function VehicleForm({
                     </div>
 
                     <DialogFooter>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Salvando..." : (initialData ? "Atualizar" : "Criar")}
+                        <Button type="submit" disabled={loading} className="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900">
+                            {loading
+                                ? (initialData ? t('vehicles.form.save_updating') : t('vehicles.form.save_creating'))
+                                : (initialData ? t('vehicles.form.update') : t('vehicles.form.create'))}
                         </Button>
                     </DialogFooter>
                 </form>
