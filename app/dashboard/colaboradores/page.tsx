@@ -9,21 +9,29 @@ export const revalidate = 60 // Revalidar a cada 60 segundos
 
 async function getColaboradores(userId: string) {
   const supabase = await createServerComponentClient()
-  const { data } = await supabase
+
+  // First get the collaborators
+  const { data: colaboradores } = await supabase
     .from("colaboradores")
-    .select(`
-      id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at, almox_score, level,
-      collaborator_operational_profile!collaborator_operational_profile_collaborator_id_fkey(role_function, seniority_bucket)
-    `)
+    .select("id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at, almox_score, level")
     .eq("profile_id", userId)
     .order("nome", { ascending: true })
 
-  // Flatten the operational profile data
-  return (data || []).map(c => ({
+  if (!colaboradores) return []
+
+  // Get operational profiles for all collaborators
+  const { data: profiles } = await supabase
+    .from("collaborator_operational_profile")
+    .select("collaborator_id, role_function, seniority_bucket")
+    .in("collaborator_id", colaboradores.map(c => c.id))
+
+  // Merge the data
+  const profileMap = new Map(profiles?.map(p => [p.collaborator_id, p]) || [])
+
+  return colaboradores.map(c => ({
     ...c,
-    role_function: c.collaborator_operational_profile?.[0]?.role_function || null,
-    seniority_bucket: c.collaborator_operational_profile?.[0]?.seniority_bucket || null,
-    collaborator_operational_profile: undefined
+    role_function: profileMap.get(c.id)?.role_function || null,
+    seniority_bucket: profileMap.get(c.id)?.seniority_bucket || null,
   }))
 }
 
