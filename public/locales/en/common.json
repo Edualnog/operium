@@ -451,12 +451,6 @@
             "damaged": "Damaged",
             "ok": "OK"
         },
-        "columns": {
-            "collaborator": "Collaborator",
-            "qty": "Qty",
-            "days_in_use": "Days in use",
-            "deadline": "Deadline"
-        },
         "labels": {
             "demand": "Demand:",
             "withdrawals": "withdrawals",

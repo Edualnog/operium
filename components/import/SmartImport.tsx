@@ -146,7 +146,7 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
         } finally {
             setLoading(false)
         }
-    }, [toast])
+    }, [toast, entityType])
 
     // Handle file drop
     const handleDrop = useCallback((e: React.DragEvent) => {
