@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { getSupabaseUser } from "@/lib/supabase-server"
+import { createServerComponentClient } from "@/lib/supabase-server"
 import dynamic from "next/dynamic"
 
 const OnboardingSetupForm = dynamic(() => import("@/components/onboarding/OnboardingSetupForm"), {
@@ -15,25 +15,38 @@ const OnboardingSetupForm = dynamic(() => import("@/components/onboarding/Onboar
     ),
 })
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export default async function OnboardingPage() {
-    const { supabase, user } = await getSupabaseUser()
+    const supabase = await createServerComponentClient()
+
+    // Get user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     // If not logged in, redirect to login
-    if (!user) {
+    if (authError || !user) {
         redirect("/login")
     }
 
     // Check if user already completed onboarding
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("company_name, industry_segment")
         .eq("id", user.id)
         .single()
 
+    // Log for debugging (will appear in Vercel logs)
+    console.log("[Onboarding] User:", user.id, "Profile:", profile, "Error:", profileError)
+
     // If already has both fields, redirect to dashboard
+    // This is the PRIMARY check
     if (profile?.company_name && profile?.industry_segment) {
+        console.log("[Onboarding] User already completed - redirecting to dashboard")
         redirect("/dashboard")
     }
 
+    // If there was an error reading profile but user exists,
+    // still show the form - they need to complete it
     return <OnboardingSetupForm />
 }
