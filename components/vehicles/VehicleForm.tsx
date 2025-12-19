@@ -53,6 +53,7 @@ export function VehicleForm({
             year: formData.get("year") ? parseInt(formData.get("year") as string) : undefined,
             acquisition_date: formData.get("acquisition_date") as string,
             acquisition_value: formData.get("acquisition_value") ? parseFloat(formData.get("acquisition_value") as string) : 0,
+            current_odometer: formData.get("current_odometer") ? parseFloat(formData.get("current_odometer") as string) : 0,
         }
 
         await onSubmit(data)
@@ -173,18 +174,31 @@ export function VehicleForm({
                         </div>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="status">{t('vehicles.details.status')}</Label>
-                        <Select name="status" defaultValue={initialData?.status || "active"} required>
-                            <SelectTrigger>
-                                <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="active">{t('vehicles.status.active')}</SelectItem>
-                                <SelectItem value="maintenance">{t('vehicles.status.maintenance')}</SelectItem>
-                                <SelectItem value="out_of_service">{t('vehicles.status.out_of_service')}</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="current_odometer">{t('vehicles.form.odometer')}</Label>
+                            <Input
+                                id="current_odometer"
+                                name="current_odometer"
+                                type="number"
+                                step="1"
+                                defaultValue={initialData?.current_odometer || 0}
+                                placeholder="0"
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="status">{t('vehicles.details.status')}</Label>
+                            <Select name="status" defaultValue={initialData?.status || "active"} required>
+                                <SelectTrigger>
+                                    <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="active">{t('vehicles.status.active')}</SelectItem>
+                                    <SelectItem value="maintenance">{t('vehicles.status.maintenance')}</SelectItem>
+                                    <SelectItem value="out_of_service">{t('vehicles.status.out_of_service')}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
                     <DialogFooter>

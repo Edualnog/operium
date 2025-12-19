@@ -19,7 +19,9 @@ export interface Vehicle {
         id: string;
         name: string;
     } | null;
-    status?: 'active' | 'maintenance' | 'out_of_service'; // Extended interface for frontend logic
+    status: 'active' | 'maintenance' | 'out_of_service';
+    current_odometer?: number;
+    last_odometer_update?: string;
 }
 
 export interface VehicleMaintenance {
@@ -50,6 +52,9 @@ export interface VehicleUsageEvent {
     usage_type: string;
     usage_date: string;
     notes?: string;
+    start_odometer?: number;
+    end_odometer?: number;
+    purpose?: string;
 }
 
 export interface VehicleBehaviorFeatures {

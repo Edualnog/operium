@@ -1357,6 +1357,7 @@
             "placeholder_brand": "Ex: Ford",
             "placeholder_model": "Ex: F-150",
             "placeholder_year": "Ex: 2023",
+            "odometer": "Current Odometer (km)",
             "save_creating": "Creating...",
             "save_updating": "Saving...",
             "create": "Create",
