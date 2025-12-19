@@ -11,10 +11,20 @@ async function getColaboradores(userId: string) {
   const supabase = await createServerComponentClient()
   const { data } = await supabase
     .from("colaboradores")
-    .select("id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at, almox_score, level")
+    .select(`
+      id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at, almox_score, level,
+      collaborator_operational_profile!collaborator_operational_profile_collaborator_id_fkey(role_function, seniority_bucket)
+    `)
     .eq("profile_id", userId)
     .order("nome", { ascending: true })
-  return data || []
+
+  // Flatten the operational profile data
+  return (data || []).map(c => ({
+    ...c,
+    role_function: c.collaborator_operational_profile?.[0]?.role_function || null,
+    seniority_bucket: c.collaborator_operational_profile?.[0]?.seniority_bucket || null,
+    collaborator_operational_profile: undefined
+  }))
 }
 
 async function getMovimentacoesStats(userId: string) {

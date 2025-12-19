@@ -801,8 +801,8 @@ function ColaboradoresList({
                   </div>
                 </TableCell>
                 <TableCell>
-                  {colaborador.cargo ? (
-                    <Badge variant="outline" className="font-normal">{colaborador.cargo}</Badge>
+                  {colaborador.role_function ? (
+                    <Badge variant="outline" className="font-normal">{colaborador.role_function}</Badge>
                   ) : "-"}
                 </TableCell>
                 <TableCell>
@@ -967,28 +967,6 @@ function ColaboradoresList({
                         className="bg-white dark:bg-zinc-900"
                       />
                     </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="cpf">CPF</Label>
-                      <Input
-                        id="cpf"
-                        name="cpf"
-                        defaultValue={editing?.cpf || ""}
-                        placeholder="000.000.000-00"
-                        className="bg-white dark:bg-zinc-900"
-                      />
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="cargo">{t("dashboard.colaboradores.form.role")}</Label>
-                      <Input
-                        id="cargo"
-                        name="cargo"
-                        defaultValue={editing?.cargo || voiceData?.cargo || ""}
-                        placeholder="Ex: Eletricista"
-                        className="bg-white dark:bg-zinc-900"
-                      />
-                    </div>
                   </div>
                 </div>
 
@@ -1052,24 +1030,32 @@ function ColaboradoresList({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="role_function">{t("dashboard.colaboradores.form.role_function")} *</Label>
+                      <Label htmlFor="role_function">
+                        {t("dashboard.colaboradores.form.role_function")} *
+                        {editing?.role_function && <span className="text-xs text-zinc-500 ml-2">(imutável)</span>}
+                      </Label>
                       <Input
                         id="role_function"
                         name="role_function"
                         defaultValue={editing?.role_function || ""}
                         placeholder={t("dashboard.colaboradores.form.role_function_placeholder")}
                         required
-                        className="bg-white dark:bg-zinc-900"
+                        disabled={!!editing?.role_function}
+                        className={`bg-white dark:bg-zinc-900 ${editing?.role_function ? 'opacity-60 cursor-not-allowed' : ''}`}
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="seniority_bucket">{t("dashboard.colaboradores.form.seniority_bucket")} *</Label>
+                      <Label htmlFor="seniority_bucket">
+                        {t("dashboard.colaboradores.form.seniority_bucket")} *
+                        {editing?.seniority_bucket && <span className="text-xs text-zinc-500 ml-2">(imutável)</span>}
+                      </Label>
                       <Select
                         name="seniority_bucket"
                         defaultValue={editing?.seniority_bucket || ""}
                         required
+                        disabled={!!editing?.seniority_bucket}
                       >
-                        <SelectTrigger className="bg-white dark:bg-zinc-900">
+                        <SelectTrigger className={`bg-white dark:bg-zinc-900 ${editing?.seniority_bucket ? 'opacity-60 cursor-not-allowed' : ''}`}>
                           <SelectValue placeholder={t("dashboard.colaboradores.form.seniority_placeholder")} />
                         </SelectTrigger>
                         <SelectContent>
