@@ -198,7 +198,7 @@ function ColaboradoresList({
     ordem: "asc",
   })
   const [currentPage, setCurrentPage] = useState(1)
-  const [activeTab, setActiveTab] = useState<"todos" | "ativos" | "inativos">("ativos")
+  const [activeTab, setActiveTab] = useState<"todos" | "ativos" | "inativos" | "demitidos">("ativos")
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
   const debouncedSearch = useDebounce(filters.search, 300)
@@ -324,13 +324,16 @@ function ColaboradoresList({
       result = result.filter((c) => c.cargo === filters.cargo)
     }
 
-    // Filtro por Tab (Ativos/Inativos)
-    // Como não há campo de status, vamos assumir que TODOS são Ativos por padrão visualizar,
-    // ou se quiser implementar lógica futura. Por enquanto, 'ativos' e 'todos' mostram tudo.
-    // 'inativos' mostraria vazio ou lógica futura.
+    // Filtro por Tab
+    if (activeTab === "ativos") {
+      result = result.filter((c) => c.status !== 'DEMITIDO')
+    } else if (activeTab === "demitidos") {
+      result = result.filter((c) => c.status === 'DEMITIDO')
+    }
+    // 'todos' mostra tudo
+    // 'inativos' mantido para compatibilidade futura
     if (activeTab === "inativos") {
-      // Exemplo: result = result.filter(c => false) // Placeholder
-      // Por enquanto não filtra nada para não sumir com dados
+      // Placeholder
     }
 
     // Filtro por data de admissão
@@ -398,7 +401,8 @@ function ColaboradoresList({
     // Como não temos status real, retornamos total para 'ativos' e 'todos'
     return {
       todos: colaboradores.length,
-      ativos: colaboradores.length,
+      ativos: colaboradores.filter(c => c.status !== 'DEMITIDO').length,
+      demitidos: colaboradores.filter(c => c.status === 'DEMITIDO').length,
       inativos: 0
     }
   }, [colaboradores])
@@ -720,7 +724,7 @@ function ColaboradoresList({
         <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
           <TabsList className="bg-transparent p-0">
             <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="ativos">{t("dashboard.ferramentas.tabs.active")} ({counts.ativos})</TabsTrigger>
-            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="inativos">{t("dashboard.ferramentas.tabs.inactive")} ({counts.inativos})</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="demitidos">Demitidos ({counts.demitidos})</TabsTrigger>
             <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="todos">{t("dashboard.ferramentas.tabs.all")} ({counts.todos})</TabsTrigger>
           </TabsList>
         </Tabs>
@@ -1394,8 +1398,8 @@ function ColaboradoresList({
                   <div key={idx} className="relative">
                     {/* Timeline dot */}
                     <div className={`absolute -left-6 top-1 w-4 h-4 rounded-full border-2 ${idx === historyTarget.role_history!.length - 1
-                        ? "bg-emerald-500 border-emerald-500"
-                        : "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-600"
+                      ? "bg-emerald-500 border-emerald-500"
+                      : "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-600"
                       }`} />
 
                     <div className="bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border">
