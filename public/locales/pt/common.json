@@ -1401,6 +1401,13 @@
                 "usage": "Uso"
             }
         },
+        "vehicles": {
+            "title": "Gestão de Frota",
+            "total": "Total de Veículos",
+            "assigned": "Em Uso (Atribuídos)",
+            "maintenance": "Em Manutenção",
+            "cost_month": "Custo (Mês Atual)"
+        },
         "assignment": {
             "assign_title": "Atribuir Veículo",
             "assign_description": "Selecione um colaborador para ser o responsável por este veículo.",

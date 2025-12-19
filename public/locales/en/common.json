@@ -1384,6 +1384,13 @@
                 "usage": "Usage"
             }
         },
+        "vehicles": {
+            "title": "Fleet Management",
+            "total": "Total Vehicles",
+            "assigned": "In Use (Assigned)",
+            "maintenance": "In Maintenance",
+            "cost_month": "Cost (Current Month)"
+        },
         "assignment": {
             "assign_title": "Assign Vehicle",
             "assign_description": "Select a collaborator to be responsible for this vehicle.",

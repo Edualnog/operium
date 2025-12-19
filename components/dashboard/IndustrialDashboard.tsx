@@ -37,6 +37,7 @@ import { OnboardingTour } from "./OnboardingTour"
 import { InventoryBottlenecksCard } from "./InventoryBottlenecksCard"
 import { OrgMaturityCard } from "./OrgMaturityCard"
 import { FEATURES } from "@/lib/features"
+import { VehicleStats } from "./VehicleStatsCard"
 
 // ... (inside component)
 
@@ -577,6 +578,8 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       </div>
 
       <OnboardingChecklist userId={userId} />
+
+
 
       {/* AI Insights + Gargalos - lado a lado */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -1512,6 +1515,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           />
         )}
       </section>
-    </div>
+
+
+      {/* SESSÃO 2: VEÍCULOS */}
+      <VehicleStats />
+    </div >
   )
 }
