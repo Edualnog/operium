@@ -955,16 +955,24 @@ function ColaboradoresList({
                   {/* Campos empilhados verticalmente */}
                   <div className="grid gap-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="nome">{t("dashboard.colaboradores.form.name")} *</Label>
+                      <Label htmlFor="nome">
+                        {t("dashboard.colaboradores.form.name")} *
+                        {editing?.nome && <span className="text-xs text-zinc-500 ml-2">(imutável)</span>}
+                      </Label>
+                      {/* Hidden input to preserve value when field is disabled */}
+                      {editing?.nome && (
+                        <input type="hidden" name="nome" value={editing.nome} />
+                      )}
                       <Input
                         id="nome"
-                        name="nome"
+                        name={editing?.nome ? "nome_display" : "nome"}
                         defaultValue={editing?.nome || voiceData?.nome || ""}
-                        value={nomeDigitado}
-                        onChange={(e) => setNomeDigitado(e.target.value)}
+                        value={editing?.nome ? undefined : nomeDigitado}
+                        onChange={editing?.nome ? undefined : (e) => setNomeDigitado(e.target.value)}
                         placeholder="Nome completo"
-                        required
-                        className="bg-white dark:bg-zinc-900"
+                        required={!editing?.nome}
+                        disabled={!!editing?.nome}
+                        className={`bg-white dark:bg-zinc-900 ${editing?.nome ? 'opacity-60 cursor-not-allowed' : ''}`}
                       />
                     </div>
                   </div>
