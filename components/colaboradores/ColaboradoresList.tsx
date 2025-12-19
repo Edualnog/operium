@@ -1040,9 +1040,9 @@ function ColaboradoresList({
                   </h3>
 
                   {/* Foto centralizada no topo */}
-                  {/* Layout horizontal: Foto + Nome */}
-                  <div className="flex flex-col sm:flex-row gap-6">
-                    <div className="flex-shrink-0">
+                  {/* Layout vertical: Foto (esquerda) + Nome (embaixo, maior) */}
+                  <div className="flex flex-col gap-6">
+                    <div className="flex justify-start">
                       <PhotoUpload
                         currentPhotoUrl={photoUrl}
                         onPhotoUploaded={setPhotoUrl}
@@ -1050,7 +1050,7 @@ function ColaboradoresList({
                       />
                     </div>
 
-                    <div className="flex-grow grid gap-4">
+                    <div className="grid gap-4">
                       <div className="grid gap-2">
                         <Label htmlFor="nome">
                           {t("dashboard.colaboradores.form.name")} *
@@ -1069,7 +1069,7 @@ function ColaboradoresList({
                           placeholder="Nome completo"
                           required={!editing?.nome}
                           disabled={!!editing?.nome}
-                          className={`bg-white dark:bg-zinc-900 ${editing?.nome ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          className={`bg-white dark:bg-zinc-900 h-12 text-lg ${editing?.nome ? 'opacity-60 cursor-not-allowed' : ''}`}
                         />
                       </div>
                     </div>
