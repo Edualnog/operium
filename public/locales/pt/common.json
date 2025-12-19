@@ -1400,6 +1400,28 @@
                 "costs": "Custos",
                 "usage": "Uso"
             }
+        },
+        "assignment": {
+            "assign_title": "Atribuir Veículo",
+            "assign_description": "Selecione um colaborador para ser o responsável por este veículo.",
+            "return_title": "Devolver Veículo",
+            "return_description": "Confirmar a devolução deste veículo?",
+            "collaborator": "Colaborador Responsável",
+            "confirm_assign": "Confirmar Atribuição",
+            "confirm_return": "Confirmar Devolução",
+            "confirm_return_text": "O veículo não terá mais um responsável vinculado.",
+            "success_assign": "Veículo atribuído com sucesso!",
+            "success_return": "Veículo devolvido com sucesso!",
+            "current_driver": "Responsável Atual",
+            "no_driver": "Sem responsável",
+            "assign_button": "Atribuir",
+            "return_button": "Devolver"
+        },
+        "usage": {
+            "date": "Data",
+            "event": "Evento",
+            "collaborator": "Colaborador",
+            "notes": "Descrição"
         }
     }
 }

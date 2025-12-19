@@ -14,6 +14,12 @@ export interface Vehicle {
     acquisition_value?: number;
     created_at: string;
     updated_at: string;
+    current_driver_id?: string | null;
+    driver?: {
+        id: string;
+        name: string;
+    } | null;
+    status?: 'active' | 'maintenance' | 'out_of_service'; // Extended interface for frontend logic
 }
 
 export interface VehicleMaintenance {

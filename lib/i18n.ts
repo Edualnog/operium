@@ -10,12 +10,14 @@ i18n
     .use(initReactI18next)
     .use(
         resourcesToBackend((language: string, namespace: string) => {
-            return import(`../public/locales/${language}/${namespace}.json`);
+            // Handle pt-BR by loading pt translations
+            const lang = language === 'pt-BR' ? 'pt' : language;
+            return import(`../public/locales/${lang}/${namespace}.json`);
         })
     )
     .init({
         fallbackLng: 'en',
-        supportedLngs: ['en', 'pt'],
+        supportedLngs: ['en', 'pt', 'pt-BR'],
         defaultNS: 'common',
         ns: ['common'],
         debug: process.env.NODE_ENV === 'development',

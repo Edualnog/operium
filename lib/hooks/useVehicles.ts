@@ -123,7 +123,13 @@ export function useVehicle(id: string) {
             setLoading(true)
             const { data, error } = await supabase
                 .from("vehicles")
-                .select("*")
+                .select(`
+                    *,
+                    driver:current_driver_id (
+                        id,
+                        name
+                    )
+                `)
                 .eq("id", id)
                 .single()
 

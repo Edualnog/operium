@@ -1384,6 +1384,28 @@
                 "usage": "Usage"
             }
         },
+        "assignment": {
+            "assign_title": "Assign Vehicle",
+            "assign_description": "Select a collaborator to be responsible for this vehicle.",
+            "return_title": "Return Vehicle",
+            "return_description": "Confirm return of this vehicle?",
+            "collaborator": "Responsible Collaborator",
+            "confirm_assign": "Confirm Assignment",
+            "confirm_return": "Confirm Return",
+            "confirm_return_text": "The vehicle will no longer have a linked driver.",
+            "success_assign": "Vehicle assigned successfully!",
+            "success_return": "Vehicle returned successfully!",
+            "current_driver": "Current Driver",
+            "no_driver": "No driver assigned",
+            "assign_button": "Assign",
+            "return_button": "Return"
+        },
+        "usage": {
+            "date": "Date",
+            "event": "Event",
+            "collaborator": "Collaborator",
+            "notes": "Description"
+        },
         "maintenance": {
             "title": "Maintenance History",
             "new": "New Maintenance",

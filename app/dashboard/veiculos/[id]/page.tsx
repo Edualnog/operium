@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Car, Calendar, Fuel, Truck, FileText } from "lucide-react"
+import { ArrowLeft, Car, Calendar, Fuel, Truck, FileText, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
@@ -31,11 +31,17 @@ import { Input } from "@/components/ui/input"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { generateVehicleReport } from "@/lib/utils/generateVehicleReport"
 import { toast } from "sonner"
+import { VehicleAssignmentDialog } from "@/components/vehicles/VehicleAssignmentDialog"
 
 export default function VehicleDetailsPage({ params }: { params: { id: string } }) {
-    const { vehicle, loading, error } = useVehicle(params.id)
+    const { vehicle, loading, error, refreshVehicle } = useVehicle(params.id)
     const router = useRouter()
     const { t } = useTranslation('common')
+
+
+
+    // Assignment State
+    const [isAssignmentOpen, setIsAssignmentOpen] = useState(false)
 
     // Report State
     const [isReportOpen, setIsReportOpen] = useState(false)
@@ -46,6 +52,10 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
     })
 
     const supabase = createClientComponentClient()
+
+    // Moved early returns after all hooks
+    if (loading) return <div className="p-8">{t('vehicles.details.loading')}</div>
+    if (error || !vehicle) return <div className="p-8 text-red-500">{t('vehicles.details.not_found')}</div>
 
     const handleGenerateReport = async () => {
         if (!vehicle) return
@@ -99,8 +109,15 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
         }
     }
 
-    if (loading) return <div className="p-8">{t('vehicles.details.loading')}</div>
-    if (error || !vehicle) return <div className="p-8 text-red-500">{t('vehicles.details.not_found')}</div>
+    // Move early returns to AFTER all hooks
+    // if (loading) return ... 
+    // This was already done below, just cleaning up duplicates
+
+    // Assignment State
+    // const [isAssignmentOpen, setIsAssignmentOpen] = useState(false)
+    // This is already declared above.
+
+    const hasDriver = !!vehicle.current_driver_id
 
     return (
         <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
@@ -117,47 +134,77 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
                     </div>
                 </div>
 
-                <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="outline">
-                            <FileText className="mr-2 h-4 w-4" /> Exportar PDF
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Gerar Relatório PDF</DialogTitle>
-                            <DialogDescription>
-                                Escolha o período para o relatório. Deixe em branco para todo o histórico.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                                <Label>Data Inicial</Label>
-                                <Input
-                                    type="date"
-                                    value={reportConfig.startDate}
-                                    onChange={(e) => setReportConfig(prev => ({ ...prev, startDate: e.target.value }))}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>Data Final</Label>
-                                <Input
-                                    type="date"
-                                    value={reportConfig.endDate}
-                                    onChange={(e) => setReportConfig(prev => ({ ...prev, endDate: e.target.value }))}
-                                />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button onClick={handleGenerateReport} disabled={reportLoading}>
-                                {reportLoading ? "Gerando..." : "Gerar Relatório"}
+                <div className="flex gap-2">
+                    <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline">
+                                <FileText className="mr-2 h-4 w-4" /> Exportar PDF
                             </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Gerar Relatório PDF</DialogTitle>
+                                <DialogDescription>
+                                    Escolha o período para o relatório. Deixe em branco para todo o histórico.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                    <Label>Data Inicial</Label>
+                                    <Input
+                                        type="date"
+                                        value={reportConfig.startDate}
+                                        onChange={(e) => setReportConfig(prev => ({ ...prev, startDate: e.target.value }))}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label>Data Final</Label>
+                                    <Input
+                                        type="date"
+                                        value={reportConfig.endDate}
+                                        onChange={(e) => setReportConfig(prev => ({ ...prev, endDate: e.target.value }))}
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button onClick={handleGenerateReport} disabled={reportLoading}>
+                                    {reportLoading ? "Gerando..." : "Gerar Relatório"}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                <Card className="col-span-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">{t('vehicles.assignment.current_driver')}</CardTitle>
+                        <User className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent className="flex justify-between items-end">
+                        <div className="space-y-1">
+                            {hasDriver ? (
+                                <>
+                                    <div className="text-2xl font-bold">{vehicle.driver?.name}</div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Status: {t('vehicles.details.active')}
+                                    </p>
+                                </>
+                            ) : (
+                                <div className="text-xl font-medium text-muted-foreground">{t('vehicles.assignment.no_driver')}</div>
+                            )}
+                        </div>
+                        <Button
+                            variant={hasDriver ? "outline" : "default"}
+                            className={!hasDriver ? "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900" : ""}
+                            onClick={() => setIsAssignmentOpen(true)}
+                        >
+                            {hasDriver ? t('vehicles.assignment.return_button') : t('vehicles.assignment.assign_button')}
+                        </Button>
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">{t('vehicles.details.status')}</CardTitle>
@@ -193,16 +240,17 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
                         <div className="text-2xl font-bold">{t(`vehicles.fuel.${vehicle.fuel_type}`)}</div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">{t('vehicles.details.type')}</CardTitle>
-                        <Car className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{t(`vehicles.types.${vehicle.vehicle_type}`)}</div>
-                    </CardContent>
-                </Card>
             </div>
+
+            <VehicleAssignmentDialog
+                open={isAssignmentOpen}
+                onOpenChange={setIsAssignmentOpen}
+                vehicleId={vehicle.id}
+                currentDriverId={vehicle.current_driver_id}
+                onSuccess={() => {
+                    refreshVehicle()
+                }}
+            />
 
             <Tabs defaultValue="maintenance" className="space-y-4">
                 <TabsList>
