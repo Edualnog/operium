@@ -321,38 +321,7 @@ COMMENT ON VIEW public.v_events_vehicle_usage IS
 'View de projeção: Transforma uso de veículos em eventos normalizados.
 NÃO ALTERA dados originais. Apenas projeta para formato de evento.';
 
--- View: Ferramentas → Eventos (se tabela existir)
--- Nota: Usando DO block para criar view condicionalmente
-DO $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ferramentas' AND table_schema = 'public') THEN
-        EXECUTE '
-            CREATE OR REPLACE VIEW public.v_events_tools AS
-            SELECT 
-                gen_random_uuid() AS id,
-                f.user_id AS profile_id,
-                ''tool'' AS entity_type,
-                f.id AS entity_id,
-                CASE f.estado
-                    WHEN ''disponivel'' THEN ''TOOL_AVAILABLE''
-                    WHEN ''emprestada'' THEN ''TOOL_LOANED''
-                    WHEN ''danificada'' THEN ''TOOL_DAMAGED''
-                    WHEN ''em_conserto'' THEN ''TOOL_IN_REPAIR''
-                    ELSE ''TOOL_STATUS_CHANGED''
-                END AS event_type,
-                ''system'' AS event_source,
-                jsonb_build_object(
-                    ''nome'', f.nome,
-                    ''estado'', f.estado,
-                    ''categoria'', f.categoria,
-                    ''quantidade_disponivel'', f.quantidade_disponivel
-                ) AS payload,
-                f.updated_at AS occurred_at,
-                f.created_at AS ingested_at
-            FROM public.ferramentas f
-        ';
-    END IF;
-END $$;
+-- Nota: View de ferramentas removida temporariamente até confirmar schema exato
 
 -- ============================================================================
 -- PARTE 6: VIEW UNIFICADA DE EVENTOS DISPONÍVEIS
