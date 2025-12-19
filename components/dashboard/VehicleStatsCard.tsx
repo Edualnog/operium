@@ -96,7 +96,7 @@ export function VehicleStats() {
                 <div className="flex items-center gap-2 mb-4">
                     <Car className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
                     <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                        {t('dashboard.vehicles.title')}
+                        {t('vehicles.title')}
                     </h2>
                 </div>
                 <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
@@ -113,7 +113,7 @@ export function VehicleStats() {
             <div className="flex items-center gap-2 mb-4">
                 <Car className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
                 <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                    {t('dashboard.vehicles.title')}
+                    {t('vehicles.title')}
                 </h2>
             </div>
 
@@ -123,7 +123,7 @@ export function VehicleStats() {
                         <div className="flex items-center gap-3">
                             <Car className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
                             <div>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.vehicles.total')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('vehicles.total')}</p>
                                 <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                                     {stats.total}
                                 </p>
@@ -137,7 +137,7 @@ export function VehicleStats() {
                         <div className="flex items-center gap-3">
                             <UserCheck className="h-5 w-5 text-blue-400 dark:text-blue-500" />
                             <div>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.vehicles.assigned')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('vehicles.assigned')}</p>
                                 <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                                     {stats.assigned}
                                 </p>
@@ -151,7 +151,7 @@ export function VehicleStats() {
                         <div className="flex items-center gap-3">
                             <Wrench className="h-5 w-5 text-orange-400 dark:text-orange-500" />
                             <div>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.vehicles.maintenance')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('vehicles.maintenance')}</p>
                                 <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                                     {stats.maintenance}
                                 </p>
@@ -165,7 +165,7 @@ export function VehicleStats() {
                         <div className="flex items-center gap-3">
                             <DollarSign className="h-5 w-5 text-green-400 dark:text-green-500" />
                             <div>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.vehicles.cost_month')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('vehicles.cost_month')}</p>
                                 <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                                     {formattedCost}
                                 </p>
