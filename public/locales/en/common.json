@@ -8,10 +8,6 @@
         "or": "or",
         "google_login": "Sign in with Google",
         "google_signup": "Sign up with Google",
-        "login": {
-            "title": "Welcome Back",
-            "subtitle": "Sign in to your Operium account"
-        },
         "fields": {
             "email": "Email",
             "password": "Password",
@@ -25,6 +21,7 @@
         },
         "login": {
             "title": "Welcome Back",
+            "subtitle": "Sign in to your Operium account",
             "no_account": "Don't have an account?",
             "create_now": "Create now",
             "forgot_password": "Forgot password?",
@@ -1327,6 +1324,12 @@
         "delete_confirm": "Are you sure you want to delete this vehicle?",
         "edit": "Edit Vehicle",
         "create": "Register Vehicle",
+        "status": {
+            "active": "Active",
+            "maintenance": "In Maintenance",
+            "inactive": "Inactive",
+            "out_of_service": "Out of Service"
+        },
         "form": {
             "title_new": "New Vehicle",
             "title_edit": "Edit Vehicle",

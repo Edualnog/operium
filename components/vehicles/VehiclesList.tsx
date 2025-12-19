@@ -155,8 +155,15 @@ export function VehiclesList() {
                                             : '-'}
                                     </TableCell>
                                     <TableCell>
-                                        <span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 ring-1 ring-inset ring-zinc-500/10">
-                                            {t('vehicles.details.active')}
+                                        <span className={cn(
+                                            "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                                            vehicle.status === 'maintenance'
+                                                ? "bg-orange-100 text-orange-700 ring-orange-500/10 dark:bg-orange-900/20 dark:text-orange-400"
+                                                : vehicle.status === 'out_of_service'
+                                                    ? "bg-red-100 text-red-700 ring-red-500/10 dark:bg-red-900/20 dark:text-red-400"
+                                                    : "bg-zinc-100 text-zinc-700 ring-zinc-500/10 dark:bg-zinc-800 dark:text-zinc-300"
+                                        )}>
+                                            {t(`vehicles.status.${vehicle.status || 'active'}`)}
                                         </span>
                                     </TableCell>
                                     <TableCell className="actions-trigger">

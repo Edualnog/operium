@@ -1344,6 +1344,11 @@
         "delete_confirm": "Tem certeza que deseja excluir este veículo?",
         "edit": "Editar Veículo",
         "create": "Cadastrar Veículo",
+        "status": {
+            "active": "Ativo",
+            "maintenance": "Em Manutenção",
+            "out_of_service": "Fora de Serviço"
+        },
         "form": {
             "title_new": "Novo Veículo",
             "title_edit": "Editar Veículo",

@@ -47,6 +47,7 @@ export function VehicleForm({
             plate: formData.get("plate") as string,
             vehicle_type: formData.get("vehicle_type") as VehicleType,
             fuel_type: formData.get("fuel_type") as FuelType,
+            status: formData.get("status") as string,
             brand: formData.get("brand") as string,
             model: formData.get("model") as string,
             year: formData.get("year") ? parseInt(formData.get("year") as string) : undefined,
@@ -170,6 +171,20 @@ export function VehicleForm({
                                 placeholder="0.00"
                             />
                         </div>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="status">{t('vehicles.details.status')}</Label>
+                        <Select name="status" defaultValue={initialData?.status || "active"} required>
+                            <SelectTrigger>
+                                <SelectValue placeholder={t('common.actions.select', { defaultValue: 'Select' })} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="active">{t('vehicles.status.active')}</SelectItem>
+                                <SelectItem value="maintenance">{t('vehicles.status.maintenance')}</SelectItem>
+                                <SelectItem value="out_of_service">{t('vehicles.status.out_of_service')}</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <DialogFooter>
