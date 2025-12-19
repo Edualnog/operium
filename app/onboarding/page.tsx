@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 import { createServerComponentClient } from "@/lib/supabase-server"
-import dynamic from "next/dynamic"
+import dynamicImport from "next/dynamic"
 
-const OnboardingSetupForm = dynamic(() => import("@/components/onboarding/OnboardingSetupForm"), {
+const OnboardingSetupForm = dynamicImport(() => import("@/components/onboarding/OnboardingSetupForm"), {
     ssr: false,
     loading: () => (
         <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-100 flex items-center justify-center">
