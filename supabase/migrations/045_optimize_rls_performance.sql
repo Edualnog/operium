@@ -25,37 +25,48 @@ DROP POLICY IF EXISTS "Users can view own vehicles" ON public.vehicles;
 CREATE POLICY "Users can view own vehicles" ON public.vehicles
     FOR SELECT USING (profile_id = (SELECT auth.uid()));
 
--- collaborator_operational_profile
+-- collaborator_operational_profile (usa collaborator_id -> colaboradores.profile_id)
 DROP POLICY IF EXISTS "Users can view own collaborator profiles" ON public.collaborator_operational_profile;
 DROP POLICY IF EXISTS "Users can insert own collaborator profiles" ON public.collaborator_operational_profile;
 DROP POLICY IF EXISTS "Users can update own collaborator profiles" ON public.collaborator_operational_profile;
 DROP POLICY IF EXISTS "Users can delete own collaborator profiles" ON public.collaborator_operational_profile;
 
 CREATE POLICY "Users can view own collaborator profiles" ON public.collaborator_operational_profile
-    FOR SELECT USING (user_id = (SELECT auth.uid()));
+    FOR SELECT USING (
+        collaborator_id IN (SELECT id FROM public.colaboradores WHERE profile_id = (SELECT auth.uid()))
+    );
 CREATE POLICY "Users can insert own collaborator profiles" ON public.collaborator_operational_profile
-    FOR INSERT WITH CHECK (user_id = (SELECT auth.uid()));
+    FOR INSERT WITH CHECK (
+        collaborator_id IN (SELECT id FROM public.colaboradores WHERE profile_id = (SELECT auth.uid()))
+    );
 CREATE POLICY "Users can update own collaborator profiles" ON public.collaborator_operational_profile
-    FOR UPDATE USING (user_id = (SELECT auth.uid()));
+    FOR UPDATE USING (
+        collaborator_id IN (SELECT id FROM public.colaboradores WHERE profile_id = (SELECT auth.uid()))
+    );
 CREATE POLICY "Users can delete own collaborator profiles" ON public.collaborator_operational_profile
-    FOR DELETE USING (user_id = (SELECT auth.uid()));
+    FOR DELETE USING (
+        collaborator_id IN (SELECT id FROM public.colaboradores WHERE profile_id = (SELECT auth.uid()))
+    );
 
--- collaborator_behavior_features
+-- collaborator_behavior_features (usa user_id)
 DROP POLICY IF EXISTS "Service role full access" ON public.collaborator_behavior_features;
 CREATE POLICY "Service role full access" ON public.collaborator_behavior_features
     FOR ALL USING (
         (SELECT current_setting('role', true)) = 'service_role'
-        OR user_id = (SELECT auth.uid())
     );
 
--- collaborator_role_history
+-- collaborator_role_history (usa collaborator_id -> colaboradores.profile_id)
 DROP POLICY IF EXISTS "Users can view own collaborator role history" ON public.collaborator_role_history;
 DROP POLICY IF EXISTS "Users can insert own collaborator role history" ON public.collaborator_role_history;
 
 CREATE POLICY "Users can view own collaborator role history" ON public.collaborator_role_history
-    FOR SELECT USING (user_id = (SELECT auth.uid()));
+    FOR SELECT USING (
+        collaborator_id IN (SELECT id FROM public.colaboradores WHERE profile_id = (SELECT auth.uid()))
+    );
 CREATE POLICY "Users can insert own collaborator role history" ON public.collaborator_role_history
-    FOR INSERT WITH CHECK (user_id = (SELECT auth.uid()));
+    FOR INSERT WITH CHECK (
+        collaborator_id IN (SELECT id FROM public.colaboradores WHERE profile_id = (SELECT auth.uid()))
+    );
 
 -- vehicle_maintenances
 DROP POLICY IF EXISTS "Users can view own vehicle maintenances" ON public.vehicle_maintenances;
