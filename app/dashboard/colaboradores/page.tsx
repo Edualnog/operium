@@ -10,10 +10,10 @@ export const revalidate = 60 // Revalidar a cada 60 segundos
 async function getColaboradores(userId: string) {
   const supabase = await createServerComponentClient()
 
-  // First get the collaborators
+  // First get the collaborators with new status fields
   const { data: colaboradores } = await supabase
     .from("colaboradores")
-    .select("id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at, almox_score, level")
+    .select("id, nome, cargo, telefone, foto_url, data_admissao, email, cpf, endereco, observacoes, created_at, almox_score, level, status, demitido_at, demitido_motivo")
     .eq("profile_id", userId)
     .order("nome", { ascending: true })
 
@@ -25,13 +25,29 @@ async function getColaboradores(userId: string) {
     .select("collaborator_id, role_function, seniority_bucket")
     .in("collaborator_id", colaboradores.map(c => c.id))
 
-  // Merge the data
+  // Get role history for all collaborators
+  const { data: roleHistory } = await supabase
+    .from("collaborator_role_history")
+    .select("collaborator_id, role_function, promoted_at, notes")
+    .in("collaborator_id", colaboradores.map(c => c.id))
+    .order("promoted_at", { ascending: true })
+
+  // Create maps for merging
   const profileMap = new Map(profiles?.map(p => [p.collaborator_id, p]) || [])
+  const historyMap = new Map<string, any[]>()
+  roleHistory?.forEach(h => {
+    if (!historyMap.has(h.collaborator_id)) {
+      historyMap.set(h.collaborator_id, [])
+    }
+    historyMap.get(h.collaborator_id)!.push(h)
+  })
 
   return colaboradores.map(c => ({
     ...c,
+    status: c.status || 'ATIVO',
     role_function: profileMap.get(c.id)?.role_function || null,
     seniority_bucket: profileMap.get(c.id)?.seniority_bucket || null,
+    role_history: historyMap.get(c.id) || [],
   }))
 }
 

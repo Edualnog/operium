@@ -16,6 +16,8 @@ import {
   criarColaborador,
   atualizarColaborador,
   deletarColaborador,
+  promoverColaborador,
+  demitirColaborador,
 } from "@/lib/actions"
 import {
   Plus,
@@ -40,7 +42,9 @@ import {
   MoreHorizontal,
   AlertTriangle,
   HardHat,
-  Briefcase
+  Briefcase,
+  Clock,
+  UserX
 } from "lucide-react"
 import SmartImport from "@/components/import/SmartImport"
 import { useRouter } from "next/navigation"
@@ -89,6 +93,12 @@ import { useToast } from "@/components/ui/toast-context"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 
+interface RoleHistoryEntry {
+  role_function: string
+  promoted_at: string
+  notes?: string
+}
+
 interface Colaborador {
   id: string
   nome: string
@@ -106,6 +116,11 @@ interface Colaborador {
   // Operational profile fields
   role_function?: string
   seniority_bucket?: 'LESS_THAN_6_MONTHS' | '6_TO_24_MONTHS' | 'MORE_THAN_24_MONTHS'
+  // Lifecycle fields
+  status?: 'ATIVO' | 'DEMITIDO'
+  demitido_at?: string | null
+  demitido_motivo?: string | null
+  role_history?: RoleHistoryEntry[]
 }
 
 interface MovimentacoesStats {
@@ -632,6 +647,70 @@ function ColaboradoresList({
     await carregarEpis(colaborador)
   }
 
+  // Promote handler - opens promote dialog
+  const [promoteDialogOpen, setPromoteDialogOpen] = useState(false)
+  const [promoteTarget, setPromoteTarget] = useState<Colaborador | null>(null)
+  const [promoteNewRole, setPromoteNewRole] = useState("")
+  const [promoteNotes, setPromoteNotes] = useState("")
+  const [promoteLoading, setPromoteLoading] = useState(false)
+
+  const handlePromote = (colaborador: Colaborador) => {
+    setPromoteTarget(colaborador)
+    setPromoteNewRole("")
+    setPromoteNotes("")
+    setPromoteDialogOpen(true)
+  }
+
+  const handlePromoteSubmit = async () => {
+    if (!promoteTarget || !promoteNewRole.trim()) return
+    setPromoteLoading(true)
+    try {
+      await promoverColaborador(promoteTarget.id, promoteNewRole.trim(), promoteNotes.trim() || undefined)
+      toast.success("Colaborador promovido com sucesso!")
+      setPromoteDialogOpen(false)
+      router.refresh()
+    } catch (error) {
+      toast.error("Erro ao promover colaborador")
+    } finally {
+      setPromoteLoading(false)
+    }
+  }
+
+  // Dismiss handler - opens dismiss dialog
+  const [demitirDialogOpen, setDemitirDialogOpen] = useState(false)
+  const [demitirTarget, setDemitirTarget] = useState<Colaborador | null>(null)
+  const [demitirMotivo, setDemitirMotivo] = useState("")
+  const [demitirLoading, setDemitirLoading] = useState(false)
+
+  const handleDemitir = (colaborador: Colaborador) => {
+    setDemitirTarget(colaborador)
+    setDemitirMotivo("")
+    setDemitirDialogOpen(true)
+  }
+
+  const handleDemitirSubmit = async () => {
+    if (!demitirTarget || !demitirMotivo.trim()) return
+    setDemitirLoading(true)
+    try {
+      await demitirColaborador(demitirTarget.id, demitirMotivo.trim())
+      toast.success("Colaborador demitido. Registros preservados.")
+      setDemitirDialogOpen(false)
+      router.refresh()
+    } catch (error) {
+      toast.error("Erro ao demitir colaborador")
+    } finally {
+      setDemitirLoading(false)
+    }
+  }
+
+  // History handler - opens history dialog
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
+  const [historyTarget, setHistoryTarget] = useState<Colaborador | null>(null)
+
+  const handleViewHistory = (colaborador: Colaborador) => {
+    setHistoryTarget(colaborador)
+    setHistoryDialogOpen(true)
+  }
 
   return (
     <div className="space-y-4">
@@ -836,6 +915,19 @@ function ColaboradoresList({
                         <DropdownMenuItem onClick={() => handleEdit(colaborador)}>
                           <Edit className="mr-2 h-4 w-4" /> {t("dashboard.colaboradores.card.edit")}
                         </DropdownMenuItem>
+                        {colaborador.status !== 'DEMITIDO' && (
+                          <>
+                            <DropdownMenuItem onClick={() => handlePromote(colaborador)}>
+                              <TrendingUp className="mr-2 h-4 w-4" /> Promover
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewHistory(colaborador)}>
+                              <Clock className="mr-2 h-4 w-4" /> Ver Histórico
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-orange-600" onClick={() => handleDemitir(colaborador)}>
+                              <UserX className="mr-2 h-4 w-4" /> Demitir
+                            </DropdownMenuItem>
+                          </>
+                        )}
                         <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(colaborador.id)}>
                           <Archive className="mr-2 h-4 w-4" /> {t("dashboard.colaboradores.card.delete")}
                         </DropdownMenuItem>
@@ -1192,6 +1284,149 @@ function ColaboradoresList({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Promote Dialog */}
+      <Dialog open={promoteDialogOpen} onOpenChange={setPromoteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-emerald-500" />
+              Promover Colaborador
+            </DialogTitle>
+            <DialogDescription>
+              Registrar promoção de {promoteTarget?.nome}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Cargo Atual</Label>
+              <div className="text-sm text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-3 py-2 rounded">
+                {promoteTarget?.role_function || "Não definido"}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="newRole">Novo Cargo *</Label>
+              <Input
+                id="newRole"
+                value={promoteNewRole}
+                onChange={(e) => setPromoteNewRole(e.target.value)}
+                placeholder="Ex: Mecânico Sênior"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="promoteNotes">Observações</Label>
+              <Input
+                id="promoteNotes"
+                value={promoteNotes}
+                onChange={(e) => setPromoteNotes(e.target.value)}
+                placeholder="Motivo da promoção..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPromoteDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handlePromoteSubmit} disabled={promoteLoading || !promoteNewRole.trim()}>
+              {promoteLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Promover
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Demitir Dialog */}
+      <Dialog open={demitirDialogOpen} onOpenChange={setDemitirDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-600">
+              <UserX className="h-5 w-5" />
+              Demitir Colaborador
+            </DialogTitle>
+            <DialogDescription>
+              Esta ação marcará {demitirTarget?.nome} como demitido. Os registros serão preservados para análise.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="demitirMotivo">Motivo da Demissão *</Label>
+              <Input
+                id="demitirMotivo"
+                value={demitirMotivo}
+                onChange={(e) => setDemitirMotivo(e.target.value)}
+                placeholder="Ex: Término de contrato, solicitação..."
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDemitirDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleDemitirSubmit} disabled={demitirLoading || !demitirMotivo.trim()}>
+              {demitirLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Confirmar Demissão
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* History Dialog */}
+      <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-blue-500" />
+              Histórico de Cargos
+            </DialogTitle>
+            <DialogDescription>
+              Linha do tempo de {historyTarget?.nome}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {historyTarget?.role_history && historyTarget.role_history.length > 0 ? (
+              <div className="relative pl-6 space-y-4">
+                {/* Timeline line */}
+                <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-zinc-200 dark:bg-zinc-700" />
+
+                {historyTarget.role_history.map((entry, idx) => (
+                  <div key={idx} className="relative">
+                    {/* Timeline dot */}
+                    <div className={`absolute -left-6 top-1 w-4 h-4 rounded-full border-2 ${idx === historyTarget.role_history!.length - 1
+                        ? "bg-emerald-500 border-emerald-500"
+                        : "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-600"
+                      }`} />
+
+                    <div className="bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                        {entry.role_function}
+                      </div>
+                      <div className="text-xs text-zinc-500 mt-1">
+                        {format(new Date(entry.promoted_at), "dd/MM/yyyy", { locale: ptBR })}
+                      </div>
+                      {entry.notes && (
+                        <div className="text-xs text-zinc-400 mt-1 italic">
+                          {entry.notes}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-zinc-500">
+                Sem histórico de promoções registrado
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHistoryDialogOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -239,6 +239,72 @@ export async function deletarColaborador(id: string) {
   revalidateAllPages()
 }
 
+export async function promoverColaborador(id: string, newRole: string, notes?: string) {
+  const supabase = await createServerComponentClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error("Não autenticado")
+
+  // Verify ownership
+  const { data: colaborador } = await supabase
+    .from("colaboradores")
+    .select("id")
+    .eq("id", id)
+    .eq("profile_id", user.id)
+    .single()
+
+  if (!colaborador) throw new Error("Colaborador não encontrado")
+
+  // Insert role history entry
+  const { error: historyError } = await supabase
+    .from("collaborator_role_history")
+    .insert({
+      collaborator_id: id,
+      role_function: newRole,
+      promoted_by: user.id,
+      notes: notes || null,
+    })
+
+  if (historyError) throw historyError
+
+  // Update current role_function in operational profile
+  const { error: profileError } = await supabase
+    .from("collaborator_operational_profile")
+    .update({
+      role_function: newRole,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("collaborator_id", id)
+
+  if (profileError) throw profileError
+
+  revalidateAllPages()
+}
+
+export async function demitirColaborador(id: string, motivo: string) {
+  const supabase = await createServerComponentClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error("Não autenticado")
+
+  const { error } = await supabase
+    .from("colaboradores")
+    .update({
+      status: 'DEMITIDO',
+      demitido_at: new Date().toISOString(),
+      demitido_motivo: motivo,
+    })
+    .eq("id", id)
+    .eq("profile_id", user.id)
+
+  if (error) throw error
+  revalidateAllPages()
+}
+
 // Ferramentas
 export async function criarFerramenta(formData: FormData) {
   try {
