@@ -1034,12 +1034,16 @@ function ColaboradoresList({
                         {t("dashboard.colaboradores.form.role_function")} *
                         {editing?.role_function && <span className="text-xs text-zinc-500 ml-2">(imutável)</span>}
                       </Label>
+                      {/* Hidden input to preserve value when field is disabled */}
+                      {editing?.role_function && (
+                        <input type="hidden" name="role_function" value={editing.role_function} />
+                      )}
                       <Input
                         id="role_function"
-                        name="role_function"
+                        name={editing?.role_function ? "role_function_display" : "role_function"}
                         defaultValue={editing?.role_function || ""}
                         placeholder={t("dashboard.colaboradores.form.role_function_placeholder")}
-                        required
+                        required={!editing?.role_function}
                         disabled={!!editing?.role_function}
                         className={`bg-white dark:bg-zinc-900 ${editing?.role_function ? 'opacity-60 cursor-not-allowed' : ''}`}
                       />
@@ -1049,10 +1053,14 @@ function ColaboradoresList({
                         {t("dashboard.colaboradores.form.seniority_bucket")} *
                         {editing?.seniority_bucket && <span className="text-xs text-zinc-500 ml-2">(imutável)</span>}
                       </Label>
+                      {/* Hidden input to preserve value when field is disabled */}
+                      {editing?.seniority_bucket && (
+                        <input type="hidden" name="seniority_bucket" value={editing.seniority_bucket} />
+                      )}
                       <Select
-                        name="seniority_bucket"
+                        name={editing?.seniority_bucket ? "seniority_bucket_display" : "seniority_bucket"}
                         defaultValue={editing?.seniority_bucket || ""}
-                        required
+                        required={!editing?.seniority_bucket}
                         disabled={!!editing?.seniority_bucket}
                       >
                         <SelectTrigger className={`bg-white dark:bg-zinc-900 ${editing?.seniority_bucket ? 'opacity-60 cursor-not-allowed' : ''}`}>
