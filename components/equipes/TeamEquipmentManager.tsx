@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { TeamEquipment } from "@/app/dashboard/equipes/types"
 import { getTeamEquipment, assignEquipment, returnEquipment } from "@/app/dashboard/equipes/actions"
 import { Button } from "@/components/ui/button"
@@ -42,7 +42,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
 
     const supabase = createClientComponentClient()
 
-    const fetchEquipment = async () => {
+    const fetchEquipment = useCallback(async () => {
         setIsLoading(true)
         try {
             const data = await getTeamEquipment(teamId)
@@ -55,9 +55,9 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [teamId])
 
-    const fetchAvailableTools = async () => {
+    const fetchAvailableTools = useCallback(async () => {
         const { data } = await supabase
             .from('ferramentas')
             .select('id, nome')
@@ -66,12 +66,12 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
             .limit(50)
 
         if (data) setAvailableTools(data)
-    }
+    }, [supabase])
 
     useEffect(() => {
         fetchEquipment()
         fetchAvailableTools()
-    }, [teamId])
+    }, [fetchEquipment, fetchAvailableTools])
 
     const handleAssign = async () => {
         if (!selectedToolId) return

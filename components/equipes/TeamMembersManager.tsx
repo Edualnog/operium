@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { TeamMember } from "@/app/dashboard/equipes/types"
 import { getTeamMembers, addTeamMember, removeTeamMember } from "@/app/dashboard/equipes/actions"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -30,7 +30,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
     const [isAdding, setIsAdding] = useState(false)
     const supabase = createClientComponentClient()
 
-    const fetchMembers = async () => {
+    const fetchMembers = useCallback(async () => {
         setIsLoading(true)
         try {
             const data = await getTeamMembers(teamId)
@@ -44,9 +44,9 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [teamId])
 
-    const fetchAvailableCollaborators = async () => {
+    const fetchAvailableCollaborators = useCallback(async () => {
         const { data } = await supabase
             .from('colaboradores')
             .select('id, nome')
@@ -54,12 +54,12 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
             .order('nome')
 
         if (data) setAvailableColabs(data.map(c => ({ id: c.id, name: c.nome })))
-    }
+    }, [supabase])
 
     useEffect(() => {
         fetchMembers()
         fetchAvailableCollaborators()
-    }, [teamId])
+    }, [fetchMembers, fetchAvailableCollaborators])
 
     const handleAddMember = async () => {
         if (!selectedColab) return

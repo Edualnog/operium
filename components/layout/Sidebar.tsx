@@ -107,8 +107,11 @@ export default function AppSidebar() {
                 key={link.href}
                 id={`sidebar-${link.href.split('/').pop() || 'dashboard'}`}
                 link={link}
-                active={pathname === link.href}
-                active={pathname?.startsWith('/dashboard/equipes')}
+                active={
+                  link.href === '/dashboard/equipes'
+                    ? pathname?.startsWith('/dashboard/equipes')
+                    : pathname === link.href
+                }
               />
             ))}
           </div>

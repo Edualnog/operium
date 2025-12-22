@@ -35,7 +35,7 @@ export default function TeamVehicleSection({ teamId, vehicleModel, vehiclePlate,
             <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg bg-muted/20">
                 <Truck className="h-8 w-8 text-muted-foreground/50 mb-2" />
                 <p className="text-sm text-muted-foreground">Nenhum veículo atribuído.</p>
-                <p className="text-xs text-muted-foreground mt-1">Use "Editar Equipe" para atribuir.</p>
+                <p className="text-xs text-muted-foreground mt-1">Use &quot;Editar Equipe&quot; para atribuir.</p>
             </div>
         )
     }
