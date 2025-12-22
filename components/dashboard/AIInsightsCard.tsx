@@ -244,7 +244,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                         <div className="space-y-1">
                             <p className="font-medium text-[#37352f] dark:text-zinc-100">{t("dashboard.ai.insights.button.loading")}</p>
                             <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                                Analisando seus dados...
+                                {t("dashboard.ai.insights.analyzing")}
                             </p>
                         </div>
                     </div>
@@ -267,7 +267,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                                 {t("dashboard.ai.insights.summary_title", { days: period })}
                             </p>
                             <span className="text-[10px] text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full dark:text-zinc-400 dark:border-zinc-600">
-                                {cacheInfo ? `⏱️ Atualiza em ${cacheInfo}` : t("dashboard.ai.insights.generated_now")}
+                                {cacheInfo ? t("dashboard.ai.insights.cache_refresh", { time: cacheInfo }) : t("dashboard.ai.insights.generated_now")}
                             </span>
                         </div>
                         <div className="grid gap-3">

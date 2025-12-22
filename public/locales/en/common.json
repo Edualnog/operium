@@ -356,6 +356,8 @@
                 },
                 "summary_title": "Summary of last {{days}} days",
                 "generated_now": "Generated now",
+                "analyzing": "Analyzing your data...",
+                "cache_refresh": "⏱️ Updates in {{time}}",
                 "toasts": {
                     "success": "Insights generated successfully!",
                     "error": "Error generating insights. Please try again."

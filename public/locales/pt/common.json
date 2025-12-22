@@ -404,6 +404,8 @@
                 },
                 "summary_title": "Resumo dos últimos {{days}} dias",
                 "generated_now": "Gerado agora",
+                "analyzing": "Analisando seus dados...",
+                "cache_refresh": "⏱️ Atualiza em {{time}}",
                 "toasts": {
                     "success": "Insights gerados com sucesso!",
                     "error": "Erro ao gerar insights. Tente novamente."
