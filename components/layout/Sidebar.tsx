@@ -58,6 +58,13 @@ export default function AppSidebar() {
       ),
     },
     {
+      label: "Equipes",
+      href: "/dashboard/equipes",
+      icon: (
+        <Users2 className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
       label: t('dashboard.sidebar.stock'),
       href: "/dashboard/estoque",
       icon: (
@@ -72,24 +79,17 @@ export default function AppSidebar() {
       ),
     },
     {
-      label: t('dashboard.sidebar.inventory'),
-      href: "/dashboard/inventario",
-      icon: (
-        <ClipboardList className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Veículos", // Pending translation key 'dashboard.sidebar.vehicles'
-      href: "/dashboard/veiculos", // Using Portuguese URL as per context
+      label: "Veículos",
+      href: "/dashboard/veiculos",
       icon: (
         <Truck className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Equipes",
-      href: "/dashboard/equipes",
+      label: t('dashboard.sidebar.inventory'),
+      href: "/dashboard/inventario",
       icon: (
-        <Users2 className="h-5 w-5 flex-shrink-0" />
+        <ClipboardList className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]

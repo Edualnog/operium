@@ -98,6 +98,14 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
+      label: "Equipes",
+      href: "/dashboard/equipes",
+      id: "sidebar-equipes",
+      icon: (
+        <Users2 className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
       label: t('dashboard.sidebar.stock'),
       href: "/dashboard/estoque",
       id: "sidebar-estoque",
@@ -114,15 +122,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
-      label: t('dashboard.sidebar.inventory'),
-      href: "/dashboard/inventario",
-      id: "sidebar-inventario",
-      icon: (
-        <ClipboardList className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Veículos", // Pending translation key 'dashboard.sidebar.vehicles'
+      label: "Veículos",
       href: "/dashboard/veiculos",
       id: "sidebar-veiculos",
       icon: (
@@ -130,11 +130,11 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
-      label: "Equipes",
-      href: "/dashboard/equipes",
-      id: "sidebar-equipes",
+      label: t('dashboard.sidebar.inventory'),
+      href: "/dashboard/inventario",
+      id: "sidebar-inventario",
       icon: (
-        <Users2 className="h-5 w-5 flex-shrink-0" />
+        <ClipboardList className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
