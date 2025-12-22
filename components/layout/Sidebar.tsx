@@ -12,6 +12,7 @@ import {
   Settings,
   ClipboardList,
   Truck,
+  Users2,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -82,6 +83,13 @@ export default function AppSidebar() {
       href: "/dashboard/veiculos", // Using Portuguese URL as per context
       icon: (
         <Truck className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Equipes",
+      href: "/dashboard/equipes",
+      icon: (
+        <Users2 className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
