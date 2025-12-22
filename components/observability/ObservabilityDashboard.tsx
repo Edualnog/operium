@@ -522,8 +522,8 @@ export function ObservabilityDashboard() {
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    {/* Observer Doctrine: Conditional value display based on confidence */}
-                                                    {confidenceSufficient && metric.current_value !== null ? (
+                                                    {/* Observer Doctrine: Show value when available */}
+                                                    {metric.current_value !== null ? (
                                                         <p className="font-mono text-lg">
                                                             {metric.current_value.toFixed(2)}
                                                         </p>
