@@ -27,7 +27,7 @@ export default function TeamDetailsSheet({ team, open, onOpenChange }: TeamDetai
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-[500px] sm:w-[640px] lg:w-[720px] flex flex-col h-full border-l border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-0">
+            <SheetContent className="w-[600px] sm:w-[720px] lg:w-[850px] flex flex-col h-full border-l border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-0">
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
                     <SheetTitle className="text-xl font-serif font-bold text-[#37352f] dark:text-zinc-100">{team.name}</SheetTitle>
                     <SheetDescription className="text-zinc-500 dark:text-zinc-400">
