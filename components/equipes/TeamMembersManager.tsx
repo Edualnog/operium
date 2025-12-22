@@ -8,15 +8,22 @@ import { Button } from "@/components/ui/button"
 import { Plus, Trash2, UserPlus, Loader2 } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
 import { toast } from "sonner"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 interface TeamMembersManagerProps {
     teamId: string
@@ -28,6 +35,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
     const [availableColabs, setAvailableColabs] = useState<{ id: string, name: string }[]>([])
     const [selectedColab, setSelectedColab] = useState<string>("")
     const [isAdding, setIsAdding] = useState(false)
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false)
     const supabase = createClientComponentClient()
 
     const fetchMembers = useCallback(async () => {
@@ -47,13 +55,22 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
     }, [teamId])
 
     const fetchAvailableCollaborators = useCallback(async () => {
-        const { data } = await supabase
+        console.log("Fetching available collaborators...")
+        const { data, error } = await supabase
             .from('colaboradores')
-            .select('id, nome')
-            .eq('status', 'ativo')
+            .select('id, nome, status')
             .order('nome')
 
-        if (data) setAvailableColabs(data.map(c => ({ id: c.id, name: c.nome })))
+        if (error) {
+            console.error("Error fetching collaborators:", error)
+            return
+        }
+
+        console.log("All collaborators fetched:", data)
+        // Filter by ATIVO status (case-insensitive)
+        const activeColabs = data?.filter(c => c.status?.toUpperCase() === 'ATIVO') || []
+        console.log("Active collaborators:", activeColabs)
+        setAvailableColabs(activeColabs.map(c => ({ id: c.id, name: c.nome })))
     }, [supabase])
 
     useEffect(() => {
@@ -66,8 +83,8 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
         setIsAdding(true)
         try {
             await addTeamMember(teamId, selectedColab, "Membro") // Default role
-            await fetchMembers()
             setSelectedColab("")
+            setIsPopoverOpen(false)
             toast.success("Membro adicionado com sucesso!")
         } catch (error: any) {
             toast.error(error.message || "Erro ao adicionar membro.")
@@ -94,22 +111,51 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                         Adicionar Colaborador
                     </label>
-                    <Select value={selectedColab} onValueChange={setSelectedColab}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecione um colaborador..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {availableColabs.map((colab) => (
-                                <SelectItem
-                                    key={colab.id}
-                                    value={colab.id}
-                                    disabled={members.some(m => m.colaborador_id === colab.id)}
-                                >
-                                    {colab.name} {members.some(m => m.colaborador_id === colab.id) && '(Já na equipe)'}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={isPopoverOpen}
+                                className="w-full justify-between"
+                            >
+                                {selectedColab
+                                    ? availableColabs.find((c) => c.id === selectedColab)?.name
+                                    : "Buscar colaborador..."}
+                                <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[300px] p-0">
+                            <Command>
+                                <CommandInput placeholder="Buscar colaborador..." />
+                                <CommandList>
+                                    <CommandEmpty>Nenhum colaborador encontrado.</CommandEmpty>
+                                    <CommandGroup>
+                                        {availableColabs.map((colab) => {
+                                            const alreadyInTeam = members.some(m => m.colaborador_id === colab.id)
+                                            return (
+                                                <CommandItem
+                                                    key={colab.id}
+                                                    value={colab.name}
+                                                    disabled={alreadyInTeam}
+                                                    onSelect={() => {
+                                                        if (!alreadyInTeam) {
+                                                            setSelectedColab(colab.id)
+                                                            setIsPopoverOpen(false)
+                                                        }
+                                                    }}
+                                                    className={cn(alreadyInTeam && "opacity-50")}
+                                                >
+                                                    <span>{colab.name}</span>
+                                                    {alreadyInTeam && <Badge variant="outline" className="ml-auto text-xs">Já na equipe</Badge>}
+                                                </CommandItem>
+                                            )
+                                        })}
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
                 </div>
                 <Button onClick={handleAddMember} disabled={!selectedColab || isAdding}>
                     {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}

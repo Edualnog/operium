@@ -58,14 +58,23 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
     }, [teamId])
 
     const fetchAvailableTools = useCallback(async () => {
-        const { data } = await supabase
+        console.log("Fetching available tools...")
+        const { data, error } = await supabase
             .from('ferramentas')
-            .select('id, nome')
-            .eq('status', 'disponivel') // Assuming 'active' or 'available' status
+            .select('id, nome, estado')
             .order('nome')
-            .limit(50)
+            .limit(100)
 
-        if (data) setAvailableTools(data)
+        if (error) {
+            console.error("Error fetching ferramentas:", error)
+            return
+        }
+
+        console.log("All ferramentas fetched:", data)
+        // Filter by estado 'ok' (not damaged or in repair)
+        const availableTools = data?.filter(t => t.estado === 'ok') || []
+        console.log("Available tools:", availableTools)
+        setAvailableTools(availableTools)
     }, [supabase])
 
     useEffect(() => {
