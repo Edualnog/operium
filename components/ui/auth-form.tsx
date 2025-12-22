@@ -254,7 +254,7 @@ const AuthForm: React.FC = () => {
                 <Linkedin className="h-5 w-5" />
               </a>
               <a
-                href="https://www.operium.alnog.com.br"
+                href="https://www.operium.com.br"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 hover:text-blue-600 transition-colors"
