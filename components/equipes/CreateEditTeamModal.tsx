@@ -158,12 +158,15 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit }: 
                                 control={control}
                                 name="leader_id"
                                 render={({ field }) => (
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <Select
+                                        onValueChange={(value) => field.onChange(value === "unassigned" ? "" : value)}
+                                        value={field.value || "unassigned"}
+                                    >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecione..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">Nenhum</SelectItem>
+                                            <SelectItem value="unassigned">Nenhum</SelectItem>
                                             {leaders.map((leader) => (
                                                 <SelectItem key={leader.id} value={leader.id}>
                                                     {leader.name}
@@ -181,12 +184,15 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit }: 
                                 control={control}
                                 name="vehicle_id"
                                 render={({ field }) => (
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <Select
+                                        onValueChange={(value) => field.onChange(value === "unassigned" ? "" : value)}
+                                        value={field.value || "unassigned"}
+                                    >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecione..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">Nenhum</SelectItem>
+                                            <SelectItem value="unassigned">Nenhum</SelectItem>
                                             {vehicles.map((vehicle) => (
                                                 <SelectItem key={vehicle.id} value={vehicle.id}>
                                                     {vehicle.model} ({vehicle.plate})
