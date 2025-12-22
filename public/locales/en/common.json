@@ -1484,5 +1484,119 @@
                 "OTHER": "Other"
             }
         }
+    },
+    "teams": {
+        "title": "Teams",
+        "subtitle": "Manage operational teams, assign vehicles and control equipment.",
+        "loading": "Loading teams...",
+        "new_team": "New Team",
+        "search_placeholder": "Search teams...",
+        "tabs": {
+            "active": "Active",
+            "on_break": "On Break",
+            "all": "All"
+        },
+        "empty": {
+            "title": "No teams found",
+            "search_hint": "Try adjusting your search terms.",
+            "start_hint": "Start by creating your first operational team.",
+            "create_button": "Create new team"
+        },
+        "status": {
+            "active": "Active",
+            "on_break": "On Break",
+            "off_duty": "Off Duty"
+        },
+        "card": {
+            "actions": "Actions",
+            "edit": "Edit Team",
+            "manage_members": "Manage Members",
+            "equipment": "Equipment",
+            "deactivate": "Deactivate",
+            "leader": "Leader",
+            "not_assigned": "Not assigned",
+            "members": "Members",
+            "equip": "Equip.",
+            "no_vehicle_location": "No vehicle or location"
+        },
+        "form": {
+            "title_new": "New Team",
+            "title_edit": "Edit Team",
+            "desc_new": "Fill in the details to create a new operational team. You can add members and equipment right after.",
+            "desc_edit": "Update the team details below.",
+            "name": "Team Name",
+            "name_placeholder": "E.g., Team Alpha, Electrical Maintenance...",
+            "description": "Description",
+            "description_placeholder": "Team function or area of operation",
+            "leader": "Team Leader",
+            "vehicle": "Vehicle",
+            "status": "Status",
+            "select_placeholder": "Select...",
+            "none": "None",
+            "cancel": "Cancel",
+            "save": "Save Changes",
+            "create": "Create Team"
+        },
+        "toast": {
+            "created": "Team created successfully! Now add the members.",
+            "updated": "Team updated successfully!",
+            "error": "An error occurred while saving the team."
+        },
+        "details": {
+            "description": "Manage members, equipment and team details.",
+            "tabs": {
+                "members": "Members",
+                "equipment": "Equipment",
+                "vehicle": "Vehicle"
+            }
+        },
+        "members": {
+            "add_title": "Add Collaborator",
+            "search_placeholder": "Search collaborator...",
+            "not_found": "No collaborator found.",
+            "already_in_team": "Already in team",
+            "current_title": "Current Members",
+            "empty": "No members in this team.",
+            "collaborator": "Collaborator",
+            "toast": {
+                "added": "Member added successfully!",
+                "removed": "Member removed from team.",
+                "error_load": "Error loading members.",
+                "error_add": "Error adding member.",
+                "error_remove": "Error removing member."
+            }
+        },
+        "equipment": {
+            "assign_title": "Assign Tool",
+            "search_placeholder": "Search tool...",
+            "not_found": "No tool found.",
+            "custody_title": "In Custody",
+            "empty": "No equipment with the team.",
+            "qty": "Qty",
+            "since": "Since",
+            "return": "Return",
+            "toast": {
+                "assigned": "Equipment assigned!",
+                "returned": "Equipment returned.",
+                "error_load": "Error loading equipment.",
+                "error_assign": "Error assigning equipment.",
+                "error_return": "Error returning."
+            }
+        },
+        "vehicle": {
+            "not_assigned": "No vehicle assigned.",
+            "edit_hint": "Use \"Edit Team\" to assign.",
+            "current": "Current Vehicle",
+            "plate": "Plate",
+            "unassign": "Unassign",
+            "toast": {
+                "unassigned": "Vehicle removed from team",
+                "error": "Error removing vehicle"
+            }
+        }
+    },
+    "blackbox": {
+        "tab_observability": "Observability",
+        "tab_export": "Export Data"
     }
 }

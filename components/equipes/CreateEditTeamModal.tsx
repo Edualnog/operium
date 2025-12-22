@@ -13,6 +13,7 @@ import { createTeam, updateTeam } from "@/app/dashboard/equipes/actions"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
+import { useTranslation } from "react-i18next"
 
 interface CreateEditTeamModalProps {
     open: boolean
@@ -30,6 +31,7 @@ interface FormData {
 }
 
 export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, onTeamCreated }: CreateEditTeamModalProps) {
+    const { t } = useTranslation()
     const [isLoading, setIsLoading] = useState(false)
     const [leaders, setLeaders] = useState<{ id: string, name: string }[]>([])
     const [vehicles, setVehicles] = useState<{ id: string, plate: string, model: string }[]>([])
@@ -136,15 +138,15 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
         try {
             if (teamToEdit) {
                 await updateTeam(teamToEdit.id, data)
-                toast.success("Equipe atualizada com sucesso!")
+                toast.success(t('teams.toast.updated'))
             } else {
                 const newTeam = await createTeam(data)
-                toast.success("Equipe criada com sucesso! Agora adicione os membros.")
+                toast.success(t('teams.toast.created'))
                 onTeamCreated?.(newTeam)
             }
             onOpenChange(false)
         } catch (error: any) {
-            toast.error(error.message || "Ocorreu um erro ao salvar a equipe.")
+            toast.error(error.message || t('teams.toast.error'))
         } finally {
             setIsLoading(false)
         }
@@ -155,29 +157,29 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
             <DialogContent className="sm:max-w-[600px] border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-6 sm:p-8 block overflow-visible">
                 <DialogHeader className="mb-6">
                     <DialogTitle className="text-xl font-serif font-bold text-[#37352f] dark:text-zinc-100 mb-2">
-                        {teamToEdit ? 'Editar Equipe' : 'Nova Equipe'}
+                        {teamToEdit ? t('teams.form.title_edit') : t('teams.form.title_new')}
                     </DialogTitle>
                     <DialogDescription className="text-zinc-500 dark:text-zinc-400">
-                        {teamToEdit ? 'Atualize os dados da equipe abaixo.' : 'Preencha os dados para criar uma nova equipe operacional. Você poderá adicionar membros e equipamentos logo em seguida.'}
+                        {teamToEdit ? t('teams.form.desc_edit') : t('teams.form.desc_new')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Nome da Equipe</Label>
+                        <Label htmlFor="name" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">{t('teams.form.name')}</Label>
                         <Input
                             id="name"
-                            placeholder="Ex: Equipe Alpha, Manutenção Elétrica..."
+                            placeholder={t('teams.form.name_placeholder')}
                             className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-600 focus-visible:ring-offset-0 placeholder:text-zinc-400"
                             {...register("name", { required: true })}
                         />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="description" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Descrição</Label>
+                        <Label htmlFor="description" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">{t('teams.form.description')}</Label>
                         <Textarea
                             id="description"
-                            placeholder="Função ou área de atuação da equipe"
+                            placeholder={t('teams.form.description_placeholder')}
                             className="resize-none bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-600 focus-visible:ring-offset-0 placeholder:text-zinc-400 min-h-[80px]"
                             {...register("description")}
                         />
@@ -185,7 +187,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="leader" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Líder da Equipe</Label>
+                            <Label htmlFor="leader" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">{t('teams.form.leader')}</Label>
                             <Controller
                                 control={control}
                                 name="leader_id"
@@ -195,10 +197,10 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                                         value={field.value || "unassigned"}
                                     >
                                         <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus:ring-zinc-400 focus:ring-offset-0">
-                                            <SelectValue placeholder="Selecione..." />
+                                            <SelectValue placeholder={t('teams.form.select_placeholder')} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="unassigned">Nenhum</SelectItem>
+                                            <SelectItem value="unassigned">{t('teams.form.none')}</SelectItem>
                                             {leaders.map((leader) => (
                                                 <SelectItem key={leader.id} value={leader.id}>
                                                     {leader.name}
@@ -211,7 +213,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="vehicle" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Veículo</Label>
+                            <Label htmlFor="vehicle" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">{t('teams.form.vehicle')}</Label>
                             <Controller
                                 control={control}
                                 name="vehicle_id"
@@ -221,10 +223,10 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                                         value={field.value || "unassigned"}
                                     >
                                         <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus:ring-zinc-400 focus:ring-offset-0">
-                                            <SelectValue placeholder="Selecione..." />
+                                            <SelectValue placeholder={t('teams.form.select_placeholder')} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="unassigned">Nenhum</SelectItem>
+                                            <SelectItem value="unassigned">{t('teams.form.none')}</SelectItem>
                                             {vehicles.map((vehicle) => (
                                                 <SelectItem key={vehicle.id} value={vehicle.id}>
                                                     {vehicle.model} ({vehicle.plate})
@@ -238,19 +240,19 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="status" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Status</Label>
+                        <Label htmlFor="status" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">{t('teams.form.status')}</Label>
                         <Controller
                             control={control}
                             name="status"
                             render={({ field }) => (
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus:ring-zinc-400 focus:ring-offset-0">
-                                        <SelectValue placeholder="Selecione..." />
+                                        <SelectValue placeholder={t('teams.form.select_placeholder')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="active">Em Operação</SelectItem>
-                                        <SelectItem value="on_break">Pausa</SelectItem>
-                                        <SelectItem value="off_duty">Fora de Serviço</SelectItem>
+                                        <SelectItem value="active">{t('teams.status.active')}</SelectItem>
+                                        <SelectItem value="on_break">{t('teams.status.on_break')}</SelectItem>
+                                        <SelectItem value="off_duty">{t('teams.status.off_duty')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             )}
@@ -259,11 +261,11 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
 
                     <DialogFooter className="mt-6">
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800">
-                            Cancelar
+                            {t('teams.form.cancel')}
                         </Button>
                         <Button type="submit" disabled={isLoading} className="bg-[#37352f] hover:bg-zinc-800 text-white min-w-[140px]">
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {teamToEdit ? 'Salvar Alterações' : 'Criar Equipe'}
+                            {teamToEdit ? t('teams.form.save') : t('teams.form.create')}
                         </Button>
                     </DialogFooter>
                 </form>
@@ -271,3 +273,4 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
         </Dialog>
     )
 }
+

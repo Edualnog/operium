@@ -7,6 +7,7 @@ import { Truck, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface TeamVehicleSectionProps {
     teamId: string
@@ -16,15 +17,16 @@ interface TeamVehicleSectionProps {
 }
 
 export default function TeamVehicleSection({ teamId, vehicleModel, vehiclePlate, vehicleId }: TeamVehicleSectionProps) {
+    const { t } = useTranslation()
     const [isLoading, setIsLoading] = useState(false)
 
     const handleUnassign = async () => {
         setIsLoading(true)
         try {
             await updateTeam(teamId, { vehicle_id: "" }) // Empty string to unassign logic in action
-            toast.success("Veículo removido da equipe")
+            toast.success(t('teams.vehicle.toast.unassigned'))
         } catch (error) {
-            toast.error("Erro ao remover veículo")
+            toast.error(t('teams.vehicle.toast.error'))
         } finally {
             setIsLoading(false)
         }
@@ -34,8 +36,8 @@ export default function TeamVehicleSection({ teamId, vehicleModel, vehiclePlate,
         return (
             <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg bg-muted/20">
                 <Truck className="h-8 w-8 text-muted-foreground/50 mb-2" />
-                <p className="text-sm text-muted-foreground">Nenhum veículo atribuído.</p>
-                <p className="text-xs text-muted-foreground mt-1">Use &quot;Editar Equipe&quot; para atribuir.</p>
+                <p className="text-sm text-muted-foreground">{t('teams.vehicle.not_assigned')}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('teams.vehicle.edit_hint')}</p>
             </div>
         )
     }
@@ -44,12 +46,12 @@ export default function TeamVehicleSection({ teamId, vehicleModel, vehiclePlate,
         <div className="p-4 border rounded-lg bg-muted/20 space-y-4">
             <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Veículo Atual</h4>
+                    <h4 className="text-sm font-medium">{t('teams.vehicle.current')}</h4>
                     <div className="flex items-center gap-2">
                         <Truck className="h-4 w-4 text-primary" />
                         <span className="text-base font-semibold">{vehicleModel}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground pl-6">Placa: {vehiclePlate}</p>
+                    <p className="text-sm text-muted-foreground pl-6">{t('teams.vehicle.plate')}: {vehiclePlate}</p>
                 </div>
                 <Button
                     variant="outline"
@@ -59,9 +61,10 @@ export default function TeamVehicleSection({ teamId, vehicleModel, vehiclePlate,
                     disabled={isLoading}
                 >
                     {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4 mr-2" />}
-                    Desvincular
+                    {t('teams.vehicle.unassign')}
                 </Button>
             </div>
         </div>
     )
 }
+

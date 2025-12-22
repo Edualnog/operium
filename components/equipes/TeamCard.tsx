@@ -18,12 +18,14 @@ import { useState } from "react"
 import CreateEditTeamModal from "./CreateEditTeamModal"
 import TeamDetailsSheet from "./TeamDetailsSheet"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface TeamCardProps {
     team: Team
 }
 
 export default function TeamCard({ team }: TeamCardProps) {
+    const { t } = useTranslation()
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [selectedTab, setSelectedTab] = useState<"members" | "equipment" | "vehicle">("members")
@@ -39,9 +41,9 @@ export default function TeamCard({ team }: TeamCardProps) {
 
     const getStatusLabel = (status: string) => {
         switch (status) {
-            case 'active': return 'Em Operação'
-            case 'on_break': return 'Pausa'
-            case 'off_duty': return 'Fora de Serviço'
+            case 'active': return t('teams.status.active')
+            case 'on_break': return t('teams.status.on_break')
+            case 'off_duty': return t('teams.status.off_duty')
             default: return status
         }
     }
@@ -67,19 +69,19 @@ export default function TeamCard({ team }: TeamCardProps) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t('teams.card.actions')}</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
-                                Editar Equipe
+                                {t('teams.card.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { setSelectedTab("members"); setIsDetailsOpen(true) }}>
-                                Gerenciar Membros
+                                {t('teams.card.manage_members')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { setSelectedTab("equipment"); setIsDetailsOpen(true) }}>
-                                Equipamentos
+                                {t('teams.card.equipment')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                Desativar
+                                {t('teams.card.deactivate')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -94,9 +96,9 @@ export default function TeamCard({ team }: TeamCardProps) {
                             </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            <span className="text-xs font-medium leading-none">Líder</span>
+                            <span className="text-xs font-medium leading-none">{t('teams.card.leader')}</span>
                             <span className="text-sm text-muted-foreground truncate max-w-[120px]">
-                                {team.leader_name || "Não atribuído"}
+                                {team.leader_name || t('teams.card.not_assigned')}
                             </span>
                         </div>
                     </div>
@@ -105,12 +107,12 @@ export default function TeamCard({ team }: TeamCardProps) {
                     <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col items-center justify-center p-2 rounded-md bg-muted/20 border border-border/50">
                             <Users className="h-4 w-4 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">Membros</span>
+                            <span className="text-xs text-muted-foreground">{t('teams.card.members')}</span>
                             <span className="font-semibold text-sm">{team.member_count || 0}</span>
                         </div>
                         <div className="flex flex-col items-center justify-center p-2 rounded-md bg-muted/20 border border-border/50">
                             <Wrench className="h-4 w-4 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">Equip.</span>
+                            <span className="text-xs text-muted-foreground">{t('teams.card.equip')}</span>
                             <span className="font-semibold text-sm">{team.equipment_quantity || 0}</span>
                         </div>
                     </div>
@@ -134,7 +136,7 @@ export default function TeamCard({ team }: TeamCardProps) {
 
                         {(!team.vehicle_model && !team.current_location) && (
                             <div className="flex items-center gap-2 text-xs text-muted-foreground italic opacity-50">
-                                Sem veículo ou localização
+                                {t('teams.card.no_vehicle_location')}
                             </div>
                         )}
                     </div>
@@ -156,3 +158,4 @@ export default function TeamCard({ team }: TeamCardProps) {
         </>
     )
 }
+

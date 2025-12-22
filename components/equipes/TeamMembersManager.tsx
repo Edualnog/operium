@@ -24,12 +24,14 @@ import { toast } from "sonner"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface TeamMembersManagerProps {
     teamId: string
 }
 
 export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) {
+    const { t } = useTranslation()
     const [members, setMembers] = useState<TeamMember[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [availableColabs, setAvailableColabs] = useState<{ id: string, name: string }[]>([])
@@ -48,11 +50,11 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
             setMembers(activeMembers)
         } catch (error) {
             console.error(error)
-            toast.error("Erro ao carregar membros.")
+            toast.error(t('teams.members.toast.error_load'))
         } finally {
             setIsLoading(false)
         }
-    }, [teamId])
+    }, [teamId, t])
 
     const fetchAvailableCollaborators = useCallback(async () => {
         console.log("Fetching available collaborators...")
@@ -85,9 +87,9 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
             await addTeamMember(teamId, selectedColab, "Membro") // Default role
             setSelectedColab("")
             setIsPopoverOpen(false)
-            toast.success("Membro adicionado com sucesso!")
+            toast.success(t('teams.members.toast.added'))
         } catch (error: any) {
-            toast.error(error.message || "Erro ao adicionar membro.")
+            toast.error(error.message || t('teams.members.toast.error_add'))
         } finally {
             setIsAdding(false)
         }
@@ -97,9 +99,9 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
         try {
             await removeTeamMember(memberId)
             await fetchMembers() // Refresh list
-            toast.success("Membro removido da equipe.")
+            toast.success(t('teams.members.toast.removed'))
         } catch (error: any) {
-            toast.error("Erro ao remover membro.")
+            toast.error(t('teams.members.toast.error_remove'))
         }
     }
 
@@ -108,7 +110,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
             {/* Add Member Section */}
             <div className="p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-2">
                 <label className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
-                    Adicionar Colaborador
+                    {t('teams.members.add_title')}
                 </label>
                 <div className="flex gap-2 items-center">
                     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
@@ -121,15 +123,15 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                             >
                                 {selectedColab
                                     ? availableColabs.find((c) => c.id === selectedColab)?.name
-                                    : "Buscar colaborador..."}
+                                    : t('teams.members.search_placeholder')}
                                 <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[340px] p-0 border-zinc-200 dark:border-zinc-700">
                             <Command>
-                                <CommandInput placeholder="Buscar colaborador..." />
+                                <CommandInput placeholder={t('teams.members.search_placeholder')} />
                                 <CommandList>
-                                    <CommandEmpty>Nenhum colaborador encontrado.</CommandEmpty>
+                                    <CommandEmpty>{t('teams.members.not_found')}</CommandEmpty>
                                     <CommandGroup>
                                         {availableColabs.map((colab) => {
                                             const alreadyInTeam = members.some(m => m.colaborador_id === colab.id)
@@ -147,7 +149,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                                                     className={cn(alreadyInTeam && "opacity-50")}
                                                 >
                                                     <span>{colab.name}</span>
-                                                    {alreadyInTeam && <Badge variant="outline" className="ml-auto text-xs">Já na equipe</Badge>}
+                                                    {alreadyInTeam && <Badge variant="outline" className="ml-auto text-xs">{t('teams.members.already_in_team')}</Badge>}
                                                 </CommandItem>
                                             )
                                         })}
@@ -165,7 +167,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
 
             {/* Members List */}
             <div className="space-y-3">
-                <h4 className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">Membros Atuais ({members.length})</h4>
+                <h4 className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">{t('teams.members.current_title')} ({members.length})</h4>
 
                 {isLoading ? (
                     <div className="flex justify-center p-4">
@@ -174,7 +176,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                 ) : members.length === 0 ? (
                     <div className="text-center p-8 bg-muted/20 rounded-lg border border-dashed">
                         <UserPlus className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
-                        <p className="text-sm text-muted-foreground">Nenhum membro nesta equipe.</p>
+                        <p className="text-sm text-muted-foreground">{t('teams.members.empty')}</p>
                     </div>
                 ) : (
                     <div className="grid gap-2">
@@ -190,7 +192,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                                         </Avatar>
                                         <div className="flex flex-col">
                                             <span className="text-sm font-medium">{member.colaborador_nome}</span>
-                                            <span className="text-xs text-muted-foreground">{member.colaborador_cargo || 'Colaborador'}</span>
+                                            <span className="text-xs text-muted-foreground">{member.colaborador_cargo || t('teams.members.collaborator')}</span>
                                         </div>
                                     </div>
                                     <Button
@@ -210,3 +212,4 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
         </div>
     )
 }
+

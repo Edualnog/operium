@@ -24,12 +24,14 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface TeamEquipmentManagerProps {
     teamId: string
 }
 
 export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerProps) {
+    const { t } = useTranslation()
     const [equipment, setEquipment] = useState<TeamEquipment[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [availableTools, setAvailableTools] = useState<{ id: string, nome: string }[]>([])
@@ -51,11 +53,11 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
             setEquipment(activeEquipment)
         } catch (error) {
             console.error(error)
-            toast.error("Erro ao carregar equipamentos.")
+            toast.error(t('teams.equipment.toast.error_load'))
         } finally {
             setIsLoading(false)
         }
-    }, [teamId])
+    }, [teamId, t])
 
     const fetchAvailableTools = useCallback(async () => {
         console.log("Fetching available tools...")
@@ -91,9 +93,9 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
             setSelectedToolId("")
             setQuantity(1)
             setIsPopoverOpen(false)
-            toast.success("Equipamento atribuído!")
+            toast.success(t('teams.equipment.toast.assigned'))
         } catch (error: any) {
-            toast.error(error.message || "Erro ao atribuir equipamento.")
+            toast.error(error.message || t('teams.equipment.toast.error_assign'))
         } finally {
             setIsAdding(false)
         }
@@ -103,9 +105,9 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
         try {
             await returnEquipment(assignmentId)
             await fetchEquipment()
-            toast.success("Equipamento devolvido.")
+            toast.success(t('teams.equipment.toast.returned'))
         } catch (error) {
-            toast.error("Erro na devolução.")
+            toast.error(t('teams.equipment.toast.error_return'))
         }
     }
 
@@ -114,7 +116,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
             {/* Assign Equipment Section */}
             <div className="p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-2">
                 <label className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
-                    Atribuir Ferramenta
+                    {t('teams.equipment.assign_title')}
                 </label>
                 <div className="flex gap-2 items-center">
                     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
@@ -127,14 +129,14 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                             >
                                 {selectedToolId
                                     ? availableTools.find((tool) => tool.id === selectedToolId)?.nome
-                                    : "Buscar ferramenta..."}
+                                    : t('teams.equipment.search_placeholder')}
                                 <PackageSearch className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[340px] p-0 border-zinc-200 dark:border-zinc-700">
                             <Command>
-                                <CommandInput placeholder="Buscar ferramenta..." />
-                                <CommandEmpty>Nenhuma ferramenta encontrada.</CommandEmpty>
+                                <CommandInput placeholder={t('teams.equipment.search_placeholder')} />
+                                <CommandEmpty>{t('teams.equipment.not_found')}</CommandEmpty>
                                 <CommandGroup>
                                     {availableTools.map((tool) => (
                                         <CommandItem
@@ -171,7 +173,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
 
             {/* Equipment List */}
             <div className="space-y-3">
-                <h4 className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">Em Custódia ({equipment.length})</h4>
+                <h4 className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">{t('teams.equipment.custody_title')} ({equipment.length})</h4>
 
                 {isLoading ? (
                     <div className="flex justify-center p-4">
@@ -180,7 +182,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                 ) : equipment.length === 0 ? (
                     <div className="text-center p-8 bg-muted/20 rounded-lg border border-dashed">
                         <PackageSearch className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
-                        <p className="text-sm text-muted-foreground">Nenhum equipamento com a equipe.</p>
+                        <p className="text-sm text-muted-foreground">{t('teams.equipment.empty')}</p>
                     </div>
                 ) : (
                     <div className="grid gap-2">
@@ -191,10 +193,10 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                                         <span className="font-medium text-sm">{item.ferramenta_nome}</span>
                                         <div className="flex items-center gap-2 mt-1">
                                             <Badge variant="outline" className="text-[10px] h-5">
-                                                Qtd: {item.quantity}
+                                                {t('teams.equipment.qty')}: {item.quantity}
                                             </Badge>
                                             <span className="text-[10px] text-muted-foreground">
-                                                Desde: {new Date(item.assigned_at).toLocaleDateString()}
+                                                {t('teams.equipment.since')}: {new Date(item.assigned_at).toLocaleDateString()}
                                             </span>
                                         </div>
                                     </div>
@@ -205,7 +207,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                                         onClick={() => handleReturn(item.id)}
                                     >
                                         <ArchiveRestore className="h-3.5 w-3.5" />
-                                        Devolver
+                                        {t('teams.equipment.return')}
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -216,3 +218,4 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
         </div>
     )
 }
+

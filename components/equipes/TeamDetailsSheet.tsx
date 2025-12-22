@@ -13,6 +13,7 @@ import TeamMembersManager from "./TeamMembersManager"
 import TeamEquipmentManager from "./TeamEquipmentManager"
 import TeamVehicleSection from "./TeamVehicleSection"
 import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 interface TeamDetailsSheetProps {
     team: Team | null
@@ -22,6 +23,7 @@ interface TeamDetailsSheetProps {
 }
 
 export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab = "members" }: TeamDetailsSheetProps) {
+    const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState(defaultTab)
 
     // Sync activeTab when sheet opens with a specific defaultTab
@@ -39,7 +41,7 @@ export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab 
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
                     <SheetTitle className="text-xl font-serif font-bold text-[#37352f] dark:text-zinc-100">{team.name}</SheetTitle>
                     <SheetDescription className="text-zinc-500 dark:text-zinc-400">
-                        Gerencie membros, equipamentos e detalhes da equipe.
+                        {t('teams.details.description')}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -49,19 +51,19 @@ export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab 
                             value="members"
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] dark:data-[state=active]:border-zinc-100 rounded-none h-full text-zinc-600 dark:text-zinc-400 data-[state=active]:text-[#37352f] dark:data-[state=active]:text-zinc-100"
                         >
-                            Membros
+                            {t('teams.details.tabs.members')}
                         </TabsTrigger>
                         <TabsTrigger
                             value="equipment"
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] dark:data-[state=active]:border-zinc-100 rounded-none h-full text-zinc-600 dark:text-zinc-400 data-[state=active]:text-[#37352f] dark:data-[state=active]:text-zinc-100"
                         >
-                            Equipamentos
+                            {t('teams.details.tabs.equipment')}
                         </TabsTrigger>
                         <TabsTrigger
                             value="vehicle"
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] dark:data-[state=active]:border-zinc-100 rounded-none h-full text-zinc-600 dark:text-zinc-400 data-[state=active]:text-[#37352f] dark:data-[state=active]:text-zinc-100"
                         >
-                            Veículo
+                            {t('teams.details.tabs.vehicle')}
                         </TabsTrigger>
                     </TabsList>
 
@@ -86,3 +88,4 @@ export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab 
         </Sheet>
     )
 }
+

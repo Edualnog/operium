@@ -24,12 +24,14 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface TeamsListProps {
     initialTeams: Team[]
 }
 
 export default function TeamsList({ initialTeams }: TeamsListProps) {
+    const { t } = useTranslation()
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [activeTab, setActiveTab] = useState<"todos" | "ativas" | "pausa">("ativas")
     const [search, setSearch] = useState("")
@@ -85,19 +87,19 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2"
                             value="ativas"
                         >
-                            Ativas ({counts.ativas})
+                            {t('teams.tabs.active')} ({counts.ativas})
                         </TabsTrigger>
                         <TabsTrigger
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2"
                             value="pausa"
                         >
-                            Em Pausa ({counts.pausa})
+                            {t('teams.tabs.on_break')} ({counts.pausa})
                         </TabsTrigger>
                         <TabsTrigger
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2"
                             value="todos"
                         >
-                            Todas ({counts.todos})
+                            {t('teams.tabs.all')} ({counts.todos})
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>
@@ -105,7 +107,7 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
                 <div className="flex gap-2 w-full sm:w-auto items-center">
                     <Button onClick={() => setIsCreateModalOpen(true)} className="gap-2 flex-1 sm:flex-none bg-[#37352f] hover:bg-zinc-800 text-white h-11 sm:h-10">
                         <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
-                        <span className="hidden sm:inline">Nova Equipe</span>
+                        <span className="hidden sm:inline">{t('teams.new_team')}</span>
                     </Button>
                 </div>
             </div>
@@ -118,7 +120,7 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
                             <div className="relative flex-1 max-w-sm">
                                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Buscar equipes..."
+                                    placeholder={t('teams.search_placeholder')}
                                     className="pl-8"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
@@ -134,13 +136,13 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
                             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 mb-4">
                                 <Search className="h-6 w-6 text-zinc-400" />
                             </div>
-                            <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Nenhuma equipe encontrada</h3>
+                            <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{t('teams.empty.title')}</h3>
                             <p className="mt-2 text-sm text-zinc-500 max-w-sm mx-auto">
-                                {search ? 'Tente ajustar seus termos de busca.' : 'Comece criando sua primeira equipe operacional.'}
+                                {search ? t('teams.empty.search_hint') : t('teams.empty.start_hint')}
                             </p>
                             {!search && (
                                 <Button onClick={() => setIsCreateModalOpen(true)} variant="outline" className="mt-4">
-                                    Criar nova equipe
+                                    {t('teams.empty.create_button')}
                                 </Button>
                             )}
                         </div>
@@ -184,3 +186,4 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
         </div>
     )
 }
+

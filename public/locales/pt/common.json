@@ -1559,5 +1559,119 @@
                 "OTHER": "Outro"
             }
         }
+    },
+    "teams": {
+        "title": "Equipes",
+        "subtitle": "Gerencie equipes operacionais, atribua veículos e controle equipamentos.",
+        "loading": "Carregando equipes...",
+        "new_team": "Nova Equipe",
+        "search_placeholder": "Buscar equipes...",
+        "tabs": {
+            "active": "Ativas",
+            "on_break": "Em Pausa",
+            "all": "Todas"
+        },
+        "empty": {
+            "title": "Nenhuma equipe encontrada",
+            "search_hint": "Tente ajustar seus termos de busca.",
+            "start_hint": "Comece criando sua primeira equipe operacional.",
+            "create_button": "Criar nova equipe"
+        },
+        "status": {
+            "active": "Em Operação",
+            "on_break": "Pausa",
+            "off_duty": "Fora de Serviço"
+        },
+        "card": {
+            "actions": "Ações",
+            "edit": "Editar Equipe",
+            "manage_members": "Gerenciar Membros",
+            "equipment": "Equipamentos",
+            "deactivate": "Desativar",
+            "leader": "Líder",
+            "not_assigned": "Não atribuído",
+            "members": "Membros",
+            "equip": "Equip.",
+            "no_vehicle_location": "Sem veículo ou localização"
+        },
+        "form": {
+            "title_new": "Nova Equipe",
+            "title_edit": "Editar Equipe",
+            "desc_new": "Preencha os dados para criar uma nova equipe operacional. Você poderá adicionar membros e equipamentos logo em seguida.",
+            "desc_edit": "Atualize os dados da equipe abaixo.",
+            "name": "Nome da Equipe",
+            "name_placeholder": "Ex: Equipe Alpha, Manutenção Elétrica...",
+            "description": "Descrição",
+            "description_placeholder": "Função ou área de atuação da equipe",
+            "leader": "Líder da Equipe",
+            "vehicle": "Veículo",
+            "status": "Status",
+            "select_placeholder": "Selecione...",
+            "none": "Nenhum",
+            "cancel": "Cancelar",
+            "save": "Salvar Alterações",
+            "create": "Criar Equipe"
+        },
+        "toast": {
+            "created": "Equipe criada com sucesso! Agora adicione os membros.",
+            "updated": "Equipe atualizada com sucesso!",
+            "error": "Ocorreu um erro ao salvar a equipe."
+        },
+        "details": {
+            "description": "Gerencie membros, equipamentos e detalhes da equipe.",
+            "tabs": {
+                "members": "Membros",
+                "equipment": "Equipamentos",
+                "vehicle": "Veículo"
+            }
+        },
+        "members": {
+            "add_title": "Adicionar Colaborador",
+            "search_placeholder": "Buscar colaborador...",
+            "not_found": "Nenhum colaborador encontrado.",
+            "already_in_team": "Já na equipe",
+            "current_title": "Membros Atuais",
+            "empty": "Nenhum membro nesta equipe.",
+            "collaborator": "Colaborador",
+            "toast": {
+                "added": "Membro adicionado com sucesso!",
+                "removed": "Membro removido da equipe.",
+                "error_load": "Erro ao carregar membros.",
+                "error_add": "Erro ao adicionar membro.",
+                "error_remove": "Erro ao remover membro."
+            }
+        },
+        "equipment": {
+            "assign_title": "Atribuir Ferramenta",
+            "search_placeholder": "Buscar ferramenta...",
+            "not_found": "Nenhuma ferramenta encontrada.",
+            "custody_title": "Em Custódia",
+            "empty": "Nenhum equipamento com a equipe.",
+            "qty": "Qtd",
+            "since": "Desde",
+            "return": "Devolver",
+            "toast": {
+                "assigned": "Equipamento atribuído!",
+                "returned": "Equipamento devolvido.",
+                "error_load": "Erro ao carregar equipamentos.",
+                "error_assign": "Erro ao atribuir equipamento.",
+                "error_return": "Erro na devolução."
+            }
+        },
+        "vehicle": {
+            "not_assigned": "Nenhum veículo atribuído.",
+            "edit_hint": "Use \"Editar Equipe\" para atribuir.",
+            "current": "Veículo Atual",
+            "plate": "Placa",
+            "unassign": "Desvincular",
+            "toast": {
+                "unassigned": "Veículo removido da equipe",
+                "error": "Erro ao remover veículo"
+            }
+        }
+    },
+    "blackbox": {
+        "tab_observability": "Observabilidade",
+        "tab_export": "Exportar Dados"
     }
 }
