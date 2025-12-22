@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { useTranslation } from "react-i18next"
+import { safeArray } from "@/lib/utils/safe-array"
 
 // Cache configuration
 const CACHE_KEY = "operium_ai_insights_cache"
@@ -142,7 +143,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
 
             if (error) throw error
 
-            const formattedMovements = movementsData?.map((m: any) => ({
+            const formattedMovements = safeArray(movementsData).map((m: any) => ({
                 tipo: m.tipo,
                 produto: m.ferramentas?.nome,
                 quantidade: m.quantidade,

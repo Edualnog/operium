@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import type { KPIData } from "@/lib/types/kpis"
+import { safeArray } from "@/lib/utils/safe-array"
 
 export function useKPIs(userId: string) {
   const [data, setData] = useState<KPIData | null>(null)
@@ -105,10 +106,10 @@ export function useKPIs(userId: string) {
         if (episRes.error) throw episRes.error
         if (consertosAtivosRes.error) throw consertosAtivosRes.error
 
-        const retiradas = retiradasRes.data || []
-        const devolucoes = devolucoesRes.data || []
-        const ferramentas = ferramentasRes.data || []
-        const consertosAtivos = consertosAtivosRes.data || []
+        const retiradas = safeArray(retiradasRes.data)
+        const devolucoes = safeArray(devolucoesRes.data)
+        const ferramentas = safeArray(ferramentasRes.data)
+        const consertosAtivos = safeArray(consertosAtivosRes.data)
 
         // Movimentações relacionadas a consertos (para calcular unidades em conserto)
         let movimentacoesConserto: any[] = []
@@ -244,7 +245,8 @@ export function useKPIs(userId: string) {
           })
           .filter(Boolean) as any
 
-        const movimentacoes30d = movimentacoes30dRes.data || []
+
+        const movimentacoes30d = safeArray(movimentacoes30dRes.data)
 
         const rankingFerramentas: Record<string, any> = {}
         movimentacoes30d?.forEach((mov) => {
@@ -265,7 +267,7 @@ export function useKPIs(userId: string) {
           .slice(0, 10)
 
         // Ranking de responsabilidade - usa almox_score do banco de dados
-        const colaboradores = colaboradoresRes.data || []
+        const colaboradores = safeArray(colaboradoresRes.data)
         const rankingCompleto = colaboradores.map((colab: any) => {
           // Considerar apenas categoria "ferramenta" (excluir EPIs e consumíveis)
           const retiradasColab = retiradas.filter((r) => {
@@ -316,7 +318,7 @@ export function useKPIs(userId: string) {
         const rankingResponsabilidade = rankingOrdenado
 
         // 6. CONSUMO MÉDIO DIÁRIO (Consumíveis - últimos 30 dias)
-        const consumiveisMov = consumiveisRes.data || []
+        const consumiveisMov = safeArray(consumiveisRes.data)
         const consumiveis = consumiveisMov.filter(
           (m) => (m.ferramentas as any)?.tipo_item === "consumivel"
         )
@@ -366,7 +368,8 @@ export function useKPIs(userId: string) {
           .sort((a: any, b: any) => b.consumo_30d - a.consumo_30d)
           .slice(0, 10)
 
-        const episMov = episMovRes.data || []
+
+        const episMov = safeArray(episMovRes.data)
 
         const episAtivos: Record<string, any> = {}
         const episDevolvidos = new Set<string>()
@@ -404,7 +407,7 @@ export function useKPIs(userId: string) {
         const episAtivosPorColaborador = Object.values(episAtivos)
 
         // 10. EPIs PRÓXIMOS DA VALIDADE (<=30 dias)
-        const epis = episRes.data || []
+        const epis = safeArray(episRes.data)
 
         const agora = new Date()
         const trintaDiasFuturo = new Date()

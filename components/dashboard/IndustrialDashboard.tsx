@@ -41,8 +41,7 @@ import { VehicleStats } from "./VehicleStatsCard"
 // ... (inside component)
 
 
-// Helper seguro para arrays
-const safeArray = (arr: any) => Array.isArray(arr) ? arr : []
+import { safeArray } from "@/lib/utils/safe-array"
 
 interface IndustrialDashboardProps {
   userId: string

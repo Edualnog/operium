@@ -23,6 +23,8 @@ import {
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
+import { safeArray } from "@/lib/utils/safe-array"
+
 import { useTheme } from "next-themes"
 import { useTranslation } from "react-i18next"
 
@@ -159,7 +161,7 @@ function DashboardCharts({ userId }: { userId: string }) {
           <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={retiradasPorColaborador}
+                data={safeArray(retiradasPorColaborador)}
                 margin={{ top: 15, right: 25, left: 5, bottom: 50 }}
               >
                 <defs>
@@ -209,7 +211,7 @@ function DashboardCharts({ userId }: { userId: string }) {
           <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={movimentacoesPorDia}
+                data={safeArray(movimentacoesPorDia)}
                 margin={{ top: 15, right: 25, left: 5, bottom: 10 }}
               >
                 <defs>
@@ -264,7 +266,7 @@ function DashboardCharts({ userId }: { userId: string }) {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={distribuicaoEstados}
+                  data={safeArray(distribuicaoEstados)}
                   cx="50%"
                   cy="50%"
                   labelLine={false}

@@ -30,6 +30,8 @@ const COLORS = {
   purple: "#8b5cf6",
 }
 
+import { safeArray } from "@/lib/utils/safe-array"
+
 interface FerramentaRotatividade {
   id: string
   nome: string
@@ -285,7 +287,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
           </CardHeader>
           <CardContent className="pt-4 sm:pt-6 lg:pt-8">
             <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-              {alertasEstoque.slice(0, 5).map((alerta) => (
+              {safeArray(alertasEstoque).slice(0, 5).map((alerta) => (
                 <div
                   key={alerta.id}
                   className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 lg:gap-6 rounded-xl border border-orange-200/50 bg-white p-3 sm:p-4 lg:p-5 xl:p-6 shadow-sm hover:shadow-md transition-shadow dark:bg-zinc-900 dark:border-orange-900/30"
@@ -341,7 +343,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
             <div className="w-full h-[280px] sm:h-[300px] lg:h-[320px] xl:h-[340px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={rotatividade.slice(0, 10)}
+                  data={safeArray(rotatividade).slice(0, 10)}
                   layout="vertical"
                   margin={{ top: 15, right: 35, left: 140, bottom: 15 }}
                 >
@@ -412,7 +414,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
           <CardContent className="pt-4 sm:pt-5">
             <div className="w-full h-[280px] sm:h-[300px] lg:h-[320px] xl:h-[340px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={consumoPorCategoria} margin={{ top: 15, right: 25, left: 5, bottom: 80 }}>
+                <BarChart data={safeArray(consumoPorCategoria)} margin={{ top: 15, right: 25, left: 5, bottom: 80 }}>
                   <defs>
                     <linearGradient id="colorCategoria" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor={COLORS.success} stopOpacity={0.9} />
@@ -461,7 +463,7 @@ function RotatividadeCharts({ userId }: { userId: string }) {
         <CardContent className="pt-4 sm:pt-5">
           <div className="w-full h-[260px] sm:h-[280px] lg:h-[300px] xl:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={tendenciaConsumo}>
+              <ComposedChart data={safeArray(tendenciaConsumo)}>
                 <defs>
                   <linearGradient id="colorConsumo" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.8} />
