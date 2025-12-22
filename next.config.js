@@ -25,6 +25,7 @@ const securityHeaders = [
 const nextConfig = {
   // Configuração básica e estável
   compress: true,
+  productionBrowserSourceMaps: true,
   poweredByHeader: false,
   // Ativar Strict Mode ajuda a identificar efeitos colaterais em dev
   reactStrictMode: true,
