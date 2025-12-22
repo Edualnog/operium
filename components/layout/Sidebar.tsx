@@ -86,10 +86,10 @@ export default function AppSidebar() {
       ),
     },
     {
-      label: "Equipes",
+      label: "Equipes (Test)",
       href: "/dashboard/equipes",
       icon: (
-        <Users2 className="h-5 w-5 flex-shrink-0" />
+        <Users className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
