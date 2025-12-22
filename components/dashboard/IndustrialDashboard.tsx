@@ -586,6 +586,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         <InventoryBottlenecksCard userId={userId} />
       </div>
 
+      {/* Gestão de Frota - Posição destacada */}
+      <VehicleStats />
+
       {/* Memory Layer (Internal Only) */}
       {FEATURES.OBSERVER_INTERNAL_VIEW && (
         <div className="mb-8">
@@ -1512,10 +1515,6 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           />
         )}
       </section>
-
-
-      {/* SESSÃO 2: VEÍCULOS */}
-      <VehicleStats />
     </div >
   )
 }
