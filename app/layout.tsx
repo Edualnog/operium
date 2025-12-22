@@ -4,6 +4,7 @@ import Script from "next/script"
 import "./globals.css"
 import { ThemeProvider } from "@/components/providers/ThemeProvider"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 import OfflineBanner from "@/components/offline/OfflineBanner"
 import { ServiceWorkerRegistration } from "@/components/offline/ServiceWorkerRegistration"
 import { CommandMenu } from "@/components/ui/command-menu"
@@ -117,6 +118,7 @@ export default function RootLayout({
         </I18nProvider>
         <ServiceWorkerRegistration />
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
