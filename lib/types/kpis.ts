@@ -27,6 +27,8 @@ export interface ScoreResponsabilidade {
   colaborador_id: string
   nome: string
   score: number
+  almox_score: number
+  level: 'MASTER' | 'PRO' | 'MEMBER' | 'NEWBIE'
   total_retiradas: number
   devolucoes_no_prazo: number
 }
@@ -114,20 +116,20 @@ export interface KPIData {
   topFerramentasUtilizadas: RankingFerramenta[]
   rankingResponsabilidade: ScoreResponsabilidade[]
   ferramentasEstragadas?: FerramentaEstragada[]
-  
+
   // Consumíveis
   consumoMedioDiario: number
   itensEstoqueCritico: ItemEstoqueCritico[]
   itensMaiorConsumo: ItemConsumoAlto[]
-  
+
   // EPIs
   episAtivosPorColaborador: EPIAtivo[]
   episProximosValidade: EPIProximoValidade[]
-  
+
   // Previsões
   riscoRuptura: RiscoRuptura[]
   itensCriticosDia: ItemCriticoDia[]
-  
+
   // Totais para dashboard
   totais?: Totais
   totalFerramentasEmUso?: number

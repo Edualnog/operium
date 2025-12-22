@@ -1116,54 +1116,19 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             <CardHeader className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                    {t('dashboard.kpi.ranking.title')}
+                  <CardTitle className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
+                    🏆 {t('dashboard.kpi.ranking.title')}
                   </CardTitle>
                   <p className="text-xs sm:text-sm text-zinc-600 mt-1 dark:text-zinc-400">
                     {t('dashboard.kpi.ranking.desc')}
                   </p>
                 </div>
-                <div className="flex gap-1 border rounded-md p-1 bg-background">
-                  <Button
-                    type="button"
-                    variant={rankingView === "melhores" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setRankingView("melhores")}
-                    className="h-7 px-3 text-xs"
-                  >
-                    <ArrowUp className="h-3 w-3 mr-1" />
-                    {t('dashboard.filters.best')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={rankingView === "piores" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setRankingView("piores")}
-                    className="h-7 px-3 text-xs"
-                  >
-                    <ArrowDown className="h-3 w-3 mr-1" />
-                    {t('dashboard.filters.worst')}
-                  </Button>
-                </div>
               </div>
             </CardHeader>
             <CardContent className="pt-4">
               {(() => {
-                const rankingItems = data.rankingResponsabilidade.map((item) => ({
-                  ...item,
-                  id: item.colaborador_id || item.nome,
-                }))
-
-                // Ordenar e pegar os melhores ou piores
-                const sortedItems = [...rankingItems].sort((a, b) => {
-                  if (rankingView === "melhores") {
-                    return b.score - a.score // Maior score primeiro
-                  } else {
-                    return a.score - b.score // Menor score primeiro
-                  }
-                })
-
-                const displayItems = sortedItems.slice(0, 3)
+                // Já ordenado por almox_score no useKPIs
+                const displayItems = data.rankingResponsabilidade.slice(0, 3)
 
                 if (displayItems.length === 0) {
                   return (
@@ -1173,48 +1138,67 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   )
                 }
 
+                // Função para obter troféu e cor baseado no level
+                const getLevelInfo = (level: string, index: number) => {
+                  // Troféu baseado na posição (1º, 2º, 3º lugar)
+                  const trophies = ['🥇', '🥈', '🥉']
+                  const trophy = trophies[index] || '🏅'
+
+                  // Cores baseadas no level do colaborador
+                  const colors: Record<string, string> = {
+                    'MASTER': 'bg-[#fdecc8] text-[#442a1d] border-[#f5d799]',
+                    'PRO': 'bg-[#e3e2e0] text-[#32302c] border-[#c9c8c5]',
+                    'MEMBER': 'bg-[#fadec9] text-[#49290e] border-[#f0c9a8]',
+                    'NEWBIE': 'bg-[#f1f0ef] text-[#37352f] border-[#e0dfdd]',
+                  }
+
+                  return { trophy, colorClass: colors[level] || colors['MEMBER'] }
+                }
+
                 return (
-                  <div className="space-y-2">
-                    {displayItems.map((item, index) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between gap-4 p-3 rounded-lg border border-zinc-100 hover:bg-zinc-50 transition-colors dark:border-zinc-800 dark:hover:bg-zinc-800/50"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-medium text-zinc-400">
-                              #{index + 1}
-                            </span>
-                            <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
-                              {item.nome}
-                            </h4>
+                  <div className="space-y-3">
+                    {displayItems.map((item, index) => {
+                      const { trophy, colorClass } = getLevelInfo(item.level || 'MEMBER', index)
+                      const almoxScore = (item as any).almox_score || 500
+
+                      return (
+                        <div
+                          key={item.colaborador_id || item.nome}
+                          className="flex items-center justify-between gap-4 p-4 rounded-xl border border-zinc-100 hover:bg-zinc-50 transition-all dark:border-zinc-800 dark:hover:bg-zinc-800/50"
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {/* Troféu grande */}
+                            <span className="text-2xl flex-shrink-0">{trophy}</span>
+
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
+                                {item.nome}
+                              </h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                {/* Badge de level */}
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}>
+                                  {item.level || 'MEMBER'}
+                                </span>
+                                {/* Devoluções */}
+                                <span className="text-[10px] text-zinc-400">
+                                  {item.devolucoes_no_prazo || 0}/{item.total_retiradas || 0} devoluções
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex flex-wrap items-center gap-3 mt-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">{t('dashboard.labels.score')}</span>
-                              <Badge
-                                variant={item.score >= 80 ? "default" : "secondary"}
-                                className="font-semibold text-xs"
-                              >
-                                {item.score.toFixed(0)}%
-                              </Badge>
+
+                          {/* Score numérico destacado */}
+                          <div className="text-right flex-shrink-0">
+                            <div className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                              {almoxScore}
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">{t('dashboard.labels.withdrawals_count')}</span>
-                              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                                {item.total_retiradas || 0}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-zinc-500">{t('dashboard.labels.on_time')}</span>
-                              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                                {item.devolucoes_no_prazo || 0}
-                              </span>
+                            <div className="text-[10px] text-zinc-400 uppercase tracking-wider">
+                              pts
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )
               })()}

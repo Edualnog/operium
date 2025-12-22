@@ -58,7 +58,7 @@ export function useKPIs(userId: string) {
             .eq("profile_id", userId)
             .eq("tipo", "retirada")
             .gte("data", trintaDiasAtras.toISOString()),
-          supabase.from("colaboradores").select("id, nome").eq("profile_id", userId),
+          supabase.from("colaboradores").select("id, nome, almox_score, level").eq("profile_id", userId),
           supabase
             .from("movimentacoes")
             .select("ferramenta_id, quantidade, data, ferramentas(tipo_item, nome, categoria)")
@@ -264,9 +264,9 @@ export function useKPIs(userId: string) {
           .sort((a: any, b: any) => b.total_saidas - a.total_saidas)
           .slice(0, 10)
 
-        // Ranking de responsabilidade (evita novas queries: usa retiradas/devoluções já carregadas)
+        // Ranking de responsabilidade - usa almox_score do banco de dados
         const colaboradores = colaboradoresRes.data || []
-        const rankingCompleto = colaboradores.map((colab) => {
+        const rankingCompleto = colaboradores.map((colab: any) => {
           // Considerar apenas categoria "ferramenta" (excluir EPIs e consumíveis)
           const retiradasColab = retiradas.filter((r) => {
             if (r.colaborador_id !== colab.id) return false
@@ -291,22 +291,28 @@ export function useKPIs(userId: string) {
             0
           )
 
-          // Score baseado em unidades devolvidas vs retiradas
-          // Se totalRetiradas for 0, score é 100% (não deve nada)
-          const score = totalRetiradas > 0
+          // Usar almox_score do banco (ou calcular fallback se não existir)
+          const almoxScore = colab.almox_score || 500
+          const level = colab.level || 'MEMBER'
+
+          // Score percentual para compatibilidade
+          const scorePercentual = totalRetiradas > 0
             ? Math.max(0, Math.min(100, (totalDevolucoes / totalRetiradas) * 100))
             : 100
 
           return {
             colaborador_id: colab.id,
             nome: colab.nome,
-            score,
+            score: scorePercentual, // Mantém score percentual para compatibilidade
+            almox_score: almoxScore, // Novo: score gamificado
+            level: level, // Novo: nível do colaborador
             total_retiradas: totalRetiradas,
-            devolucoes_no_prazo: totalDevolucoes, // Usando total de devoluções para alinhar com a lista
+            devolucoes_no_prazo: totalDevolucoes,
           }
         })
 
-        const rankingOrdenado = rankingCompleto.sort((a, b) => b.score - a.score)
+        // Ordenar por almox_score (maior = melhor)
+        const rankingOrdenado = rankingCompleto.sort((a, b) => b.almox_score - a.almox_score)
         const rankingResponsabilidade = rankingOrdenado
 
         // 6. CONSUMO MÉDIO DIÁRIO (Consumíveis - últimos 30 dias)
