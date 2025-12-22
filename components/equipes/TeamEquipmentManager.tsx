@@ -112,62 +112,61 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
     return (
         <div className="space-y-6">
             {/* Assign Equipment Section */}
-            <div className="flex gap-2 items-end p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                <div className="flex-1 space-y-2">
-                    <label className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
-                        Atribuir Ferramenta
-                    </label>
-                    <div className="flex gap-2">
-                        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={isPopoverOpen}
-                                    className="w-full justify-between bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
-                                >
-                                    {selectedToolId
-                                        ? availableTools.find((tool) => tool.id === selectedToolId)?.nome
-                                        : "Buscar ferramenta..."}
-                                    <PackageSearch className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[340px] p-0 border-zinc-200 dark:border-zinc-700">
-                                <Command>
-                                    <CommandInput placeholder="Buscar ferramenta..." />
-                                    <CommandEmpty>Nenhuma ferramenta encontrada.</CommandEmpty>
-                                    <CommandGroup>
-                                        {availableTools.map((tool) => (
-                                            <CommandItem
-                                                key={tool.id}
-                                                value={tool.nome}
-                                                onSelect={() => {
-                                                    setSelectedToolId(tool.id)
-                                                    setIsPopoverOpen(false)
-                                                }}
-                                            >
-                                                <div className="flex items-center">
-                                                    <span>{tool.nome}</span>
-                                                </div>
-                                            </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-2">
+                <label className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
+                    Atribuir Ferramenta
+                </label>
+                <div className="flex gap-2 items-center">
+                    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={isPopoverOpen}
+                                className="flex-1 justify-between bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                            >
+                                {selectedToolId
+                                    ? availableTools.find((tool) => tool.id === selectedToolId)?.nome
+                                    : "Buscar ferramenta..."}
+                                <PackageSearch className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[340px] p-0 border-zinc-200 dark:border-zinc-700">
+                            <Command>
+                                <CommandInput placeholder="Buscar ferramenta..." />
+                                <CommandEmpty>Nenhuma ferramenta encontrada.</CommandEmpty>
+                                <CommandGroup>
+                                    {availableTools.map((tool) => (
+                                        <CommandItem
+                                            key={tool.id}
+                                            value={tool.nome}
+                                            onSelect={() => {
+                                                setSelectedToolId(tool.id)
+                                                setIsPopoverOpen(false)
+                                            }}
+                                        >
+                                            <div className="flex items-center">
+                                                <span>{tool.nome}</span>
+                                            </div>
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
 
-                        <Input
-                            type="number"
-                            min={1}
-                            className="w-20 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 focus-visible:ring-zinc-400"
-                            value={quantity}
-                            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                        />
-                    </div>
+                    <Input
+                        type="number"
+                        min={1}
+                        className="w-16 shrink-0 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 focus-visible:ring-zinc-400"
+                        value={quantity}
+                        onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                    />
+
+                    <Button onClick={handleAssign} disabled={!selectedToolId || isAdding} className="shrink-0 bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600">
+                        {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                    </Button>
                 </div>
-                <Button onClick={handleAssign} disabled={!selectedToolId || isAdding} className="bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600">
-                    {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                </Button>
             </div>
 
             {/* Equipment List */}
