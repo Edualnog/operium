@@ -81,8 +81,8 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                 } else {
                     console.log("All vehicles fetched:", vehs)
 
-                    // Filter: available only
-                    const availableVehs = vehs?.filter(v => v.status === 'available') || []
+                    // Filter: active vehicles only (not in maintenance or out of service)
+                    const availableVehs = vehs?.filter(v => v.status === 'active') || []
 
                     // Always include current vehicle if editing, even if not 'available' currently
                     if (teamToEdit?.vehicle_id) {
