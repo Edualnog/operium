@@ -29,10 +29,10 @@ export default function TeamCard({ team }: TeamCardProps) {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'active': return 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-            case 'on_break': return 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
-            case 'off_duty': return 'bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-800'
-            default: return 'bg-slate-100 text-slate-600'
+            case 'active': return 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700'
+            case 'on_break': return 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
+            case 'off_duty': return 'bg-zinc-50 text-zinc-500 border-zinc-100 dark:bg-zinc-900 dark:text-zinc-500 dark:border-zinc-800'
+            default: return 'bg-zinc-100 text-zinc-600'
         }
     }
 
@@ -47,14 +47,14 @@ export default function TeamCard({ team }: TeamCardProps) {
 
     return (
         <>
-            <Card className="group hover:shadow-md transition-all duration-200 border-border/50 bg-card/50 hover:bg-card">
+            <Card className="group hover:shadow-md transition-all duration-200 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <div className="space-y-1">
-                        <h3 className="font-semibold tracking-tight text-base truncate max-w-[150px]" title={team.name}>
+                        <h3 className="font-semibold tracking-tight text-base truncate max-w-[150px] text-zinc-900 dark:text-zinc-100" title={team.name}>
                             {team.name}
                         </h3>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <div className={cn("px-2 py-0.5 rounded-full border text-[10px] font-medium uppercase tracking-wider", getStatusColor(team.status))}>
+                            <div className={cn("px-2 py-0.5 rounded-md border text-[10px] font-medium uppercase tracking-wider", getStatusColor(team.status))}>
                                 {getStatusLabel(team.status)}
                             </div>
                         </div>

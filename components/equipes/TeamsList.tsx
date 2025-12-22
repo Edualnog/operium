@@ -1,12 +1,28 @@
 "use client"
 
 import { Team } from "@/app/dashboard/equipes/types"
-import { Plus } from "lucide-react"
+import { Plus, Search, ChevronDown, LayoutGrid, List as ListIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { useState, useMemo } from "react"
 import TeamCard from "./TeamCard"
 import CreateEditTeamModal from "./CreateEditTeamModal"
 import { motion, AnimatePresence } from "framer-motion"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { Label } from "@/components/ui/label"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
 interface TeamsListProps {
     initialTeams: Team[]
@@ -14,55 +30,130 @@ interface TeamsListProps {
 
 export default function TeamsList({ initialTeams }: TeamsListProps) {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const [activeTab, setActiveTab] = useState<"todos" | "ativas" | "pausa">("ativas")
+    const [search, setSearch] = useState("")
 
     // Safe array check
     const teams = Array.isArray(initialTeams) ? initialTeams : []
 
-    return (
-        <div className="h-full flex flex-col space-y-6">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
-                        {teams.length} {teams.length === 1 ? 'equipe' : 'equipes'}
-                    </span>
-                </div>
-                <Button onClick={() => setIsCreateModalOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nova Equipe
-                </Button>
-            </div>
+    const filteredTeams = useMemo(() => {
+        let result = [...teams]
 
-            {teams.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-[50vh] border border-dashed rounded-lg bg-muted/50 p-8 text-center animate-in fade-in-50">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                        <Plus className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="mt-4 text-lg font-semibold">Nenhuma equipe criada</h3>
-                    <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-sm">
-                        Crie sua primeira equipe para começar a gerenciar membros e equipamentos.
-                    </p>
-                    <Button onClick={() => setIsCreateModalOpen(true)}>
-                        Criar primeira equipe
+        // Search filter
+        if (search) {
+            const searchLower = search.toLowerCase()
+            result = result.filter(t =>
+                t.name.toLowerCase().includes(searchLower) ||
+                t.leader_name?.toLowerCase().includes(searchLower)
+            )
+        }
+
+        // Tab filter
+        if (activeTab === "ativas") {
+            // Assuming 'active' is the status for active teams
+            result = result.filter(t => t.status === 'active')
+        } else if (activeTab === "pausa") {
+            result = result.filter(t => t.status === 'on_break')
+        }
+
+        return result
+    }, [teams, search, activeTab])
+
+    const counts = useMemo(() => ({
+        todos: teams.length,
+        ativas: teams.filter(t => t.status === 'active').length,
+        pausa: teams.filter(t => t.status === 'on_break').length
+    }), [teams])
+
+
+    return (
+        <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
+                    <TabsList className="bg-transparent p-0">
+                        <TabsTrigger
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2"
+                            value="ativas"
+                        >
+                            Ativas ({counts.ativas})
+                        </TabsTrigger>
+                        <TabsTrigger
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2"
+                            value="pausa"
+                        >
+                            Em Pausa ({counts.pausa})
+                        </TabsTrigger>
+                        <TabsTrigger
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2"
+                            value="todos"
+                        >
+                            Todas ({counts.todos})
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+
+                <div className="flex gap-2 w-full sm:w-auto items-center">
+                    <Button onClick={() => setIsCreateModalOpen(true)} className="gap-2 flex-1 sm:flex-none bg-[#37352f] hover:bg-zinc-800 text-white h-11 sm:h-10">
+                        <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:inline">Nova Equipe</span>
                     </Button>
                 </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-8 overflow-y-auto">
-                    <AnimatePresence mode="popLayout">
-                        {teams.map((team) => (
-                            <motion.div
-                                key={team.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <TeamCard team={team} />
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
+            </div>
+
+            <div className="bg-white dark:bg-zinc-900 rounded-md border shadow-sm">
+                {/* Search Header */}
+                <div className="p-4 border-b">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 flex-1">
+                            <div className="relative flex-1 max-w-sm">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Buscar equipes..."
+                                    className="pl-8"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            )}
+
+                <div className="p-6">
+                    {filteredTeams.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 mb-4">
+                                <Search className="h-6 w-6 text-zinc-400" />
+                            </div>
+                            <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">Nenhuma equipe encontrada</h3>
+                            <p className="mt-2 text-sm text-zinc-500 max-w-sm mx-auto">
+                                {search ? 'Tente ajustar seus termos de busca.' : 'Comece criando sua primeira equipe operacional.'}
+                            </p>
+                            {!search && (
+                                <Button onClick={() => setIsCreateModalOpen(true)} variant="outline" className="mt-4">
+                                    Criar nova equipe
+                                </Button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <AnimatePresence mode="popLayout">
+                                {filteredTeams.map((team) => (
+                                    <motion.div
+                                        key={team.id}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <TeamCard team={team} />
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    )}
+                </div>
+            </div>
 
             <CreateEditTeamModal
                 open={isCreateModalOpen}
