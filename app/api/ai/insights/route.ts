@@ -32,7 +32,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const { kpis, recentMovements, period } = await req.json();
+        const { kpis, recentMovements, period, lang } = await req.json();
 
         if (!process.env.OPENAI_API_KEY) {
             return NextResponse.json(
@@ -41,26 +41,49 @@ export async function POST(req: Request) {
             );
         }
 
-        const prompt = `
-      Você é um assistente inteligente de gestão de estoque para um sistema chamado "Operium".
-      Analise os seguintes dados do dashboard referentes aos últimos ${period || 30} dias e forneça 3 insights curtos e acionáveis (máximo 2 frases cada) para o gestor.
-      Foque em eficiência, redução de custos e prevenção de falhas.
-      Formato OBRIGATÓRIO: "**Título Curto:** Explicação do insight."
-      Use emojis no início de cada insight.
+        // Dynamic prompt based on user language
+        const isEnglish = lang === 'en';
 
-      Dados do Dashboard:
-      - Total de Itens: ${kpis.totalItens}
-      - Valor Total em Estoque: ${kpis.valorTotal}
-      - Itens Abaixo do Mínimo: ${kpis.itensAbaixoMinimo}
-      - Movimentações do Período (${recentMovements.length} registros): ${JSON.stringify(recentMovements)}
+        const systemMessage = isEnglish
+            ? "You are an expert in logistics and inventory management."
+            : "Você é um especialista em logística e gestão de estoque.";
 
-      Responda APENAS com um array JSON de strings, exemplo: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
-    `;
+        const prompt = isEnglish
+            ? `
+You are an intelligent inventory management assistant for a system called "Operium".
+Analyze the following dashboard data from the last ${period || 30} days and provide 3 short, actionable insights (max 2 sentences each) for the manager.
+Focus on efficiency, cost reduction, and failure prevention.
+REQUIRED FORMAT: "**Short Title:** Insight explanation."
+Use emojis at the beginning of each insight.
+
+Dashboard Data:
+- Total Items: ${kpis.totalItens}
+- Total Stock Value: ${kpis.valorTotal}
+- Items Below Minimum: ${kpis.itensAbaixoMinimo}
+- Period Movements (${recentMovements.length} records): ${JSON.stringify(recentMovements)}
+
+Reply ONLY with a JSON array of strings, example: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
+`
+            : `
+Você é um assistente inteligente de gestão de estoque para um sistema chamado "Operium".
+Analise os seguintes dados do dashboard referentes aos últimos ${period || 30} dias e forneça 3 insights curtos e acionáveis (máximo 2 frases cada) para o gestor.
+Foque em eficiência, redução de custos e prevenção de falhas.
+Formato OBRIGATÓRIO: "**Título Curto:** Explicação do insight."
+Use emojis no início de cada insight.
+
+Dados do Dashboard:
+- Total de Itens: ${kpis.totalItens}
+- Valor Total em Estoque: ${kpis.valorTotal}
+- Itens Abaixo do Mínimo: ${kpis.itensAbaixoMinimo}
+- Movimentações do Período (${recentMovements.length} registros): ${JSON.stringify(recentMovements)}
+
+Responda APENAS com um array JSON de strings, exemplo: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
+`;
 
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "Você é um especialista em logística e gestão de estoque." },
+                { role: "system", content: systemMessage },
                 { role: "user", content: prompt }
             ],
             response_format: { type: "json_object" },
@@ -68,10 +91,10 @@ export async function POST(req: Request) {
         });
 
         const content = response.choices[0].message.content;
-        if (!content) throw new Error("Sem resposta da IA");
+        if (!content) throw new Error(isEnglish ? "No AI response" : "Sem resposta da IA");
 
         const result = JSON.parse(content);
-        // Tenta extrair o array de insights, dependendo de como o modelo estruturou o JSON
+        // Try to extract insights array, depending on how the model structured the JSON
         const insights = result.insights || result.data || Object.values(result)[0] || [];
 
         return NextResponse.json({ insights });
@@ -84,3 +107,4 @@ export async function POST(req: Request) {
         );
     }
 }
+

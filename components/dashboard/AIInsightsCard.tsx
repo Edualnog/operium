@@ -103,7 +103,7 @@ const getCacheTimeRemaining = (cache: CachedInsights | null): string | null => {
 }
 
 export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIInsightsCardProps) {
-    const { t } = useTranslation('common')
+    const { t, i18n } = useTranslation('common')
     const [insights, setInsights] = useState<string[]>([])
     const [loading, setLoading] = useState(false)
     const [period, setPeriod] = useState("30") // default 30 days
@@ -160,7 +160,8 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                         itensAbaixoMinimo: kpis.totais?.itensAbaixoMinimo || 0,
                     },
                     recentMovements: formattedMovements, // Use fetched movements
-                    period: days // Inform API about the period
+                    period: days, // Inform API about the period
+                    lang: i18n.language?.startsWith('en') ? 'en' : 'pt' // Pass current language
                 }),
             })
 

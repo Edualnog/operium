@@ -1086,6 +1086,7 @@
                 "title_new": "New Product",
                 "title_edit": "Edit Product",
                 "desc_new": "Add a new product to stock",
+                "catalog_search_label": "Search Global Catalog",
                 "desc_edit": "Update product information",
                 "name": "Name",
                 "type": "Category",
