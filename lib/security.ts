@@ -3,7 +3,6 @@
 // 1. Hardcoded Allowlist (Ideally this moves to a DB table 'admin_users' later)
 const ADMIN_EMAILS = [
     "erisson.eduardo@gmail.com",
-    "founder@almoxtest.com",
 ]
 
 export function isUserAdmin(email: string | undefined | null): boolean {
