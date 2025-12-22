@@ -32,40 +32,40 @@ const tutorialSteps: TutorialStep[] = [
     icon: <Package className="h-12 w-12" />,
     title: "Estoque & Ferramentas",
     description: "Cadastre todos os itens do seu almoxarifado: ferramentas, EPIs e consumíveis. Controle quantidades, categorias e estado de cada item.",
-    tip: "💡 Dica: Use o botão 'Importar Excel' para cadastrar vários itens de uma vez!",
-    color: "from-blue-500 to-blue-600"
+    tip: "Dica: Use o botão 'Importar Excel' para cadastrar vários itens de uma vez!",
+    color: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
   },
   {
     id: 2,
     icon: <Users className="h-12 w-12" />,
     title: "Colaboradores",
     description: "Cadastre sua equipe para rastrear quem retirou ou devolveu cada item. Mantenha dados como cargo, telefone e foto.",
-    tip: "💡 Dica: Adicione fotos dos colaboradores para identificação rápida!",
-    color: "from-green-500 to-green-600"
+    tip: "Dica: Adicione fotos dos colaboradores para identificação rápida!",
+    color: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
   },
   {
     id: 3,
     icon: <ArrowLeftRight className="h-12 w-12" />,
     title: "Movimentações",
     description: "Registre entradas, saídas e devoluções de itens. Acompanhe o histórico completo de movimentações do seu almoxarifado.",
-    tip: "💡 Dica: Use os filtros por data e colaborador para encontrar movimentações específicas!",
-    color: "from-purple-500 to-purple-600"
+    tip: "Dica: Use os filtros por data e colaborador para encontrar movimentações específicas!",
+    color: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
   },
   {
     id: 4,
     icon: <Hammer className="h-12 w-12" />,
     title: "Consertos",
     description: "Gerencie ferramentas que estão em manutenção. Acompanhe prazos, custos e status de cada conserto.",
-    tip: "💡 Dica: Defina prioridades para organizar melhor os consertos urgentes!",
-    color: "from-orange-500 to-orange-600"
+    tip: "Dica: Defina prioridades para organizar melhor os consertos urgentes!",
+    color: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
   },
   {
     id: 5,
     icon: <BarChart3 className="h-12 w-12" />,
     title: "Dashboard & Relatórios",
     description: "Visualize KPIs importantes: itens em falta, movimentações do mês, ferramentas em conserto e muito mais.",
-    tip: "💡 Dica: O dashboard atualiza em tempo real conforme você usa o sistema!",
-    color: "from-indigo-500 to-indigo-600"
+    tip: "Dica: O dashboard atualiza em tempo real conforme você usa o sistema!",
+    color: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
   }
 ]
 
@@ -146,15 +146,15 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
         className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden"
       >
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-5">
+        <div className="relative bg-[#37352f] dark:bg-zinc-800 px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-xl">
+              <div className="p-2 bg-white/10 rounded-xl">
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Bem-vindo ao Operium!</h2>
-                <p className="text-blue-100 text-sm">Conheça as principais funcionalidades</p>
+                <h2 className="text-xl font-serif font-bold text-white">Bem-vindo ao Operium!</h2>
+                <p className="text-zinc-300 text-sm">Conheça as principais funcionalidades</p>
               </div>
             </div>
             <button
@@ -173,10 +173,10 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
                 key={index}
                 onClick={() => goToStep(index)}
                 className={`h-2 rounded-full transition-all duration-300 ${index === currentStep
-                    ? "w-8 bg-white"
-                    : index < currentStep
-                      ? "w-2 bg-white/80"
-                      : "w-2 bg-white/40"
+                  ? "w-8 bg-white"
+                  : index < currentStep
+                    ? "w-2 bg-white/80"
+                    : "w-2 bg-white/40"
                   }`}
               />
             ))}
@@ -200,7 +200,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
               className="flex flex-col items-center text-center"
             >
               {/* Icon */}
-              <div className={`p-5 rounded-2xl bg-gradient-to-br ${step.color} text-white mb-6 shadow-lg`}>
+              <div className={`p-5 rounded-2xl ${step.color} mb-6 shadow-sm border border-zinc-200 dark:border-zinc-700`}>
                 {step.icon}
               </div>
 
@@ -220,8 +220,8 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
               </p>
 
               {/* Tip */}
-              <div className="px-4 py-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-sm max-w-md">
-                {step.tip}
+              <div className="px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-600 dark:text-zinc-400 text-sm max-w-md">
+                <span className="font-medium text-zinc-700 dark:text-zinc-300">💡</span> {step.tip}
               </div>
             </motion.div>
           </AnimatePresence>
@@ -250,8 +250,8 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
             <button
               onClick={nextStep}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all ${isLastStep
-                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg hover:shadow-green-500/25"
-                  : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/25"
+                ? "bg-[#37352f] dark:bg-zinc-700 text-white hover:bg-[#2f2e29] dark:hover:bg-zinc-600"
+                : "bg-[#37352f] dark:bg-zinc-700 text-white hover:bg-[#2f2e29] dark:hover:bg-zinc-600"
                 }`}
             >
               {isLastStep ? (
