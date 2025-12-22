@@ -98,38 +98,85 @@ export function ObservabilityDashboard() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 
-            // Fetch health
+            // Fetch GLOBAL health (all organizations)
             const { data: healthData, error: healthError } = await supabase
-                .rpc('fn_metrics_health', { p_profile_id: user.id })
+                .rpc('fn_metrics_health_global')
 
-            if (healthError) throw healthError
-            setHealth(healthData)
+            if (healthError) {
+                // Fallback para função por profile se global não existir
+                console.warn('Global health not available, falling back to profile-based:', healthError)
+                const { data: fallbackHealth } = await supabase
+                    .rpc('fn_metrics_health', { p_profile_id: user.id })
+                setHealth(fallbackHealth)
+            } else {
+                setHealth(healthData)
+            }
 
-            // Fetch active alerts
+            // Fetch GLOBAL alerts (all organizations)
             const { data: alertsData } = await supabase
-                .from('operational_alerts')
+                .from('v_operational_alerts_global')
                 .select('*')
                 .eq('is_active', true)
                 .order('detected_at', { ascending: false })
                 .limit(20)
 
-            setAlerts(alertsData || [])
+            // Fallback para tabela normal se view não existir
+            if (!alertsData) {
+                const { data: fallbackAlerts } = await supabase
+                    .from('operational_alerts')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('detected_at', { ascending: false })
+                    .limit(20)
+                setAlerts(fallbackAlerts || [])
+            } else {
+                setAlerts(alertsData || [])
+            }
 
-            // Fetch recent events
+            // Fetch GLOBAL events (all organizations)
             const { data: eventsData } = await supabase
-                .from('domain_events')
+                .from('v_domain_events_global')
                 .select('*')
                 .order('occurred_at', { ascending: false })
                 .limit(50)
 
-            setEvents(eventsData || [])
+            // Fallback para tabela normal se view não existir
+            if (!eventsData) {
+                const { data: fallbackEvents } = await supabase
+                    .from('domain_events')
+                    .select('*')
+                    .order('occurred_at', { ascending: false })
+                    .limit(50)
+                setEvents(fallbackEvents || [])
+            } else {
+                setEvents(eventsData || [])
+            }
 
-            // Fetch metrics status
+            // Fetch GLOBAL metrics status (all organizations aggregated)
             const { data: metricsData } = await supabase
-                .from('v_metrics_status')
+                .from('v_metrics_status_global')
                 .select('*')
 
-            setMetrics(metricsData || [])
+            // Fallback para view normal se view global não existir
+            if (!metricsData) {
+                const { data: fallbackMetrics } = await supabase
+                    .from('v_metrics_status')
+                    .select('*')
+                setMetrics(fallbackMetrics || [])
+            } else {
+                // Adaptar campos da view global para interface existente
+                const adaptedMetrics = metricsData.map((m: any) => ({
+                    metric_key: m.metric_key,
+                    display_name: m.display_name,
+                    entity_type: m.entity_type,
+                    current_value: m.avg_value_global,
+                    confidence_level: null,
+                    last_calculated: m.last_calculated_global,
+                    expected_avg: null,
+                    data_status: m.data_status
+                }))
+                setMetrics(adaptedMetrics || [])
+            }
 
         } catch (err: any) {
             console.error('Error fetching observability data:', err)
@@ -142,16 +189,23 @@ export function ObservabilityDashboard() {
     const runObserver = async () => {
         setRunningPipeline(true)
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-
+            // Executar Observer GLOBALMENTE para todos os profiles
             const { data, error } = await supabase
-                .rpc('fn_run_all_metrics', {
-                    p_profile_id: user.id,
+                .rpc('fn_run_observer_global', {
                     p_triggered_by: 'manual'
                 })
 
-            if (error) throw error
+            if (error) {
+                // Fallback para execução por profile se global não existir
+                console.warn('Global observer not available, falling back to profile-based:', error)
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    await supabase.rpc('fn_run_all_metrics', {
+                        p_profile_id: user.id,
+                        p_triggered_by: 'manual'
+                    })
+                }
+            }
 
             // Refresh data after running
             await fetchData()
