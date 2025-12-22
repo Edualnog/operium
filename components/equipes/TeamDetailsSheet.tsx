@@ -12,16 +12,24 @@ import { Team } from "@/app/dashboard/equipes/types"
 import TeamMembersManager from "./TeamMembersManager"
 import TeamEquipmentManager from "./TeamEquipmentManager"
 import TeamVehicleSection from "./TeamVehicleSection"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface TeamDetailsSheetProps {
     team: Team | null
     open: boolean
     onOpenChange: (open: boolean) => void
+    defaultTab?: "members" | "equipment" | "vehicle"
 }
 
-export default function TeamDetailsSheet({ team, open, onOpenChange }: TeamDetailsSheetProps) {
-    const [activeTab, setActiveTab] = useState("members")
+export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab = "members" }: TeamDetailsSheetProps) {
+    const [activeTab, setActiveTab] = useState(defaultTab)
+
+    // Sync activeTab when sheet opens with a specific defaultTab
+    useEffect(() => {
+        if (open) {
+            setActiveTab(defaultTab)
+        }
+    }, [open, defaultTab])
 
     if (!team) return null
 
@@ -35,7 +43,7 @@ export default function TeamDetailsSheet({ team, open, onOpenChange }: TeamDetai
                     </SheetDescription>
                 </SheetHeader>
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "members" | "equipment" | "vehicle")} className="flex-1 flex flex-col overflow-hidden">
                     <TabsList className="grid w-full grid-cols-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-none border-b border-zinc-100 dark:border-zinc-800 h-11 p-0">
                         <TabsTrigger
                             value="members"

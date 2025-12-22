@@ -26,6 +26,7 @@ interface TeamCardProps {
 export default function TeamCard({ team }: TeamCardProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+    const [selectedTab, setSelectedTab] = useState<"members" | "equipment" | "vehicle">("members")
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -70,10 +71,10 @@ export default function TeamCard({ team }: TeamCardProps) {
                             <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
                                 Editar Equipe
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsDetailsOpen(true)}>
+                            <DropdownMenuItem onClick={() => { setSelectedTab("members"); setIsDetailsOpen(true) }}>
                                 Gerenciar Membros
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsDetailsOpen(true)}>
+                            <DropdownMenuItem onClick={() => { setSelectedTab("equipment"); setIsDetailsOpen(true) }}>
                                 Equipamentos
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -150,6 +151,7 @@ export default function TeamCard({ team }: TeamCardProps) {
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
                 team={team}
+                defaultTab={selectedTab}
             />
         </>
     )
