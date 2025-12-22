@@ -106,9 +106,9 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
     return (
         <div className="space-y-6">
             {/* Add Member Section */}
-            <div className="flex gap-2 items-end p-4 bg-muted/30 rounded-lg border border-border/50">
+            <div className="flex gap-2 items-end p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700">
                 <div className="flex-1 space-y-2">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <label className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
                         Adicionar Colaborador
                     </label>
                     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
@@ -117,7 +117,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                                 variant="outline"
                                 role="combobox"
                                 aria-expanded={isPopoverOpen}
-                                className="w-full justify-between"
+                                className="w-full justify-between bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
                             >
                                 {selectedColab
                                     ? availableColabs.find((c) => c.id === selectedColab)?.name
@@ -125,7 +125,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                                 <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[300px] p-0">
+                        <PopoverContent className="w-[340px] p-0 border-zinc-200 dark:border-zinc-700">
                             <Command>
                                 <CommandInput placeholder="Buscar colaborador..." />
                                 <CommandList>
@@ -157,14 +157,14 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
                         </PopoverContent>
                     </Popover>
                 </div>
-                <Button onClick={handleAddMember} disabled={!selectedColab || isAdding}>
+                <Button onClick={handleAddMember} disabled={!selectedColab || isAdding} className="bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600">
                     {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                 </Button>
             </div>
 
             {/* Members List */}
             <div className="space-y-3">
-                <h4 className="text-sm font-medium text-muted-foreground">Membros Atuais ({members.length})</h4>
+                <h4 className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">Membros Atuais ({members.length})</h4>
 
                 {isLoading ? (
                     <div className="flex justify-center p-4">
