@@ -32,9 +32,16 @@ export async function createTeam(formData: {
 }) {
     const supabase = createServerActionClient({ cookies })
 
+    // Get current user for profile_id
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+        throw new Error("Usuário não autenticado")
+    }
+
     const { data, error } = await supabase
         .from("teams")
         .insert({
+            profile_id: user.id, // Required for RLS
             name: formData.name,
             description: formData.description,
             leader_id: formData.leader_id || null,
