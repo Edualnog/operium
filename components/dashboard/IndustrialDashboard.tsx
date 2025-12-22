@@ -41,6 +41,9 @@ import { VehicleStats } from "./VehicleStatsCard"
 // ... (inside component)
 
 
+// Helper seguro para arrays
+const safeArray = (arr: any) => Array.isArray(arr) ? arr : []
+
 interface IndustrialDashboardProps {
   userId: string
 }
@@ -934,7 +937,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 </div>
                 <div>
                   <p className="text-sm text-zinc-500 font-medium">{t('dashboard.usage_panorama.total_in_use')}</p>
-                  <h3 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{data.ferramentasEmUso.reduce((acc, curr) => acc + (curr.quantidade_em_uso || 0), 0) || totalEmUsoUnidades} {t('dashboard.usage_panorama.items')}</h3>
+                  <h3 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{safeArray(data.ferramentasEmUso).reduce((acc, curr) => acc + (curr.quantidade_em_uso || 0), 0) || totalEmUsoUnidades} {t('dashboard.usage_panorama.items')}</h3>
                 </div>
               </div>
 
@@ -986,11 +989,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
           {/* 2. Lista Detalhada (Movida do final) */}
           <div className="h-full">
-            {data.ferramentasEmUso.length > 0 ? (
+            {safeArray(data.ferramentasEmUso).length > 0 ? (
               <KpiList
                 title={t('dashboard.kpi.tools_active.title')}
                 description={t('dashboard.kpi.tools_active.desc')}
-                items={data.ferramentasEmUso}
+                items={safeArray(data.ferramentasEmUso)}
                 columns={[
                   {
                     key: "colaborador",
@@ -1061,9 +1064,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <p className="text-sm text-zinc-500">{t('common.loading_data')}</p>
                 </div>
               ) : (() => {
-                const itemsFonte = ferramentasPorPeriodo.length > 0
-                  ? ferramentasPorPeriodo
-                  : data.topFerramentasUtilizadas.slice(0, 3)
+                const itemsFonte = safeArray(ferramentasPorPeriodo).length > 0
+                  ? safeArray(ferramentasPorPeriodo)
+                  : safeArray(data.topFerramentasUtilizadas).slice(0, 3)
 
                 if (itemsFonte.length === 0) {
                   return (
@@ -1128,7 +1131,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             <CardContent className="pt-4">
               {(() => {
                 // Já ordenado por almox_score no useKPIs
-                const displayItems = data.rankingResponsabilidade.slice(0, 3)
+                const displayItems = safeArray(data.rankingResponsabilidade).slice(0, 3)
 
                 if (displayItems.length === 0) {
                   return (
@@ -1257,13 +1260,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 description=""
                 data={(() => {
                   // Usar dados do período selecionado ou fallback para dados padrão
-                  const dadosFonte = consumoPorPeriodo.length > 0
-                    ? consumoPorPeriodo.map(item => ({
+                  const dadosFonte = safeArray(consumoPorPeriodo).length > 0
+                    ? safeArray(consumoPorPeriodo).map(item => ({
                       nome: item.nome || "",
                       consumo_30d: item.consumo || 0,
                       id: item.id,
                     }))
-                    : data.itensMaiorConsumo.map(item => ({
+                    : safeArray(data.itensMaiorConsumo).map(item => ({
                       nome: item.nome || "",
                       consumo_30d: item.consumo_30d || 0,
                       id: item.id,
@@ -1294,7 +1297,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <KpiList
             title={t('dashboard.kpi.critical_stock.title')}
             description={t('dashboard.kpi.critical_stock.desc')}
-            items={data.itensEstoqueCritico}
+            items={safeArray(data.itensEstoqueCritico)}
             columns={[
               {
                 key: "quantidade_atual",
@@ -1321,7 +1324,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <KpiList
             title={t('dashboard.kpi.recent_consumption.title')}
             description={t('dashboard.kpi.last_30_days')}
-            items={data.itensMaiorConsumo}
+            items={safeArray(data.itensMaiorConsumo)}
             columns={[
               {
                 key: "consumo_30d",
@@ -1354,7 +1357,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <KpiList
             title={t('dashboard.kpi.epis_active.title')}
             description={t('dashboard.kpi.epis_active.desc')}
-            items={data.episAtivosPorColaborador.map((epi) => ({
+            items={safeArray(data.episAtivosPorColaborador).map((epi) => ({
               id: epi.colaborador_id,
               nome: epi.colaborador_nome,
               total_epis: epi.total_epis,
@@ -1377,7 +1380,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           <KpiList
             title={t('dashboard.kpi.epis_expiring.title')}
             description={t('dashboard.kpi.epis_expiring.desc')}
-            items={data.episProximosValidade}
+            items={safeArray(data.episProximosValidade)}
             columns={[
               {
                 key: "dias_restantes",
@@ -1414,7 +1417,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         </div>
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {data.riscoRuptura
+          {safeArray(data.riscoRuptura)
             .filter((r) => r.score >= 50)
             .slice(0, 3)
             .map((risco) => (
@@ -1432,7 +1435,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         <KpiList
           title={t('dashboard.kpi.critical_items_day.title')}
           description={t('dashboard.kpi.critical_items_day.desc')}
-          items={data.itensCriticosDia}
+          items={safeArray(data.itensCriticosDia)}
           columns={[
             {
               key: "motivo",
@@ -1464,13 +1467,13 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         />
 
         {/* Gráfico de Risco de Ruptura */}
-        {data.riscoRuptura.length > 0 && (
+        {safeArray(data.riscoRuptura).length > 0 && (
           <KpiChart
             title={t('dashboard.kpi.rupture_risk.title')}
             description={t('dashboard.kpi.rupture_risk.desc')}
             data={(() => {
               // Filtrar e ordenar dados reais
-              const dadosReais = data.riscoRuptura
+              const dadosReais = safeArray(data.riscoRuptura)
                 .filter((r) => r.score > 0)
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 10)

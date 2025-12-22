@@ -33,16 +33,8 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
 
             try {
                 // 1. ANÁLISE DE QUEBRAS (High Breakage)
-                // Busca eventos de mudança de status para 'danificada' na stream V2
-                const { data: breakageEvents } = await supabase
-                    .from('events_stream') // Note: In real app this might need to be a view or direct table access if policy allows. 
-                    // Since we set it to service_role only, we might need a server action or specific RPC.
-                    // For this demo, assuming we have read access or using a fallback to legacy query if stream fails.
-                    // Let's try to infer from 'movimentacoes' type 'ajuste' or 'status' if stream is locked.
-                    .select('payload, created_at')
-                    .eq('event_type', 'LEGACY_STATUS_CHANGE')
-                    .ilike('payload->>new_status', 'danificada')
-                    .limit(50)
+                // 1. ANÁLISE DE QUEBRAS (High Breakage)
+                // Usar dados da tabela 'ferramentas' (legacy) pois events_stream não está disponível no schema atual
 
                 // FALLBACK: Query legacy 'movimentacoes' for repairs/breakage if events.stream is locked (likely is for client)
                 // We will simulate the "Intelligence" by querying the legacy operational data that FEEDS the intelligence
