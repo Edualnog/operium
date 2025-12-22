@@ -185,7 +185,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="leader" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">{t('teams.form.leader')}</Label>
                             <Controller

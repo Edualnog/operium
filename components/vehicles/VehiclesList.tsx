@@ -140,10 +140,10 @@ export function VehiclesList() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                <Filter className="h-4 w-4 text-zinc-500" />
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                <div className="hidden sm:block"><Filter className="h-4 w-4 text-zinc-500" /></div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[160px] h-9 bg-white dark:bg-zinc-900">
+                    <SelectTrigger className="w-full sm:w-[160px] h-9 bg-white dark:bg-zinc-900">
                         <SelectValue placeholder={t('vehicles.filters.status')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -154,7 +154,7 @@ export function VehiclesList() {
                     </SelectContent>
                 </Select>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-[160px] h-9 bg-white dark:bg-zinc-900">
+                    <SelectTrigger className="w-full sm:w-[160px] h-9 bg-white dark:bg-zinc-900">
                         <SelectValue placeholder={t('vehicles.filters.type')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -177,85 +177,87 @@ export function VehiclesList() {
             </div>
 
             <div className="rounded-lg border border-zinc-200 bg-white dark:bg-zinc-900 dark:border-zinc-800 overflow-hidden">
-                <Table>
-                    <TableHeader className="bg-zinc-50 dark:bg-zinc-800/50">
-                        <TableRow className="border-zinc-200 dark:border-zinc-800 hover:bg-transparent">
-                            <TableHead className="w-[50px]"></TableHead>
-                            <TableHead className="font-medium text-zinc-500">{t('vehicles.form.plate')}</TableHead>
-                            <TableHead className="font-medium text-zinc-500">{t('vehicles.form.brand')}/{t('vehicles.form.model')}</TableHead>
-                            <TableHead className="font-medium text-zinc-500">{t('vehicles.form.fuel')}</TableHead>
-                            <TableHead className="font-medium text-zinc-500">{t('vehicles.form.acquisition_date')}</TableHead>
-                            <TableHead className="font-medium text-zinc-500">{t('vehicles.details.status')}</TableHead>
-                            <TableHead className="w-[70px]"></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {vehicles.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground border-zinc-200 dark:border-zinc-800">
-                                    {t('vehicles.no_vehicles')}
-                                </TableCell>
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader className="bg-zinc-50 dark:bg-zinc-800/50">
+                            <TableRow className="border-zinc-200 dark:border-zinc-800 hover:bg-transparent">
+                                <TableHead className="w-[50px]"></TableHead>
+                                <TableHead className="font-medium text-zinc-500">{t('vehicles.form.plate')}</TableHead>
+                                <TableHead className="font-medium text-zinc-500">{t('vehicles.form.brand')}/{t('vehicles.form.model')}</TableHead>
+                                <TableHead className="font-medium text-zinc-500">{t('vehicles.form.fuel')}</TableHead>
+                                <TableHead className="font-medium text-zinc-500">{t('vehicles.form.acquisition_date')}</TableHead>
+                                <TableHead className="font-medium text-zinc-500">{t('vehicles.details.status')}</TableHead>
+                                <TableHead className="w-[70px]"></TableHead>
                             </TableRow>
-                        ) : (
-                            filteredVehicles.map((vehicle) => (
-                                <TableRow
-                                    key={vehicle.id}
-                                    className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800/50 transition-colors"
-                                    onClick={(e) => {
-                                        // Don't navigate if clicking actions
-                                        if ((e.target as HTMLElement).closest('.actions-trigger')) return;
-                                        handleRowClick(vehicle.id)
-                                    }}
-                                >
-                                    <TableCell>
-                                        <VehicleIcon type={vehicle.vehicle_type} />
-                                    </TableCell>
-                                    <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">{vehicle.plate}</TableCell>
-                                    <TableCell className="text-zinc-600 dark:text-zinc-400">{vehicle.brand} {vehicle.model}</TableCell>
-                                    <TableCell className="text-zinc-500 text-sm">
-                                        {t(`vehicles.fuel.${vehicle.fuel_type}`) || vehicle.fuel_type}
-                                    </TableCell>
-                                    <TableCell className="text-zinc-500 text-sm">
-                                        {vehicle.acquisition_date
-                                            ? format(new Date(vehicle.acquisition_date), 'P', { locale: dateLocale })
-                                            : '-'}
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className={cn(
-                                            "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                                            vehicle.status === 'maintenance'
-                                                ? "bg-orange-100 text-orange-700 ring-orange-500/10 dark:bg-orange-900/20 dark:text-orange-400"
-                                                : vehicle.status === 'out_of_service'
-                                                    ? "bg-red-100 text-red-700 ring-red-500/10 dark:bg-red-900/20 dark:text-red-400"
-                                                    : "bg-zinc-100 text-zinc-700 ring-zinc-500/10 dark:bg-zinc-800 dark:text-zinc-300"
-                                        )}>
-                                            {t(`vehicles.status.${vehicle.status || 'active'}`)}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="actions-trigger">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
-                                                    <span className="sr-only">{t('common.actions')}</span>
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-40">
-                                                <DropdownMenuLabel className="font-normal text-xs text-muted-foreground">{t('common.actions')}</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => openEdit(vehicle)}>
-                                                    <Edit className="mr-2 h-4 w-4" /> {t('common.edit')}
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDelete(vehicle.id)} className="text-red-600 focus:text-red-600 dark:text-red-400">
-                                                    <Trash2 className="mr-2 h-4 w-4" /> {t('common.delete')}
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                        </TableHeader>
+                        <TableBody>
+                            {vehicles.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground border-zinc-200 dark:border-zinc-800">
+                                        {t('vehicles.no_vehicles')}
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : (
+                                filteredVehicles.map((vehicle) => (
+                                    <TableRow
+                                        key={vehicle.id}
+                                        className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800/50 transition-colors"
+                                        onClick={(e) => {
+                                            // Don't navigate if clicking actions
+                                            if ((e.target as HTMLElement).closest('.actions-trigger')) return;
+                                            handleRowClick(vehicle.id)
+                                        }}
+                                    >
+                                        <TableCell>
+                                            <VehicleIcon type={vehicle.vehicle_type} />
+                                        </TableCell>
+                                        <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">{vehicle.plate}</TableCell>
+                                        <TableCell className="text-zinc-600 dark:text-zinc-400">{vehicle.brand} {vehicle.model}</TableCell>
+                                        <TableCell className="text-zinc-500 text-sm">
+                                            {t(`vehicles.fuel.${vehicle.fuel_type}`) || vehicle.fuel_type}
+                                        </TableCell>
+                                        <TableCell className="text-zinc-500 text-sm">
+                                            {vehicle.acquisition_date
+                                                ? format(new Date(vehicle.acquisition_date), 'P', { locale: dateLocale })
+                                                : '-'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className={cn(
+                                                "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                                                vehicle.status === 'maintenance'
+                                                    ? "bg-orange-100 text-orange-700 ring-orange-500/10 dark:bg-orange-900/20 dark:text-orange-400"
+                                                    : vehicle.status === 'out_of_service'
+                                                        ? "bg-red-100 text-red-700 ring-red-500/10 dark:bg-red-900/20 dark:text-red-400"
+                                                        : "bg-zinc-100 text-zinc-700 ring-zinc-500/10 dark:bg-zinc-800 dark:text-zinc-300"
+                                            )}>
+                                                {t(`vehicles.status.${vehicle.status || 'active'}`)}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="actions-trigger">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
+                                                        <span className="sr-only">{t('common.actions')}</span>
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-40">
+                                                    <DropdownMenuLabel className="font-normal text-xs text-muted-foreground">{t('common.actions')}</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => openEdit(vehicle)}>
+                                                        <Edit className="mr-2 h-4 w-4" /> {t('common.edit')}
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleDelete(vehicle.id)} className="text-red-600 focus:text-red-600 dark:text-red-400">
+                                                        <Trash2 className="mr-2 h-4 w-4" /> {t('common.delete')}
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
 
             <VehicleForm
