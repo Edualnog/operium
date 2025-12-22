@@ -18,6 +18,7 @@ interface CreateEditTeamModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     teamToEdit?: Team
+    onTeamCreated?: (team: Team) => void
 }
 
 interface FormData {
@@ -28,7 +29,7 @@ interface FormData {
     status: TeamStatus
 }
 
-export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit }: CreateEditTeamModalProps) {
+export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, onTeamCreated }: CreateEditTeamModalProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [leaders, setLeaders] = useState<{ id: string, name: string }[]>([])
     const [vehicles, setVehicles] = useState<{ id: string, plate: string, model: string }[]>([])
@@ -110,8 +111,9 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit }: 
                 await updateTeam(teamToEdit.id, data)
                 toast.success("Equipe atualizada com sucesso!")
             } else {
-                await createTeam(data)
-                toast.success("Equipe criada com sucesso!")
+                const newTeam = await createTeam(data)
+                toast.success("Equipe criada com sucesso! Agora adicione os membros.")
+                onTeamCreated?.(newTeam)
             }
             onOpenChange(false)
         } catch (error: any) {
@@ -123,30 +125,33 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit }: 
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                    <DialogTitle>{teamToEdit ? 'Editar Equipe' : 'Nova Equipe'}</DialogTitle>
-                    <DialogDescription>
-                        {teamToEdit ? 'Atualize os dados da equipe abaixo.' : 'Preencha os dados para criar uma nova equipe operacional.'}
+            <DialogContent className="sm:max-w-[600px] border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-6 sm:p-8 block overflow-visible">
+                <DialogHeader className="mb-6">
+                    <DialogTitle className="text-xl font-serif font-bold text-[#37352f] dark:text-zinc-100 mb-2">
+                        {teamToEdit ? 'Editar Equipe' : 'Nova Equipe'}
+                    </DialogTitle>
+                    <DialogDescription className="text-zinc-500 dark:text-zinc-400">
+                        {teamToEdit ? 'Atualize os dados da equipe abaixo.' : 'Preencha os dados para criar uma nova equipe operacional. Você poderá adicionar membros e equipamentos logo em seguida.'}
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Nome da Equipe *</Label>
+                        <Label htmlFor="name" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Nome da Equipe</Label>
                         <Input
                             id="name"
                             placeholder="Ex: Equipe Alpha, Manutenção Elétrica..."
+                            className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-600 focus-visible:ring-offset-0 placeholder:text-zinc-400"
                             {...register("name", { required: true })}
                         />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="description">Descrição</Label>
+                        <Label htmlFor="description" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Descrição</Label>
                         <Textarea
                             id="description"
                             placeholder="Função ou área de atuação da equipe"
-                            className="resize-none"
+                            className="resize-none bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-600 focus-visible:ring-offset-0 placeholder:text-zinc-400 min-h-[80px]"
                             {...register("description")}
                         />
                     </div>
@@ -206,13 +211,13 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit }: 
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="status">Status</Label>
+                        <Label htmlFor="status" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Status</Label>
                         <Controller
                             control={control}
                             name="status"
                             render={({ field }) => (
                                 <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus:ring-zinc-400 focus:ring-offset-0">
                                         <SelectValue placeholder="Selecione..." />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -225,11 +230,11 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit }: 
                         />
                     </div>
 
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    <DialogFooter className="mt-6">
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800">
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button type="submit" disabled={isLoading} className="bg-[#37352f] hover:bg-zinc-800 text-white min-w-[140px]">
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {teamToEdit ? 'Salvar Alterações' : 'Criar Equipe'}
                         </Button>

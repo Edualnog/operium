@@ -8,6 +8,7 @@ import { useState, useMemo } from "react"
 import TeamCard from "./TeamCard"
 import CreateEditTeamModal from "./CreateEditTeamModal"
 import { motion, AnimatePresence } from "framer-motion"
+import TeamDetailsSheet from "./TeamDetailsSheet"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Popover,
@@ -32,6 +33,15 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [activeTab, setActiveTab] = useState<"todos" | "ativas" | "pausa">("ativas")
     const [search, setSearch] = useState("")
+
+    // State for auto-opening details after create
+    const [justCreatedTeam, setJustCreatedTeam] = useState<Team | null>(null)
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+
+    const handleTeamCreated = (team: Team) => {
+        setJustCreatedTeam(team)
+        setIsDetailsOpen(true)
+    }
 
     // Safe array check
     const teams = Array.isArray(initialTeams) ? initialTeams : []
@@ -158,7 +168,19 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
             <CreateEditTeamModal
                 open={isCreateModalOpen}
                 onOpenChange={setIsCreateModalOpen}
+                onTeamCreated={handleTeamCreated}
             />
+
+            {justCreatedTeam && (
+                <TeamDetailsSheet
+                    open={isDetailsOpen}
+                    onOpenChange={(open) => {
+                        setIsDetailsOpen(open)
+                        if (!open) setJustCreatedTeam(null)
+                    }}
+                    team={justCreatedTeam}
+                />
+            )}
         </div>
     )
 }
