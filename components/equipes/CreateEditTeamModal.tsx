@@ -49,37 +49,64 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
     useEffect(() => {
         if (open) {
             const fetchOptions = async () => {
+                console.log("Fetching options for modal...")
+
                 // Fetch eligible leaders (colaboradores)
-                const { data: colabs } = await supabase
+                const { data: colabs, error: colabsError } = await supabase
                     .from('colaboradores')
-                    .select('id, nome')
-                    .eq('status', 'ativo')
+                    .select('id, nome, status')
                     .order('nome')
 
-                if (colabs) setLeaders(colabs.map(c => ({ id: c.id, name: c.nome })))
-
-                // Fetch available vehicles
-                const { data: vehs } = await supabase
-                    .from('vehicles')
-                    .select('id, plate, model')
-                    .eq('status', 'available')
-                    .order('plate')
-
-                // Always include current vehicle if editing, even if not 'available' currently
-                if (teamToEdit?.vehicle_id) {
-                    const { data: currentVeh } = await supabase
-                        .from('vehicles')
-                        .select('id, plate, model')
-                        .eq('id', teamToEdit.vehicle_id)
-                        .single()
-                    if (currentVeh && vehs) {
-                        if (!vehs.find(v => v.id === currentVeh.id)) {
-                            vehs.push(currentVeh)
-                        }
-                    }
+                if (colabsError) {
+                    console.error("Error fetching colabs:", colabsError)
+                } else {
+                    console.log("All colabs fetched:", colabs)
+                    // Robust filtering for status
+                    const activeColabs = colabs?.filter(c =>
+                        c.status?.toUpperCase() === 'ATIVO' ||
+                        c.status?.toLowerCase() === 'active'
+                    ) || []
+                    console.log("Active colabs filtered:", activeColabs)
+                    setLeaders(activeColabs.map(c => ({ id: c.id, name: c.nome })))
                 }
 
-                if (vehs) setVehicles(vehs)
+                // Fetch available vehicles
+                const { data: vehs, error: vehsError } = await supabase
+                    .from('vehicles')
+                    .select('id, plate, model, status')
+                    .order('plate')
+
+                if (vehsError) {
+                    console.error("Error fetching vehicles:", vehsError)
+                } else {
+                    console.log("All vehicles fetched:", vehs)
+
+                    // Filter: available only
+                    const availableVehs = vehs?.filter(v => v.status === 'available') || []
+
+                    // Always include current vehicle if editing, even if not 'available' currently
+                    if (teamToEdit?.vehicle_id) {
+                        const { data: currentVeh } = await supabase
+                            .from('vehicles')
+                            .select('id, plate, model')
+                            .eq('id', teamToEdit.vehicle_id)
+                            .single()
+
+                        if (currentVeh) {
+                            // Check if it's already in the list
+                            const exists = availableVehs.find(v => v.id === currentVeh.id)
+                            if (!exists) {
+                                // Add to list so it matches the current selection
+                                availableVehs.push({
+                                    ...currentVeh,
+                                    status: 'assigned' // Dummy status
+                                })
+                            }
+                        }
+                    }
+                    console.log("Final vehicle list:", availableVehs)
+                    setVehicles(availableVehs)
+                }
             }
 
             fetchOptions()
@@ -158,7 +185,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="leader">Líder da Equipe</Label>
+                            <Label htmlFor="leader" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Líder da Equipe</Label>
                             <Controller
                                 control={control}
                                 name="leader_id"
@@ -167,7 +194,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                                         onValueChange={(value) => field.onChange(value === "unassigned" ? "" : value)}
                                         value={field.value || "unassigned"}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus:ring-zinc-400 focus:ring-offset-0">
                                             <SelectValue placeholder="Selecione..." />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -184,7 +211,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="vehicle">Veículo</Label>
+                            <Label htmlFor="vehicle" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">Veículo</Label>
                             <Controller
                                 control={control}
                                 name="vehicle_id"
@@ -193,7 +220,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                                         onValueChange={(value) => field.onChange(value === "unassigned" ? "" : value)}
                                         value={field.value || "unassigned"}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus:ring-zinc-400 focus:ring-offset-0">
                                             <SelectValue placeholder="Selecione..." />
                                         </SelectTrigger>
                                         <SelectContent>
