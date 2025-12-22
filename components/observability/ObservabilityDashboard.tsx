@@ -7,6 +7,12 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
     Activity,
     AlertTriangle,
     CheckCircle,
@@ -20,7 +26,8 @@ import {
     FileText,
     BarChart3,
     XCircle,
-    AlertCircle
+    AlertCircle,
+    Eye
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -256,6 +263,24 @@ export function ObservabilityDashboard() {
         return new Date(dateStr).toLocaleString('pt-BR')
     }
 
+    // Observer Doctrine: Confidence threshold for displaying numeric values
+    const CONFIDENCE_THRESHOLD = ['MEDIUM', 'HIGH', 'VERIFIED']
+
+    const isConfidenceSufficient = (confidence: string | null): boolean => {
+        if (!confidence) return false
+        return CONFIDENCE_THRESHOLD.includes(confidence.toUpperCase())
+    }
+
+    const getBaselineText = (expectedAvg: number | null): string => {
+        if (expectedAvg) return `Esperado: ${expectedAvg.toFixed(2)}`
+        return 'Baseline em formação'
+    }
+
+    const getBaselineTooltip = (expectedAvg: number | null): string => {
+        if (expectedAvg) return `Valor médio esperado baseado em dados históricos`
+        return 'Esta métrica está acumulando dados suficientes para estabelecer um padrão confiável de referência.'
+    }
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -353,7 +378,7 @@ export function ObservabilityDashboard() {
                             <BarChart3 className="h-5 w-5 text-blue-500" />
                             <span className="text-2xl font-bold">{health?.metrics?.total_active || 0}</span>
                             <span className="text-sm text-muted-foreground">
-                                ({health?.metrics?.with_baseline || 0} com baseline)
+                                ({health?.metrics?.with_baseline || 0} com padrão estabelecido)
                             </span>
                         </div>
                     </CardContent>
@@ -456,36 +481,81 @@ export function ObservabilityDashboard() {
                         <CardHeader>
                             <CardTitle>Status das Métricas</CardTitle>
                             <CardDescription>
-                                Todas as métricas do catálogo e seus valores atuais
+                                Indicadores internos em observação sistêmica contínua
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-2">
-                                {metrics.map((metric) => (
-                                    <div
-                                        key={metric.metric_key}
-                                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {getDataStatusIcon(metric.data_status)}
-                                            <div>
-                                                <p className="font-medium">{metric.display_name}</p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {metric.metric_key} • {metric.entity_type}
-                                                </p>
+                            <TooltipProvider>
+                                <div className="space-y-2">
+                                    {metrics.map((metric) => {
+                                        const confidenceSufficient = isConfidenceSufficient(metric.confidence_level)
+
+                                        return (
+                                            <div
+                                                key={metric.metric_key}
+                                                className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    {getDataStatusIcon(metric.data_status)}
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="font-medium">{metric.display_name}</p>
+                                                            {/* Observer Doctrine: Systemic observation badge */}
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="text-xs font-normal text-slate-500 border-slate-300 bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 cursor-help"
+                                                                    >
+                                                                        <Eye className="h-3 w-3 mr-1" />
+                                                                        Em observação
+                                                                    </Badge>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent className="max-w-xs">
+                                                                    <p>Indicador interno calculado a partir de dados agregados do uso da plataforma. Não representa avaliação individual.</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </div>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {metric.metric_key} • {metric.entity_type}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    {/* Observer Doctrine: Conditional value display based on confidence */}
+                                                    {confidenceSufficient && metric.current_value !== null ? (
+                                                        <p className="font-mono text-lg">
+                                                            {metric.current_value.toFixed(2)}
+                                                        </p>
+                                                    ) : (
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <p className="text-sm text-slate-500 dark:text-slate-400 italic cursor-help">
+                                                                    Em observação
+                                                                </p>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent className="max-w-xs">
+                                                                <p>Dados ainda insuficientes para exibição numérica confiável</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    )}
+                                                    {/* Observer Doctrine: Baseline text with tooltip */}
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <p className="text-xs text-muted-foreground cursor-help">
+                                                                {getBaselineText(metric.expected_avg)}
+                                                            </p>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent className="max-w-xs">
+                                                            <p>{getBaselineTooltip(metric.expected_avg)}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-mono text-lg">
-                                                {metric.current_value?.toFixed(2) || '—'}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {metric.expected_avg ? `Esperado: ${metric.expected_avg.toFixed(2)}` : 'Sem baseline'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </TooltipProvider>
                         </CardContent>
                     </Card>
                 </TabsContent>
