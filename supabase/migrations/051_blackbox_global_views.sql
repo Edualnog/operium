@@ -120,7 +120,7 @@ CREATE OR REPLACE VIEW public.v_operational_alerts_global AS
 SELECT 
     oa.id,
     oa.profile_id,
-    p.full_name AS organization_name,
+    p.name AS organization_name,
     p.company_name,
     oa.metric_key,
     mc.display_name AS metric_name,
@@ -148,7 +148,7 @@ CREATE OR REPLACE VIEW public.v_domain_events_global AS
 SELECT 
     de.id,
     de.profile_id,
-    p.full_name AS organization_name,
+    p.name AS organization_name,
     p.company_name,
     de.entity_type,
     de.entity_id,
@@ -201,7 +201,7 @@ CREATE OR REPLACE VIEW public.v_metric_execution_log_global AS
 SELECT 
     mel.id,
     mel.profile_id,
-    p.full_name AS organization_name,
+    p.name AS organization_name,
     mel.metric_key,
     mel.execution_type,
     mel.status,
@@ -233,14 +233,14 @@ DECLARE
 BEGIN
     -- Executar para cada profile ativo
     FOR v_profile IN 
-        SELECT id, full_name FROM public.profiles WHERE id IS NOT NULL LIMIT 50
+        SELECT id, name FROM public.profiles WHERE id IS NOT NULL LIMIT 50
     LOOP
         BEGIN
             v_result := public.fn_run_all_metrics(v_profile.id, p_triggered_by);
             v_success_count := v_success_count + 1;
             v_results := v_results || jsonb_build_array(jsonb_build_object(
                 'profile_id', v_profile.id,
-                'profile_name', v_profile.full_name,
+                'profile_name', v_profile.name,
                 'status', 'SUCCESS',
                 'summary', v_result->'summary'
             ));
@@ -248,7 +248,7 @@ BEGIN
             v_error_count := v_error_count + 1;
             v_results := v_results || jsonb_build_array(jsonb_build_object(
                 'profile_id', v_profile.id,
-                'profile_name', v_profile.full_name,
+                'profile_name', v_profile.name,
                 'status', 'ERROR',
                 'error', SQLERRM
             ));
