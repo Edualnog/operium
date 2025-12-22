@@ -1,82 +1,32 @@
-import { createServerComponentClient } from "@/lib/supabase-server"
-import { redirect } from "next/navigation"
-import EquipesClient from "./EquipesClient"
+import { Suspense } from "react"
+import { getTeams } from "./actions"
+import TeamsList from "@/components/equipes/TeamsList"
+import { Metadata } from 'next'
 
-export const dynamic = "force-dynamic"
-
-async function getTeams(userId: string) {
-    const supabase = await createServerComponentClient()
-
-    const { data: teams } = await supabase
-        .from("v_teams_summary")
-        .select("*")
-        .eq("profile_id", userId)
-        .order("created_at", { ascending: false })
-
-    return teams || []
-}
-
-async function getCollaborators(userId: string) {
-    const supabase = await createServerComponentClient()
-
-    const { data: colaboradores } = await supabase
-        .from("colaboradores")
-        .select("id, nome, foto_url, cargo")
-        .eq("profile_id", userId)
-        .eq("status", "ATIVO")
-        .order("nome")
-
-    return colaboradores || []
-}
-
-async function getVehicles(userId: string) {
-    const supabase = await createServerComponentClient()
-
-    const { data: vehicles } = await supabase
-        .from("vehicles")
-        .select("id, plate, model, brand")
-        .eq("profile_id", userId)
-        .eq("status", "active")
-        .order("plate")
-
-    return vehicles || []
-}
-
-async function getTools(userId: string) {
-    const supabase = await createServerComponentClient()
-
-    const { data: ferramentas } = await supabase
-        .from("ferramentas")
-        .select("id, nome, quantidade_disponivel, foto_url")
-        .eq("profile_id", userId)
-        .gt("quantidade_disponivel", 0)
-        .order("nome")
-
-    return ferramentas || []
+export const metadata: Metadata = {
+    title: 'Gestão de Equipes | Operium',
+    description: 'Gerencie suas equipes operacionais, membros e equipamentos.',
 }
 
 export default async function EquipesPage() {
-    const supabase = await createServerComponentClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-        redirect("/login")
-    }
-
-    const [teams, colaboradores, vehicles, ferramentas] = await Promise.all([
-        getTeams(user.id),
-        getCollaborators(user.id),
-        getVehicles(user.id),
-        getTools(user.id),
-    ])
+    const teams = await getTeams()
 
     return (
-        <EquipesClient
-            initialTeams={teams}
-            colaboradores={colaboradores}
-            vehicles={vehicles}
-            ferramentas={ferramentas}
-            userId={user.id}
-        />
+        <div className="flex flex-col h-full bg-background">
+            <div className="flex-none p-6 md:p-8 space-y-4">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Equipes</h2>
+                    <p className="text-muted-foreground">
+                        Gerencie equipes operacionais, atribua veículos e controle equipamentos.
+                    </p>
+                </div>
+            </div>
+
+            <div className="flex-1 p-6 md:p-8 pt-0 overflow-hidden">
+                <Suspense fallback={<div>Carregando equipes...</div>}>
+                    <TeamsList initialTeams={teams} />
+                </Suspense>
+            </div>
+        </div>
     )
 }
