@@ -97,7 +97,7 @@ UNION ALL
 
 SELECT
     te.id::text,
-    tm.profile_id,
+    te.profile_id,
     te.created_at AS timestamp,
     'team' AS category,
     'created' AS action,
@@ -112,7 +112,6 @@ SELECT
     ),
     'OPERATION'
 FROM public.teams te
-JOIN public.profiles tm ON tm.id = te.profile_id
 
 -- Eventos de atribuição de equipamento a equipe
 UNION ALL
