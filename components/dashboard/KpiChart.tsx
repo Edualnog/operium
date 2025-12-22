@@ -52,7 +52,7 @@ export function KpiChart({
   const tooltipTextColor = isDark ? "#f4f4f5" : "#111827" // zinc-100 : gray-900
   const tooltipLabelColor = isDark ? "#a1a1aa" : "#6b7280" // zinc-400 : gray-500
 
-  if (!data || data.length === 0) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
     if (title) {
       return (
         <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
@@ -80,9 +80,11 @@ export function KpiChart({
   }
 
   // Para gráficos de barra, manter todos os dados (incluindo vazios) para sempre mostrar 10 barras
-  const filteredData = type === "bar"
-    ? data // Não filtrar - manter todos os dados para sempre mostrar 10 barras
-    : data.filter((item: any) => item[xAxisKey] && item[xAxisKey] !== "" && item[dataKey] != null && item[dataKey] !== 0)
+  const filteredData = Array.isArray(data)
+    ? (type === "bar"
+      ? data // Não filtrar - manter todos os dados para sempre mostrar 10 barras
+      : data.filter((item: any) => item[xAxisKey] && item[xAxisKey] !== "" && item[dataKey] != null && item[dataKey] !== 0))
+    : []
 
   const chartContent = (
     <div style={{ width: "100%", height: `${height}px` }}>

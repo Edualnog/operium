@@ -75,7 +75,7 @@ export function KPICard({
   const Icon = iconMap[iconName]
 
   const chartData = useMemo(() => {
-    if (!miniChart) return []
+    if (!miniChart || !Array.isArray(miniChart.data)) return []
     return miniChart.data.map((val, index) => ({
       value: val,
       index,

@@ -40,8 +40,9 @@ export function KpiList({
 }: KpiListProps) {
   const router = useRouter()
   const { t, i18n } = useTranslation('common')
-  const displayItems = items.slice(0, maxItems)
-  const hasMoreItems = items.length > maxItems
+  const safeItems = Array.isArray(items) ? items : []
+  const displayItems = safeItems.slice(0, maxItems)
+  const hasMoreItems = safeItems.length > maxItems
 
   return (
     <Card className="border border-slate-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
