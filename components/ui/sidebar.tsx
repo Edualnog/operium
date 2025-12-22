@@ -128,14 +128,14 @@ export const MobileSidebar = ({
       >
         {/* Logo mobile */}
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-[#4B6BFB] rounded-lg flex-shrink-0 p-1">
-            <svg className="w-full h-full" viewBox="0 0 500 500" fill="none">
-              <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-              <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-              <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="32" strokeLinejoin="round" strokeLinecap="round" />
-            </svg>
-          </div>
-          <span className="font-semibold text-foreground">Operium</span>
+          {/* Operium Icon - Geometric brackets */}
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="none" className="flex-shrink-0 text-foreground">
+            <rect x="10" y="10" width="15" height="40" fill="currentColor" />
+            <rect x="10" y="10" width="40" height="15" fill="currentColor" />
+            <rect x="50" y="75" width="40" height="15" fill="currentColor" />
+            <rect x="75" y="50" width="15" height="40" fill="currentColor" />
+          </svg>
+          <span className="font-semibold text-foreground tracking-wide">Operium</span>
         </Link>
 
         {/* Menu button */}

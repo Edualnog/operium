@@ -288,15 +288,15 @@ const Button: React.FC<ButtonProps> = ({ children, className, ...props }) => (
 )
 
 const Logo: React.FC = () => (
-  <div className="mb-6 flex justify-center items-center">
-    <div className="rounded-lg bg-[#4B6BFB] p-1.5">
-      <svg className="h-8 w-8" viewBox="0 0 500 500" fill="none">
-        <path d="M250 100 L380 175 L250 250 L120 175 Z" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-        <path d="M120 235 L250 310 L380 235" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-        <path d="M120 295 L250 370 L380 295" stroke="white" strokeWidth="28" strokeLinejoin="round" strokeLinecap="round" />
-      </svg>
-    </div>
-    <span className="ml-2 text-xl font-bold text-zinc-900">Operium</span>
+  <div className="mb-6 flex justify-center items-center gap-3">
+    {/* Operium Icon - Geometric brackets */}
+    <svg width="36" height="36" viewBox="0 0 100 100" fill="none" className="flex-shrink-0 text-zinc-900">
+      <rect x="10" y="10" width="15" height="40" fill="currentColor" />
+      <rect x="10" y="10" width="40" height="15" fill="currentColor" />
+      <rect x="50" y="75" width="40" height="15" fill="currentColor" />
+      <rect x="75" y="50" width="15" height="40" fill="currentColor" />
+    </svg>
+    <span className="text-xl font-bold tracking-wide text-zinc-900">Operium</span>
   </div>
 )
 
