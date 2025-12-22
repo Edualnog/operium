@@ -119,7 +119,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
         if (!forceRefresh) {
             const cache = loadCache()
             if (isCacheValid(cache, currentKpisHash) && cache) {
-                setInsights(cache.insights)
+                setInsights(safeArray(cache.insights))
                 setPeriod(cache.period)
                 setCacheInfo(getCacheTimeRemaining(cache))
                 return // Usar cache, não chamar API
@@ -247,7 +247,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             </p>
                         </div>
                     </div>
-                ) : insights.length === 0 ? (
+                ) : safeArray(insights).length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-center space-y-4 py-8">
                         <div className="p-3 bg-slate-50 dark:bg-zinc-800 rounded-full">
                             <Sparkles className="h-6 w-6 text-slate-400" />
@@ -270,7 +270,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                             </span>
                         </div>
                         <div className="grid gap-3">
-                            {insights.map((insight, index) => (
+                            {safeArray(insights).map((insight, index) => (
                                 <div
                                     key={index}
                                     className="flex items-start gap-4 p-4 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:bg-zinc-800"
