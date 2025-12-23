@@ -14,7 +14,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { format } from "date-fns"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, FileText, ExternalLink } from "lucide-react"
 
 export function VehicleCostList({ vehicleId }: { vehicleId: string }) {
     const { costs, loading, addCost, deleteCost } = useVehicleCosts(vehicleId)
@@ -44,13 +44,14 @@ export function VehicleCostList({ vehicleId }: { vehicleId: string }) {
                             <TableHead>{t('vehicles.costs.type')}</TableHead>
                             <TableHead>{t('vehicles.costs.amount')}</TableHead>
                             <TableHead>{t('vehicles.costs.notes')}</TableHead>
+                            <TableHead>Comprovante</TableHead>
                             <TableHead></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {costs.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
+                                <TableCell colSpan={6} className="h-24 text-center">
                                     {t('vehicles.details.not_found')}
                                 </TableCell>
                             </TableRow>
@@ -63,6 +64,22 @@ export function VehicleCostList({ vehicleId }: { vehicleId: string }) {
                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.amount)}
                                     </TableCell>
                                     <TableCell>{c.notes}</TableCell>
+                                    <TableCell>
+                                        {c.receipt_url ? (
+                                            <a
+                                                href={c.receipt_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                                            >
+                                                <FileText className="h-4 w-4" />
+                                                Ver
+                                                <ExternalLink className="h-3 w-3" />
+                                            </a>
+                                        ) : (
+                                            <span className="text-neutral-400 text-sm">-</span>
+                                        )}
+                                    </TableCell>
                                     <TableCell>
                                         <Button variant="ghost" size="sm" onClick={() => deleteCost(c.id)}>
                                             <Trash2 className="h-4 w-4 text-red-500" />
