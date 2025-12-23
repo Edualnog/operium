@@ -69,6 +69,21 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // CRITICAL: Detect invite flow from URL hash (Implicit Flow)
+  // Supabase invites use #access_token=...&type=invite
+  // We must redirect to password creation before user sees dashboard
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash
+      if (hash.includes('type=invite')) {
+        // Clear the hash to prevent re-triggering
+        window.history.replaceState(null, '', window.location.pathname)
+        // Redirect to password creation
+        router.push('/criar-senha')
+      }
+    }
+  }, [router])
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push("/login")
