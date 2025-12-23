@@ -173,21 +173,21 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
                 animate={{ opacity: 1, scale: 1 }}
                 className="mb-8"
             >
-                <Card className="border-zinc-200 bg-zinc-50/50 overflow-hidden relative shadow-sm">
+                <Card className="border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 overflow-hidden relative shadow-sm">
                     <CardContent className="p-6 flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-5">
-                            <div className="h-12 w-12 rounded-xl bg-zinc-900 flex items-center justify-center text-white shadow-md">
+                            <div className="h-12 w-12 rounded-xl bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-white dark:text-zinc-900 shadow-md">
                                 <CheckCircle2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-serif font-medium text-zinc-900 text-xl">{t('onboarding.success.title')}</h3>
-                                <p className="text-zinc-500 mt-1 text-sm">{t('onboarding.success.desc')}</p>
+                                <h3 className="font-serif font-medium text-zinc-900 dark:text-zinc-100 text-xl">{t('onboarding.success.title')}</h3>
+                                <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">{t('onboarding.success.desc')}</p>
                             </div>
                         </div>
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+                            className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                             onClick={handleClose}
                         >
                             {t('common.close')}
@@ -203,55 +203,55 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
 
     return (
 
-        <Card className="mb-8 border-zinc-200 bg-white shadow-sm overflow-hidden rounded-xl">
-            <CardHeader className="pb-6 pt-6 border-b border-zinc-100 bg-white">
+        <Card className="mb-8 border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-sm overflow-hidden rounded-xl">
+            <CardHeader className="pb-6 pt-6 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                 <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 text-center sm:text-left">
                     <div>
-                        <CardTitle className="text-2xl font-serif font-medium text-zinc-900 flex items-center justify-center sm:justify-start gap-3">
+                        <CardTitle className="text-2xl font-serif font-medium text-zinc-900 dark:text-zinc-100 flex items-center justify-center sm:justify-start gap-3">
                             🚀 {t('onboarding.title')}
                         </CardTitle>
-                        <p className="text-sm text-zinc-500 mt-2 font-light">
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 font-light">
                             {t('onboarding.subtitle')}
                         </p>
                     </div>
                     <div className="text-center sm:text-right w-full sm:w-auto">
                         <div className="flex items-center justify-center sm:justify-end gap-3 sm:block">
-                            <span className="text-3xl font-serif font-medium text-zinc-900">{Math.round(progress)}%</span>
-                            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest sm:block ml-2 sm:ml-0 mt-1">{t('onboarding.completed')}</span>
+                            <span className="text-3xl font-serif font-medium text-zinc-900 dark:text-zinc-100">{Math.round(progress)}%</span>
+                            <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest sm:block ml-2 sm:ml-0 mt-1">{t('onboarding.completed')}</span>
                         </div>
                     </div>
                 </div>
                 {/* Progress Bar */}
-                <div className="h-1.5 w-full bg-zinc-100 rounded-full mt-6 overflow-hidden">
+                <div className="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full mt-6 overflow-hidden">
                     <motion.div
-                        className="h-full bg-zinc-900 rounded-full"
+                        className="h-full bg-zinc-900 dark:bg-zinc-100 rounded-full"
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     />
                 </div>
                 {progress < 100 && (
-                    <p className="text-[10px] text-zinc-400 text-center mt-3 font-medium uppercase tracking-wider">
+                    <p className="text-[10px] text-zinc-400 dark:text-zinc-500 text-center mt-3 font-medium uppercase tracking-wider">
                         {t('onboarding.progress_text')}
                     </p>
                 )}
             </CardHeader>
             <CardContent className="p-0">
-                <div className="divide-y divide-zinc-100">
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
                     {steps.map((step) => (
                         <div
                             key={step.id}
-                            className={`p-5 flex flex-col sm:flex-row items-center sm:items-start gap-5 transition-colors text-center sm:text-left ${step.completed ? "bg-zinc-50/50" : "hover:bg-zinc-50/30"
+                            className={`p-5 flex flex-col sm:flex-row items-center sm:items-start gap-5 transition-colors text-center sm:text-left ${step.completed ? "bg-zinc-50/50 dark:bg-zinc-800/30" : "hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
                                 }`}
                         >
                             {/* Icon Status */}
                             <div className="shrink-0 pt-1">
                                 {step.completed ? (
-                                    <div className="h-10 w-10 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-400">
+                                    <div className="h-10 w-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
                                         <CheckCircle2 className="w-5 h-5" />
                                     </div>
                                 ) : (
-                                    <div className="h-10 w-10 rounded-lg bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-900 shadow-sm">
+                                    <div className="h-10 w-10 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-900 dark:text-zinc-100 shadow-sm">
                                         <step.icon className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                 )}
@@ -259,20 +259,20 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
 
                             {/* Content */}
                             <div className="flex-1 min-w-0 w-full">
-                                <h4 className={`font-medium text-base ${step.completed ? "text-zinc-400 line-through decoration-zinc-300" : "text-zinc-900"}`}>
+                                <h4 className={`font-medium text-base ${step.completed ? "text-zinc-400 dark:text-zinc-500 line-through decoration-zinc-300 dark:decoration-zinc-600" : "text-zinc-900 dark:text-zinc-100"}`}>
                                     {step.label}
                                 </h4>
-                                <p className={`text-sm mt-1 whitespace-normal sm:truncate ${step.completed ? "text-zinc-300" : "text-zinc-500"}`}>{step.description}</p>
+                                <p className={`text-sm mt-1 whitespace-normal sm:truncate ${step.completed ? "text-zinc-300 dark:text-zinc-600" : "text-zinc-500 dark:text-zinc-400"}`}>{step.description}</p>
                             </div>
 
                             {/* Action */}
                             <div className="shrink-0 w-full sm:w-auto">
                                 {step.completed ? (
-                                    <span className="flex items-center justify-center text-xs font-medium text-zinc-400 bg-zinc-100 px-3 py-1.5 rounded-md border border-zinc-200 mx-auto sm:mx-0 w-fit">
+                                    <span className="flex items-center justify-center text-xs font-medium text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-3 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 mx-auto sm:mx-0 w-fit">
                                         {t('common.done')}
                                     </span>
                                 ) : (
-                                    <Button asChild size="sm" className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white shadow-md shadow-zinc-200 font-medium px-5">
+                                    <Button asChild size="sm" className="w-full sm:w-auto bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 shadow-md shadow-zinc-200 dark:shadow-zinc-900 font-medium px-5">
                                         <Link href={step.actionUrl} className="flex items-center justify-center gap-2">
                                             {step.actionLabel} <ArrowRight className="w-3.5 h-3.5" />
                                         </Link>

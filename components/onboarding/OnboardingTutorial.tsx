@@ -143,7 +143,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden"
+        className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden"
       >
         {/* Header */}
         <div className="relative bg-[#37352f] dark:bg-zinc-800 px-6 py-5">
@@ -184,7 +184,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
         </div>
 
         {/* Content */}
-        <div className="p-8 min-h-[320px] relative overflow-hidden">
+        <div className="p-8 min-h-[320px] relative overflow-hidden bg-white dark:bg-zinc-900">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={currentStep}
@@ -205,17 +205,17 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
               </div>
 
               {/* Step number */}
-              <div className="text-sm text-slate-400 mb-2">
+              <div className="text-sm text-slate-400 dark:text-zinc-500 mb-2">
                 Passo {step.id} de {tutorialSteps.length}
               </div>
 
               {/* Title */}
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-zinc-100 mb-3">
                 {step.title}
               </h3>
 
               {/* Description */}
-              <p className="text-slate-600 mb-6 max-w-md leading-relaxed">
+              <p className="text-slate-600 dark:text-zinc-400 mb-6 max-w-md leading-relaxed">
                 {step.description}
               </p>
 
@@ -228,10 +228,10 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <div className="px-8 py-5 bg-slate-50 dark:bg-zinc-800 border-t border-slate-100 dark:border-zinc-700 flex items-center justify-between">
           <button
             onClick={onSkip}
-            className="text-slate-500 hover:text-slate-700 font-medium transition-colors"
+            className="text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200 font-medium transition-colors"
           >
             Pular tutorial
           </button>
@@ -240,7 +240,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
             {!isFirstStep && (
               <button
                 onClick={prevStep}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
                 Anterior
@@ -270,8 +270,8 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
         </div>
 
         {/* Keyboard hints */}
-        <div className="px-8 py-3 bg-slate-100 text-center">
-          <p className="text-xs text-slate-400">
+        <div className="px-8 py-3 bg-slate-100 dark:bg-zinc-800 text-center">
+          <p className="text-xs text-slate-400 dark:text-zinc-500">
             Use as setas ← → para navegar • Enter para avançar • Esc para pular
           </p>
         </div>
