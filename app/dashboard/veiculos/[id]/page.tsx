@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Car, Calendar, Fuel, Truck, FileText, User } from "lucide-react"
+import { ArrowLeft, Car, Calendar, Fuel, Truck, FileText, User, Users2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
@@ -34,7 +34,7 @@ import { toast } from "sonner"
 import { VehicleAssignmentDialog } from "@/components/vehicles/VehicleAssignmentDialog"
 
 export default function VehicleDetailsPage({ params }: { params: { id: string } }) {
-    const { vehicle, loading, error, refreshVehicle } = useVehicle(params.id)
+    const { vehicle, assignedTeam, loading, error, refreshVehicle } = useVehicle(params.id)
     const router = useRouter()
     const { t } = useTranslation('common')
 
@@ -180,16 +180,23 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
             <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-5">
                 <Card className="col-span-2">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">{t('vehicles.assignment.current_driver')}</CardTitle>
-                        <User className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Responsável Atual</CardTitle>
+                        {assignedTeam ? <Users2 className="h-4 w-4 text-muted-foreground" /> : <User className="h-4 w-4 text-muted-foreground" />}
                     </CardHeader>
                     <CardContent className="flex justify-between items-end">
                         <div className="space-y-1">
-                            {hasDriver ? (
+                            {assignedTeam ? (
+                                <>
+                                    <div className="text-2xl font-bold">{assignedTeam.name}</div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Atribuído à equipe
+                                    </p>
+                                </>
+                            ) : hasDriver ? (
                                 <>
                                     <div className="text-2xl font-bold">{vehicle.driver?.name}</div>
                                     <p className="text-xs text-muted-foreground">
-                                        Status: {t('vehicles.details.active')}
+                                        Colaborador individual
                                     </p>
                                 </>
                             ) : (
@@ -197,11 +204,11 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
                             )}
                         </div>
                         <Button
-                            variant={hasDriver ? "outline" : "default"}
-                            className={!hasDriver ? "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900" : ""}
+                            variant={(hasDriver || assignedTeam) ? "outline" : "default"}
+                            className={!(hasDriver || assignedTeam) ? "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900" : ""}
                             onClick={() => setIsAssignmentOpen(true)}
                         >
-                            {hasDriver ? t('vehicles.assignment.return_button') : t('vehicles.assignment.assign_button')}
+                            {(hasDriver || assignedTeam) ? 'Liberar' : t('vehicles.assignment.assign_button')}
                         </Button>
                     </CardContent>
                 </Card>

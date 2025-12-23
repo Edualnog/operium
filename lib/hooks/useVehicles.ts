@@ -113,6 +113,7 @@ export function useVehicles() {
 
 export function useVehicle(id: string) {
     const [vehicle, setVehicle] = useState<Vehicle | null>(null)
+    const [assignedTeam, setAssignedTeam] = useState<{ id: string; name: string } | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const supabase = createClientComponentClient()
@@ -121,6 +122,8 @@ export function useVehicle(id: string) {
         if (!id) return
         try {
             setLoading(true)
+
+            // Fetch vehicle with driver
             const { data, error } = await supabase
                 .from("vehicles")
                 .select(`
@@ -135,6 +138,15 @@ export function useVehicle(id: string) {
 
             if (error) throw error
             setVehicle(data)
+
+            // Fetch team that has this vehicle assigned
+            const { data: teamData } = await supabase
+                .from("teams")
+                .select("id, name")
+                .eq("vehicle_id", id)
+                .single()
+
+            setAssignedTeam(teamData || null)
         } catch (err: any) {
             console.error("Error fetching vehicle:", err)
             setError(err.message)
@@ -147,5 +159,5 @@ export function useVehicle(id: string) {
         fetchVehicle()
     }, [fetchVehicle])
 
-    return { vehicle, loading, error, refreshVehicle: fetchVehicle }
+    return { vehicle, assignedTeam, loading, error, refreshVehicle: fetchVehicle }
 }
