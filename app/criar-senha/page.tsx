@@ -3,17 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@/lib/supabase-client'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Eye, EyeOff, Lock } from 'lucide-react'
 
 export default function CreatePasswordPage() {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const router = useRouter()
     const supabase = createClientComponentClient()
 
@@ -53,14 +51,12 @@ export default function CreatePasswordPage() {
         setLoading(true)
 
         try {
-            // 1. Atualizar senha no Auth
             const { error: updateError } = await supabase.auth.updateUser({
                 password: password
             })
 
             if (updateError) throw updateError
 
-            // 2. Atualizar flag no profile
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
@@ -71,11 +67,9 @@ export default function CreatePasswordPage() {
 
                 if (profileError) {
                     console.error('Erro ao atualizar profile', profileError)
-                    // Não bloquear o fluxo se falhar o profile, mas idealmente deveria
                 }
             }
 
-            // 3. Redirecionar
             router.replace('/dashboard')
 
         } catch (error: any) {
@@ -86,70 +80,95 @@ export default function CreatePasswordPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900 px-4">
-            <div className="w-full max-w-md space-y-8">
-                <div className="text-center">
-                    <h2 className="mt-6 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-                        Bem-vindo ao Operion
-                    </h2>
-                    <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                        Para continuar, defina sua senha de acesso.
-                    </p>
+        <div className="min-h-screen flex items-center justify-center bg-[#FBFBFA]">
+            <div className="w-full max-w-[340px] px-4">
+                {/* Icon */}
+                <div className="flex justify-center mb-6">
+                    <div className="h-12 w-12 rounded-full bg-neutral-100 flex items-center justify-center">
+                        <Lock className="h-5 w-5 text-neutral-500" />
+                    </div>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-zinc-200 dark:border-zinc-700">
-                    <form className="space-y-6" onSubmit={handleUpdatePassword}>
-                        {error && (
-                            <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertTitle>Erro</AlertTitle>
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        )}
+                {/* Title */}
+                <h1 className="text-xl font-medium text-neutral-800 text-center mb-1">
+                    Defina sua senha
+                </h1>
+                <p className="text-sm text-neutral-500 text-center mb-8">
+                    Para continuar, crie uma senha de acesso.
+                </p>
 
-                        <div>
-                            <Label htmlFor="password">Nova Senha</Label>
-                            <div className="mt-1">
-                                <Input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="new-password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="bg-zinc-50 dark:bg-zinc-900"
-                                    placeholder="••••••••"
-                                />
-                            </div>
+                {/* Error */}
+                {error && (
+                    <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200">
+                        <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                )}
+
+                {/* Form */}
+                <form onSubmit={handleUpdatePassword} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                            Nova senha
+                        </label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                placeholder="••••••••"
+                                className="w-full h-9 px-3 pr-10 text-sm bg-white border border-neutral-200 rounded-md 
+                                           placeholder:text-neutral-400 text-neutral-800
+                                           focus:outline-none focus:ring-2 focus:ring-neutral-200 focus:border-neutral-300
+                                           transition-all"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                                tabIndex={-1}
+                            >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
                         </div>
+                    </div>
 
-                        <div>
-                            <Label htmlFor="confirm-password">Confirmar Senha</Label>
-                            <div className="mt-1">
-                                <Input
-                                    id="confirm-password"
-                                    name="confirm-password"
-                                    type="password"
-                                    autoComplete="new-password"
-                                    required
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="bg-zinc-50 dark:bg-zinc-900"
-                                    placeholder="••••••••"
-                                />
-                            </div>
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                            Confirmar senha
+                        </label>
+                        <div className="relative">
+                            <input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                                placeholder="••••••••"
+                                className="w-full h-9 px-3 pr-10 text-sm bg-white border border-neutral-200 rounded-md 
+                                           placeholder:text-neutral-400 text-neutral-800
+                                           focus:outline-none focus:ring-2 focus:ring-neutral-200 focus:border-neutral-300
+                                           transition-all"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                                tabIndex={-1}
+                            >
+                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
                         </div>
+                    </div>
 
-                        <Button
-                            type="submit"
-                            className="w-full bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                            disabled={loading}
-                        >
-                            {loading ? 'Salvando...' : 'Definir Senha e Entrar'}
-                        </Button>
-                    </form>
-                </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-9 bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium 
+                                   rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? 'Salvando...' : 'Continuar'}
+                    </button>
+                </form>
             </div>
         </div>
     )

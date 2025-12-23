@@ -16,10 +16,14 @@ const getAuthCookieName = () => {
 }
 
 export async function middleware(request: NextRequest) {
+  // Add pathname header for server components to read current route
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', request.nextUrl.pathname)
+
   // CRITICAL: Initialize response object early to carry cookies
   let response = NextResponse.next({
     request: {
-      headers: request.headers,
+      headers: requestHeaders,
     },
   })
 

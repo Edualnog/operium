@@ -21,12 +21,16 @@ const OnboardingWrapper = dynamic(() => import("@/components/onboarding/Onboardi
   ssr: false,
 })
 
+import { headers } from "next/headers"
+
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const { supabase, user } = await getSupabaseUser()
+  const headersList = headers()
+  const pathname = headersList.get('x-pathname') || headersList.get('x-invoke-path') || ''
 
   if (!user) {
     redirect("/login")
@@ -95,6 +99,42 @@ export default async function DashboardLayout({
   // Só redirecionar para subscribe se não tiver assinatura, não tiver passado pelo checkout E não estiver no trial
   if (!hasActiveSubscription && !hasStripeCustomer && !isInTrial) {
     redirect("/subscribe")
+  }
+
+  // ============================================================================
+  // ROLE-BASED ACCESS CONTROL: Restrict operational users to /dashboard/operium
+  // ============================================================================
+  // Fetch operium profile to check role
+  let operiumProfile = null
+  try {
+    const { data: opData } = await supabase
+      .from('operium_profiles')
+      .select('role, active')
+      .eq('user_id', user.id)
+      .eq('active', true)
+      .single()
+
+    if (opData) {
+      operiumProfile = opData
+    }
+  } catch {
+    // If no operium profile, user is org owner (ADMIN by default)
+  }
+
+  // If user has operium profile and is NOT ADMIN, restrict access
+  if (operiumProfile && operiumProfile.role !== 'ADMIN') {
+    // Routes allowed for FIELD/WAREHOUSE users
+    const allowedPaths = ['/dashboard/operium', '/dashboard/conta']
+
+    // Check if current pathname is allowed
+    const isAllowedRoute = allowedPaths.some(path =>
+      pathname === path || pathname.startsWith(path + '/')
+    )
+
+    // If trying to access a restricted route, redirect to operium
+    if (!isAllowedRoute && pathname.startsWith('/dashboard')) {
+      redirect('/dashboard/operium')
+    }
   }
 
   return (
