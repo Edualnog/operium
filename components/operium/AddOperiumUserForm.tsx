@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useOperiumProfile } from "@/lib/hooks/useOperiumProfile"
-import { OperiumRole } from "@/lib/types/operium"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,7 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Loader2, Truck, Package, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Loader2, Truck, Eye, EyeOff, CheckCircle2 } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
 
 interface AddOperiumUserFormProps {
@@ -27,94 +26,46 @@ interface AddOperiumUserFormProps {
 
 interface FormData {
     email: string
-    role: 'FIELD' | 'WAREHOUSE'
-    name?: string
+    password: string
+    name: string
 }
 
+/**
+ * NOVO FLUXO SIMPLIFICADO
+ * =======================
+ * Admin cria o usuário com email, nome e SENHA já definida.
+ * Colaborador só precisa fazer login com as credenciais fornecidas.
+ * 
+ * - Não envia email de convite
+ * - Não precisa de fluxo de recovery
+ * - Admin passa a senha para o colaborador (verbalmente, whatsapp, etc)
+ */
 export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperiumUserFormProps) {
     const [loading, setLoading] = useState(false)
-    const [step, setStep] = useState<'form' | 'searching' | 'found' | 'not_found'>('form')
-    const [foundUserId, setFoundUserId] = useState<string | null>(null)
+    const [showPassword, setShowPassword] = useState(false)
+    const [success, setSuccess] = useState(false)
+    const [createdEmail, setCreatedEmail] = useState('')
+    const [createdPassword, setCreatedPassword] = useState('')
 
-    const { addTeamMember } = useOperiumProfile()
     const { toast } = useToast()
     const supabase = createClientComponentClient()
 
-    const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormData>({
+    const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
         defaultValues: {
             email: '',
-            role: 'FIELD',
+            password: '',
             name: '',
         }
     })
 
-    const selectedRole = watch('role')
-
-    const handleSearchUser = async (data: FormData) => {
-        try {
-            setLoading(true)
-            setStep('searching')
-
-            // Buscar usuário pelo email na tabela profiles (via RPC ou admin)
-            // Como não temos acesso direto ao auth.users, buscamos via profiles
-            // que tem o mesmo ID que auth.users
-
-            // Primeiro, verificar se existe um profile com esse email
-            // Nota: precisamos de uma função serverless ou verificar de outra forma
-            // Por agora, vamos usar a API
-
-            const response = await fetch('/api/operium/users/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: data.email }),
-            })
-
-            const result = await response.json()
-
-            if (result.found && result.userId) {
-                setFoundUserId(result.userId)
-                setStep('found')
-            } else {
-                setStep('not_found')
-            }
-        } catch (err: any) {
-            console.error(err)
-            toast.error("Erro ao buscar usuário")
-            setStep('form')
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const handleAddMember = async () => {
-        if (!foundUserId) return
-
-        try {
-            setLoading(true)
-            await addTeamMember(foundUserId, watch('role'))
-            toast.success("Colaborador adicionado com sucesso!")
-            reset()
-            setStep('form')
-            setFoundUserId(null)
-            onOpenChange(false)
-            onSuccess?.()
-        } catch (err: any) {
-            console.error(err)
-            toast.error(err.message || "Erro ao adicionar colaborador")
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const handleSendInvite = async () => {
+    const handleCreateUser = async (data: FormData) => {
         try {
             setLoading(true)
 
-            // Obter dados do perfil atual para pegar o org_id
+            // Obter org_id do admin atual
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error("Você precisa estar logado")
 
-            // Buscar org_id do usuário atual (admin)
             const { data: profile } = await supabase
                 .from('operium_profiles')
                 .select('org_id')
@@ -123,47 +74,59 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
 
             if (!profile?.org_id) throw new Error("Erro ao identificar organização")
 
-            const email = watch('email')
-            const role = watch('role')
-            const name = watch('name')
-
-            const response = await fetch('/api/operium/invites', {
+            // Chamar API para criar usuário com senha
+            const response = await fetch('/api/operium/users/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email,
-                    role,
+                    email: data.email,
+                    password: data.password,
+                    name: data.name,
+                    role: 'FIELD', // Sempre FIELD por enquanto
                     org_id: profile.org_id,
-                    name,
                 }),
             })
 
             const result = await response.json()
 
             if (!response.ok) {
-                throw new Error(result.error || "Erro ao enviar convite")
+                throw new Error(result.error || "Erro ao criar usuário")
             }
 
-            toast.success("Convite enviado com sucesso!")
-            onOpenChange(false)
-            reset()
-            setStep('form')
-            onSuccess?.()
+            // Sucesso - mostrar credenciais para o admin compartilhar
+            setCreatedEmail(data.email)
+            setCreatedPassword(data.password)
+            setSuccess(true)
+            toast.success("Usuário criado com sucesso!")
 
         } catch (err: any) {
             console.error(err)
-            toast.error(err.message || "Erro ao enviar convite")
+            toast.error(err.message || "Erro ao criar usuário")
         } finally {
             setLoading(false)
         }
     }
 
-
     const handleClose = () => {
         reset()
-        setStep('form')
-        setFoundUserId(null)
+        setSuccess(false)
+        setCreatedEmail('')
+        setCreatedPassword('')
+        setShowPassword(false)
         onOpenChange(false)
+        if (success) {
+            onSuccess?.()
+        }
+    }
+
+    const generatePassword = () => {
+        // Gerar senha simples e memorável
+        const adjectives = ['Azul', 'Verde', 'Forte', 'Rapido', 'Novo', 'Legal', 'Ativo']
+        const nouns = ['Campo', 'Equipe', 'Carro', 'Obra', 'Dia', 'Sol', 'Mar']
+        const adj = adjectives[Math.floor(Math.random() * adjectives.length)]
+        const noun = nouns[Math.floor(Math.random() * nouns.length)]
+        const num = Math.floor(Math.random() * 900) + 100
+        return `${adj}${noun}${num}`
     }
 
     return (
@@ -171,19 +134,79 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
             <DialogContent className="sm:max-w-[425px] bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                 <DialogHeader>
                     <DialogTitle className="text-zinc-900 dark:text-zinc-100">
-                        Adicionar Colaborador
+                        {success ? 'Usuário Criado!' : 'Adicionar Colaborador'}
                     </DialogTitle>
                     <DialogDescription className="text-zinc-500">
-                        Adicione um colaborador que já possui conta na plataforma.
+                        {success
+                            ? 'Compartilhe as credenciais com o colaborador'
+                            : 'Crie uma conta para o colaborador de campo'
+                        }
                     </DialogDescription>
                 </DialogHeader>
 
-                {step === 'form' && (
-                    <form onSubmit={handleSubmit(handleSearchUser)} className="space-y-4">
+                {success ? (
+                    <div className="space-y-4 py-4">
+                        <div className="flex flex-col items-center pb-4">
+                            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-3 bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg">
+                            <div>
+                                <Label className="text-xs text-zinc-500">Email</Label>
+                                <p className="font-mono text-sm text-zinc-900 dark:text-zinc-100 mt-0.5">
+                                    {createdEmail}
+                                </p>
+                            </div>
+                            <div>
+                                <Label className="text-xs text-zinc-500">Senha</Label>
+                                <p className="font-mono text-sm text-zinc-900 dark:text-zinc-100 mt-0.5 font-semibold">
+                                    {createdPassword}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-zinc-500 text-center">
+                            Envie estas credenciais para o colaborador.<br />
+                            Ele pode acessar pelo app em <strong>operium.com.br/login</strong>
+                        </p>
+
+                        <DialogFooter>
+                            <Button
+                                onClick={handleClose}
+                                className="w-full bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900"
+                            >
+                                Fechar
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit(handleCreateUser)} className="space-y-4">
+                        {/* Nome */}
+                        <div className="space-y-2">
+                            <Label htmlFor="name" className="text-zinc-700 dark:text-zinc-300">
+                                Nome do colaborador *
+                            </Label>
+                            <Input
+                                id="name"
+                                type="text"
+                                placeholder="Ex: João da Silva"
+                                className="bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"
+                                {...register('name', {
+                                    required: 'Nome é obrigatório',
+                                    minLength: { value: 2, message: 'Nome muito curto' }
+                                })}
+                            />
+                            {errors.name && (
+                                <span className="text-xs text-red-500">{errors.name.message}</span>
+                            )}
+                        </div>
+
                         {/* Email */}
                         <div className="space-y-2">
                             <Label htmlFor="email" className="text-zinc-700 dark:text-zinc-300">
-                                Email do colaborador *
+                                Email *
                             </Label>
                             <Input
                                 id="email"
@@ -203,23 +226,70 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
                             )}
                         </div>
 
-                        {/* Role */}
+                        {/* Password */}
                         <div className="space-y-2">
-                            <Label className="text-zinc-700 dark:text-zinc-300">Papel *</Label>
-                            <div className="p-4 rounded-lg border border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20">
-                                <div className="flex items-center gap-3">
-                                    <Truck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                    <div>
-                                        <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
-                                            Campo
-                                        </span>
-                                        <p className="text-xs text-zinc-500 mt-0.5">Despesas de veículos e operações externas</p>
-                                    </div>
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="password" className="text-zinc-700 dark:text-zinc-300">
+                                    Senha *
+                                </Label>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const pwd = generatePassword()
+                                        const input = document.getElementById('password') as HTMLInputElement
+                                        if (input) {
+                                            input.value = pwd
+                                            // Trigger react-hook-form update
+                                            const event = new Event('input', { bubbles: true })
+                                            input.dispatchEvent(event)
+                                        }
+                                    }}
+                                    className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                                >
+                                    Gerar senha
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Mínimo 6 caracteres"
+                                    className="bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 pr-10"
+                                    {...register('password', {
+                                        required: 'Senha é obrigatória',
+                                        minLength: { value: 6, message: 'Mínimo 6 caracteres' }
+                                    })}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
+                            </div>
+                            {errors.password && (
+                                <span className="text-xs text-red-500">{errors.password.message}</span>
+                            )}
+                        </div>
+
+                        {/* Role Info */}
+                        <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
+                            <div className="flex items-center gap-2">
+                                <Truck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                <div>
+                                    <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
+                                        Colaborador de Campo
+                                    </span>
+                                    <p className="text-xs text-zinc-500 mt-0.5">
+                                        Acesso ao app móvel para registrar despesas
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        <DialogFooter>
+                        <DialogFooter className="gap-2 sm:gap-0">
                             <Button type="button" variant="ghost" onClick={handleClose}>
                                 Cancelar
                             </Button>
@@ -229,89 +299,10 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
                                 className="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900"
                             >
                                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Buscar Usuário
+                                Criar Usuário
                             </Button>
                         </DialogFooter>
                     </form>
-                )}
-
-                {step === 'searching' && (
-                    <div className="flex flex-col items-center justify-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
-                        <p className="text-zinc-500 mt-4">Buscando usuário...</p>
-                    </div>
-                )}
-
-                {step === 'found' && (
-                    <div className="space-y-4">
-                        <div className="flex flex-col items-center justify-center py-4">
-                            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
-                            </div>
-                            <p className="text-zinc-900 dark:text-zinc-100 font-medium mt-4">
-                                Usuário encontrado!
-                            </p>
-                            <p className="text-zinc-500 text-sm mt-1">
-                                Deseja adicionar como <strong>Campo</strong>?
-                            </p>
-                        </div>
-
-                        <DialogFooter>
-                            <Button type="button" variant="ghost" onClick={() => setStep('form')}>
-                                Voltar
-                            </Button>
-                            <Button
-                                onClick={handleAddMember}
-                                disabled={loading}
-                                className="bg-green-600 text-white hover:bg-green-700"
-                            >
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Adicionar Colaborador
-                            </Button>
-                        </DialogFooter>
-                    </div>
-                )}
-
-                {step === 'not_found' && (
-                    <div className="space-y-4">
-                        <div className="flex flex-col items-center justify-center py-4">
-                            <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                                <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <p className="text-zinc-900 dark:text-zinc-100 font-medium mt-4">
-                                Usuário não encontrado
-                            </p>
-                            <p className="text-zinc-500 text-sm mt-1 text-center max-w-[280px]">
-                                Este email não possui conta na plataforma. Deseja enviar um convite?
-                            </p>
-                        </div>
-
-                        <div className="px-1">
-                            <Label htmlFor="invite-name" className="text-zinc-700 dark:text-zinc-300">
-                                Nome do Colaborador (opcional)
-                            </Label>
-                            <Input
-                                id="invite-name"
-                                placeholder="Ex: João da Silva"
-                                className="mt-1.5"
-                                {...register('name')}
-                            />
-                        </div>
-
-                        <DialogFooter className="flex-col sm:flex-row gap-2">
-                            <Button type="button" variant="ghost" onClick={() => setStep('form')}>
-                                Voltar
-                            </Button>
-                            <Button
-                                onClick={handleSendInvite}
-                                disabled={loading}
-                                className="bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
-                            >
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Enviar Convite por Email
-                            </Button>
-                        </DialogFooter>
-                    </div>
                 )}
             </DialogContent>
         </Dialog>
