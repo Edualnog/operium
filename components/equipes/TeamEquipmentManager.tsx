@@ -100,8 +100,9 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
             return
         }
 
-        // Filter by estado 'ok' (not damaged or in repair)
-        const availableTools = data?.filter(t => t.estado === 'ok') || []
+        // Filter out only explicitly bad states (damaged, in repair, etc)
+        const blockedStates = ['manutenção', 'danificada', 'em_conserto', 'perdida']
+        const availableTools = data?.filter(t => !t.estado || !blockedStates.includes(t.estado.toLowerCase())) || []
         setAvailableTools(availableTools)
     }, [supabase])
 
