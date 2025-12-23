@@ -23,13 +23,15 @@ export async function POST(request: NextRequest) {
         )
 
         // Enviar convite
+        const inviteRedirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/update-password`
+
         const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
             data: {
                 operium_role: role,
                 operium_org_id: org_id,
                 // Nome opcional, podemos adicionar se vier no body
             },
-            redirectTo: redirect_to || `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/operium`,
+            redirectTo: inviteRedirectUrl,
         })
 
         if (error) {
