@@ -226,66 +226,94 @@ export async function getTeamEquipment(teamId: string): Promise<TeamEquipment[]>
 }
 
 export async function assignEquipment(teamId: string, ferramentaId: string, quantity: number) {
+    console.log("[assignEquipment] START", { teamId, ferramentaId, quantity })
+
     const supabase = createServerActionClient({ cookies })
 
     // Validate quantity
     if (quantity < 1) {
+        console.error("[assignEquipment] FAIL: quantity < 1")
         throw new Error("Quantidade deve ser pelo menos 1")
     }
 
     // Verify team exists and user has access
+    console.log("[assignEquipment] Checking team...")
     const { data: team, error: teamError } = await supabase
         .from("teams")
         .select("id, name")
         .eq("id", teamId)
         .single()
 
-    if (teamError || !team) {
+    if (teamError) {
+        console.error("[assignEquipment] FAIL: teamError", teamError)
+        throw new Error(`Equipe não encontrada: ${teamError.message}`)
+    }
+    if (!team) {
+        console.error("[assignEquipment] FAIL: team is null")
         throw new Error("Equipe não encontrada ou sem permissão de acesso")
     }
+    console.log("[assignEquipment] Team found:", team.name)
 
     // Verify ferramenta exists and check status
+    console.log("[assignEquipment] Checking ferramenta...")
     const { data: ferramenta, error: ferramentaError } = await supabase
         .from("ferramentas")
         .select("id, nome, estado")
         .eq("id", ferramentaId)
         .single()
 
-    if (ferramentaError || !ferramenta) {
+    if (ferramentaError) {
+        console.error("[assignEquipment] FAIL: ferramentaError", ferramentaError)
+        throw new Error(`Ferramenta não encontrada: ${ferramentaError.message}`)
+    }
+    if (!ferramenta) {
+        console.error("[assignEquipment] FAIL: ferramenta is null")
         throw new Error("Ferramenta não encontrada")
     }
+    console.log("[assignEquipment] Ferramenta found:", ferramenta.nome, "estado:", ferramenta.estado)
 
     // Only block if explicitly in maintenance or damaged state
-    const blockedStates = ['manutenção', 'danificada', 'em_conserto', 'perdida']
+    const blockedStates = ['danificada', 'em_conserto']
     if (ferramenta.estado && blockedStates.includes(ferramenta.estado.toLowerCase())) {
+        console.error("[assignEquipment] FAIL: blocked state", ferramenta.estado)
         throw new Error(`Ferramenta "${ferramenta.nome}" não está disponível (status: ${ferramenta.estado})`)
     }
 
     // Check if already assigned to this team (not returned)
-    const { data: existing } = await supabase
+    console.log("[assignEquipment] Checking existing assignment...")
+    const { data: existing, error: existingError } = await supabase
         .from("team_equipment")
         .select("id")
         .eq("team_id", teamId)
         .eq("ferramenta_id", ferramentaId)
         .is("returned_at", null)
-        .single()
+        .maybeSingle()  // Use maybeSingle instead of single to avoid error when not found
 
-    if (existing) {
-        throw new Error(`"${ferramenta.nome}" já está em custódia desta equipe`)
+    if (existingError) {
+        console.error("[assignEquipment] FAIL: existingError", existingError)
     }
 
+    if (existing) {
+        console.error("[assignEquipment] FAIL: already assigned", existing)
+        throw new Error(`"${ferramenta.nome}" já está em custódia desta equipe`)
+    }
+    console.log("[assignEquipment] No existing assignment found")
+
     // Create the assignment (custody record)
+    console.log("[assignEquipment] Inserting team_equipment...")
     const { data, error } = await supabase
         .from("team_equipment")
         .insert({
             team_id: teamId,
             ferramenta_id: ferramentaId,
-            quantity: quantity
+            quantity: quantity,
+            status: 'pending_acceptance'  // Explicitly set status
         })
         .select()
         .single()
 
     if (error) {
+        console.error("[assignEquipment] FAIL: insert error", error)
         // Handle specific error codes
         if (error.code === '42501') {
             throw new Error("Sem permissão para atribuir equipamentos a esta equipe")
@@ -296,6 +324,7 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
         throw new Error(`Falha ao iniciar custódia: ${error.message}`)
     }
 
+    console.log("[assignEquipment] SUCCESS", data)
     revalidatePath("/dashboard/equipes")
     return data
 }
