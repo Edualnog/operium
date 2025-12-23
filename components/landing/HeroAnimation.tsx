@@ -37,44 +37,44 @@ export function HeroAnimation() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 p-4 sm:p-6 flex flex-col bg-white relative">
+            <div className="flex-1 p-2 sm:p-4 md:p-6 flex flex-col bg-white relative">
                 {/* Header Mockup */}
-                <div className="flex justify-between items-center mb-8">
-                    <div className="flex items-center gap-3 bg-white rounded-lg p-2 px-3 border border-slate-200 w-64 shadow-sm">
+                <div className="flex justify-between items-center mb-4 sm:mb-8">
+                    <div className="hidden sm:flex items-center gap-3 bg-white rounded-lg p-2 px-3 border border-slate-200 w-64 shadow-sm">
                         <Search className="w-3 h-3 text-zinc-400" />
                         <div className="h-2 w-24 bg-zinc-100 rounded-full" />
                     </div>
-                    <div className="flex gap-2">
-                        <div className="h-8 w-8 rounded-full bg-zinc-100 border border-zinc-200" />
+                    <div className="flex gap-2 ml-auto">
+                        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-zinc-100 border border-zinc-200" />
                     </div>
                 </div>
 
                 {/* Dashboard Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-8">
                     {[
                         { label: "Total", val: "1.240", color: "bg-zinc-50 text-zinc-600 border-zinc-100" },
                         { label: "Saídas", val: "42", color: "bg-zinc-50 text-zinc-600 border-zinc-100" },
                         { label: "Alertas", val: "3", color: "bg-zinc-50 text-zinc-600 border-zinc-100" }
                     ].map((stat, i) => (
-                        <div key={i} className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-zinc-50 transition-colors flex flex-col gap-2">
+                        <div key={i} className="p-2 sm:p-3 rounded-lg sm:rounded-xl border border-slate-200 bg-white hover:bg-zinc-50 transition-colors flex flex-col gap-1 sm:gap-2">
                             <div className="flex justify-between items-start">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center border border-zinc-200 bg-white text-zinc-600`}>
-                                    <BarChart3 className="w-4 h-4" />
+                                <div className={`w-5 h-5 sm:w-8 sm:h-8 rounded-md sm:rounded-lg flex items-center justify-center border border-zinc-200 bg-white text-zinc-600`}>
+                                    <BarChart3 className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                                 </div>
                                 {i === 1 && (
                                     <motion.div
                                         initial={{ scale: 0.8, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         key={step}
-                                        className="text-[10px] font-bold text-zinc-600 bg-zinc-100 percent-badge px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-zinc-200"
+                                        className="text-[8px] sm:text-[10px] font-bold text-zinc-600 bg-zinc-100 percent-badge px-1.5 sm:px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-zinc-200"
                                     >
                                         <ArrowUpRight className="w-2 h-2" /> +2
                                     </motion.div>
                                 )}
                             </div>
-                            <div className="space-y-2 mt-1">
-                                <div className="h-2 w-8 bg-zinc-200 rounded-full" />
-                                <div className="h-3 w-16 bg-zinc-100 rounded-full" />
+                            <div className="space-y-1 sm:space-y-2 mt-0.5 sm:mt-1">
+                                <div className="h-1.5 sm:h-2 w-6 sm:w-8 bg-zinc-200 rounded-full" />
+                                <div className="h-2 sm:h-3 w-10 sm:w-16 bg-zinc-100 rounded-full" />
                             </div>
                         </div>
                     ))}
@@ -127,9 +127,9 @@ export function HeroAnimation() {
                 {/* Floating "Add" Button Mockup */}
                 <motion.div
                     animate={step === 1 ? { scale: 0.9 } : { scale: 1 }}
-                    className="absolute bottom-6 right-6 w-12 h-12 bg-zinc-900 rounded-full shadow-lg shadow-zinc-900/10 flex items-center justify-center z-10 hover:bg-zinc-800 transition-colors"
+                    className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 w-8 h-8 sm:w-12 sm:h-12 bg-zinc-900 rounded-full shadow-lg shadow-zinc-900/10 flex items-center justify-center z-10 hover:bg-zinc-800 transition-colors"
                 >
-                    <Plus className="text-white w-6 h-6" />
+                    <Plus className="text-white w-4 h-4 sm:w-6 sm:h-6" />
                 </motion.div>
             </div>
 
@@ -152,10 +152,10 @@ export function HeroAnimation() {
             <motion.div
                 initial={{ y: 50, opacity: 0, x: "-50%" }}
                 animate={step === 3 ? { y: 0, opacity: 1, x: "-50%" } : { y: 20, opacity: 0, x: "-50%" }}
-                className="absolute bottom-8 left-1/2 bg-zinc-900 text-white px-4 py-2 rounded-md shadow-xl flex items-center gap-3 text-sm font-medium z-40 whitespace-nowrap"
+                className="absolute bottom-4 sm:bottom-8 left-1/2 bg-zinc-900 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-md shadow-xl flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-medium z-40 whitespace-nowrap"
             >
-                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                    <Check className="w-3 h-3 text-white" />
+                <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 flex items-center justify-center">
+                    <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                 </div>
                 <span>Produto Registrado</span>
             </motion.div>
