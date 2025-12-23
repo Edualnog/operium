@@ -1,8 +1,26 @@
 import { createClient } from "@supabase/supabase-js"
 
 /**
- * PASSO 2 — 5 Eventos Canônicos
- * Definição estrita dos fatos imutáveis do sistema.
+ * ============================================================================
+ * LEGACY CANONICAL EVENTS (ASSET FOCUSED)
+ * ============================================================================
+ * 
+ * Este arquivo define eventos canônicos focados em Assets.
+ * Para o sistema completo de domain events, veja:
+ * 
+ * - lib/constants/domain-events.ts  → Enums e validação
+ * - lib/services/domain-events.ts   → Serviço de tracking
+ * 
+ * ARQUITETURA DE EVENTOS:
+ * -----------------------
+ * 1. operium_events    → Eventos do módulo Operium (despesas, status)
+ * 2. domain_events     → Eventos de domínio para analytics (data moat)
+ * 3. Este arquivo      → Helper para eventos de assets (legacy)
+ * 
+ * MODO ATUAL: "Quiet Accumulation"
+ * O sistema coleta eventos estruturados para análise futura,
+ * mas ainda não processa agregações cross-tenant.
+ * ============================================================================
  */
 
 export type CanonicalEventType =
