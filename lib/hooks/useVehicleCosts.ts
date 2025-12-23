@@ -31,13 +31,11 @@ export function useVehicleCosts(vehicleId: string) {
                 if (cost.collaborator_id) {
                     const { data: profile } = await supabase
                         .from("operium_profiles")
-                        .select("user:user_id(raw_user_meta_data)")
+                        .select("name")
                         .eq("user_id", cost.collaborator_id)
                         .single()
 
-                    collaboratorName = profile?.user?.raw_user_meta_data?.full_name ||
-                                      profile?.user?.raw_user_meta_data?.name ||
-                                      'Usuário'
+                    collaboratorName = profile?.name || 'Usuário'
                 }
 
                 // Get team name

@@ -15,6 +15,8 @@ export function useOperiumProfile() {
     const [userId, setUserId] = useState<string | null>(null)
     const supabase = createClientComponentClient()
 
+    const [userName, setUserName] = useState<string | null>(null)
+
     const fetchProfile = useCallback(async () => {
         try {
             setLoading(true)
@@ -24,6 +26,7 @@ export function useOperiumProfile() {
             if (!user) {
                 setProfile(null)
                 setUserId(null)
+                setUserName(null)
                 return
             }
 
@@ -40,12 +43,21 @@ export function useOperiumProfile() {
                 // PGRST116 = no rows found (user doesn't have OPERIUM profile)
                 if (fetchError.code === 'PGRST116') {
                     setProfile(null)
+                    setUserName(null)
                     return
                 }
                 throw fetchError
             }
 
             setProfile(data)
+
+            // Get user name from profile or auth metadata
+            const name = data?.name ||
+                        user.user_metadata?.full_name ||
+                        user.user_metadata?.name ||
+                        user.email?.split('@')[0] ||
+                        'Usuário'
+            setUserName(name)
         } catch (err: any) {
             console.error("Error fetching OPERIUM profile:", err)
             setError(err.message)
@@ -202,6 +214,7 @@ export function useOperiumProfile() {
         error,
         userId,
         orgId,
+        userName,
         refreshProfile: fetchProfile,
         // Role info
         role,

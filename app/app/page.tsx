@@ -922,7 +922,7 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
 export default function AppPage() {
     const router = useRouter()
     const supabase = createClientComponentClient()
-    const { loading: loadingProfile, profile: operiumProfile } = useOperiumProfile()
+    const { loading: loadingProfile, profile: operiumProfile, userName } = useOperiumProfile()
     const { events, loading: loadingEvents, refreshEvents } = useOperiumEvents({ limit: 5 })
 
     const [showExpenseModal, setShowExpenseModal] = useState(false)
@@ -1028,7 +1028,9 @@ export default function AppPage() {
             <main className="px-5 py-6 space-y-8 pb-safe">
                 {/* Greeting */}
                 <div>
-                    <h2 className="text-2xl font-bold text-neutral-900">Olá! 👋</h2>
+                    <h2 className="text-2xl font-bold text-neutral-900">
+                        Olá{userName ? `, ${userName}` : ''}! 👋
+                    </h2>
                     <p className="text-base text-neutral-500 mt-1">O que você precisa fazer hoje?</p>
                 </div>
 
