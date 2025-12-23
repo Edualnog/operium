@@ -55,9 +55,11 @@ import {
   CheckCircle2,
   Circle,
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  QrCode
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { QRScanner } from "@/components/ferramentas/QRScanner"
 
 interface Inventario {
   id: string
@@ -96,7 +98,8 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
   const [quantidadeFisica, setQuantidadeFisica] = useState("")
   const [saving, setSaving] = useState(false)
   const [filter, setFilter] = useState<"todos" | "pendentes" | "contados">("pendentes")
-  
+  const [scannerOpen, setScannerOpen] = useState(false)
+
   const inputRef = useRef<HTMLInputElement>(null)
   const supabase = createClientComponentClient()
 
@@ -132,6 +135,26 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
+  const handleQRScan = (decodedText: string) => {
+    setScannerOpen(false)
+    const scannedValue = decodedText.trim()
+
+    // Find item by ID, codigo, or nome
+    const found = itens.find(item =>
+      item.ferramenta_id.toLowerCase() === scannedValue.toLowerCase() ||
+      item.ferramenta?.codigo?.toLowerCase() === scannedValue.toLowerCase() ||
+      item.ferramenta?.nome.toLowerCase() === scannedValue.toLowerCase()
+    )
+
+    if (found) {
+      handleSelectItem(found)
+      playBeep("success")
+    } else {
+      playBeep("error")
+      setSearch(scannedValue) // Put in search box as fallback
+    }
+  }
+
   const handleSaveContagem = async () => {
     if (!selectedItem || quantidadeFisica === "") return
 
@@ -161,8 +184,8 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
         .eq("id", inventario.id)
 
       // Atualizar estado local
-      setItens(prev => prev.map(item => 
-        item.id === selectedItem.id 
+      setItens(prev => prev.map(item =>
+        item.id === selectedItem.id
           ? { ...item, quantidade_fisica: qtdFisica, diferenca, contado: true }
           : item
       ))
@@ -173,7 +196,7 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
       } else {
         playBeep("warning") // Divergência encontrada!
       }
-      
+
       // Ir para próximo item não contado
       const nextItem = itens.find(i => !i.contado && i.id !== selectedItem.id)
       if (nextItem) {
@@ -193,10 +216,10 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
   const handleFinalizarInventario = async () => {
     try {
       setSaving(true)
-      
+
       // Calcular divergências
       const divergencias = itens.filter(i => i.contado && i.diferenca !== 0)
-      
+
       await supabase
         .from("inventarios")
         .update({
@@ -216,11 +239,11 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
   }
 
   const filteredItens = itens.filter(item => {
-    const matchSearch = 
+    const matchSearch =
       item.ferramenta?.nome.toLowerCase().includes(search.toLowerCase()) ||
       item.ferramenta?.codigo?.toLowerCase().includes(search.toLowerCase())
-    
-    const matchFilter = 
+
+    const matchFilter =
       filter === "todos" ||
       (filter === "pendentes" && !item.contado) ||
       (filter === "contados" && item.contado)
@@ -295,14 +318,24 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
         {/* Lista de itens */}
         <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
           <div className="p-4 border-b border-zinc-100">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-              <Input
-                placeholder="Buscar item ou código..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <Input
+                  placeholder="Buscar item ou código..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setScannerOpen(true)}
+                className="flex-shrink-0 h-10 w-10 bg-purple-50 border-purple-200 text-purple-600 hover:bg-purple-100"
+              >
+                <QrCode className="h-5 w-5" />
+              </Button>
             </div>
             <div className="flex gap-2 mt-3">
               {(["pendentes", "contados", "todos"] as const).map((f) => (
@@ -465,6 +498,16 @@ export default function InventarioContagem({ inventario, onBack, onFinish }: Inv
           )}
         </div>
       </div>
+
+      {/* QR Scanner Modal */}
+      {scannerOpen && (
+        <QRScanner
+          onScan={handleQRScan}
+          onClose={() => setScannerOpen(false)}
+          title="Escanear Produto"
+          description="Aponte a câmera para o QR Code do produto para buscá-lo automaticamente"
+        />
+      )}
     </div>
   )
 }
