@@ -219,13 +219,40 @@ export function useOperiumVehicles() {
 
     useEffect(() => {
         const fetch = async () => {
-            const { data } = await supabase
-                .from("operium_vehicles")
-                .select("id, plate, model")
-                .order("plate")
+            try {
+                // Get user's org_id from operium_profiles
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    setLoading(false)
+                    return
+                }
 
-            setVehicles(data || [])
-            setLoading(false)
+                const { data: profile } = await supabase
+                    .from("operium_profiles")
+                    .select("org_id")
+                    .eq("user_id", user.id)
+                    .eq("active", true)
+                    .single()
+
+                if (!profile?.org_id) {
+                    setLoading(false)
+                    return
+                }
+
+                // Fetch vehicles from main vehicles table where profile_id = org_id
+                // (org_id is the admin's user_id, which is vehicles.profile_id)
+                const { data } = await supabase
+                    .from("vehicles")
+                    .select("id, plate, model")
+                    .eq("profile_id", profile.org_id)
+                    .order("plate")
+
+                setVehicles(data || [])
+            } catch (err) {
+                console.error("Error fetching vehicles:", err)
+            } finally {
+                setLoading(false)
+            }
         }
         fetch()
     }, [supabase])
