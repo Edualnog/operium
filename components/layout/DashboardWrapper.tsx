@@ -157,14 +157,8 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
       ),
     },
-    {
-      label: "Operacional",
-      href: "/dashboard/operium",
-      id: "sidebar-operium",
-      icon: (
-        <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
+    // NOTA: "Operacional" removido do sidebar admin
+    // Este painel é destinado apenas a colaboradores de campo via app mobile
     {
       label: "Acessos",
       href: "/dashboard/acessos",
