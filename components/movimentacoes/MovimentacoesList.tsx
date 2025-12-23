@@ -822,7 +822,7 @@ export default function MovimentacoesList({
 
                     {/* Detalhes */}
                     <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700 space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="grid gap-2">
                           <Label className="font-medium">{t("dashboard.movimentacoes.form.quantity")}</Label>
                           <Input
