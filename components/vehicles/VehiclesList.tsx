@@ -177,7 +177,8 @@ export function VehiclesList() {
             </div>
 
             <div className="rounded-lg border border-zinc-200 bg-white dark:bg-zinc-900 dark:border-zinc-800 overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table - Hidden on mobile */}
+                <div className="hidden md:block overflow-x-auto">
                     <Table>
                         <TableHeader className="bg-zinc-50 dark:bg-zinc-800/50">
                             <TableRow className="border-zinc-200 dark:border-zinc-800 hover:bg-transparent">
@@ -203,7 +204,6 @@ export function VehiclesList() {
                                         key={vehicle.id}
                                         className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800/50 transition-colors"
                                         onClick={(e) => {
-                                            // Don't navigate if clicking actions
                                             if ((e.target as HTMLElement).closest('.actions-trigger')) return;
                                             handleRowClick(vehicle.id)
                                         }}
@@ -258,7 +258,63 @@ export function VehiclesList() {
                         </TableBody>
                     </Table>
                 </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-zinc-200 dark:divide-zinc-700">
+                    {vehicles.length === 0 ? (
+                        <div className="p-8 text-center text-muted-foreground">
+                            {t('vehicles.no_vehicles')}
+                        </div>
+                    ) : (
+                        filteredVehicles.map((vehicle) => (
+                            <div
+                                key={vehicle.id}
+                                className="p-4 space-y-3 active:bg-zinc-50 cursor-pointer dark:active:bg-zinc-800"
+                                onClick={() => handleRowClick(vehicle.id)}
+                            >
+                                {/* Header: Icon + Plate + Status */}
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <VehicleIcon type={vehicle.vehicle_type} />
+                                        <span className="font-bold text-lg text-zinc-900 dark:text-zinc-100">{vehicle.plate}</span>
+                                    </div>
+                                    <span className={cn(
+                                        "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium",
+                                        vehicle.status === 'maintenance'
+                                            ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                                            : vehicle.status === 'out_of_service'
+                                                ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                                : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                    )}>
+                                        {vehicle.status === 'maintenance' ? 'Manutenção' :
+                                            vehicle.status === 'out_of_service' ? 'Fora de serviço' : 'Ativo'}
+                                    </span>
+                                </div>
+
+                                {/* Vehicle Details */}
+                                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                    {vehicle.brand} {vehicle.model} • {t(`vehicles.fuel.${vehicle.fuel_type}`) || vehicle.fuel_type}
+                                </p>
+
+                                {/* Actions */}
+                                <div className="flex items-center justify-between pt-1">
+                                    <span className="text-xs text-zinc-500">
+                                        {vehicle.acquisition_date
+                                            ? format(new Date(vehicle.acquisition_date), 'dd/MM/yyyy')
+                                            : '—'}
+                                    </span>
+                                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                                        <Button variant="ghost" size="sm" className="h-8 text-zinc-600" onClick={() => openEdit(vehicle)}>
+                                            <Edit className="h-4 w-4 mr-1" /> Editar
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
+
 
             <VehicleForm
                 open={isFormOpen}

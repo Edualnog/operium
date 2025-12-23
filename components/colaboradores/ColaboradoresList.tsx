@@ -824,8 +824,8 @@ function ColaboradoresList({
           </Button>
         </div>
 
-        {/* Table */}
-        <Table>
+        {/* Desktop Table - Hidden on mobile */}
+        <Table className="hidden md:table">
           <TableHeader>
             <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50">
               <TableHead className="w-[40px]">
@@ -864,7 +864,6 @@ function ColaboradoresList({
                     <div className="flex flex-col gap-1 items-start">
                       <span className="font-medium text-zinc-700 dark:text-zinc-200">{colaborador.nome}</span>
                       <div className="flex items-center gap-2">
-                        {/* Notion-style Badge */}
                         <span className={cn(
                           "inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium leading-4",
                           (colaborador.level === 'MASTER' || !colaborador.level) ? "bg-[#fdecc8] text-[#442a1d]" :
@@ -943,6 +942,71 @@ function ColaboradoresList({
             ))}
           </TableBody>
         </Table>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-zinc-200 dark:divide-zinc-700">
+          {paginatedColaboradores.map((colaborador) => (
+            <div
+              key={colaborador.id}
+              className="p-4 space-y-3 active:bg-zinc-50 cursor-pointer dark:active:bg-zinc-800"
+              onClick={() => handleAbrirFicha(colaborador)}
+            >
+              {/* Header: Photo + Name + Score */}
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-zinc-100 overflow-hidden relative border flex-shrink-0">
+                  {colaborador.foto_url ? (
+                    <Image src={colaborador.foto_url} alt={colaborador.nome} fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                      <User size={24} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">{colaborador.nome}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {colaborador.role_function && (
+                      <span className="text-sm text-zinc-600 dark:text-zinc-400">{colaborador.role_function}</span>
+                    )}
+                    <span className={cn(
+                      "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium",
+                      (colaborador.level === 'MASTER' || !colaborador.level) ? "bg-[#fdecc8] text-[#442a1d]" :
+                        colaborador.level === 'PRO' ? "bg-[#e3e2e0] text-[#32302c]" : "bg-[#f1f0ef] text-[#37352f]"
+                    )}>
+                      {colaborador.level === 'MASTER' ? '🥇' : colaborador.level === 'PRO' ? '🥈' : '👷'} {colaborador.almox_score || 500}
+                    </span>
+                  </div>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                      <MoreHorizontal className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEdit(colaborador); }}>
+                      <Edit className="mr-2 h-4 w-4" /> Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleAbrirFicha(colaborador); }}>
+                      <HardHat className="mr-2 h-4 w-4" /> Ver Ficha
+                    </DropdownMenuItem>
+                    {colaborador.status !== 'DEMITIDO' && (
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handlePromote(colaborador); }}>
+                        <TrendingUp className="mr-2 h-4 w-4" /> Promover
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Contact Info */}
+              <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
+                <span className="truncate max-w-[60%]">{colaborador.telefone || colaborador.email || "—"}</span>
+                <span>{colaborador.data_admissao ? format(new Date(colaborador.data_admissao), 'dd/MM/yy') : "—"}</span>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Pagination */}
         {filteredAndSortedColaboradores.length > 0 && (

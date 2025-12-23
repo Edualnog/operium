@@ -1489,7 +1489,8 @@ function FerramentasList({
             </DropdownMenu>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Desktop Table - Hidden on mobile */}
+          <div className="hidden md:block overflow-x-auto">
             <Table className="min-w-[700px]">
               <TableHeader>
                 <TableRow className="bg-zinc-50/50 dark:bg-zinc-800/50">
@@ -1536,7 +1537,6 @@ function FerramentasList({
                       <span className="text-zinc-600">{ferramenta.tamanho || "Simples"}</span>
                     </TableCell>
                     <TableCell className="w-[100px] font-medium">
-                      {/* Placeholder for value if not exists */}
                       500,00
                     </TableCell>
                     <TableCell className="w-[80px]">
@@ -1585,6 +1585,74 @@ function FerramentasList({
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-zinc-200 dark:divide-zinc-700">
+            {paginatedFerramentas.map((ferramenta) => (
+              <div
+                key={ferramenta.id}
+                className="p-4 space-y-3 active:bg-zinc-50 cursor-pointer dark:active:bg-zinc-800"
+                onClick={() => { setEditing(ferramenta); setOpen(true); }}
+              >
+                {/* Header: Image + Name + Stock */}
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-md bg-zinc-100 overflow-hidden relative flex-shrink-0">
+                    {ferramenta.foto_url ? (
+                      <Image src={ferramenta.foto_url} alt={ferramenta.nome} fill className="object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                        <Package size={24} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">{ferramenta.nome}</p>
+                    <p className="text-sm text-zinc-500">{ferramenta.codigo || "Sem código"}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={cn(
+                      "text-xl font-bold",
+                      ferramenta.quantidade_disponivel === 0 ? "text-red-600" : "text-zinc-800 dark:text-zinc-200"
+                    )}>
+                      {ferramenta.quantidade_disponivel}
+                    </span>
+                    <p className="text-xs text-zinc-500">em estoque</p>
+                  </div>
+                </div>
+
+                {/* Details Row */}
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className={cn(
+                      ferramenta.estado === 'ok'
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-zinc-200 text-zinc-700"
+                    )}>
+                      {ferramenta.estado === 'ok' ? "Ativo" : getEstadoLabel(ferramenta.estado)}
+                    </Badge>
+                    {ferramenta.tamanho && (
+                      <span className="text-zinc-500">{ferramenta.tamanho}</span>
+                    )}
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-8 text-zinc-500">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditing(ferramenta); setOpen(true); }}>
+                        <Edit className="mr-2 h-4 w-4" /> Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleGenerateLabel(ferramenta); }}>
+                        <Printer className="mr-2 h-4 w-4" /> Etiqueta
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
           </div>
           {/* Pagination reusable */}
           {filteredFerramentas.length > 0 && (
