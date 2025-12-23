@@ -169,11 +169,11 @@ export async function middleware(request: NextRequest) {
 
   // ============================================================================
   // ROLE-BASED ACCESS CONTROL (Defense in Depth)
-  // Redirect non-admin operium users to /app for all dashboard routes
+  // Redirect FIELD users to /app, WAREHOUSE users stay in dashboard
   // ============================================================================
   if (isDashboardRoute && user) {
     try {
-      // Check if user has operium profile with non-admin role
+      // Check if user has operium profile
       const { data: operiumProfile } = await supabase
         .from('operium_profiles')
         .select('role')
@@ -181,8 +181,8 @@ export async function middleware(request: NextRequest) {
         .eq('active', true)
         .single()
 
-      if (operiumProfile && operiumProfile.role !== 'ADMIN') {
-        // FIELD or WAREHOUSE user trying to access dashboard - redirect to mobile app
+      // Only FIELD users go to mobile app, WAREHOUSE stays in main dashboard
+      if (operiumProfile && operiumProfile.role === 'FIELD') {
         const redirectResponse = NextResponse.redirect(new URL('/app', request.url))
         const setCookieHeader = response.headers.get('set-cookie')
         if (setCookieHeader) {

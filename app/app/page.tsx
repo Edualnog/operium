@@ -186,8 +186,8 @@ function VehicleExpenseModal({
                                 type="button"
                                 onClick={() => setTipo(opt.value as any)}
                                 className={`p-2 text-xs rounded-lg border transition-all ${tipo === opt.value
-                                        ? 'bg-neutral-800 text-white border-neutral-800'
-                                        : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+                                    ? 'bg-neutral-800 text-white border-neutral-800'
+                                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
                                     }`}
                             >
                                 {opt.label}
@@ -297,49 +297,26 @@ export default function AppPage() {
                     </p>
                 </div>
 
-                {/* Quick Actions */}
+                {/* Quick Actions for Field Teams */}
                 <div className="space-y-3">
                     <h3 className="text-xs font-medium text-neutral-400 uppercase tracking-wide">
                         Ações Rápidas
                     </h3>
 
-                    {isField && (
-                        <>
-                            <ActionCard
-                                icon={Fuel}
-                                title="Nova Despesa"
-                                subtitle="Registrar abastecimento ou gasto"
-                                onClick={() => setShowExpenseModal(true)}
-                                color="blue"
-                            />
-                            <ActionCard
-                                icon={Activity}
-                                title="Status do Veículo"
-                                subtitle="Atualizar condição do veículo"
-                                onClick={() => setShowStatusModal(true)}
-                                color="orange"
-                            />
-                        </>
-                    )}
-
-                    {isWarehouse && (
-                        <>
-                            <ActionCard
-                                icon={ArrowDownToLine}
-                                title="Entrada de Item"
-                                subtitle="Registrar recebimento de material"
-                                onClick={() => { }}
-                                color="green"
-                            />
-                            <ActionCard
-                                icon={ArrowUpFromLine}
-                                title="Saída de Item"
-                                subtitle="Registrar retirada de material"
-                                onClick={() => { }}
-                                color="orange"
-                            />
-                        </>
-                    )}
+                    <ActionCard
+                        icon={Fuel}
+                        title="Nova Despesa"
+                        subtitle="Registrar abastecimento ou gasto"
+                        onClick={() => setShowExpenseModal(true)}
+                        color="blue"
+                    />
+                    <ActionCard
+                        icon={Activity}
+                        title="Status do Veículo"
+                        subtitle="Atualizar condição do veículo"
+                        onClick={() => setShowStatusModal(true)}
+                        color="orange"
+                    />
                 </div>
 
                 {/* Recent Activity */}

@@ -121,8 +121,8 @@ export default async function DashboardLayout({
     // If no operium profile, user is org owner (ADMIN by default)
   }
 
-  // If user has operium profile and is NOT ADMIN, redirect to mobile app
-  if (operiumProfile && operiumProfile.role !== 'ADMIN') {
+  // If user is FIELD role, redirect to mobile app
+  if (operiumProfile && operiumProfile.role === 'FIELD') {
     redirect('/app')
   }
 
