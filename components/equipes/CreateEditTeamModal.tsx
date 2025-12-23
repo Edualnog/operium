@@ -154,7 +154,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-6 sm:p-8 block overflow-visible">
+            <DialogContent className="max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] max-h-[90vh] overflow-y-auto border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-4 sm:p-6 md:p-8 block">
                 <DialogHeader className="mb-6">
                     <DialogTitle className="text-xl font-serif font-bold text-[#37352f] dark:text-zinc-100 mb-2">
                         {teamToEdit ? t('teams.form.title_edit') : t('teams.form.title_new')}

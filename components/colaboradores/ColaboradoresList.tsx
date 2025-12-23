@@ -995,6 +995,11 @@ function ColaboradoresList({
                         <TrendingUp className="mr-2 h-4 w-4" /> Promover
                       </DropdownMenuItem>
                     )}
+                    {colaborador.status !== 'DEMITIDO' && (
+                      <DropdownMenuItem className="text-orange-600" onClick={(e) => { e.stopPropagation(); handleDemitir(colaborador); }}>
+                        <UserX className="mr-2 h-4 w-4" /> Demitir
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -1038,7 +1043,7 @@ function ColaboradoresList({
 
       {/* Modals */}
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>
