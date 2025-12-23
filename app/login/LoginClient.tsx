@@ -118,42 +118,6 @@ function LoginForm() {
       captchaRef.current?.reset()
     }
   }
-
-  const handleMagicLinkLogin = async () => {
-    if (!email) {
-      toast.error("Informe seu email para receber o link de acesso")
-      return
-    }
-
-    if (!captchaToken) {
-      toast.error(t('auth.errors.captcha_required'))
-      return
-    }
-
-    setLoading(true)
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          captchaToken,
-        },
-      })
-
-      if (error) throw error
-
-      toast.success("Link de acesso enviado! Verifique sua caixa de entrada.")
-    } catch (err: any) {
-      console.error("Magic link error:", err)
-      toast.error(err.message || "Erro ao enviar link de acesso")
-    } finally {
-      setLoading(false)
-      setCaptchaToken(null)
-      captchaRef.current?.reset()
-    }
-  }
-
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center font-sans text-zinc-900 bg-zinc-50">
       <BackgroundDecoration />
@@ -265,46 +229,25 @@ function LoginForm() {
               />
             )}
           </div>
-
-          <div className="space-y-3">
-            <button
-              type="submit"
-              disabled={loading || !captchaToken}
-              className="w-full rounded-lg bg-zinc-900 text-white font-medium py-3 px-4 shadow-lg shadow-zinc-300 hover:bg-zinc-800 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:pointer-events-none"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {t('auth.login.submitting')}
-                </span>
-              ) : (
-                t('auth.login.submit')
-              )}
-            </button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-zinc-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-zinc-500">Ou</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleMagicLinkLogin}
-              disabled={loading || !captchaToken}
-              className="w-full rounded-lg bg-white border border-zinc-200 text-zinc-700 font-medium py-3 px-4 hover:bg-zinc-50 hover:border-zinc-300 transition-all disabled:opacity-50 disabled:pointer-events-none"
-            >
-              Entrar sem senha (Link Mágico)
-            </button>
-          </div>
-        </form>
-      </motion.div>
+          <button
+            type="submit"
+            disabled={loading || !captchaToken}
+            className="w-full rounded-lg bg-zinc-900 text-white font-medium py-3 px-4 shadow-lg shadow-zinc-300 hover:bg-zinc-800 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:pointer-events-none"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {t('auth.login.submitting')}
+              </span>
+            ) : (
+              t('auth.login.submit')
+            )}
+          </button>
+        </form >
+      </motion.div >
 
       {/* Footer / Back Link */}
-      <div className="relative z-10 mt-8">
+      < div className="relative z-10 mt-8" >
         <Link
           href="/"
           className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors text-sm"
@@ -312,8 +255,8 @@ function LoginForm() {
           <ArrowLeft className="h-4 w-4" />
           {t('auth.back')}
         </Link>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
 
