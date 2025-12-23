@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
     try {
-        const { email, role, org_id, redirect_to } = await request.json()
+        const { email, role, org_id, name } = await request.json()
 
         if (!email || !role || !org_id) {
             return NextResponse.json(
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
             data: {
                 operium_role: role,
                 operium_org_id: org_id,
-                // Nome opcional, podemos adicionar se vier no body
+                full_name: name || undefined,
             },
             redirectTo: inviteRedirectUrl,
         })

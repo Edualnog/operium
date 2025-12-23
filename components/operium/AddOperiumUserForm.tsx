@@ -28,6 +28,7 @@ interface AddOperiumUserFormProps {
 interface FormData {
     email: string
     role: 'FIELD' | 'WAREHOUSE'
+    name?: string
 }
 
 export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperiumUserFormProps) {
@@ -43,6 +44,7 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
         defaultValues: {
             email: '',
             role: 'FIELD',
+            name: '',
         }
     })
 
@@ -123,6 +125,7 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
 
             const email = watch('email')
             const role = watch('role')
+            const name = watch('name')
 
             const response = await fetch('/api/operium/invites', {
                 method: 'POST',
@@ -130,7 +133,8 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
                 body: JSON.stringify({
                     email,
                     role,
-                    org_id: profile.org_id
+                    org_id: profile.org_id,
+                    name,
                 }),
             })
 
@@ -303,6 +307,18 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
                             <p className="text-zinc-500 text-sm mt-1 text-center max-w-[280px]">
                                 Este email não possui conta na plataforma. Deseja enviar um convite?
                             </p>
+                        </div>
+
+                        <div className="px-1">
+                            <Label htmlFor="invite-name" className="text-zinc-700 dark:text-zinc-300">
+                                Nome do Colaborador (opcional)
+                            </Label>
+                            <Input
+                                id="invite-name"
+                                placeholder="Ex: João da Silva"
+                                className="mt-1.5"
+                                {...register('name')}
+                            />
                         </div>
 
                         <DialogFooter className="flex-col sm:flex-row gap-2">

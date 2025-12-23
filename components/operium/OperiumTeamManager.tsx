@@ -141,88 +141,89 @@ export function OperiumTeamManager() {
                             Nenhum colaborador cadastrado
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader className="bg-zinc-50 dark:bg-zinc-800/50">
-                                <TableRow className="border-zinc-200 dark:border-zinc-800">
-                                    <TableHead className="font-medium text-zinc-500">Usuário</TableHead>
-                                    <TableHead className="font-medium text-zinc-500">Papel</TableHead>
-                                    <TableHead className="font-medium text-zinc-500">Desde</TableHead>
-                                    <TableHead className="w-[50px]"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                        <div className="space-y-4">
+                            {/* Desktop Table */}
+                            <div className="hidden md:block">
+                                <Table>
+                                    <TableHeader className="bg-zinc-50 dark:bg-zinc-800/50">
+                                        <TableRow className="border-zinc-200 dark:border-zinc-800">
+                                            <TableHead className="font-medium text-zinc-500">Usuário</TableHead>
+                                            <TableHead className="font-medium text-zinc-500">Papel</TableHead>
+                                            <TableHead className="font-medium text-zinc-500">Desde</TableHead>
+                                            <TableHead className="w-[50px]"></TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {activeMembers.map((member) => (
+                                            <TableRow
+                                                key={member.user_id}
+                                                className="border-zinc-100 dark:border-zinc-800/50"
+                                            >
+                                                <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
+                                                    {member.user_id === userId ? (
+                                                        <span className="flex items-center gap-2">
+                                                            Você
+                                                            <span className="text-xs text-zinc-400">(dono)</span>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-zinc-600 dark:text-zinc-400 text-sm">
+                                                            {member.user_id.slice(0, 8)}...
+                                                        </span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <OperiumRoleBadge role={member.role} size="sm" />
+                                                </TableCell>
+                                                <TableCell className="text-sm text-zinc-500">
+                                                    {format(new Date(member.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {member.user_id !== userId && (
+                                                        <ActionsDropdown
+                                                            member={member}
+                                                            handleRoleChange={handleRoleChange}
+                                                            onDeactivate={() => setConfirmDeactivate(member)}
+                                                        />
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                            {/* Mobile Cards */}
+                            <div className="md:hidden divide-y divide-zinc-100 dark:divide-zinc-800">
                                 {activeMembers.map((member) => (
-                                    <TableRow
-                                        key={member.user_id}
-                                        className="border-zinc-100 dark:border-zinc-800/50"
-                                    >
-                                        <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
-                                            {member.user_id === userId ? (
-                                                <span className="flex items-center gap-2">
-                                                    Você
-                                                    <span className="text-xs text-zinc-400">(dono)</span>
+                                    <div key={member.user_id} className="p-4 flex items-center justify-between">
+                                        <div className="space-y-1.5">
+                                            <div className="font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                                                {member.user_id === userId ? (
+                                                    <span>Você <span className="text-zinc-400 text-xs font-normal">(dono)</span></span>
+                                                ) : (
+                                                    <span>{member.user_id.slice(0, 8)}...</span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <OperiumRoleBadge role={member.role} size="sm" />
+                                                <span className="text-zinc-500 text-xs">
+                                                    {format(new Date(member.created_at), "dd/MM/yyyy", { locale: ptBR })}
                                                 </span>
-                                            ) : (
-                                                <span className="text-zinc-600 dark:text-zinc-400 text-sm">
-                                                    {member.user_id.slice(0, 8)}...
-                                                </span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <OperiumRoleBadge role={member.role} size="sm" />
-                                        </TableCell>
-                                        <TableCell className="text-sm text-zinc-500">
-                                            {format(new Date(member.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                                        </TableCell>
-                                        <TableCell>
+                                            </div>
+                                        </div>
+                                        <div>
                                             {member.user_id !== userId && (
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel className="text-xs text-zinc-500">
-                                                            Alterar para
-                                                        </DropdownMenuLabel>
-                                                        <DropdownMenuItem
-                                                            onClick={() => handleRoleChange(member, 'ADMIN')}
-                                                            disabled={member.role === 'ADMIN'}
-                                                        >
-                                                            <Shield className="mr-2 h-4 w-4" />
-                                                            Admin
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            onClick={() => handleRoleChange(member, 'FIELD')}
-                                                            disabled={member.role === 'FIELD'}
-                                                        >
-                                                            <Truck className="mr-2 h-4 w-4" />
-                                                            Campo
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            onClick={() => handleRoleChange(member, 'WAREHOUSE')}
-                                                            disabled={member.role === 'WAREHOUSE'}
-                                                        >
-                                                            <Package className="mr-2 h-4 w-4" />
-                                                            Almoxarifado
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem
-                                                            onClick={() => setConfirmDeactivate(member)}
-                                                            className="text-red-600 focus:text-red-600"
-                                                        >
-                                                            <UserMinus className="mr-2 h-4 w-4" />
-                                                            Desativar
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                <ActionsDropdown
+                                                    member={member}
+                                                    handleRoleChange={handleRoleChange}
+                                                    onDeactivate={() => setConfirmDeactivate(member)}
+                                                />
                                             )}
-                                        </TableCell>
-                                    </TableRow>
+                                        </div>
+                                    </div>
                                 ))}
-                            </TableBody>
-                        </Table>
+                            </div>
+                        </div>
                     )}
                 </CardContent>
             </Card>
@@ -257,5 +258,59 @@ export function OperiumTeamManager() {
                 </AlertDialogContent>
             </AlertDialog>
         </>
+    )
+}
+
+function ActionsDropdown({
+    member,
+    handleRoleChange,
+    onDeactivate
+}: {
+    member: OperiumProfile
+    handleRoleChange: (member: OperiumProfile, newRole: OperiumRole) => void
+    onDeactivate: () => void
+}) {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel className="text-xs text-zinc-500">
+                    Alterar para
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                    onClick={() => handleRoleChange(member, 'ADMIN')}
+                    disabled={member.role === 'ADMIN'}
+                >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Admin
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => handleRoleChange(member, 'FIELD')}
+                    disabled={member.role === 'FIELD'}
+                >
+                    <Truck className="mr-2 h-4 w-4" />
+                    Campo
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => handleRoleChange(member, 'WAREHOUSE')}
+                    disabled={member.role === 'WAREHOUSE'}
+                >
+                    <Package className="mr-2 h-4 w-4" />
+                    Almoxarifado
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                    onClick={onDeactivate}
+                    className="text-red-600 focus:text-red-600"
+                >
+                    <UserMinus className="mr-2 h-4 w-4" />
+                    Desativar
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     )
 }
