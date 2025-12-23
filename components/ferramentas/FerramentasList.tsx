@@ -1465,7 +1465,7 @@ function FerramentasList({
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleGenerateBulkLabels} disabled={selectedItems.size === 0}>
                   <Printer className="h-4 w-4 mr-2" />
-                  {t("dashboard.ferramentas.bulk_labels.menu_item") || "Gerar Etiquetas"} ({selectedItems.size})
+                  Gerar Etiquetas ({selectedItems.size})
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
