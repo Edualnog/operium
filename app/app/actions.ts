@@ -71,8 +71,7 @@ export async function getMyTeamEquipment(): Promise<TeamEquipmentMobile[]> {
         assigned_at: item.assigned_at,
         returned_at: item.returned_at,
         status: item.status || 'accepted',
-        ferramenta_nome: item.ferramentas?.nome || "Sem nome",
-        ferramenta_tipo: item.ferramentas?.tipo
+        ferramenta_nome: item.ferramentas?.nome || "Sem nome"
     }))
 }
 
@@ -284,7 +283,6 @@ export async function getPendingEquipmentAcceptance() {
         assigned_at: item.assigned_at,
         status: item.status,
         ferramenta_nome: item.ferramentas?.nome || "Sem nome",
-        ferramenta_tipo: item.ferramentas?.tipo,
         team_name: item.teams?.name
     }))
 }

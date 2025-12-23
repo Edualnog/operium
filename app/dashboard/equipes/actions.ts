@@ -68,6 +68,36 @@ export async function createTeam(formData: {
     return data
 }
 
+export async function deleteTeam(teamId: string) {
+    const supabase = createServerActionClient({ cookies })
+
+    // Check if team has active equipment assignments
+    const { data: activeEquipment } = await supabase
+        .from("team_equipment")
+        .select("id")
+        .eq("team_id", teamId)
+        .is("returned_at", null)
+        .limit(1)
+
+    if (activeEquipment && activeEquipment.length > 0) {
+        throw new Error("Não é possível excluir equipe com equipamentos em custódia. Devolva todos os equipamentos primeiro.")
+    }
+
+    // Delete the team (cascade will handle related records)
+    const { error } = await supabase
+        .from("teams")
+        .delete()
+        .eq("id", teamId)
+
+    if (error) {
+        console.error("Error deleting team:", error)
+        throw new Error(`Falha ao excluir equipe: ${error.message}`)
+    }
+
+    revalidatePath("/dashboard/equipes")
+    return { success: true }
+}
+
 export async function updateTeam(id: string, formData: {
     name?: string
     description?: string
@@ -178,8 +208,7 @@ export async function getTeamEquipment(teamId: string): Promise<TeamEquipment[]>
         .select(`
       *,
       ferramentas (
-        nome,
-        tipo
+        nome
       )
     `)
         .eq("team_id", teamId)
@@ -192,8 +221,7 @@ export async function getTeamEquipment(teamId: string): Promise<TeamEquipment[]>
 
     return data.map((item: any) => ({
         ...item,
-        ferramenta_nome: item.ferramentas?.nome,
-        ferramenta_tipo: item.ferramentas?.tipo
+        ferramenta_nome: item.ferramentas?.nome
     })) as TeamEquipment[]
 }
 
@@ -350,8 +378,8 @@ export async function returnEquipmentWithDiscrepancy(
         .update({
             returned_at: new Date().toISOString(),
             notes: `[DIVERGÊNCIA: ${discrepancy.type.toUpperCase()}] ${discrepancy.notes}${discrepancy.quantityReturned !== undefined
-                    ? ` | Quantidade devolvida: ${discrepancy.quantityReturned}/${existing.quantity}`
-                    : ''
+                ? ` | Quantidade devolvida: ${discrepancy.quantityReturned}/${existing.quantity}`
+                : ''
                 }`
         })
         .eq("id", assignmentId)
@@ -541,8 +569,7 @@ export async function getPendingReturnValidation(teamId: string) {
         .select(`
             *,
             ferramentas (
-                nome,
-                tipo
+                nome
             )
         `)
         .eq("team_id", teamId)
@@ -557,8 +584,7 @@ export async function getPendingReturnValidation(teamId: string) {
 
     return data.map((item: any) => ({
         ...item,
-        ferramenta_nome: item.ferramentas?.nome,
-        ferramenta_tipo: item.ferramentas?.tipo
+        ferramenta_nome: item.ferramentas?.nome
     })) as TeamEquipment[]
 }
 
