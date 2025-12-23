@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@/lib/supabase-client'
 import { Label } from '@/components/ui/label'
@@ -16,6 +16,25 @@ export default function CreatePasswordPage() {
     const [error, setError] = useState<string | null>(null)
     const router = useRouter()
     const supabase = createClientComponentClient()
+
+    // Verificação de segurança: se já tem senha, vai pro dashboard
+    useEffect(() => {
+        const checkStatus = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('password_set')
+                    .eq('id', user.id)
+                    .single()
+
+                if (profile?.password_set) {
+                    router.replace('/dashboard')
+                }
+            }
+        }
+        checkStatus()
+    }, [router, supabase])
 
     const handleUpdatePassword = async (e: React.FormEvent) => {
         e.preventDefault()
