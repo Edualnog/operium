@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     let next = searchParams.get('next') ?? '/dashboard'
 
     if (type === 'invite' || type === 'recovery') {
-        next = '/auth/update-password'
+        next = '/criar-senha'
     }
 
     if (code) {

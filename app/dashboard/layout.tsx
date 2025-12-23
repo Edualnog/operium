@@ -37,7 +37,7 @@ export default async function DashboardLayout({
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('subscription_status, stripe_customer_id, trial_start_date, company_name, industry_segment, company_size')
+      .select('subscription_status, stripe_customer_id, trial_start_date, company_name, industry_segment, company_size, password_set')
       .eq('id', user.id)
       .single()
 
@@ -47,6 +47,13 @@ export default async function DashboardLayout({
   } catch (error) {
     // Se houver erro ao buscar profile, continuar sem bloquear
     console.error('Erro ao buscar profile:', error)
+  }
+
+  // Verificar se o usuário precisa definir senha (fluxo de invite)
+  // Se password_set for null, assumimos que é false por segurança (ou true se for migração correta, mas safe fail)
+  // Mas na migração setamos true para todos existentes. Novos invites terão false.
+  if (profile?.password_set === false) {
+    redirect("/criar-senha")
   }
 
   // Verificar se onboarding foi completado (apenas company_name e industry_segment são obrigatórios)
