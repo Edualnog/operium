@@ -10,8 +10,10 @@ export async function GET(request: Request) {
     const type = searchParams.get('type')
     let next = searchParams.get('next') ?? '/dashboard'
 
-    if (type === 'invite' || type === 'recovery') {
+    if (type === 'invite') {
         next = '/criar-senha'
+    } else if (type === 'recovery') {
+        next = '/auth/update-password'
     }
 
     if (code) {
