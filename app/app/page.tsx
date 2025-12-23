@@ -10,16 +10,80 @@ import {
     Activity,
     History,
     LogOut,
-    ChevronRight,
     Loader2,
     Camera,
     FileText,
     X,
-    Check
+    Check,
+    Car,
+    Wrench,
+    Receipt,
+    ParkingCircle,
+    Package,
+    Clock,
+    ChevronRight,
+    Plus,
+    User
 } from 'lucide-react'
 
 // ============================================================================
-// SHARED COMPONENTS
+// NATIVE APP BOTTOM SHEET MODAL
+// ============================================================================
+
+function NativeModal({
+    open,
+    onClose,
+    title,
+    children
+}: {
+    open: boolean
+    onClose: () => void
+    title: string
+    children: React.ReactNode
+}) {
+    if (!open) return null
+
+    return (
+        <div className="fixed inset-0 z-50 touch-none">
+            {/* Backdrop */}
+            <div
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+                onClick={onClose}
+            />
+
+            {/* Bottom Sheet */}
+            <div className="fixed inset-x-0 bottom-0 animate-in slide-in-from-bottom duration-300">
+                <div className="bg-white rounded-t-[20px] shadow-2xl max-h-[85vh] flex flex-col">
+                    {/* Handle */}
+                    <div className="flex justify-center pt-3 pb-2 touch-none">
+                        <div className="w-10 h-1 bg-neutral-300 rounded-full" />
+                    </div>
+
+                    {/* Header */}
+                    <div className="px-5 pb-3 border-b border-neutral-100">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold text-neutral-900">{title}</h2>
+                            <button
+                                onClick={onClose}
+                                className="p-2 -mr-2 text-neutral-400 hover:text-neutral-600 active:bg-neutral-100 rounded-full transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-5">
+                        {children}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ============================================================================
+// ACTION CARD - Native App Style
 // ============================================================================
 
 function ActionCard({
@@ -35,8 +99,8 @@ function ActionCard({
     onClick: () => void
     color?: 'neutral' | 'blue' | 'green' | 'orange' | 'purple'
 }) {
-    const colors = {
-        neutral: 'bg-neutral-100 text-neutral-600',
+    const colorClasses = {
+        neutral: 'bg-neutral-50 text-neutral-700',
         blue: 'bg-blue-50 text-blue-600',
         green: 'bg-green-50 text-green-600',
         orange: 'bg-orange-50 text-orange-600',
@@ -46,54 +110,93 @@ function ActionCard({
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center gap-3 p-3 bg-white border border-neutral-200 rounded-lg 
-                       hover:border-neutral-300 active:bg-neutral-50 transition-all touch-manipulation"
+            className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl border border-neutral-100
+                       active:scale-[0.98] active:bg-neutral-50 transition-all duration-150 shadow-sm"
         >
-            <div className={`p-2 rounded-md ${colors[color]}`}>
-                <Icon className="h-4 w-4" />
+            <div className={`p-3 rounded-xl ${colorClasses[color]} flex-shrink-0`}>
+                <Icon className="h-5 w-5" />
             </div>
             <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-medium text-neutral-800 truncate">{title}</p>
-                <p className="text-xs text-neutral-500 truncate">{subtitle}</p>
+                <p className="text-base font-medium text-neutral-900 truncate">{title}</p>
+                <p className="text-sm text-neutral-500 truncate mt-0.5">{subtitle}</p>
             </div>
-            <ChevronRight className="h-4 w-4 text-neutral-300 flex-shrink-0" />
+            <ChevronRight className="h-5 w-5 text-neutral-300 flex-shrink-0" />
         </button>
     )
 }
 
-function Modal({
-    open,
-    onClose,
-    title,
-    children
-}: {
-    open: boolean
-    onClose: () => void
-    title: string
-    children: React.ReactNode
-}) {
-    if (!open) return null
+// ============================================================================
+// ACTIVITY CARD
+// ============================================================================
+
+function ActivityCard({ event }: { event: any }) {
+    const getEventInfo = () => {
+        switch (event.type) {
+            case 'VEHICLE_EXPENSE':
+                return {
+                    icon: Fuel,
+                    label: 'Despesa registrada',
+                    color: 'bg-blue-50 text-blue-600',
+                    value: event.metadata?.valor ? `R$ ${event.metadata.valor.toFixed(2)}` : null
+                }
+            case 'VEHICLE_STATUS':
+                return {
+                    icon: Car,
+                    label: 'Status atualizado',
+                    color: 'bg-orange-50 text-orange-600',
+                    value: null
+                }
+            case 'ITEM_IN':
+                return {
+                    icon: Package,
+                    label: 'Item recebido',
+                    color: 'bg-green-50 text-green-600',
+                    value: null
+                }
+            case 'ITEM_OUT':
+                return {
+                    icon: Package,
+                    label: 'Item enviado',
+                    color: 'bg-red-50 text-red-600',
+                    value: null
+                }
+            default:
+                return {
+                    icon: Activity,
+                    label: 'Atividade',
+                    color: 'bg-neutral-50 text-neutral-600',
+                    value: null
+                }
+        }
+    }
+
+    const { icon: EventIcon, label, color, value } = getEventInfo()
 
     return (
-        <div className="fixed inset-0 z-50">
-            <div className="fixed inset-0 bg-black/40" onClick={onClose} />
-            <div className="fixed inset-x-0 bottom-0 bg-white rounded-t-xl max-h-[60vh] overflow-hidden flex flex-col pb-safe">
-                <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-100 flex-shrink-0">
-                    <h2 className="text-sm font-semibold text-neutral-900">{title}</h2>
-                    <button onClick={onClose} className="p-1 text-neutral-400 hover:text-neutral-600">
-                        <X className="h-4 w-4" />
-                    </button>
-                </div>
-                <div className="flex-1 overflow-y-auto px-3 py-2">
-                    {children}
-                </div>
+        <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-neutral-100">
+            <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center flex-shrink-0`}>
+                <EventIcon className="h-5 w-5" />
             </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-neutral-900">{label}</p>
+                <p className="text-xs text-neutral-400 mt-0.5">
+                    {new Date(event.created_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}
+                </p>
+            </div>
+            {value && (
+                <span className="text-sm font-semibold text-neutral-700">{value}</span>
+            )}
         </div>
     )
 }
 
 // ============================================================================
-// EXPENSE MODAL - Compact Design
+// EXPENSE MODAL - Native App Style
 // ============================================================================
 
 function VehicleExpenseModal({
@@ -120,13 +223,9 @@ function VehicleExpenseModal({
     const { vehicles } = useOperiumVehicles()
     const { createVehicleExpense } = useOperiumEvents()
 
-    // Cleanup when modal closes
     useEffect(() => {
         if (!open) {
-            // Reset file input when modal closes
-            if (fileInputRef.current) {
-                fileInputRef.current.value = ''
-            }
+            if (fileInputRef.current) fileInputRef.current.value = ''
         }
     }, [open])
 
@@ -159,7 +258,9 @@ function VehicleExpenseModal({
             if (uploadError) return null
             const { data: { publicUrl } } = supabase.storage.from('operium-receipts').getPublicUrl(fileName)
             return publicUrl
-        } catch { return null }
+        } catch {
+            return null
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -190,113 +291,165 @@ function VehicleExpenseModal({
     }
 
     const tipos = [
-        { v: 'combustivel', l: '⛽', n: 'Combustível' },
-        { v: 'manutencao', l: '🔧', n: 'Manutenção' },
-        { v: 'pedagio', l: '🛣️', n: 'Pedágio' },
-        { v: 'estacionamento', l: '🅿️', n: 'Estac.' },
-        { v: 'outros', l: '📦', n: 'Outros' }
+        { v: 'combustivel', icon: Fuel, n: 'Combustível' },
+        { v: 'manutencao', icon: Wrench, n: 'Manutenção' },
+        { v: 'pedagio', icon: Receipt, n: 'Pedágio' },
+        { v: 'estacionamento', icon: ParkingCircle, n: 'Estacionar' },
+        { v: 'outros', icon: Package, n: 'Outros' }
     ]
 
     return (
-        <Modal open={open} onClose={onClose} title="Nova Despesa">
-            <form onSubmit={handleSubmit} className="space-y-3">
+        <NativeModal open={open} onClose={onClose} title="Nova Despesa">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="p-2 bg-red-50 border border-red-200 rounded-md">
-                        <p className="text-xs text-red-600">{error}</p>
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                        <p className="text-sm text-red-600">{error}</p>
                     </div>
                 )}
 
+                {/* Vehicle Select */}
                 <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Veículo</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Veículo
+                    </label>
                     <select
                         value={vehicleId}
                         onChange={(e) => setVehicleId(e.target.value)}
                         required
-                        className="w-full h-10 px-3 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                   focus:outline-none focus:ring-1 focus:ring-neutral-300 focus:bg-white"
+                        className="w-full h-14 px-4 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                   focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white
+                                   appearance-none font-medium text-neutral-900"
                     >
-                        <option value="">Selecione...</option>
+                        <option value="">Selecione o veículo</option>
                         {vehicles.map((v) => (
-                            <option key={v.id} value={v.id}>{v.plate} {v.model && `- ${v.model}`}</option>
+                            <option key={v.id} value={v.id}>
+                                {v.plate} {v.model && `- ${v.model}`}
+                            </option>
                         ))}
                     </select>
                 </div>
 
+                {/* Type Selection */}
                 <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Tipo</label>
-                    <div className="flex flex-wrap gap-1.5">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Tipo de despesa
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
                         {tipos.map((t) => (
                             <button
                                 key={t.v}
                                 type="button"
                                 onClick={() => setTipo(t.v as any)}
-                                className={`px-2.5 py-1.5 text-xs rounded-md border transition-all flex items-center gap-1 ${tipo === t.v
-                                    ? 'bg-neutral-800 text-white border-neutral-800'
-                                    : 'bg-neutral-50 text-neutral-600 border-neutral-200'
-                                    }`}
+                                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                                    tipo === t.v
+                                        ? 'bg-neutral-900 text-white border-neutral-900 shadow-lg'
+                                        : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+                                }`}
                             >
-                                <span>{t.l}</span>
-                                <span>{t.n}</span>
+                                <t.icon className="h-6 w-6" />
+                                <span className="text-sm font-medium">{t.n}</span>
                             </button>
                         ))}
                     </div>
                 </div>
 
+                {/* Amount */}
                 <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Valor (R$)</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        value={valor}
-                        onChange={(e) => setValor(e.target.value)}
-                        required
-                        placeholder="0,00"
-                        className="w-full h-10 px-3 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                   focus:outline-none focus:ring-1 focus:ring-neutral-300 focus:bg-white"
-                    />
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Valor
+                    </label>
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-neutral-400 font-semibold">
+                            R$
+                        </span>
+                        <input
+                            type="number"
+                            step="0.01"
+                            value={valor}
+                            onChange={(e) => setValor(e.target.value)}
+                            required
+                            placeholder="0,00"
+                            className="w-full h-16 pl-14 pr-4 text-3xl font-bold bg-neutral-50 border-2 border-neutral-200
+                                       rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:bg-white
+                                       text-neutral-900 placeholder:text-neutral-300"
+                        />
+                    </div>
                 </div>
 
+                {/* Receipt Photo */}
                 <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Nota Fiscal</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Comprovante (opcional)
+                    </label>
                     {receiptPreview ? (
-                        <div className="relative h-16 rounded-md overflow-hidden border border-neutral-200">
-                            <img src={receiptPreview} alt="NF" className="w-full h-full object-cover" />
-                            <button type="button" onClick={removeReceipt}
-                                className="absolute top-1 right-1 p-1 bg-black/50 rounded-full text-white">
-                                <X className="h-3 w-3" />
+                        <div className="relative h-40 rounded-xl overflow-hidden border-2 border-neutral-200">
+                            <img src={receiptPreview} alt="Comprovante" className="w-full h-full object-cover" />
+                            <button
+                                type="button"
+                                onClick={removeReceipt}
+                                className="absolute top-3 right-3 p-2 bg-black/70 backdrop-blur-sm rounded-full text-white
+                                           active:scale-95 transition-transform"
+                            >
+                                <X className="h-5 w-5" />
                             </button>
                         </div>
                     ) : (
-                        <button type="button" onClick={() => fileInputRef.current?.click()}
-                            className="w-full h-16 flex items-center justify-center gap-2 border border-dashed
-                                       border-neutral-300 rounded-md text-neutral-400 text-xs hover:border-neutral-400">
-                            <Camera className="h-4 w-4" />
-                            <span>Tirar foto</span>
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed
+                                       border-neutral-300 rounded-xl text-neutral-400 hover:border-neutral-400
+                                       active:bg-neutral-50 transition-colors"
+                        >
+                            <Camera className="h-8 w-8" />
+                            <span className="text-sm font-medium">Tirar foto ou anexar</span>
                         </button>
                     )}
-                    <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
-                        onChange={handleFileChange} className="hidden" />
-                </div>
-
-                <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Observações</label>
-                    <textarea
-                        value={observacoes}
-                        onChange={(e) => setObservacoes(e.target.value)}
-                        placeholder="Opcional..."
-                        rows={2}
-                        className="w-full px-3 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                   focus:outline-none focus:ring-1 focus:ring-neutral-300 focus:bg-white resize-none"
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleFileChange}
+                        className="hidden"
                     />
                 </div>
 
-                <button type="submit" disabled={loading || !vehicleId || !valor}
-                    className="w-full h-10 bg-neutral-800 text-white text-sm font-medium rounded-md
-                               disabled:opacity-50 active:bg-neutral-700">
-                    {loading ? 'Salvando...' : 'Registrar'}
+                {/* Notes */}
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Observações
+                    </label>
+                    <textarea
+                        value={observacoes}
+                        onChange={(e) => setObservacoes(e.target.value)}
+                        placeholder="Adicione uma nota (opcional)"
+                        rows={3}
+                        className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                   focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
+                                   placeholder:text-neutral-400"
+                    />
+                </div>
+
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    disabled={loading || !vehicleId || !valor}
+                    className="w-full h-14 bg-neutral-900 text-white text-base font-semibold rounded-xl
+                               disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg shadow-neutral-900/20
+                               flex items-center justify-center gap-2"
+                >
+                    {loading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <>
+                            <Check className="h-5 w-5" />
+                            <span>Registrar Despesa</span>
+                        </>
+                    )}
                 </button>
             </form>
-        </Modal>
+        </NativeModal>
     )
 }
 
@@ -345,75 +498,103 @@ function VehicleStatusModal({
     }
 
     const statusOptions = [
-        { v: 'ACTIVE', l: '🟢', n: 'Ativo' },
-        { v: 'MAINTENANCE', l: '🟡', n: 'Manutenção' },
-        { v: 'INACTIVE', l: '🔴', n: 'Inativo' }
+        { v: 'ACTIVE', color: 'bg-green-500', n: 'Em operação', desc: 'Funcionando normalmente' },
+        { v: 'MAINTENANCE', color: 'bg-yellow-500', n: 'Manutenção', desc: 'Em reparo ou revisão' },
+        { v: 'INACTIVE', color: 'bg-red-500', n: 'Parado', desc: 'Fora de operação' }
     ]
 
     return (
-        <Modal open={open} onClose={onClose} title="Status do Veículo">
-            <form onSubmit={handleSubmit} className="space-y-3">
+        <NativeModal open={open} onClose={onClose} title="Status do Veículo">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="p-2 bg-red-50 border border-red-200 rounded-md">
-                        <p className="text-xs text-red-600">{error}</p>
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                        <p className="text-sm text-red-600">{error}</p>
                     </div>
                 )}
 
                 <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Veículo</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Veículo
+                    </label>
                     <select
                         value={vehicleId}
                         onChange={(e) => setVehicleId(e.target.value)}
                         required
-                        className="w-full h-10 px-3 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                   focus:outline-none focus:ring-1 focus:ring-neutral-300 focus:bg-white"
+                        className="w-full h-14 px-4 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                   focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white
+                                   appearance-none font-medium text-neutral-900"
                     >
-                        <option value="">Selecione...</option>
+                        <option value="">Selecione o veículo</option>
                         {vehicles.map((v) => (
-                            <option key={v.id} value={v.id}>{v.plate} {v.model && `- ${v.model}`}</option>
+                            <option key={v.id} value={v.id}>
+                                {v.plate} {v.model && `- ${v.model}`}
+                            </option>
                         ))}
                     </select>
                 </div>
 
                 <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Status</label>
-                    <div className="flex gap-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Novo status
+                    </label>
+                    <div className="space-y-3">
                         {statusOptions.map((s) => (
                             <button
                                 key={s.v}
                                 type="button"
                                 onClick={() => setStatus(s.v as any)}
-                                className={`flex-1 py-2 text-xs rounded-md border transition-all flex items-center justify-center gap-1 ${status === s.v
-                                    ? 'bg-neutral-800 text-white border-neutral-800'
-                                    : 'bg-neutral-50 text-neutral-600 border-neutral-200'
-                                    }`}
+                                className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 text-left ${
+                                    status === s.v
+                                        ? 'border-neutral-900 bg-neutral-50'
+                                        : 'border-neutral-200 bg-white hover:border-neutral-300'
+                                }`}
                             >
-                                <span>{s.l}</span>
-                                <span>{s.n}</span>
+                                <div className={`w-5 h-5 rounded-full ${s.color} flex-shrink-0`} />
+                                <div className="flex-1">
+                                    <p className="text-base font-semibold text-neutral-900">{s.n}</p>
+                                    <p className="text-sm text-neutral-500 mt-0.5">{s.desc}</p>
+                                </div>
+                                {status === s.v && (
+                                    <Check className="h-6 w-6 text-neutral-900 flex-shrink-0" />
+                                )}
                             </button>
                         ))}
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-xs font-medium text-neutral-600 mb-1">Observações</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Observações
+                    </label>
                     <textarea
                         value={observacoes}
                         onChange={(e) => setObservacoes(e.target.value)}
                         placeholder="Detalhes sobre o status..."
-                        rows={2}
-                        className="w-full px-3 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                   focus:outline-none focus:ring-1 focus:ring-neutral-300 focus:bg-white resize-none"
+                        rows={3}
+                        className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                   focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
+                                   placeholder:text-neutral-400"
                     />
                 </div>
 
-                <button type="submit" disabled={loading || !vehicleId}
-                    className="w-full h-10 bg-neutral-800 text-white text-sm font-medium rounded-md
-                               disabled:opacity-50 active:bg-neutral-700">
-                    {loading ? 'Salvando...' : 'Atualizar'}
+                <button
+                    type="submit"
+                    disabled={loading || !vehicleId}
+                    className="w-full h-14 bg-neutral-900 text-white text-base font-semibold rounded-xl
+                               disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg shadow-neutral-900/20
+                               flex items-center justify-center gap-2"
+                >
+                    {loading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <>
+                            <Check className="h-5 w-5" />
+                            <span>Atualizar Status</span>
+                        </>
+                    )}
                 </button>
             </form>
-        </Modal>
+        </NativeModal>
     )
 }
 
@@ -461,7 +642,7 @@ function DailyReportModal({
                 setNotes('')
             }
         } catch {
-            // Ignore errors
+            // Ignore
         } finally {
             setChecking(false)
         }
@@ -509,28 +690,33 @@ function DailyReportModal({
     }
 
     return (
-        <Modal open={open} onClose={onClose} title="Relatório do Dia">
+        <NativeModal open={open} onClose={onClose} title="Relatório do Dia">
             {checking ? (
-                <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+                <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
                 </div>
             ) : (
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     {error && (
-                        <div className="p-2 bg-red-50 border border-red-200 rounded-md">
-                            <p className="text-xs text-red-600">{error}</p>
+                        <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                            <p className="text-sm text-red-600">{error}</p>
                         </div>
                     )}
 
                     {existingReport && (
-                        <div className="p-2 bg-blue-50 border border-blue-200 rounded-md flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-600" />
-                            <p className="text-xs text-blue-600">Relatório de hoje já preenchido</p>
+                        <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <Check className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-blue-900">Relatório de hoje</p>
+                                <p className="text-xs text-blue-600 mt-0.5">Você já preencheu - pode editar abaixo</p>
+                            </div>
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-xs font-medium text-neutral-600 mb-1">
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
                             Resumo das atividades *
                         </label>
                         <textarea
@@ -538,44 +724,55 @@ function DailyReportModal({
                             onChange={(e) => setSummary(e.target.value)}
                             required
                             placeholder="O que você fez hoje?"
-                            rows={3}
-                            className="w-full px-3 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                       focus:outline-none focus:ring-1 focus:ring-neutral-300 focus:bg-white resize-none"
+                            rows={4}
+                            className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                       focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
+                                       placeholder:text-neutral-400"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-medium text-neutral-600 mb-1">Observações</label>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                            Observações
+                        </label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Problemas, pendências..."
-                            rows={2}
-                            className="w-full px-3 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                       focus:outline-none focus:ring-1 focus:ring-neutral-300 focus:bg-white resize-none"
+                            placeholder="Problemas, pendências, sugestões..."
+                            rows={3}
+                            className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                       focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
+                                       placeholder:text-neutral-400"
                         />
                     </div>
 
-                    <button type="submit" disabled={loading || !summary.trim()}
-                        className="w-full h-10 bg-neutral-800 text-white text-sm font-medium rounded-md
-                                   disabled:opacity-50 active:bg-neutral-700">
-                        {loading ? 'Salvando...' : existingReport ? 'Atualizar' : 'Enviar'}
+                    <button
+                        type="submit"
+                        disabled={loading || !summary.trim()}
+                        className="w-full h-14 bg-neutral-900 text-white text-base font-semibold rounded-xl
+                                   disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg shadow-neutral-900/20
+                                   flex items-center justify-center gap-2"
+                    >
+                        {loading ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                            <>
+                                <Check className="h-5 w-5" />
+                                <span>{existingReport ? 'Atualizar Relatório' : 'Enviar Relatório'}</span>
+                            </>
+                        )}
                     </button>
                 </form>
             )}
-        </Modal>
+        </NativeModal>
     )
 }
 
 // ============================================================================
-// TEAM SELECTION SCREEN (for first-time onboarding)
+// TEAM SELECTION SCREEN
 // ============================================================================
 
-function TeamSelectionScreen({
-    onComplete
-}: {
-    onComplete: () => void
-}) {
+function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
     const supabase = createClientComponentClient()
     const [hasTeam, setHasTeam] = useState<boolean | null>(null)
     const [selectedTeam, setSelectedTeam] = useState('')
@@ -584,7 +781,6 @@ function TeamSelectionScreen({
     const [loadingTeams, setLoadingTeams] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // Fetch teams when user says "yes"
     useEffect(() => {
         if (hasTeam === true) {
             fetchTeams()
@@ -594,10 +790,7 @@ function TeamSelectionScreen({
     const fetchTeams = async () => {
         setLoadingTeams(true)
         try {
-            const { data } = await supabase
-                .from('teams')
-                .select('id, name')
-                .order('name')
+            const { data } = await supabase.from('teams').select('id, name').order('name')
             setTeams(data || [])
         } catch (err) {
             console.error('Error fetching teams:', err)
@@ -630,71 +823,77 @@ function TeamSelectionScreen({
     }
 
     return (
-        <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center p-4">
-            <div className="w-full max-w-sm space-y-4">
-                <div className="text-center">
-                    <h1 className="text-xl font-semibold text-neutral-800">Bem-vindo! 👋</h1>
-                    <p className="text-sm text-neutral-500 mt-1">Vamos configurar seu perfil</p>
+        <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-6">
+            <div className="w-full max-w-md space-y-6">
+                <div className="text-center space-y-2">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-neutral-900 rounded-2xl mb-2">
+                        <User className="h-8 w-8 text-white" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-neutral-900">Bem-vindo!</h1>
+                    <p className="text-base text-neutral-500">Configure seu perfil para começar</p>
                 </div>
 
                 {error && (
-                    <div className="p-2 bg-red-50 border border-red-200 rounded-md">
-                        <p className="text-xs text-red-600">{error}</p>
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                        <p className="text-sm text-red-600">{error}</p>
                     </div>
                 )}
 
-                <div className="bg-white border border-neutral-200 rounded-lg p-4 space-y-4">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100 space-y-5">
                     <div>
-                        <p className="text-sm font-medium text-neutral-700 mb-3">
+                        <p className="text-base font-semibold text-neutral-900 mb-3">
                             Você faz parte de alguma equipe?
                         </p>
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-3">
                             <button
                                 type="button"
                                 onClick={() => setHasTeam(true)}
-                                className={`flex-1 py-2.5 text-sm rounded-md border transition-all ${hasTeam === true
-                                        ? 'bg-neutral-800 text-white border-neutral-800'
-                                        : 'bg-neutral-50 text-neutral-600 border-neutral-200'
-                                    }`}
+                                className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${
+                                    hasTeam === true
+                                        ? 'bg-neutral-900 text-white border-neutral-900'
+                                        : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+                                }`}
                             >
                                 Sim
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setHasTeam(false)}
-                                className={`flex-1 py-2.5 text-sm rounded-md border transition-all ${hasTeam === false
-                                        ? 'bg-neutral-800 text-white border-neutral-800'
-                                        : 'bg-neutral-50 text-neutral-600 border-neutral-200'
-                                    }`}
+                                className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${
+                                    hasTeam === false
+                                        ? 'bg-neutral-900 text-white border-neutral-900'
+                                        : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+                                }`}
                             >
-                                Não, trabalho sozinho
+                                Não
                             </button>
                         </div>
                     </div>
 
                     {hasTeam === true && (
                         <div>
-                            <label className="block text-xs font-medium text-neutral-600 mb-1">
+                            <label className="block text-sm font-medium text-neutral-700 mb-2">
                                 Selecione sua equipe
                             </label>
                             {loadingTeams ? (
-                                <div className="h-10 flex items-center justify-center">
-                                    <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
+                                <div className="h-14 flex items-center justify-center">
+                                    <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
                                 </div>
                             ) : teams.length === 0 ? (
-                                <p className="text-xs text-neutral-400 py-2">
-                                    Nenhuma equipe cadastrada
-                                </p>
+                                <p className="text-sm text-neutral-400 py-3">Nenhuma equipe cadastrada</p>
                             ) : (
                                 <select
                                     value={selectedTeam}
                                     onChange={(e) => setSelectedTeam(e.target.value)}
-                                    className="w-full h-10 px-3 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                                               focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                                    className="w-full h-14 px-4 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                               focus:outline-none focus:ring-2 focus:ring-neutral-300 appearance-none
+                                               font-medium text-neutral-900"
                                 >
                                     <option value="">Selecione...</option>
                                     {teams.map((t) => (
-                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                        <option key={t.id} value={t.id}>
+                                            {t.name}
+                                        </option>
                                     ))}
                                 </select>
                             )}
@@ -705,10 +904,11 @@ function TeamSelectionScreen({
                 <button
                     onClick={handleComplete}
                     disabled={loading || hasTeam === null || (hasTeam === true && !selectedTeam && teams.length > 0)}
-                    className="w-full h-10 bg-neutral-800 text-white text-sm font-medium rounded-md
-                               disabled:opacity-50 active:bg-neutral-700"
+                    className="w-full h-14 bg-neutral-900 text-white text-base font-semibold rounded-xl
+                               disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg shadow-neutral-900/20
+                               flex items-center justify-center gap-2"
                 >
-                    {loading ? 'Salvando...' : 'Continuar'}
+                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Continuar'}
                 </button>
             </div>
         </div>
@@ -731,7 +931,6 @@ export default function AppPage() {
     const [showReminder, setShowReminder] = useState(false)
     const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null)
 
-    // Check onboarding status
     useEffect(() => {
         const checkOnboarding = async () => {
             const { data: { user } } = await supabase.auth.getUser()
@@ -769,86 +968,119 @@ export default function AppPage() {
 
     if (loadingProfile || onboardingComplete === null) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#FBFBFA]">
-                <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+            <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+                <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
             </div>
         )
     }
 
-    // Show team selection if not onboarded
     if (!onboardingComplete) {
         return <TeamSelectionScreen onComplete={handleOnboardingComplete} />
     }
 
     return (
-        <div className="min-h-screen bg-[#FBFBFA]">
-            {/* Header */}
-            <header className="bg-white border-b border-neutral-100 px-4 py-2.5 sticky top-0 z-40">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-base font-semibold text-neutral-900">Operium</h1>
-                        <p className="text-[11px] text-neutral-400">Equipe de Campo</p>
+        <div className="min-h-screen bg-neutral-50">
+            {/* Header - iOS Style */}
+            <header className="bg-white border-b border-neutral-100 sticky top-0 z-40 backdrop-blur-xl bg-white/80">
+                <div className="px-5 py-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-xl font-bold text-neutral-900">Operium</h1>
+                            <p className="text-sm text-neutral-500 mt-0.5">Equipe de Campo</p>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="p-3 text-neutral-400 hover:text-neutral-600 active:bg-neutral-100 rounded-xl
+                                       transition-colors"
+                        >
+                            <LogOut className="h-5 w-5" />
+                        </button>
                     </div>
-                    <button onClick={handleLogout}
-                        className="p-2 text-neutral-400 hover:text-neutral-600 active:bg-neutral-100 rounded-md">
-                        <LogOut className="h-4 w-4" />
-                    </button>
                 </div>
             </header>
 
-            {/* Reminder */}
+            {/* Reminder Banner */}
             {showReminder && (
-                <div className="mx-3 mt-3 p-2.5 bg-purple-50 border border-purple-200 rounded-lg flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                    <p className="text-xs text-purple-700 flex-1">Hora do relatório diário!</p>
-                    <button onClick={() => { setShowReminder(false); setShowReportModal(true) }}
-                        className="text-[11px] font-medium text-purple-700 px-2 py-1 bg-purple-100 rounded active:bg-purple-200">
-                        Fazer
-                    </button>
+                <div className="mx-4 mt-4">
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200
+                                    rounded-2xl flex items-center gap-3 shadow-sm">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Clock className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <p className="text-sm font-medium text-purple-900 flex-1">
+                            Hora do relatório diário!
+                        </p>
+                        <button
+                            onClick={() => {
+                                setShowReminder(false)
+                                setShowReportModal(true)
+                            }}
+                            className="px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-lg
+                                       active:scale-95 transition-transform"
+                        >
+                            Fazer
+                        </button>
+                    </div>
                 </div>
             )}
 
-            {/* Content */}
-            <main className="p-3 space-y-4">
+            {/* Main Content */}
+            <main className="px-5 py-6 space-y-8 pb-safe">
+                {/* Greeting */}
                 <div>
-                    <h2 className="text-lg font-medium text-neutral-800">Olá! 👋</h2>
-                    <p className="text-xs text-neutral-500">O que você precisa fazer hoje?</p>
+                    <h2 className="text-2xl font-bold text-neutral-900">Olá! 👋</h2>
+                    <p className="text-base text-neutral-500 mt-1">O que você precisa fazer hoje?</p>
                 </div>
 
-                <div className="space-y-2">
-                    <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider">Ações</p>
-                    <ActionCard icon={Fuel} title="Nova Despesa" subtitle="Registrar gasto"
-                        onClick={() => setShowExpenseModal(true)} color="blue" />
-                    <ActionCard icon={Activity} title="Status Veículo" subtitle="Atualizar condição"
-                        onClick={() => setShowStatusModal(true)} color="orange" />
-                    <ActionCard icon={FileText} title="Relatório do Dia" subtitle="Resumo das atividades"
-                        onClick={() => setShowReportModal(true)} color="purple" />
+                {/* Quick Actions */}
+                <div className="space-y-3">
+                    <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide px-1">
+                        Ações Rápidas
+                    </h3>
+                    <ActionCard
+                        icon={Fuel}
+                        title="Nova Despesa"
+                        subtitle="Registrar combustível ou manutenção"
+                        onClick={() => setShowExpenseModal(true)}
+                        color="blue"
+                    />
+                    <ActionCard
+                        icon={Car}
+                        title="Status do Veículo"
+                        subtitle="Atualizar condição atual"
+                        onClick={() => setShowStatusModal(true)}
+                        color="orange"
+                    />
+                    <ActionCard
+                        icon={FileText}
+                        title="Relatório do Dia"
+                        subtitle="Resumo das atividades realizadas"
+                        onClick={() => setShowReportModal(true)}
+                        color="purple"
+                    />
                 </div>
 
-                <div className="space-y-2">
-                    <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-wider flex items-center gap-1">
-                        <History className="h-3 w-3" /> Atividade
-                    </p>
+                {/* Recent Activity */}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-1">
+                        <History className="h-4 w-4 text-neutral-400" />
+                        <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+                            Atividade Recente
+                        </h3>
+                    </div>
                     {loadingEvents ? (
-                        <div className="text-center py-4"><Loader2 className="h-4 w-4 animate-spin text-neutral-300 mx-auto" /></div>
+                        <div className="flex items-center justify-center py-12">
+                            <Loader2 className="h-5 w-5 animate-spin text-neutral-300" />
+                        </div>
                     ) : events.length === 0 ? (
-                        <p className="text-xs text-neutral-400 text-center py-4">Nenhuma atividade</p>
+                        <div className="text-center py-12">
+                            <Activity className="h-12 w-12 text-neutral-200 mx-auto mb-3" />
+                            <p className="text-sm text-neutral-400">Nenhuma atividade registrada</p>
+                        </div>
                     ) : (
-                        <div className="space-y-1.5">
-                            {events.slice(0, 5).map((event) => (
-                                <div key={event.id} className="p-2.5 bg-white border border-neutral-100 rounded-lg">
-                                    <p className="text-xs text-neutral-700">
-                                        {event.type === 'VEHICLE_EXPENSE' && '💰 Despesa'}
-                                        {event.type === 'VEHICLE_STATUS' && '🚗 Status'}
-                                        {event.type === 'ITEM_IN' && '📥 Entrada'}
-                                        {event.type === 'ITEM_OUT' && '📤 Saída'}
-                                    </p>
-                                    <p className="text-[10px] text-neutral-400 mt-0.5">
-                                        {new Date(event.created_at).toLocaleDateString('pt-BR', {
-                                            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-                                        })}
-                                    </p>
-                                </div>
+                        <div className="space-y-2">
+                            {events.map((event) => (
+                                <ActivityCard key={event.id} event={event} />
                             ))}
                         </div>
                     )}
@@ -856,9 +1088,21 @@ export default function AppPage() {
             </main>
 
             {/* Modals */}
-            <VehicleExpenseModal open={showExpenseModal} onClose={() => setShowExpenseModal(false)} onSuccess={handleSuccess} />
-            <VehicleStatusModal open={showStatusModal} onClose={() => setShowStatusModal(false)} onSuccess={handleSuccess} />
-            <DailyReportModal open={showReportModal} onClose={() => setShowReportModal(false)} onSuccess={handleSuccess} />
+            <VehicleExpenseModal
+                open={showExpenseModal}
+                onClose={() => setShowExpenseModal(false)}
+                onSuccess={handleSuccess}
+            />
+            <VehicleStatusModal
+                open={showStatusModal}
+                onClose={() => setShowStatusModal(false)}
+                onSuccess={handleSuccess}
+            />
+            <DailyReportModal
+                open={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                onSuccess={handleSuccess}
+            />
         </div>
     )
 }
