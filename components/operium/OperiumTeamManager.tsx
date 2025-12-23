@@ -235,13 +235,14 @@ export function OperiumTeamManager() {
                 onSuccess={refreshMembers}
             />
 
-            {/* Confirm Deactivate Dialog */}
+            {/* Confirm Delete Dialog */}
             <AlertDialog open={!!confirmDeactivate} onOpenChange={() => setConfirmDeactivate(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Desativar colaborador?</AlertDialogTitle>
+                        <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            O colaborador perderá acesso ao sistema operacional. Esta ação pode ser revertida.
+                            O colaborador será <strong>permanentemente removido</strong> do sistema e perderá todo o acesso.
+                            O histórico de atividades será preservado. Esta ação não pode ser desfeita.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -252,7 +253,7 @@ export function OperiumTeamManager() {
                             className="bg-red-600 hover:bg-red-700"
                         >
                             {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Desativar
+                            Excluir
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

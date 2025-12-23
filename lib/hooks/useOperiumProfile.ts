@@ -53,10 +53,10 @@ export function useOperiumProfile() {
 
             // Get user name from profile or auth metadata
             const name = data?.name ||
-                        user.user_metadata?.full_name ||
-                        user.user_metadata?.name ||
-                        user.email?.split('@')[0] ||
-                        'Usuário'
+                user.user_metadata?.full_name ||
+                user.user_metadata?.name ||
+                user.email?.split('@')[0] ||
+                'Usuário'
             setUserName(name)
         } catch (err: any) {
             console.error("Error fetching OPERIUM profile:", err)
@@ -170,11 +170,12 @@ export function useOperiumProfile() {
     }, [supabase, profile?.org_id])
 
     /**
-     * Desativa membro da equipe
+     * Desativa membro da equipe e DELETA o usuário do auth.users
      */
     const deactivateMember = useCallback(async (targetUserId: string) => {
         if (!profile?.org_id) throw new Error("No org_id found")
 
+        // First, deactivate the operium profile
         const { error } = await supabase
             .from("operium_profiles")
             .update({ active: false })
@@ -182,6 +183,20 @@ export function useOperiumProfile() {
             .eq("org_id", profile.org_id)
 
         if (error) throw error
+
+        // Then, delete the user from auth.users via API
+        // This will cascade delete from profiles and operium_profiles
+        const response = await fetch('/api/operium/users/delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: targetUserId }),
+        })
+
+        if (!response.ok) {
+            const result = await response.json()
+            console.warn('Failed to delete user from auth (non-critical):', result.error)
+            // Don't throw - the profile is already deactivated, user just won't be fully deleted
+        }
     }, [supabase, profile?.org_id])
 
     // Permission helpers
