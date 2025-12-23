@@ -120,6 +120,16 @@ function VehicleExpenseModal({
     const { vehicles } = useOperiumVehicles()
     const { createVehicleExpense } = useOperiumEvents()
 
+    // Cleanup when modal closes
+    useEffect(() => {
+        if (!open) {
+            // Reset file input when modal closes
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''
+            }
+        }
+    }, [open])
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
