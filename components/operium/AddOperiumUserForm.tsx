@@ -104,6 +104,57 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
         }
     }
 
+    const handleSendInvite = async () => {
+        try {
+            setLoading(true)
+
+            // Obter dados do perfil atual para pegar o org_id
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error("Você precisa estar logado")
+
+            // Buscar org_id do usuário atual (admin)
+            const { data: profile } = await supabase
+                .from('operium_profiles')
+                .select('org_id')
+                .eq('user_id', user.id)
+                .single()
+
+            if (!profile?.org_id) throw new Error("Erro ao identificar organização")
+
+            const email = watch('email')
+            const role = watch('role')
+
+            const response = await fetch('/api/operium/invites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    role,
+                    org_id: profile.org_id
+                }),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || "Erro ao enviar convite")
+            }
+
+            toast.success("Convite enviado com sucesso!")
+            onOpenChange(false)
+            reset()
+            setStep('form')
+            onSuccess?.()
+
+        } catch (err: any) {
+            console.error(err)
+            toast.error(err.message || "Erro ao enviar convite")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
     const handleClose = () => {
         reset()
         setStep('form')
@@ -249,14 +300,22 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
                             <p className="text-zinc-900 dark:text-zinc-100 font-medium mt-4">
                                 Usuário não encontrado
                             </p>
-                            <p className="text-zinc-500 text-sm mt-1 text-center">
-                                O colaborador precisa criar uma conta na plataforma primeiro.
+                            <p className="text-zinc-500 text-sm mt-1 text-center max-w-[280px]">
+                                Este email não possui conta na plataforma. Deseja enviar um convite?
                             </p>
                         </div>
 
-                        <DialogFooter>
+                        <DialogFooter className="flex-col sm:flex-row gap-2">
                             <Button type="button" variant="ghost" onClick={() => setStep('form')}>
-                                Tentar outro email
+                                Voltar
+                            </Button>
+                            <Button
+                                onClick={handleSendInvite}
+                                disabled={loading}
+                                className="bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                            >
+                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Enviar Convite por Email
                             </Button>
                         </DialogFooter>
                     </div>

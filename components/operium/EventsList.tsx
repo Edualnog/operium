@@ -58,7 +58,7 @@ const EVENT_CONFIG: Record<OperiumEventType, {
 }
 
 interface EventsListProps {
-    typeFilter?: OperiumEventType | null
+    typeFilter?: OperiumEventType | OperiumEventType[] | null
     limit?: number
     showFilters?: boolean
 }
@@ -68,8 +68,29 @@ export function EventsList({
     limit = 50,
     showFilters = true
 }: EventsListProps) {
-    const [typeFilter, setTypeFilter] = useState<OperiumEventType | null>(initialFilter)
-    const { events, loading, error } = useOperiumEvents({ typeFilter, limit })
+    // Se o filtro inicial for um array (visão restrita), mantemos ele como base
+    // Se o usuário selecionar um filtro específico no dropdown, usamos ele
+    // Se o usuário selecionar "Todos", voltamos para o filtro base
+    const [userFilter, setUserFilter] = useState<OperiumEventType | null>(null)
+
+    // O filtro efetivo enviado para o hook
+    const effectiveFilter = userFilter || initialFilter
+
+    const { events, loading, error } = useOperiumEvents({ typeFilter: effectiveFilter, limit })
+
+    // Handler para mudança no dropdown
+    const handleFilterChange = (value: string) => {
+        if (value === "all") {
+            setUserFilter(null)
+        } else {
+            setUserFilter(value as OperiumEventType)
+        }
+    }
+
+    // Calcular valor atual do Select
+    // Se userFilter está setado, é ele
+    // Se não, é "all" (que representa o initialFilter, seja array ou null)
+    const selectValue = userFilter || "all"
 
     if (loading) {
         return (
@@ -87,6 +108,9 @@ export function EventsList({
         )
     }
 
+    // Verificar se o filtro base permite certas opções
+    const isRestricted = Array.isArray(initialFilter)
+
     return (
         <div className="space-y-4">
             {/* Filters */}
@@ -94,18 +118,28 @@ export function EventsList({
                 <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
                     <Filter className="h-4 w-4 text-zinc-500" />
                     <Select
-                        value={typeFilter || "all"}
-                        onValueChange={(value) => setTypeFilter(value === "all" ? null : value as OperiumEventType)}
+                        value={selectValue}
+                        onValueChange={handleFilterChange}
                     >
                         <SelectTrigger className="w-[200px] h-9 bg-white dark:bg-zinc-900">
                             <SelectValue placeholder="Filtrar por tipo" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos os tipos</SelectItem>
-                            <SelectItem value="VEHICLE_EXPENSE">Despesa de Veículo</SelectItem>
-                            <SelectItem value="VEHICLE_STATUS">Status de Veículo</SelectItem>
-                            <SelectItem value="ITEM_IN">Entrada de Item</SelectItem>
-                            <SelectItem value="ITEM_OUT">Saída de Item</SelectItem>
+
+                            {/* Mostrar opções baseadas na restrição */}
+                            {(!isRestricted || (initialFilter as string[]).includes('VEHICLE_EXPENSE')) && (
+                                <SelectItem value="VEHICLE_EXPENSE">Despesa de Veículo</SelectItem>
+                            )}
+                            {(!isRestricted || (initialFilter as string[]).includes('VEHICLE_STATUS')) && (
+                                <SelectItem value="VEHICLE_STATUS">Status de Veículo</SelectItem>
+                            )}
+                            {(!isRestricted || (initialFilter as string[]).includes('ITEM_IN')) && (
+                                <SelectItem value="ITEM_IN">Entrada de Item</SelectItem>
+                            )}
+                            {(!isRestricted || (initialFilter as string[]).includes('ITEM_OUT')) && (
+                                <SelectItem value="ITEM_OUT">Saída de Item</SelectItem>
+                            )}
                         </SelectContent>
                     </Select>
                     <span className="ml-auto text-sm text-zinc-500">

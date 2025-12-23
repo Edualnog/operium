@@ -47,12 +47,16 @@ import { cn } from "@/lib/utils"
 
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { LanguageSwitcher } from "@/components/ui/language-switcher"
+import { useOperiumProfile } from "@/lib/hooks/useOperiumProfile"
 
 export default function DashboardWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClientComponentClient()
   const [userId, setUserId] = useState<string | null>(null)
+
+  // Operium Role Check
+  const { profile } = useOperiumProfile()
 
   useEffect(() => {
     let cancelled = false
@@ -139,6 +143,14 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
+      label: "Operacional",
+      href: "/dashboard/operium",
+      id: "sidebar-operium",
+      icon: (
+        <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
       label: "Acessos",
       href: "/dashboard/acessos",
       id: "sidebar-acessos",
@@ -148,10 +160,23 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     },
   ]
 
+  // Filter links for Operium Collaborators (FIELD / WAREHOUSE)
+  // They should ONLY see the "Operacional" dashboard (and Account settings via sidebar footer)
+  const isCollaborator = profile?.role === 'FIELD' || profile?.role === 'WAREHOUSE'
+
+  const displayedLinks = isCollaborator
+    ? [{
+      label: "Operacional",
+      href: "/dashboard/operium",
+      id: "sidebar-operium",
+      icon: <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
+    }]
+    : links
+
   return (
     <Sidebar>
       <SidebarContent
-        links={links}
+        links={displayedLinks}
         pathname={pathname}
         onLogout={handleLogout}
       />

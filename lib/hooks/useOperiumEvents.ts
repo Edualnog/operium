@@ -16,7 +16,7 @@ import {
 } from "@/lib/types/operium"
 
 interface UseOperiumEventsOptions {
-    typeFilter?: OperiumEventType | null
+    typeFilter?: OperiumEventType | OperiumEventType[] | null
     limit?: number
 }
 
@@ -44,7 +44,13 @@ export function useOperiumEvents(options: UseOperiumEventsOptions = {}) {
                 .limit(limit)
 
             if (typeFilter) {
-                query = query.eq("type", typeFilter)
+                if (Array.isArray(typeFilter)) {
+                    if (typeFilter.length > 0) {
+                        query = query.in("type", typeFilter)
+                    }
+                } else {
+                    query = query.eq("type", typeFilter)
+                }
             }
 
             const { data, error: fetchError } = await query

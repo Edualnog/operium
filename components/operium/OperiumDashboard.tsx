@@ -8,6 +8,8 @@ import { VehicleStatusForm } from "./VehicleStatusForm"
 import { InventoryMovementForm } from "./InventoryMovementForm"
 import { EventsList } from "./EventsList"
 import { OperiumTeamManager } from "./OperiumTeamManager"
+import { FieldDashboard } from "./FieldDashboard"
+import { WarehouseDashboard } from "./WarehouseDashboard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -141,103 +143,116 @@ export function OperiumDashboard() {
                 <OperiumTeamManager />
             )}
 
-            {/* Quick Actions */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {/* Vehicle Expense */}
-                {canCreateVehicleExpense && (
-                    <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
-                        onClick={() => setExpenseFormOpen(true)}
-                    >
-                        <CardHeader className="pb-2">
-                            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                <Fuel className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
-                                Registrar Despesa
-                            </CardTitle>
-                            <CardDescription className="text-zinc-500">
-                                Combustível, pedágio, manutenção
-                            </CardDescription>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Vehicle Status */}
-                {canCreateVehicleStatus && (
-                    <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
-                        onClick={() => setStatusFormOpen(true)}
-                    >
-                        <CardHeader className="pb-2">
-                            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                                <Activity className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
-                                Status do Veículo
-                            </CardTitle>
-                            <CardDescription className="text-zinc-500">
-                                Ativo, manutenção, inativo
-                            </CardDescription>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Item In */}
-                {canCreateItemIn && (
-                    <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
-                        onClick={() => { setMovementType('ITEM_IN'); setMovementFormOpen(true) }}
-                    >
-                        <CardHeader className="pb-2">
-                            <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                <ArrowDownToLine className="h-5 w-5 text-green-600 dark:text-green-400" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
-                                Entrada de Item
-                            </CardTitle>
-                            <CardDescription className="text-zinc-500">
-                                Registrar recebimento
-                            </CardDescription>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Item Out */}
-                {canCreateItemOut && (
-                    <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
-                        onClick={() => { setMovementType('ITEM_OUT'); setMovementFormOpen(true) }}
-                    >
-                        <CardHeader className="pb-2">
-                            <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                                <ArrowUpFromLine className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
-                                Saída de Item
-                            </CardTitle>
-                            <CardDescription className="text-zinc-500">
-                                Registrar retirada
-                            </CardDescription>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-
-            {/* Events History */}
-            <div>
-                <div className="flex items-center gap-2 mb-4">
-                    <History className="h-5 w-5 text-zinc-500" />
-                    <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-                        Histórico de Eventos
-                    </h2>
+            {/* Dashboard Content based on Role */}
+            {(role === 'FIELD') && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {/* @ts-ignore */}
+                    <FieldDashboard />
                 </div>
-                <EventsList key={refreshKey} limit={20} />
-            </div>
+            )}
+
+            {(role === 'WAREHOUSE') && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {/* @ts-ignore */}
+                    <WarehouseDashboard />
+                </div>
+            )}
+
+            {/* ADMIN Dashboard (Full View) */}
+            {role === 'ADMIN' && (
+                <>
+                    {/* Activity Ticker */}
+                    {/* ... ticker remains same ... */}
+
+                    {/* Quick Actions Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Use existing card logic for Admin or create AdminDashboard */}
+                        {/* For now, we keep the existing admin cards */}
+                        <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
+                            onClick={() => setExpenseFormOpen(true)}
+                        >
+                            <CardHeader className="pb-2">
+                                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <Fuel className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
+                                    Registrar Despesa
+                                </CardTitle>
+                                <CardDescription className="text-zinc-500">
+                                    Combustível, pedágio, manutenção
+                                </CardDescription>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
+                            onClick={() => setStatusFormOpen(true)}
+                        >
+                            <CardHeader className="pb-2">
+                                <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                    <Activity className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
+                                    Status do Veículo
+                                </CardTitle>
+                                <CardDescription className="text-zinc-500">
+                                    Ativo, manutenção, inativo
+                                </CardDescription>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
+                            onClick={() => { setMovementType('ITEM_IN'); setMovementFormOpen(true) }}
+                        >
+                            <CardHeader className="pb-2">
+                                <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                    <ArrowDownToLine className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
+                                    Entrada de Item
+                                </CardTitle>
+                                <CardDescription className="text-zinc-500">
+                                    Registrar recebimento
+                                </CardDescription>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
+                            onClick={() => { setMovementType('ITEM_OUT'); setMovementFormOpen(true) }}
+                        >
+                            <CardHeader className="pb-2">
+                                <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                                    <ArrowUpFromLine className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <CardTitle className="text-base text-zinc-900 dark:text-zinc-100">
+                                    Saída de Item
+                                </CardTitle>
+                                <CardDescription className="text-zinc-500">
+                                    Registrar retirada
+                                </CardDescription>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Events History */}
+                    <div>
+                        <div className="flex items-center gap-2 mb-4">
+                            <History className="h-5 w-5 text-zinc-500" />
+                            <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+                                Histórico de Eventos
+                            </h2>
+                        </div>
+                        <EventsList key={refreshKey} limit={20} />
+                    </div>
+                </>
+            )}
 
             {/* Forms */}
             <VehicleExpenseForm
