@@ -39,6 +39,18 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // 2.5 CRITICAL: Intercept auth codes landing on root URL (Supabase Site URL fallback)
+  // This happens when Supabase ignores redirectTo and falls back to the configured Site URL
+  const code = request.nextUrl.searchParams.get('code')
+  if (request.nextUrl.pathname === '/' && code) {
+    const callbackUrl = new URL('/auth/callback', request.url)
+    // Copy all search params to preserve type, next, etc.
+    request.nextUrl.searchParams.forEach((value, key) => {
+      callbackUrl.searchParams.set(key, value)
+    })
+    return NextResponse.redirect(callbackUrl)
+  }
+
   if (!supabaseUrl || !supabaseAnonKey) {
     return response
   }
