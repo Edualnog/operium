@@ -206,39 +206,16 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
                         {/* Role */}
                         <div className="space-y-2">
                             <Label className="text-zinc-700 dark:text-zinc-300">Papel *</Label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setValue('role', 'FIELD')}
-                                    className={`
-                    flex flex-col items-center justify-center p-4 rounded-lg border transition-all
-                    ${selectedRole === 'FIELD'
-                                            ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
-                                            : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400'}
-                  `}
-                                >
-                                    <Truck className={`h-6 w-6 ${selectedRole === 'FIELD' ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-500'}`} />
-                                    <span className={`text-sm mt-2 font-medium ${selectedRole === 'FIELD' ? 'text-blue-700 dark:text-blue-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
-                                        Campo
-                                    </span>
-                                    <span className="text-xs text-zinc-500 mt-1">Despesas de veículos</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setValue('role', 'WAREHOUSE')}
-                                    className={`
-                    flex flex-col items-center justify-center p-4 rounded-lg border transition-all
-                    ${selectedRole === 'WAREHOUSE'
-                                            ? 'border-amber-500 bg-amber-50 dark:border-amber-400 dark:bg-amber-900/20'
-                                            : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400'}
-                  `}
-                                >
-                                    <Package className={`h-6 w-6 ${selectedRole === 'WAREHOUSE' ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500'}`} />
-                                    <span className={`text-sm mt-2 font-medium ${selectedRole === 'WAREHOUSE' ? 'text-amber-700 dark:text-amber-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
-                                        Almoxarifado
-                                    </span>
-                                    <span className="text-xs text-zinc-500 mt-1">Movimentação de itens</span>
-                                </button>
+                            <div className="p-4 rounded-lg border border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20">
+                                <div className="flex items-center gap-3">
+                                    <Truck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                    <div>
+                                        <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
+                                            Campo
+                                        </span>
+                                        <p className="text-xs text-zinc-500 mt-0.5">Despesas de veículos e operações externas</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -275,7 +252,7 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
                                 Usuário encontrado!
                             </p>
                             <p className="text-zinc-500 text-sm mt-1">
-                                Deseja adicionar como <strong>{selectedRole === 'FIELD' ? 'Campo' : 'Almoxarifado'}</strong>?
+                                Deseja adicionar como <strong>Campo</strong>?
                             </p>
                         </div>
 

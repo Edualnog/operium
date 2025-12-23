@@ -295,13 +295,6 @@ function ActionsDropdown({
                     <Truck className="mr-2 h-4 w-4" />
                     Campo
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => handleRoleChange(member, 'WAREHOUSE')}
-                    disabled={member.role === 'WAREHOUSE'}
-                >
-                    <Package className="mr-2 h-4 w-4" />
-                    Almoxarifado
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     onClick={onDeactivate}
