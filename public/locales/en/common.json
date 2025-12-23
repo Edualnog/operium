@@ -1480,6 +1480,11 @@
             "notes": "Notes",
             "save": "Save Cost",
             "types": {
+                "combustivel": "Fuel",
+                "manutencao": "Maintenance",
+                "pedagio": "Toll",
+                "estacionamento": "Parking",
+                "outros": "Other",
                 "FUEL": "Fuel",
                 "INSURANCE": "Insurance",
                 "TAX": "Tax",

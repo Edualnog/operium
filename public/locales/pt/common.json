@@ -1554,6 +1554,11 @@
             "notes": "Observações",
             "save": "Salvar Custo",
             "types": {
+                "combustivel": "Combustível",
+                "manutencao": "Manutenção",
+                "pedagio": "Pedágio",
+                "estacionamento": "Estacionamento",
+                "outros": "Outros",
                 "FUEL": "Combustível",
                 "INSURANCE": "Seguro",
                 "TAX": "IPVA/Taxas",
