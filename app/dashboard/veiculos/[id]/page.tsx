@@ -120,15 +120,15 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
     const hasDriver = !!vehicle.current_driver_id
 
     return (
-        <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+        <div className="h-full flex-1 flex-col space-y-6 p-4 sm:p-6 md:p-8 md:flex">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center space-x-3 sm:space-x-4">
                     <Button variant="outline" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <div>
-                        <h2 className="text-2xl font-bold tracking-tight">{vehicle.plate}</h2>
-                        <p className="text-muted-foreground">
+                    <div className="min-w-0">
+                        <h2 className="text-xl sm:text-2xl font-bold tracking-tight truncate">{vehicle.plate}</h2>
+                        <p className="text-sm text-muted-foreground truncate">
                             {vehicle.brand || '-'} {vehicle.model || '-'} • {vehicle.year || '-'}
                         </p>
                     </div>
@@ -137,11 +137,12 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
                 <div className="flex gap-2">
                     <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
                         <DialogTrigger asChild>
-                            <Button variant="outline">
-                                <FileText className="mr-2 h-4 w-4" /> Exportar PDF
+                            <Button variant="outline" size="sm" className="gap-1 text-sm">
+                                <FileText className="h-4 w-4" />
+                                <span className="hidden sm:inline">Exportar</span> PDF
                             </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="max-w-[95vw] sm:max-w-md">
                             <DialogHeader>
                                 <DialogTitle>Gerar Relatório PDF</DialogTitle>
                                 <DialogDescription>
@@ -176,7 +177,7 @@ export default function VehicleDetailsPage({ params }: { params: { id: string } 
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-5">
                 <Card className="col-span-2">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">{t('vehicles.assignment.current_driver')}</CardTitle>

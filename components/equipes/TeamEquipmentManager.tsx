@@ -118,54 +118,58 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                 <label className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
                     {t('teams.equipment.assign_title')}
                 </label>
-                <div className="flex gap-2 items-center">
-                    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                role="combobox"
-                                aria-expanded={isPopoverOpen}
-                                className="flex-1 justify-between bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
-                            >
-                                {selectedToolId
-                                    ? availableTools.find((tool) => tool.id === selectedToolId)?.nome
-                                    : t('teams.equipment.search_placeholder')}
-                                <PackageSearch className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[340px] p-0 border-zinc-200 dark:border-zinc-700">
-                            <Command>
-                                <CommandInput placeholder={t('teams.equipment.search_placeholder')} />
-                                <CommandEmpty>{t('teams.equipment.not_found')}</CommandEmpty>
-                                <CommandGroup>
-                                    {availableTools.map((tool) => (
-                                        <CommandItem
-                                            key={tool.id}
-                                            value={tool.nome}
-                                            onSelect={() => {
-                                                setSelectedToolId(tool.id)
-                                                setIsPopoverOpen(false)
-                                            }}
-                                        >
-                                            <div className="flex items-center">
-                                                <span>{tool.nome}</span>
-                                            </div>
-                                        </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                            </Command>
-                        </PopoverContent>
-                    </Popover>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex gap-2 flex-1 min-w-0">
+                        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={isPopoverOpen}
+                                    className="flex-1 justify-between bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm truncate"
+                                >
+                                    <span className="truncate">
+                                        {selectedToolId
+                                            ? availableTools.find((tool) => tool.id === selectedToolId)?.nome
+                                            : t('teams.equipment.search_placeholder')}
+                                    </span>
+                                    <PackageSearch className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[280px] sm:w-[340px] p-0 border-zinc-200 dark:border-zinc-700">
+                                <Command>
+                                    <CommandInput placeholder={t('teams.equipment.search_placeholder')} />
+                                    <CommandEmpty>{t('teams.equipment.not_found')}</CommandEmpty>
+                                    <CommandGroup className="max-h-[200px] overflow-y-auto">
+                                        {availableTools.map((tool) => (
+                                            <CommandItem
+                                                key={tool.id}
+                                                value={tool.nome}
+                                                onSelect={() => {
+                                                    setSelectedToolId(tool.id)
+                                                    setIsPopoverOpen(false)
+                                                }}
+                                            >
+                                                <div className="flex items-center">
+                                                    <span className="text-sm">{tool.nome}</span>
+                                                </div>
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
 
-                    <Input
-                        type="number"
-                        min={1}
-                        className="w-16 shrink-0 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 focus-visible:ring-zinc-400"
-                        value={quantity}
-                        onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                    />
+                        <Input
+                            type="number"
+                            min={1}
+                            className="w-14 sm:w-16 shrink-0 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 focus-visible:ring-zinc-400 text-center"
+                            value={quantity}
+                            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                        />
+                    </div>
 
-                    <Button onClick={handleAssign} disabled={!selectedToolId || isAdding} className="shrink-0 bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600">
+                    <Button onClick={handleAssign} disabled={!selectedToolId || isAdding} className="shrink-0 bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600 h-10 sm:h-auto">
                         {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                     </Button>
                 </div>
