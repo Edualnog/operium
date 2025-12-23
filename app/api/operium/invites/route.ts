@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
         )
 
         // Enviar convite
-        const inviteRedirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/update-password`
+        const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin
+        const inviteRedirectUrl = `${origin}/auth/callback?next=/auth/update-password`
 
         const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
             data: {
