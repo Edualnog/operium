@@ -44,7 +44,27 @@ function LoginForm() {
       console.warn("⚠️ Usando chave de teste do Turnstile. Isso falhará em produção se o Supabase esperar uma chave real.")
       console.warn("Verifique se NEXT_PUBLIC_TURNSTILE_SITE_KEY está configurada no Vercel.")
     }
-  }, [turnstileSiteKey])
+
+    // CRITICAL: Detect recovery/invite flow from URL hash
+    // Supabase sends recovery emails with #access_token=...&type=recovery
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash
+      if (hash.includes('type=recovery')) {
+        // Clear hash to prevent re-triggering
+        window.history.replaceState(null, '', window.location.pathname)
+        // Redirect to password update page
+        router.push('/auth/update-password')
+        return
+      }
+      if (hash.includes('type=invite')) {
+        // Clear hash to prevent re-triggering
+        window.history.replaceState(null, '', window.location.pathname)
+        // Redirect to password creation page
+        router.push('/criar-senha')
+        return
+      }
+    }
+  }, [turnstileSiteKey, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

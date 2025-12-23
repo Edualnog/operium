@@ -340,11 +340,10 @@ function VehicleExpenseModal({
                                 key={t.v}
                                 type="button"
                                 onClick={() => setTipo(t.v as any)}
-                                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
-                                    tipo === t.v
+                                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${tipo === t.v
                                         ? 'bg-neutral-900 text-white border-neutral-900 shadow-lg'
                                         : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
-                                }`}
+                                    }`}
                             >
                                 <t.icon className="h-6 w-6" />
                                 <span className="text-sm font-medium">{t.n}</span>
@@ -543,11 +542,10 @@ function VehicleStatusModal({
                                 key={s.v}
                                 type="button"
                                 onClick={() => setStatus(s.v as any)}
-                                className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 text-left ${
-                                    status === s.v
+                                className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 text-left ${status === s.v
                                         ? 'border-neutral-900 bg-neutral-50'
                                         : 'border-neutral-200 bg-white hover:border-neutral-300'
-                                }`}
+                                    }`}
                             >
                                 <div className={`w-5 h-5 rounded-full ${s.color} flex-shrink-0`} />
                                 <div className="flex-1">
@@ -848,22 +846,20 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
                             <button
                                 type="button"
                                 onClick={() => setHasTeam(true)}
-                                className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${
-                                    hasTeam === true
+                                className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${hasTeam === true
                                         ? 'bg-neutral-900 text-white border-neutral-900'
                                         : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
-                                }`}
+                                    }`}
                             >
                                 Sim
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setHasTeam(false)}
-                                className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${
-                                    hasTeam === false
+                                className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${hasTeam === false
                                         ? 'bg-neutral-900 text-white border-neutral-900'
                                         : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
-                                }`}
+                                    }`}
                             >
                                 Não
                             </button>
@@ -930,6 +926,21 @@ export default function AppPage() {
     const [showReportModal, setShowReportModal] = useState(false)
     const [showReminder, setShowReminder] = useState(false)
     const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null)
+
+    // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
+    // Supabase sends recovery emails with #access_token=...&type=recovery
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const hash = window.location.hash
+            if (hash.includes('type=recovery') || hash.includes('type=invite')) {
+                // Clear hash to prevent re-triggering
+                window.history.replaceState(null, '', window.location.pathname)
+                // Redirect to password creation - this is a recovery flow!
+                router.push('/auth/update-password')
+                return
+            }
+        }
+    }, [router])
 
     useEffect(() => {
         const checkOnboarding = async () => {
