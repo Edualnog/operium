@@ -172,26 +172,33 @@ export async function middleware(request: NextRequest) {
   // Redirect FIELD users to /app, WAREHOUSE users stay in dashboard
   // ============================================================================
   if (isDashboardRoute && user) {
-    try {
-      // Check if user has operium profile
-      const { data: operiumProfile } = await supabase
-        .from('operium_profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('active', true)
-        .single()
+    // CRITICAL: Do NOT redirect if this is a recovery/invite flow
+    // The user needs to complete password setup first
+    const typeParam = request.nextUrl.searchParams.get('type')
+    const isRecoveryOrInvite = typeParam === 'recovery' || typeParam === 'invite'
 
-      // Only FIELD users go to mobile app, WAREHOUSE stays in main dashboard
-      if (operiumProfile && operiumProfile.role === 'FIELD') {
-        const redirectResponse = NextResponse.redirect(new URL('/app', request.url))
-        const setCookieHeader = response.headers.get('set-cookie')
-        if (setCookieHeader) {
-          redirectResponse.headers.set('set-cookie', setCookieHeader)
+    if (!isRecoveryOrInvite) {
+      try {
+        // Check if user has operium profile
+        const { data: operiumProfile } = await supabase
+          .from('operium_profiles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('active', true)
+          .single()
+
+        // Only FIELD users go to mobile app, WAREHOUSE stays in main dashboard
+        if (operiumProfile && operiumProfile.role === 'FIELD') {
+          const redirectResponse = NextResponse.redirect(new URL('/app', request.url))
+          const setCookieHeader = response.headers.get('set-cookie')
+          if (setCookieHeader) {
+            redirectResponse.headers.set('set-cookie', setCookieHeader)
+          }
+          return redirectResponse
         }
-        return redirectResponse
+      } catch {
+        // No operium profile = org owner, allow access
       }
-    } catch {
-      // No operium profile = org owner, allow access
     }
   }
 
