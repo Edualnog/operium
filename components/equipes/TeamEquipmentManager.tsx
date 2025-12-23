@@ -2,15 +2,17 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { TeamEquipment } from "@/app/dashboard/equipes/types"
-import { getTeamEquipment, assignEquipment, returnEquipment } from "@/app/dashboard/equipes/actions"
+import { getTeamEquipment, assignEquipment, returnEquipment, returnEquipmentWithDiscrepancy, endTeamOperation, DiscrepancyType } from "@/app/dashboard/equipes/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, ArchiveRestore, PackageSearch, Loader2, ArrowRight } from "lucide-react"
+import { Plus, ArchiveRestore, PackageSearch, Loader2, AlertTriangle, CheckCircle2, XCircle, Power } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { toast } from "sonner"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useForm } from "react-hook-form"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import {
     Command,
     CommandEmpty,
@@ -23,6 +25,21 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 
@@ -42,6 +59,18 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
     const [selectedToolId, setSelectedToolId] = useState("")
     const [quantity, setQuantity] = useState(1)
 
+    // End operation state
+    const [isEndOperationOpen, setIsEndOperationOpen] = useState(false)
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+    const [isEndingOperation, setIsEndingOperation] = useState(false)
+
+    // Discrepancy state
+    const [discrepancyItem, setDiscrepancyItem] = useState<TeamEquipment | null>(null)
+    const [discrepancyType, setDiscrepancyType] = useState<DiscrepancyType>("damage")
+    const [discrepancyNotes, setDiscrepancyNotes] = useState("")
+    const [discrepancyQty, setDiscrepancyQty] = useState(0)
+    const [isRegisteringDiscrepancy, setIsRegisteringDiscrepancy] = useState(false)
+
     const supabase = createClientComponentClient()
 
     const fetchEquipment = useCallback(async () => {
@@ -60,7 +89,6 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
     }, [teamId, t])
 
     const fetchAvailableTools = useCallback(async () => {
-        console.log("Fetching available tools...")
         const { data, error } = await supabase
             .from('ferramentas')
             .select('id, nome, estado')
@@ -72,10 +100,8 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
             return
         }
 
-        console.log("All ferramentas fetched:", data)
         // Filter by estado 'ok' (not damaged or in repair)
         const availableTools = data?.filter(t => t.estado === 'ok') || []
-        console.log("Available tools:", availableTools)
         setAvailableTools(availableTools)
     }, [supabase])
 
@@ -109,6 +135,66 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
         } catch (error) {
             toast.error(t('teams.equipment.toast.error_return'))
         }
+    }
+
+    const handleEndOperation = async () => {
+        if (selectedItems.size === 0) return
+        setIsEndingOperation(true)
+        try {
+            const result = await endTeamOperation(teamId, Array.from(selectedItems))
+            await fetchEquipment()
+            setIsEndOperationOpen(false)
+            setSelectedItems(new Set())
+
+            if (result.failed === 0) {
+                toast.success(t('teams.equipment.toast.all_returned'))
+            } else {
+                toast.warning(`${result.success} devolvidos, ${result.failed} com erro`)
+            }
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsEndingOperation(false)
+        }
+    }
+
+    const handleDiscrepancy = async () => {
+        if (!discrepancyItem) return
+        setIsRegisteringDiscrepancy(true)
+        try {
+            await returnEquipmentWithDiscrepancy(discrepancyItem.id, {
+                type: discrepancyType,
+                notes: discrepancyNotes,
+                quantityReturned: discrepancyType === 'shortage' ? discrepancyQty : undefined
+            })
+            await fetchEquipment()
+            setDiscrepancyItem(null)
+            setDiscrepancyNotes("")
+            setDiscrepancyQty(0)
+            toast.success(t('teams.equipment.toast.discrepancy_registered'))
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsRegisteringDiscrepancy(false)
+        }
+    }
+
+    const toggleSelectAll = () => {
+        if (selectedItems.size === equipment.length) {
+            setSelectedItems(new Set())
+        } else {
+            setSelectedItems(new Set(equipment.map(e => e.id)))
+        }
+    }
+
+    const toggleItem = (id: string) => {
+        const newSet = new Set(selectedItems)
+        if (newSet.has(id)) {
+            newSet.delete(id)
+        } else {
+            newSet.add(id)
+        }
+        setSelectedItems(newSet)
     }
 
     return (
@@ -177,7 +263,25 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
 
             {/* Equipment List */}
             <div className="space-y-3">
-                <h4 className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">{t('teams.equipment.custody_title')} ({equipment.length})</h4>
+                <div className="flex items-center justify-between">
+                    <h4 className="text-xs uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
+                        {t('teams.equipment.custody_title')} ({equipment.length})
+                    </h4>
+                    {equipment.length > 0 && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-xs border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950"
+                            onClick={() => {
+                                setSelectedItems(new Set(equipment.map(e => e.id)))
+                                setIsEndOperationOpen(true)
+                            }}
+                        >
+                            <Power className="h-3.5 w-3.5" />
+                            {t('teams.equipment.end_operation')}
+                        </Button>
+                    )}
+                </div>
 
                 {isLoading ? (
                     <div className="flex justify-center p-4">
@@ -204,22 +308,190 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                                             </span>
                                         </div>
                                     </div>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 ml-2 gap-1 text-xs"
-                                        onClick={() => handleReturn(item.id)}
-                                    >
-                                        <ArchiveRestore className="h-3.5 w-3.5" />
-                                        {t('teams.equipment.return')}
-                                    </Button>
+                                    <div className="flex items-center gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                            onClick={() => {
+                                                setDiscrepancyItem(item)
+                                                setDiscrepancyQty(item.quantity)
+                                            }}
+                                            title={t('teams.equipment.discrepancy.title')}
+                                        >
+                                            <AlertTriangle className="h-3.5 w-3.5" />
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 ml-1 gap-1 text-xs"
+                                            onClick={() => handleReturn(item.id)}
+                                        >
+                                            <ArchiveRestore className="h-3.5 w-3.5" />
+                                            {t('teams.equipment.return')}
+                                        </Button>
+                                    </div>
                                 </CardContent>
                             </Card>
                         ))}
                     </div>
                 )}
             </div>
+
+            {/* End Operation Dialog */}
+            <Dialog open={isEndOperationOpen} onOpenChange={setIsEndOperationOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Power className="h-5 w-5 text-amber-600" />
+                            {t('teams.equipment.end_operation_title')}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {t('teams.equipment.end_operation_desc')}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-4">
+                        <div className="flex items-center justify-between pb-2 border-b">
+                            <Label className="text-sm font-medium">{t('teams.equipment.checklist_title')}</Label>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={toggleSelectAll}
+                            >
+                                {selectedItems.size === equipment.length ? (
+                                    <><XCircle className="h-3.5 w-3.5 mr-1" /> Desmarcar</>
+                                ) : (
+                                    <><CheckCircle2 className="h-3.5 w-3.5 mr-1" /> {t('teams.equipment.all_items')}</>
+                                )}
+                            </Button>
+                        </div>
+
+                        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                            {equipment.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className={cn(
+                                        "flex items-center gap-3 p-3 rounded-lg border transition-colors cursor-pointer",
+                                        selectedItems.has(item.id)
+                                            ? "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800"
+                                            : "bg-zinc-50 border-zinc-200 dark:bg-zinc-800/50 dark:border-zinc-700"
+                                    )}
+                                    onClick={() => toggleItem(item.id)}
+                                >
+                                    <Checkbox
+                                        checked={selectedItems.has(item.id)}
+                                        onCheckedChange={() => toggleItem(item.id)}
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{item.ferramenta_nome}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {t('teams.equipment.qty')}: {item.quantity}
+                                        </p>
+                                    </div>
+                                    {selectedItems.has(item.id) && (
+                                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsEndOperationOpen(false)}>
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleEndOperation}
+                            disabled={selectedItems.size === 0 || isEndingOperation}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            {isEndingOperation ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                                <CheckCircle2 className="h-4 w-4 mr-2" />
+                            )}
+                            {t('teams.equipment.confirm_return')} ({selectedItems.size})
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Discrepancy Dialog */}
+            <Dialog open={!!discrepancyItem} onOpenChange={(open) => !open && setDiscrepancyItem(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-amber-600" />
+                            {t('teams.equipment.discrepancy.title')}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {discrepancyItem?.ferramenta_nome}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label>{t('teams.equipment.discrepancy.type')}</Label>
+                            <Select value={discrepancyType} onValueChange={(v) => setDiscrepancyType(v as DiscrepancyType)}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="loss">{t('teams.equipment.discrepancy.loss')}</SelectItem>
+                                    <SelectItem value="damage">{t('teams.equipment.discrepancy.damage')}</SelectItem>
+                                    <SelectItem value="shortage">{t('teams.equipment.discrepancy.shortage')}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {discrepancyType === 'shortage' && (
+                            <div className="space-y-2">
+                                <Label>{t('teams.equipment.discrepancy.quantity_returned')}</Label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    max={discrepancyItem?.quantity || 0}
+                                    value={discrepancyQty}
+                                    onChange={(e) => setDiscrepancyQty(parseInt(e.target.value) || 0)}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Original: {discrepancyItem?.quantity}
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="space-y-2">
+                            <Label>{t('teams.equipment.discrepancy.notes')}</Label>
+                            <Textarea
+                                placeholder={t('teams.equipment.discrepancy.notes_placeholder')}
+                                value={discrepancyNotes}
+                                onChange={(e) => setDiscrepancyNotes(e.target.value)}
+                                rows={3}
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDiscrepancyItem(null)}>
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleDiscrepancy}
+                            disabled={!discrepancyNotes.trim() || isRegisteringDiscrepancy}
+                            className="bg-amber-600 hover:bg-amber-700"
+                        >
+                            {isRegisteringDiscrepancy ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                                <AlertTriangle className="h-4 w-4 mr-2" />
+                            )}
+                            {t('teams.equipment.discrepancy.register')}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
-

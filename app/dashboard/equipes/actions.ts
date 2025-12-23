@@ -38,10 +38,19 @@ export async function createTeam(formData: {
         throw new Error("Usuário não autenticado")
     }
 
+    // Get user's org_id from operium_profiles
+    const { data: profile } = await supabase
+        .from("operium_profiles")
+        .select("org_id")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single()
+
     const { data, error } = await supabase
         .from("teams")
         .insert({
-            profile_id: user.id, // Required for RLS
+            profile_id: user.id,
+            org_id: profile?.org_id || null, // Include org_id for multi-tenant isolation
             name: formData.name,
             description: formData.description,
             leader_id: formData.leader_id || null,
@@ -52,7 +61,7 @@ export async function createTeam(formData: {
         .single()
 
     if (error) {
-        throw new Error(`Failed to create team: ${error.message}`)
+        throw new Error(`Falha ao criar equipe: ${error.message}`)
     }
 
     revalidatePath("/dashboard/equipes")
@@ -191,6 +200,51 @@ export async function getTeamEquipment(teamId: string): Promise<TeamEquipment[]>
 export async function assignEquipment(teamId: string, ferramentaId: string, quantity: number) {
     const supabase = createServerActionClient({ cookies })
 
+    // Validate quantity
+    if (quantity < 1) {
+        throw new Error("Quantidade deve ser pelo menos 1")
+    }
+
+    // Verify team exists and user has access
+    const { data: team, error: teamError } = await supabase
+        .from("teams")
+        .select("id, name")
+        .eq("id", teamId)
+        .single()
+
+    if (teamError || !team) {
+        throw new Error("Equipe não encontrada ou sem permissão de acesso")
+    }
+
+    // Verify ferramenta exists and check status
+    const { data: ferramenta, error: ferramentaError } = await supabase
+        .from("ferramentas")
+        .select("id, nome, estado")
+        .eq("id", ferramentaId)
+        .single()
+
+    if (ferramentaError || !ferramenta) {
+        throw new Error("Ferramenta não encontrada")
+    }
+
+    if (ferramenta.estado !== 'ok') {
+        throw new Error(`Ferramenta "${ferramenta.nome}" não está disponível (status: ${ferramenta.estado})`)
+    }
+
+    // Check if already assigned to this team (not returned)
+    const { data: existing } = await supabase
+        .from("team_equipment")
+        .select("id")
+        .eq("team_id", teamId)
+        .eq("ferramenta_id", ferramentaId)
+        .is("returned_at", null)
+        .single()
+
+    if (existing) {
+        throw new Error(`"${ferramenta.nome}" já está em custódia desta equipe`)
+    }
+
+    // Create the assignment (custody record)
     const { data, error } = await supabase
         .from("team_equipment")
         .insert({
@@ -202,7 +256,14 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
         .single()
 
     if (error) {
-        throw new Error(`Failed to assign equipment: ${error.message}`)
+        // Handle specific error codes
+        if (error.code === '42501') {
+            throw new Error("Sem permissão para atribuir equipamentos a esta equipe")
+        }
+        if (error.code === '23503') {
+            throw new Error("Referência inválida: equipe ou ferramenta não existe")
+        }
+        throw new Error(`Falha ao iniciar custódia: ${error.message}`)
     }
 
     revalidatePath("/dashboard/equipes")
@@ -212,6 +273,21 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
 export async function returnEquipment(assignmentId: string) {
     const supabase = createServerActionClient({ cookies })
 
+    // Verify assignment exists and hasn't been returned already
+    const { data: existing, error: existingError } = await supabase
+        .from("team_equipment")
+        .select("id, returned_at, ferramenta_id, ferramentas(nome)")
+        .eq("id", assignmentId)
+        .single()
+
+    if (existingError || !existing) {
+        throw new Error("Registro de custódia não encontrado")
+    }
+
+    if (existing.returned_at) {
+        throw new Error("Este equipamento já foi devolvido")
+    }
+
     const { data, error } = await supabase
         .from("team_equipment")
         .update({ returned_at: new Date().toISOString() })
@@ -220,9 +296,152 @@ export async function returnEquipment(assignmentId: string) {
         .single()
 
     if (error) {
-        throw new Error(`Failed to return equipment: ${error.message}`)
+        if (error.code === '42501') {
+            throw new Error("Sem permissão para registrar devolução")
+        }
+        throw new Error(`Falha ao encerrar custódia: ${error.message}`)
     }
 
     revalidatePath("/dashboard/equipes")
     return data
+}
+
+// --- CUSTODY OPERATIONS ---
+
+export type DiscrepancyType = 'loss' | 'damage' | 'shortage'
+
+export async function returnEquipmentWithDiscrepancy(
+    assignmentId: string,
+    discrepancy: {
+        type: DiscrepancyType
+        notes: string
+        quantityReturned?: number
+    }
+) {
+    const supabase = createServerActionClient({ cookies })
+
+    // Verify assignment exists
+    const { data: existing, error: existingError } = await supabase
+        .from("team_equipment")
+        .select("*, ferramentas(nome), teams(name)")
+        .eq("id", assignmentId)
+        .single()
+
+    if (existingError || !existing) {
+        throw new Error("Registro de custódia não encontrado")
+    }
+
+    if (existing.returned_at) {
+        throw new Error("Este equipamento já foi devolvido")
+    }
+
+    // Get user info for event logging
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase
+        .from("operium_profiles")
+        .select("org_id, name")
+        .eq("user_id", user?.id)
+        .eq("active", true)
+        .single()
+
+    // Update the equipment record with return and discrepancy info
+    const { data, error } = await supabase
+        .from("team_equipment")
+        .update({
+            returned_at: new Date().toISOString(),
+            notes: `[DIVERGÊNCIA: ${discrepancy.type.toUpperCase()}] ${discrepancy.notes}${
+                discrepancy.quantityReturned !== undefined
+                    ? ` | Quantidade devolvida: ${discrepancy.quantityReturned}/${existing.quantity}`
+                    : ''
+            }`
+        })
+        .eq("id", assignmentId)
+        .select()
+        .single()
+
+    if (error) {
+        throw new Error(`Falha ao registrar divergência: ${error.message}`)
+    }
+
+    // Log the discrepancy event in operium_events
+    if (profile?.org_id) {
+        await supabase.from("operium_events").insert({
+            org_id: profile.org_id,
+            actor_user_id: user?.id,
+            event_type: 'custody_discrepancy',
+            entity_type: 'team_equipment',
+            entity_id: assignmentId,
+            payload: {
+                discrepancy_type: discrepancy.type,
+                ferramenta_nome: (existing.ferramentas as any)?.nome,
+                team_name: (existing.teams as any)?.name,
+                quantity_original: existing.quantity,
+                quantity_returned: discrepancy.quantityReturned,
+                notes: discrepancy.notes,
+                actor_name: profile.name
+            }
+        })
+    }
+
+    revalidatePath("/dashboard/equipes")
+    return data
+}
+
+export async function endTeamOperation(teamId: string, returnedItems: string[]) {
+    const supabase = createServerActionClient({ cookies })
+
+    // Verify team exists
+    const { data: team, error: teamError } = await supabase
+        .from("teams")
+        .select("id, name")
+        .eq("id", teamId)
+        .single()
+
+    if (teamError || !team) {
+        throw new Error("Equipe não encontrada")
+    }
+
+    // Return all specified items
+    const results = []
+    for (const assignmentId of returnedItems) {
+        try {
+            const result = await returnEquipment(assignmentId)
+            results.push({ id: assignmentId, success: true, data: result })
+        } catch (error: any) {
+            results.push({ id: assignmentId, success: false, error: error.message })
+        }
+    }
+
+    // Get user info for event logging
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase
+        .from("operium_profiles")
+        .select("org_id, name")
+        .eq("user_id", user?.id)
+        .eq("active", true)
+        .single()
+
+    // Log operation end event
+    if (profile?.org_id) {
+        await supabase.from("operium_events").insert({
+            org_id: profile.org_id,
+            actor_user_id: user?.id,
+            event_type: 'team_operation_ended',
+            entity_type: 'team',
+            entity_id: teamId,
+            payload: {
+                team_name: team.name,
+                items_returned: results.filter(r => r.success).length,
+                items_failed: results.filter(r => !r.success).length,
+                actor_name: profile.name
+            }
+        })
+    }
+
+    revalidatePath("/dashboard/equipes")
+    return {
+        success: results.filter(r => r.success).length,
+        failed: results.filter(r => !r.success).length,
+        details: results
+    }
 }

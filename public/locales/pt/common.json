@@ -1649,19 +1649,38 @@
             }
         },
         "equipment": {
-            "assign_title": "Atribuir Ferramenta",
+            "assign_title": "Iniciar Custódia de Equipamento",
             "search_placeholder": "Buscar ferramenta...",
             "not_found": "Nenhuma ferramenta encontrada.",
             "custody_title": "Em Custódia",
-            "empty": "Nenhum equipamento com a equipe.",
+            "empty": "Nenhum equipamento em custódia.",
             "qty": "Qtd",
             "since": "Desde",
             "return": "Devolver",
+            "end_operation": "Encerrar Operação",
+            "end_operation_title": "Encerrar Operação da Equipe",
+            "end_operation_desc": "Confirme a devolução de cada equipamento em custódia",
+            "checklist_title": "Checklist de Devolução",
+            "all_items": "Todos os itens",
+            "confirm_return": "Confirmar Devolução",
+            "discrepancy": {
+                "title": "Registrar Divergência",
+                "type": "Tipo de divergência",
+                "loss": "Perda/Extravio",
+                "damage": "Avaria/Dano",
+                "shortage": "Falta (quantidade menor)",
+                "notes": "Observações",
+                "notes_placeholder": "Descreva o que aconteceu...",
+                "quantity_returned": "Quantidade devolvida",
+                "register": "Registrar Divergência"
+            },
             "toast": {
-                "assigned": "Equipamento atribuído!",
+                "assigned": "Custódia iniciada!",
                 "returned": "Equipamento devolvido.",
+                "all_returned": "Operação encerrada! Todos os equipamentos devolvidos.",
+                "discrepancy_registered": "Divergência registrada.",
                 "error_load": "Erro ao carregar equipamentos.",
-                "error_assign": "Erro ao atribuir equipamento.",
+                "error_assign": "Erro ao iniciar custódia.",
                 "error_return": "Erro na devolução."
             }
         },
