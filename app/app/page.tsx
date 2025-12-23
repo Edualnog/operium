@@ -36,6 +36,7 @@ import {
     getMyTeamEquipment,
     TeamEquipmentMobile
 } from './actions'
+import { toast } from 'sonner'
 
 // ============================================================================
 // NATIVE APP BOTTOM SHEET MODAL
@@ -1105,6 +1106,138 @@ function EquipmentIssueModal({
 }
 
 // ============================================================================
+// TEAM EQUIPMENT SECTION - Shows all equipment for the team
+// ============================================================================
+
+function TeamEquipmentSection({
+    equipment,
+    pendingEquipment,
+    onAcceptSingle,
+    onReportIssue,
+    onRefresh
+}: {
+    equipment: TeamEquipmentMobile[]
+    pendingEquipment: any[]
+    onAcceptSingle: (id: string) => Promise<void>
+    onReportIssue: (item: TeamEquipmentMobile) => void
+    onRefresh: () => void
+}) {
+    const [acceptingId, setAcceptingId] = useState<string | null>(null)
+    const [expanded, setExpanded] = useState(true)
+
+    // Combine pending and accepted equipment
+    const allEquipment = [
+        ...pendingEquipment.map(p => ({ ...p, _isPending: true })),
+        ...equipment.filter(e => e.status === 'accepted' || e.status === 'in_use').map(e => ({ ...e, _isPending: false }))
+    ]
+
+    if (allEquipment.length === 0) return null
+
+    const handleAccept = async (id: string) => {
+        setAcceptingId(id)
+        try {
+            await onAcceptSingle(id)
+            onRefresh()
+        } finally {
+            setAcceptingId(null)
+        }
+    }
+
+    const getStatusLabel = (item: any) => {
+        if (item._isPending || item.status === 'pending_acceptance') {
+            return { text: 'Pendente', color: 'bg-amber-100 text-amber-700' }
+        }
+        if (item.status === 'pending_return') {
+            return { text: 'Devolução', color: 'bg-blue-100 text-blue-700' }
+        }
+        return { text: 'Em uso', color: 'bg-emerald-100 text-emerald-700' }
+    }
+
+    return (
+        <div className="mx-4 mt-6">
+            {/* Section Header */}
+            <button
+                onClick={() => setExpanded(!expanded)}
+                className="w-full flex items-center justify-between mb-3"
+            >
+                <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-neutral-500" />
+                    <h3 className="text-sm font-semibold text-neutral-600 uppercase tracking-wide">
+                        Equipamentos da Equipe
+                    </h3>
+                    <span className="px-1.5 py-0.5 bg-neutral-200 text-neutral-600 text-xs font-medium rounded-full">
+                        {allEquipment.length}
+                    </span>
+                </div>
+                <ChevronRight className={`h-4 w-4 text-neutral-400 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+            </button>
+
+            {/* Equipment List */}
+            {expanded && (
+                <div className="space-y-2">
+                    {allEquipment.map((item: any) => {
+                        const status = getStatusLabel(item)
+                        const isPending = item._isPending || item.status === 'pending_acceptance'
+
+                        return (
+                            <div
+                                key={item.id}
+                                className="p-4 bg-white rounded-2xl border border-neutral-100 shadow-sm"
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <h4 className="font-semibold text-neutral-900 truncate">
+                                                {item.ferramenta_nome}
+                                            </h4>
+                                            <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${status.color}`}>
+                                                {status.text}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-neutral-500 mt-0.5">
+                                            Qtd: {item.quantity} • {new Date(item.assigned_at).toLocaleDateString('pt-BR')}
+                                        </p>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                        {isPending ? (
+                                            <button
+                                                onClick={() => handleAccept(item.id)}
+                                                disabled={acceptingId === item.id}
+                                                className="px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg
+                                                           active:scale-95 transition-all disabled:opacity-50"
+                                            >
+                                                {acceptingId === item.id ? (
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <span className="flex items-center gap-1.5">
+                                                        <Check className="h-3.5 w-3.5" />
+                                                        Aceitar
+                                                    </span>
+                                                )}
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => onReportIssue(item)}
+                                                className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                                title="Reportar problema"
+                                            >
+                                                <AlertTriangle className="h-4 w-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ============================================================================
 // TEAM SELECTION SCREEN
 // ============================================================================
 
@@ -1348,15 +1481,45 @@ export default function AppPage() {
         if (pendingEquipment.length === 0) return
         setAcceptingAll(true)
         try {
-            for (const item of pendingEquipment) {
-                await acceptEquipment(item.id)
-            }
-            await fetchEquipmentData()
+            await Promise.all(pendingEquipment.map(item => acceptEquipment(item.id)))
+            toast.success('Equipamentos aceitos!')
+            fetchEquipmentData()
         } catch (e) {
-            console.error('Error accepting equipment:', e)
+            console.error('Error accepting all equipment:', e)
+            toast.error('Erro ao aceitar equipamentos')
         } finally {
             setAcceptingAll(false)
         }
+    }
+
+    // Accept single equipment
+    const handleAcceptSingleEquipment = async (id: string) => {
+        try {
+            await acceptEquipment(id)
+            toast.success('Equipamento aceito!')
+            // No fetch needed here as it's called by the child component's onRefresh
+        } catch (e) {
+            console.error('Error accepting equipment:', e)
+            toast.error('Erro ao aceitar equipamento')
+            throw e // Re-throw to let child component know it failed
+        }
+    }
+
+    const handleOpenReportIssue = (item: TeamEquipmentMobile) => {
+        setSelectedIssueEquipment(item)
+        setShowIssueModal(true)
+    }
+
+    const handleIssueReported = () => {
+        toast.success('Problema reportado com sucesso')
+        setShowIssueModal(false)
+        fetchEquipmentData()
+    }
+
+    const handleReturnRequested = () => {
+        toast.success('Solicitação de devolução enviada')
+        setShowReturnModal(false)
+        fetchEquipmentData()
     }
 
     const handleEquipmentSuccess = async () => {
@@ -1474,6 +1637,15 @@ export default function AppPage() {
                         />
                     )}
                 </div>
+
+                {/* Team Equipment Section */}
+                <TeamEquipmentSection
+                    equipment={teamEquipment}
+                    pendingEquipment={pendingEquipment}
+                    onAcceptSingle={handleAcceptSingleEquipment}
+                    onReportIssue={handleOpenReportIssue}
+                    onRefresh={fetchEquipmentData}
+                />
 
                 {/* Recent Activity */}
                 <div className="space-y-3">
