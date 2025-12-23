@@ -90,6 +90,7 @@ export function useOperiumEvents(options: UseOperiumEventsOptions = {}) {
             valor: input.valor,
             tipo: input.tipo,
             observacoes: input.observacoes,
+            foto_nf: input.receipt_url,
         }
 
         const { data, error } = await supabase

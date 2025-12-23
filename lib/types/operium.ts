@@ -104,6 +104,7 @@ export interface CreateVehicleExpenseInput {
     valor: number
     tipo: VehicleExpenseMetadata['tipo']
     observacoes?: string
+    receipt_url?: string
 }
 
 export interface CreateVehicleStatusInput {
