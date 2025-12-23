@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useKPIs } from "@/lib/hooks/useKPIs"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { KPICard } from "./KPICard"
@@ -38,18 +39,26 @@ import { OrgMaturityCard } from "./OrgMaturityCard"
 import { FEATURES } from "@/lib/features"
 import { VehicleStats } from "./VehicleStatsCard"
 
-// ... (inside component)
-
-
 import { safeArray } from "@/lib/utils/safe-array"
 
 interface IndustrialDashboardProps {
   userId: string
 }
-
 export default function IndustrialDashboard({ userId }: IndustrialDashboardProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const { t, i18n } = useTranslation('common')
   const { data, loading, error } = useKPIs(userId)
+
+  // Fallback: Check for invite/recovery flow that might have bypassed server redirect
+  useEffect(() => {
+    const type = searchParams.get('type')
+    const hash = typeof window !== 'undefined' ? window.location.hash : ''
+
+    if (type === 'invite' || type === 'recovery' || hash.includes('type=invite') || hash.includes('type=recovery')) {
+      router.push('/auth/update-password')
+    }
+  }, [searchParams, router])
   const [rankingView, setRankingView] = useState<"melhores" | "piores">("melhores")
   const [periodoConsumo, setPeriodoConsumo] = useState<7 | 14 | 30 | 60 | 120>(30)
   const [consumoPorPeriodo, setConsumoPorPeriodo] = useState<any[]>([])
