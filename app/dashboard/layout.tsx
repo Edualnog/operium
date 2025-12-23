@@ -121,20 +121,9 @@ export default async function DashboardLayout({
     // If no operium profile, user is org owner (ADMIN by default)
   }
 
-  // If user has operium profile and is NOT ADMIN, restrict access
+  // If user has operium profile and is NOT ADMIN, redirect to mobile app
   if (operiumProfile && operiumProfile.role !== 'ADMIN') {
-    // Routes allowed for FIELD/WAREHOUSE users
-    const allowedPaths = ['/dashboard/operium', '/dashboard/conta']
-
-    // Check if current pathname is allowed
-    const isAllowedRoute = allowedPaths.some(path =>
-      pathname === path || pathname.startsWith(path + '/')
-    )
-
-    // If trying to access a restricted route, redirect to operium
-    if (!isAllowedRoute && pathname.startsWith('/dashboard')) {
-      redirect('/dashboard/operium')
-    }
+    redirect('/app')
   }
 
   return (

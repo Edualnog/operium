@@ -76,8 +76,8 @@ export default function CreatePasswordPage() {
 
                 // Redirect based on role
                 if (operiumProfile && operiumProfile.role !== 'ADMIN') {
-                    // FIELD or WAREHOUSE users go directly to operium panel
-                    router.replace('/dashboard/operium')
+                    // FIELD or WAREHOUSE users go to mobile app
+                    router.replace('/app')
                 } else {
                     // ADMIN or org owners go to main dashboard
                     router.replace('/dashboard')

@@ -169,35 +169,29 @@ export async function middleware(request: NextRequest) {
 
   // ============================================================================
   // ROLE-BASED ACCESS CONTROL (Defense in Depth)
-  // Redirect non-admin operium users to /dashboard/operium for all other dashboard routes
+  // Redirect non-admin operium users to /app for all dashboard routes
   // ============================================================================
   if (isDashboardRoute && user) {
-    const isOperiumRoute = pathname.startsWith('/dashboard/operium')
-    const isContaRoute = pathname.startsWith('/dashboard/conta')
-    const isAllowedForCollaborator = isOperiumRoute || isContaRoute
+    try {
+      // Check if user has operium profile with non-admin role
+      const { data: operiumProfile } = await supabase
+        .from('operium_profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('active', true)
+        .single()
 
-    if (!isAllowedForCollaborator) {
-      try {
-        // Check if user has operium profile with non-admin role
-        const { data: operiumProfile } = await supabase
-          .from('operium_profiles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('active', true)
-          .single()
-
-        if (operiumProfile && operiumProfile.role !== 'ADMIN') {
-          // FIELD or WAREHOUSE user trying to access restricted route
-          const redirectResponse = NextResponse.redirect(new URL('/dashboard/operium', request.url))
-          const setCookieHeader = response.headers.get('set-cookie')
-          if (setCookieHeader) {
-            redirectResponse.headers.set('set-cookie', setCookieHeader)
-          }
-          return redirectResponse
+      if (operiumProfile && operiumProfile.role !== 'ADMIN') {
+        // FIELD or WAREHOUSE user trying to access dashboard - redirect to mobile app
+        const redirectResponse = NextResponse.redirect(new URL('/app', request.url))
+        const setCookieHeader = response.headers.get('set-cookie')
+        if (setCookieHeader) {
+          redirectResponse.headers.set('set-cookie', setCookieHeader)
         }
-      } catch {
-        // No operium profile = org owner, allow access
+        return redirectResponse
       }
+    } catch {
+      // No operium profile = org owner, allow access
     }
   }
 
