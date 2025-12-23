@@ -166,8 +166,8 @@ export function OperiumTeamManager() {
                                                             <span className="text-xs text-zinc-400">(dono)</span>
                                                         </span>
                                                     ) : (
-                                                        <span className="text-zinc-600 dark:text-zinc-400 text-sm">
-                                                            {member.user_id.slice(0, 8)}...
+                                                        <span className="text-zinc-900 dark:text-zinc-100">
+                                                            {member.name || member.user_id.slice(0, 8) + '...'}
                                                         </span>
                                                     )}
                                                 </TableCell>
@@ -201,7 +201,7 @@ export function OperiumTeamManager() {
                                                 {member.user_id === userId ? (
                                                     <span>Você <span className="text-zinc-400 text-xs font-normal">(dono)</span></span>
                                                 ) : (
-                                                    <span>{member.user_id.slice(0, 8)}...</span>
+                                                    <span>{member.name || member.user_id.slice(0, 8) + '...'}</span>
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-3 text-sm">

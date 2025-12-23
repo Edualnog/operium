@@ -27,6 +27,7 @@ export interface OperiumProfile {
     role: OperiumRole
     active: boolean
     created_at: string
+    name?: string
 }
 
 export interface OperiumVehicle {
