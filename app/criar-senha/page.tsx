@@ -69,17 +69,20 @@ export default function CreatePasswordPage() {
                 // Check operium_profiles to determine redirect destination
                 const { data: operiumProfile } = await supabase
                     .from('operium_profiles')
-                    .select('role')
+                    .select('role, onboarding_complete')
                     .eq('user_id', user.id)
                     .eq('active', true)
                     .single()
 
-                // Redirect based on role - only FIELD goes to mobile app
+                // Redirect based on role
                 if (operiumProfile && operiumProfile.role === 'FIELD') {
-                    // FIELD users go to mobile app
+                    // FIELD users always go to /app - TeamSelectionScreen will show if onboarding_complete=false
                     router.replace('/app')
+                } else if (operiumProfile && operiumProfile.role === 'WAREHOUSE') {
+                    // WAREHOUSE users go to operium dashboard
+                    router.replace('/dashboard/operium')
                 } else {
-                    // ADMIN, WAREHOUSE, or org owners go to main dashboard
+                    // ADMIN or org owners go to main dashboard
                     router.replace('/dashboard')
                 }
             } else {

@@ -38,12 +38,43 @@ export default function UpdatePasswordPage() {
 
             if (error) throw error
 
-            toast.success("Senha definida com sucesso!")
+            // Update password_set flag
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                await supabase
+                    .from('profiles')
+                    .update({ password_set: true })
+                    .eq('id', user.id)
 
-            // Pequeno delay para usuário ver o sucesso
-            setTimeout(() => {
-                router.push("/dashboard/operium")
-            }, 1500)
+                // Check operium_profiles to determine redirect destination
+                const { data: operiumProfile } = await supabase
+                    .from('operium_profiles')
+                    .select('role, onboarding_complete')
+                    .eq('user_id', user.id)
+                    .eq('active', true)
+                    .single()
+
+                toast.success("Senha definida com sucesso!")
+
+                // Redirect based on role
+                setTimeout(() => {
+                    if (operiumProfile && operiumProfile.role === 'FIELD') {
+                        // FIELD users go to mobile app
+                        router.push('/app')
+                    } else if (operiumProfile && operiumProfile.role === 'WAREHOUSE') {
+                        // WAREHOUSE users go to operium dashboard
+                        router.push('/dashboard/operium')
+                    } else {
+                        // ADMIN or org owners go to main dashboard
+                        router.push('/dashboard')
+                    }
+                }, 1500)
+            } else {
+                toast.success("Senha definida com sucesso!")
+                setTimeout(() => {
+                    router.push("/dashboard")
+                }, 1500)
+            }
 
         } catch (err: any) {
             console.error(err)

@@ -43,6 +43,23 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        // Fallback: Ensure profile exists with password_set = false
+        // The trigger should handle this, but we do it here as a safety net
+        try {
+            const { error: profileError } = await supabaseAdmin
+                .from('profiles')
+                .upsert(
+                    { id: data.user.id, password_set: false },
+                    { onConflict: 'id', ignoreDuplicates: false }
+                )
+
+            if (profileError) {
+                console.warn('Failed to set password_set=false (non-critical):', profileError)
+            }
+        } catch (e) {
+            console.warn('Error ensuring profile password_set=false:', e)
+        }
+
         return NextResponse.json({
             success: true,
             user_id: data.user.id,
