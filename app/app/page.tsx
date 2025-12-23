@@ -111,28 +111,22 @@ function ActionCard({
     onClick: () => void
     color?: 'neutral' | 'blue' | 'green' | 'orange' | 'purple'
 }) {
-    const colorClasses = {
-        neutral: 'bg-neutral-50 text-neutral-700',
-        blue: 'bg-blue-50 text-blue-600',
-        green: 'bg-green-50 text-green-600',
-        orange: 'bg-orange-50 text-orange-600',
-        purple: 'bg-purple-50 text-purple-600'
-    }
-
+    // Notion-style: minimal colors, mostly grayscale with subtle indicators
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl border border-neutral-100
-                       active:scale-[0.98] active:bg-neutral-50 transition-all duration-150 shadow-sm"
+            className="w-full flex items-center gap-4 p-4 bg-white rounded-xl border border-neutral-200
+                       active:bg-neutral-50 transition-all duration-150 shadow-[0_2px_4px_rgba(0,0,0,0.02)]
+                       hover:border-neutral-300 group"
         >
-            <div className={`p-3 rounded-xl ${colorClasses[color]} flex-shrink-0`}>
-                <Icon className="h-5 w-5" />
+            <div className="p-2.5 rounded-lg bg-neutral-100 text-neutral-600 group-hover:text-neutral-900 transition-colors flex-shrink-0">
+                <Icon className="h-5 w-5" strokeWidth={1.5} />
             </div>
             <div className="flex-1 text-left min-w-0">
-                <p className="text-base font-medium text-neutral-900 truncate">{title}</p>
-                <p className="text-sm text-neutral-500 truncate mt-0.5">{subtitle}</p>
+                <p className="text-[15px] font-medium text-neutral-900 truncate tracking-tight">{title}</p>
+                <p className="text-[13px] text-neutral-500 truncate mt-0.5 font-normal">{subtitle}</p>
             </div>
-            <ChevronRight className="h-5 w-5 text-neutral-300 flex-shrink-0" />
+            <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-600 transition-colors flex-shrink-0" />
         </button>
     )
 }
@@ -792,22 +786,22 @@ function EquipmentAcceptanceBanner({
     if (pendingCount === 0) return null
 
     return (
-        <div className="mx-4 mt-4">
-            <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-100 border border-amber-200
-                            rounded-2xl flex items-center gap-3 shadow-sm">
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Package className="h-5 w-5 text-amber-600" />
+        <div className="mx-4 mt-4 animate-in slide-in-from-top-4 duration-500">
+            <div className="p-4 bg-white border border-orange-200/60
+                            rounded-xl flex items-center gap-4 shadow-[0_2px_8px_rgba(251,146,60,0.08)]">
+                <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center flex-shrink-0 border border-orange-100">
+                    <Package className="h-5 w-5 text-orange-600" strokeWidth={2} />
                 </div>
-                <div className="flex-1">
-                    <p className="text-sm font-semibold text-amber-900">
-                        {pendingCount} equipamento{pendingCount > 1 ? 's' : ''} pendente{pendingCount > 1 ? 's' : ''}
+                <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-medium text-neutral-900">
+                        {pendingCount} novo{pendingCount > 1 ? 's' : ''} item{pendingCount > 1 ? 'ns' : ''} recebido{pendingCount > 1 ? 's' : ''}
                     </p>
-                    <p className="text-xs text-amber-700">Confirme o recebimento</p>
+                    <p className="text-[12px] text-neutral-500 mt-0.5">Confirme o recebimento para usar</p>
                 </div>
                 <button
                     onClick={onAcceptAll}
-                    className="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg
-                               active:scale-95 transition-transform"
+                    className="px-4 py-2 bg-neutral-900 text-white text-[13px] font-medium rounded-lg
+                               active:scale-95 transition-all hover:bg-neutral-800 shadow-sm"
                 >
                     Aceitar
                 </button>
@@ -1145,12 +1139,12 @@ function TeamEquipmentSection({
 
     const getStatusLabel = (item: any) => {
         if (item._isPending || item.status === 'pending_acceptance') {
-            return { text: 'Pendente', color: 'bg-amber-100 text-amber-700' }
+            return { text: 'Pendente', color: 'bg-orange-50 text-orange-700 border border-orange-100' }
         }
         if (item.status === 'pending_return') {
-            return { text: 'Devolução', color: 'bg-blue-100 text-blue-700' }
+            return { text: 'Devolução', color: 'bg-blue-50 text-blue-700 border border-blue-100' }
         }
-        return { text: 'Em uso', color: 'bg-emerald-100 text-emerald-700' }
+        return { text: 'Em uso', color: 'bg-neutral-100 text-neutral-600 border border-neutral-200' }
     }
 
     return (
@@ -1473,6 +1467,28 @@ export default function AppPage() {
     useEffect(() => {
         if (onboardingComplete) {
             fetchEquipmentData()
+        }
+    }, [onboardingComplete, fetchEquipmentData])
+
+    // Auto-refresh when app comes to foreground
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && onboardingComplete) {
+                fetchEquipmentData()
+            }
+        }
+
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        // Also set up a polling interval every 30s
+        const interval = setInterval(() => {
+            if (document.visibilityState === 'visible' && onboardingComplete) {
+                fetchEquipmentData()
+            }
+        }, 30000)
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
+            clearInterval(interval)
         }
     }, [onboardingComplete, fetchEquipmentData])
 
