@@ -167,6 +167,40 @@ export async function middleware(request: NextRequest) {
     return redirectResponse
   }
 
+  // ============================================================================
+  // ROLE-BASED ACCESS CONTROL (Defense in Depth)
+  // Redirect non-admin operium users to /dashboard/operium for all other dashboard routes
+  // ============================================================================
+  if (isDashboardRoute && user) {
+    const isOperiumRoute = pathname.startsWith('/dashboard/operium')
+    const isContaRoute = pathname.startsWith('/dashboard/conta')
+    const isAllowedForCollaborator = isOperiumRoute || isContaRoute
+
+    if (!isAllowedForCollaborator) {
+      try {
+        // Check if user has operium profile with non-admin role
+        const { data: operiumProfile } = await supabase
+          .from('operium_profiles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('active', true)
+          .single()
+
+        if (operiumProfile && operiumProfile.role !== 'ADMIN') {
+          // FIELD or WAREHOUSE user trying to access restricted route
+          const redirectResponse = NextResponse.redirect(new URL('/dashboard/operium', request.url))
+          const setCookieHeader = response.headers.get('set-cookie')
+          if (setCookieHeader) {
+            redirectResponse.headers.set('set-cookie', setCookieHeader)
+          }
+          return redirectResponse
+        }
+      } catch {
+        // No operium profile = org owner, allow access
+      }
+    }
+  }
+
   return response
 }
 

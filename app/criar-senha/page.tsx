@@ -60,17 +60,31 @@ export default function CreatePasswordPage() {
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
-                const { error: profileError } = await supabase
+                // Try to update profiles.password_set (may not exist for collaborators)
+                await supabase
                     .from('profiles')
                     .update({ password_set: true })
                     .eq('id', user.id)
 
-                if (profileError) {
-                    console.error('Erro ao atualizar profile', profileError)
-                }
-            }
+                // Check operium_profiles to determine redirect destination
+                const { data: operiumProfile } = await supabase
+                    .from('operium_profiles')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .eq('active', true)
+                    .single()
 
-            router.replace('/dashboard')
+                // Redirect based on role
+                if (operiumProfile && operiumProfile.role !== 'ADMIN') {
+                    // FIELD or WAREHOUSE users go directly to operium panel
+                    router.replace('/dashboard/operium')
+                } else {
+                    // ADMIN or org owners go to main dashboard
+                    router.replace('/dashboard')
+                }
+            } else {
+                router.replace('/dashboard')
+            }
 
         } catch (error: any) {
             setError(error.message || 'Erro ao criar senha')
