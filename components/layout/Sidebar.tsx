@@ -13,6 +13,7 @@ import {
   ClipboardList,
   Truck,
   Users2,
+  Briefcase,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -90,6 +91,13 @@ export default function AppSidebar() {
       href: "/dashboard/inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Operacional",
+      href: "/dashboard/operium",
+      icon: (
+        <Briefcase className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
