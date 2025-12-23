@@ -43,6 +43,8 @@ export interface VehicleCost {
     reference_month: string;
     notes?: string;
     receipt_url?: string;
+    team_id?: string;
+    collaborator_id?: string;
     created_at: string;
 }
 

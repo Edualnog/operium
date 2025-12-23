@@ -43,6 +43,7 @@ export function VehicleCostList({ vehicleId }: { vehicleId: string }) {
                             <TableHead>{t('vehicles.costs.month')}</TableHead>
                             <TableHead>{t('vehicles.costs.type')}</TableHead>
                             <TableHead>{t('vehicles.costs.amount')}</TableHead>
+                            <TableHead>Registrado por</TableHead>
                             <TableHead>{t('vehicles.costs.notes')}</TableHead>
                             <TableHead>Comprovante</TableHead>
                             <TableHead></TableHead>
@@ -51,17 +52,29 @@ export function VehicleCostList({ vehicleId }: { vehicleId: string }) {
                     <TableBody>
                         {costs.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center">
+                                <TableCell colSpan={7} className="h-24 text-center">
                                     {t('vehicles.details.not_found')}
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            costs.map((c) => (
+                            costs.map((c: any) => (
                                 <TableRow key={c.id}>
                                     <TableCell>{format(new Date(c.reference_month), 'MM/yyyy')}</TableCell>
                                     <TableCell>{t(`vehicles.costs.types.${c.cost_type}`)}</TableCell>
                                     <TableCell>
                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.amount)}
+                                    </TableCell>
+                                    <TableCell>
+                                        {c.collaborator_name ? (
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-medium text-neutral-900">{c.collaborator_name}</span>
+                                                {c.team_name && (
+                                                    <span className="text-xs text-neutral-500">{c.team_name}</span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="text-neutral-400 text-sm">Admin</span>
+                                        )}
                                     </TableCell>
                                     <TableCell>{c.notes}</TableCell>
                                     <TableCell>

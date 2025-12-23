@@ -21,7 +21,44 @@ export function useVehicleCosts(vehicleId: string) {
                 .order("reference_month", { ascending: false })
 
             if (error) throw error
-            setCosts(data || [])
+
+            // Enrich with collaborator and team names
+            const enrichedData = await Promise.all((data || []).map(async (cost: any) => {
+                let collaboratorName = null
+                let teamName = null
+
+                // Get collaborator name from operium_profiles
+                if (cost.collaborator_id) {
+                    const { data: profile } = await supabase
+                        .from("operium_profiles")
+                        .select("user:user_id(raw_user_meta_data)")
+                        .eq("user_id", cost.collaborator_id)
+                        .single()
+
+                    collaboratorName = profile?.user?.raw_user_meta_data?.full_name ||
+                                      profile?.user?.raw_user_meta_data?.name ||
+                                      'Usuário'
+                }
+
+                // Get team name
+                if (cost.team_id) {
+                    const { data: team } = await supabase
+                        .from("teams")
+                        .select("name")
+                        .eq("id", cost.team_id)
+                        .single()
+
+                    teamName = team?.name
+                }
+
+                return {
+                    ...cost,
+                    collaborator_name: collaboratorName,
+                    team_name: teamName
+                }
+            }))
+
+            setCosts(enrichedData)
         } catch (err: any) {
             console.error("Error fetching costs:", err)
             setError(err.message)
