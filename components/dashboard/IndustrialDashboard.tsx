@@ -48,6 +48,41 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t, i18n } = useTranslation('common')
+  // Fallback: Check for invite/recovery flow that might have bypassed server redirect
+  // SAFETY NET: Must run BEFORE useKPIs initializes Supabase client
+  useEffect(() => {
+    const fullUrl = typeof window !== 'undefined' ? window.location.href : ''
+    const hash = typeof window !== 'undefined' ? window.location.hash : ''
+    const type = searchParams.get('type')
+    const isInviteOrRecovery =
+      type === 'invite' || type === 'recovery' ||
+      hash.includes('type=invite') || hash.includes('type=recovery') ||
+      fullUrl.includes('type=invite') || fullUrl.includes('type=recovery')
+
+    if (isInviteOrRecovery) {
+      const supabase = createClientComponentClient()
+
+      const checkAndRedirect = async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          router.push('/auth/update-password')
+        }
+      }
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session && (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY')) {
+          router.push('/auth/update-password')
+        }
+      })
+
+      checkAndRedirect()
+
+      return () => {
+        subscription.unsubscribe()
+      }
+    }
+  }, [searchParams, router])
+
   const { data, loading, error } = useKPIs(userId)
 
   // Fallback: Check for invite/recovery flow that might have bypassed server redirect
