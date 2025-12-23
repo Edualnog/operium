@@ -740,6 +740,128 @@ function FerramentasList({
     }
   }
 
+  const handleGenerateBulkLabels = async () => {
+    if (selectedItems.size === 0) {
+      toast.error(t("dashboard.ferramentas.bulk_labels.no_selection") || "Selecione pelo menos um produto")
+      return
+    }
+
+    try {
+      const itemsToLabel = ferramentas.filter(f => selectedItems.has(f.id))
+
+      // Generate QR codes for all items
+      const labelsHtml: string[] = []
+
+      for (const ferramenta of itemsToLabel) {
+        const qrCodeDataUri = await QRCode.toDataURL(ferramenta.id, { margin: 0 })
+
+        labelsHtml.push(`
+          <div class="label">
+            <h3>${ferramenta.nome}</h3>
+            <div class="qr">
+              <img src="${qrCodeDataUri}" alt="QR Code" />
+            </div>
+            <div class="code">${ferramenta.codigo || ferramenta.id.substring(0, 8)}</div>
+            <div class="details">
+              ${ferramenta.tamanho ? ferramenta.tamanho : ''}
+              ${ferramenta.tamanho && ferramenta.cor ? ' - ' : ''}
+              ${ferramenta.cor ? ferramenta.cor : ''}
+            </div>
+          </div>
+        `)
+      }
+
+      const printWindow = window.open('', '_blank', 'width=900,height=700')
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${t("dashboard.ferramentas.bulk_labels.title") || "Etiquetas"} - ${itemsToLabel.length} ${t("dashboard.ferramentas.bulk_labels.products") || "produtos"}</title>
+              <style>
+                * {
+                  box-sizing: border-box;
+                  margin: 0;
+                  padding: 0;
+                }
+                @page {
+                  size: A4;
+                  margin: 10mm;
+                }
+                body {
+                  font-family: Arial, sans-serif;
+                  background: white;
+                  padding: 10mm;
+                }
+                .container {
+                  display: grid;
+                  grid-template-columns: repeat(4, 1fr);
+                  gap: 2mm;
+                }
+                .label {
+                  width: 48mm;
+                  height: 30mm;
+                  border: 1px dashed #ccc;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 2mm;
+                  page-break-inside: avoid;
+                }
+                .label h3 {
+                  font-size: 8px;
+                  text-align: center;
+                  max-height: 14px;
+                  overflow: hidden;
+                  width: 100%;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  margin-bottom: 1mm;
+                }
+                .label .qr img {
+                  width: 38px;
+                  height: 38px;
+                }
+                .label .code {
+                  font-size: 7px;
+                  font-weight: bold;
+                  margin-top: 1mm;
+                }
+                .label .details {
+                  font-size: 6px;
+                  color: #666;
+                  margin-top: 1mm;
+                }
+                @media print {
+                  body { padding: 0; }
+                  .container { gap: 0; }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                ${labelsHtml.join('')}
+              </div>
+              <script>
+                window.onload = () => { 
+                  setTimeout(() => { 
+                    window.print(); 
+                  }, 500); 
+                }
+              </script>
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+        toast.success(t("dashboard.ferramentas.bulk_labels.success") || `${itemsToLabel.length} etiquetas geradas para impressão`)
+      }
+    } catch (error) {
+      console.error("Erro ao gerar etiquetas em lote:", error)
+      toast.error(t("dashboard.ferramentas.bulk_labels.error") || "Erro ao gerar etiquetas")
+    }
+  }
+
   const handleExportCSV = () => {
     if (filteredFerramentas.length === 0) return
     setExportingCsv(true)
@@ -1340,6 +1462,10 @@ function FerramentasList({
                 <DropdownMenuItem onClick={handleExportPDF} disabled={selectedItems.size === 0}>
                   <Download className="h-4 w-4 mr-2" />
                   Exportar PDF ({selectedItems.size})
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleGenerateBulkLabels} disabled={selectedItems.size === 0}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  {t("dashboard.ferramentas.bulk_labels.menu_item") || "Gerar Etiquetas"} ({selectedItems.size})
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
