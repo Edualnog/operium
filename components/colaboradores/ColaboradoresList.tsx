@@ -1304,36 +1304,36 @@ function ColaboradoresList({
 
       {fichaDialogOpen && colaboradorSelecionado && (
         <Dialog open={fichaDialogOpen} onOpenChange={setFichaDialogOpen}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>{t("dashboard.colaboradores.details.file_title", { name: colaboradorSelecionado.nome })}</DialogTitle>
+          <DialogContent className="max-w-[95vw] sm:max-w-md md:max-w-lg p-4 sm:p-6">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="text-base sm:text-lg">{t("dashboard.colaboradores.details.file_title", { name: colaboradorSelecionado.nome })}</DialogTitle>
             </DialogHeader>
-            <div className="p-4 max-h-[70vh] overflow-y-auto">
-              <div className="mb-6">
-                <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                  <HardHat className="h-5 w-5 text-orange-600" />
+            <div className="max-h-[60vh] overflow-y-auto">
+              <div>
+                <h4 className="font-semibold text-sm sm:text-base mb-3 flex items-center gap-2">
+                  <HardHat className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
                   {t("dashboard.colaboradores.details.active_epis")}
                 </h4>
                 {loadingEpis ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="animate-spin h-8 w-8 text-zinc-400" />
+                  <div className="flex justify-center py-6">
+                    <Loader2 className="animate-spin h-6 w-6 text-zinc-400" />
                   </div>
                 ) : (
                   episAtivos.length > 0 ? (
-                    <div className="border rounded-md">
+                    <div className="border rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
-                          <TableRow>
-                            <TableHead>{t("dashboard.colaboradores.details.table.item")}</TableHead>
-                            <TableHead className="text-right">{t("dashboard.colaboradores.details.table.qty")}</TableHead>
+                          <TableRow className="bg-zinc-50 dark:bg-zinc-800">
+                            <TableHead className="text-xs sm:text-sm py-2">{t("dashboard.colaboradores.details.table.item")}</TableHead>
+                            <TableHead className="text-xs sm:text-sm py-2 text-right w-16">{t("dashboard.colaboradores.details.table.qty")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {episAtivos.map(epi => (
                             <TableRow key={epi.id}>
-                              <TableCell className="font-medium">{epi.nome}</TableCell>
-                              <TableCell className="text-right">
-                                <Badge variant="secondary" className="font-mono">
+                              <TableCell className="font-medium text-sm py-2">{epi.nome}</TableCell>
+                              <TableCell className="text-right py-2">
+                                <Badge variant="secondary" className="font-mono text-xs">
                                   {epi.quantidade}
                                 </Badge>
                               </TableCell>
@@ -1343,7 +1343,7 @@ function ColaboradoresList({
                       </Table>
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-dashed">
+                    <div className="text-center py-6 text-sm text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-dashed">
                       <p>{t("dashboard.colaboradores.details.no_active_epis")}</p>
                     </div>
                   )
