@@ -1208,31 +1208,46 @@ export default function MovimentacoesList({
           {paginatedMovimentacoes.map((m) => (
             <Fragment key={m.id}>
               <div
-                className="p-3 border-b border-zinc-200 space-y-2 active:bg-zinc-100 cursor-pointer dark:border-zinc-700 dark:active:bg-zinc-800"
+                className="p-4 space-y-3 active:bg-zinc-50 cursor-pointer dark:active:bg-zinc-800"
                 onClick={() => handleOpenDetail(m.id)}
               >
-                <div className="flex items-center justify-between gap-2">
+                {/* Header: Type + Date */}
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-zinc-500" />}
-                    {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-zinc-500" />}
-                    {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-zinc-500" />}
-                    {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-zinc-500" />}
-                    <span className="text-xs font-medium capitalize">
-                      {t(`dashboard.movimentacoes.filters.${m.tipo}`)}
+                    <div className={`p-1.5 rounded-lg ${m.tipo === 'entrada' ? 'bg-green-100 dark:bg-green-900/30' :
+                        m.tipo === 'retirada' ? 'bg-red-100 dark:bg-red-900/30' :
+                          m.tipo === 'devolucao' ? 'bg-blue-100 dark:bg-blue-900/30' :
+                            'bg-orange-100 dark:bg-orange-900/30'
+                      }`}>
+                      {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                      {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600 dark:text-red-400" />}
+                      {m.tipo === 'devolucao' && <RotateCcw className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+                      {m.tipo === 'conserto' && <Settings className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                    </div>
+                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 capitalize">
+                      {m.tipo === 'entrada' ? 'Entrada' :
+                        m.tipo === 'retirada' ? 'Retirada' :
+                          m.tipo === 'devolucao' ? 'Devolução' : 'Conserto'}
                     </span>
                   </div>
-                  <span className="text-xs text-zinc-500">
-                    {m.data ? format(new Date(m.data), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {m.data ? format(new Date(m.data), "dd/MM HH:mm", { locale: ptBR }) : "-"}
                   </span>
                 </div>
-                <div>
-                  <p className="font-medium text-sm text-zinc-900 dark:text-zinc-100">
-                    {m.ferramentas?.nome || t("dashboard.movimentacoes.table.product")}
-                  </p>
-                </div>
-                <div className="flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-400">
-                  <span>{t("dashboard.ferramentas.columns.qty")}: <strong>{m.quantidade}</strong></span>
-                  <span>{t("dashboard.movimentacoes.table.collaborator")}: <strong>{m.colaboradores?.nome || "-"}</strong></span>
+
+                {/* Product Name */}
+                <p className="font-semibold text-base text-zinc-900 dark:text-zinc-100">
+                  {m.ferramentas?.nome || "Produto"}
+                </p>
+
+                {/* Details Row */}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-zinc-600 dark:text-zinc-400">
+                    Qtd: <strong className="text-zinc-900 dark:text-zinc-100">{m.quantidade}</strong>
+                  </span>
+                  <span className="text-zinc-600 dark:text-zinc-400 text-right truncate max-w-[50%]">
+                    {m.colaboradores?.nome || "—"}
+                  </span>
                 </div>
               </div>
             </Fragment>
