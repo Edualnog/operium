@@ -6,12 +6,13 @@ import { OperiumProfile, OperiumRole, canCreateEventType, OperiumEventType } fro
 
 /**
  * Hook para gerenciar o perfil OPERIUM do usuário autenticado
- * Fornece informações de papel e helpers de permissão
+ * Fornece informações de papel, helpers de permissão e auto-criação de ADMIN
  */
 export function useOperiumProfile() {
     const [profile, setProfile] = useState<OperiumProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [userId, setUserId] = useState<string | null>(null)
     const supabase = createClientComponentClient()
 
     const fetchProfile = useCallback(async () => {
@@ -22,8 +23,11 @@ export function useOperiumProfile() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
                 setProfile(null)
+                setUserId(null)
                 return
             }
+
+            setUserId(user.id)
 
             const { data, error: fetchError } = await supabase
                 .from("operium_profiles")
@@ -54,12 +58,107 @@ export function useOperiumProfile() {
         fetchProfile()
     }, [fetchProfile])
 
+    /**
+     * Cria perfil ADMIN automaticamente para o dono da conta
+     * org_id = user.id (o dono é a organização)
+     */
+    const createAdminProfile = useCallback(async () => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error("User not authenticated")
+
+            // Usar o próprio user.id como org_id (dono = organização)
+            const { data, error } = await supabase
+                .from("operium_profiles")
+                .insert({
+                    user_id: user.id,
+                    org_id: user.id, // Dono é a própria organização
+                    role: 'ADMIN' as OperiumRole,
+                    active: true,
+                })
+                .select()
+                .single()
+
+            if (error) throw error
+
+            setProfile(data)
+            return data
+        } catch (err: any) {
+            console.error("Error creating ADMIN profile:", err)
+            throw err
+        }
+    }, [supabase])
+
+    /**
+     * Adiciona um colaborador à organização (apenas ADMIN)
+     */
+    const addTeamMember = useCallback(async (
+        targetUserId: string,
+        role: 'FIELD' | 'WAREHOUSE'
+    ) => {
+        if (!profile?.org_id) throw new Error("No org_id found")
+
+        const { data, error } = await supabase
+            .from("operium_profiles")
+            .insert({
+                user_id: targetUserId,
+                org_id: profile.org_id,
+                role,
+                active: true,
+            })
+            .select()
+            .single()
+
+        if (error) throw error
+        return data
+    }, [supabase, profile?.org_id])
+
+    /**
+     * Atualiza role de um membro da equipe
+     */
+    const updateMemberRole = useCallback(async (
+        targetUserId: string,
+        newRole: OperiumRole
+    ) => {
+        if (!profile?.org_id) throw new Error("No org_id found")
+
+        const { data, error } = await supabase
+            .from("operium_profiles")
+            .update({ role: newRole })
+            .eq("user_id", targetUserId)
+            .eq("org_id", profile.org_id)
+            .select()
+            .single()
+
+        if (error) throw error
+        return data
+    }, [supabase, profile?.org_id])
+
+    /**
+     * Desativa membro da equipe
+     */
+    const deactivateMember = useCallback(async (targetUserId: string) => {
+        if (!profile?.org_id) throw new Error("No org_id found")
+
+        const { error } = await supabase
+            .from("operium_profiles")
+            .update({ active: false })
+            .eq("user_id", targetUserId)
+            .eq("org_id", profile.org_id)
+
+        if (error) throw error
+    }, [supabase, profile?.org_id])
+
     // Permission helpers
     const role = profile?.role ?? null
+    const orgId = profile?.org_id ?? null
     const isAdmin = role === 'ADMIN'
     const isField = role === 'FIELD'
     const isWarehouse = role === 'WAREHOUSE'
     const hasProfile = profile !== null
+
+    // Verifica se o usuário é o dono da organização
+    const isOrgOwner = userId !== null && orgId === userId
 
     const canCreate = useCallback((eventType: OperiumEventType): boolean => {
         if (!role) return false
@@ -78,6 +177,8 @@ export function useOperiumProfile() {
         profile,
         loading,
         error,
+        userId,
+        orgId,
         refreshProfile: fetchProfile,
         // Role info
         role,
@@ -85,6 +186,7 @@ export function useOperiumProfile() {
         isField,
         isWarehouse,
         hasProfile,
+        isOrgOwner,
         // Permission helpers
         canCreate,
         canManageProfiles,
@@ -94,5 +196,50 @@ export function useOperiumProfile() {
         canCreateVehicleStatus,
         canCreateItemIn,
         canCreateItemOut,
+        // Admin actions
+        createAdminProfile,
+        addTeamMember,
+        updateMemberRole,
+        deactivateMember,
     }
+}
+
+/**
+ * Hook para listar membros da equipe OPERIUM
+ */
+export function useOperiumTeam() {
+    const [members, setMembers] = useState<OperiumProfile[]>([])
+    const [loading, setLoading] = useState(true)
+    const supabase = createClientComponentClient()
+    const { orgId, isAdmin } = useOperiumProfile()
+
+    const fetchMembers = useCallback(async () => {
+        if (!orgId || !isAdmin) {
+            setMembers([])
+            setLoading(false)
+            return
+        }
+
+        try {
+            setLoading(true)
+            const { data, error } = await supabase
+                .from("operium_profiles")
+                .select("*")
+                .eq("org_id", orgId)
+                .order("created_at", { ascending: true })
+
+            if (error) throw error
+            setMembers(data || [])
+        } catch (err) {
+            console.error("Error fetching team:", err)
+        } finally {
+            setLoading(false)
+        }
+    }, [supabase, orgId, isAdmin])
+
+    useEffect(() => {
+        fetchMembers()
+    }, [fetchMembers])
+
+    return { members, loading, refreshMembers: fetchMembers }
 }

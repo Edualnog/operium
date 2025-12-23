@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useOperiumProfile } from "@/lib/hooks/useOperiumProfile"
 import { OperiumRoleBadge } from "./OperiumRoleBadge"
 import { VehicleExpenseForm } from "./VehicleExpenseForm"
 import { VehicleStatusForm } from "./VehicleStatusForm"
 import { InventoryMovementForm } from "./InventoryMovementForm"
 import { EventsList } from "./EventsList"
+import { OperiumTeamManager } from "./OperiumTeamManager"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,20 +18,51 @@ import {
     History,
     Loader2,
     AlertCircle,
-    Briefcase
+    Briefcase,
+    Sparkles,
+    Users
 } from "lucide-react"
+import { useToast } from "@/components/ui/toast-context"
 
 export function OperiumDashboard() {
-    const { profile, loading, error, role, hasProfile, canCreateVehicleExpense, canCreateVehicleStatus, canCreateItemIn, canCreateItemOut } = useOperiumProfile()
+    const {
+        profile,
+        loading,
+        error,
+        role,
+        hasProfile,
+        isAdmin,
+        canCreateVehicleExpense,
+        canCreateVehicleStatus,
+        canCreateItemIn,
+        canCreateItemOut,
+        createAdminProfile
+    } = useOperiumProfile()
+    const { toast } = useToast()
 
     const [expenseFormOpen, setExpenseFormOpen] = useState(false)
     const [statusFormOpen, setStatusFormOpen] = useState(false)
     const [movementFormOpen, setMovementFormOpen] = useState(false)
     const [movementType, setMovementType] = useState<'ITEM_IN' | 'ITEM_OUT'>('ITEM_IN')
     const [refreshKey, setRefreshKey] = useState(0)
+    const [creatingAdmin, setCreatingAdmin] = useState(false)
+    const [showTeamManager, setShowTeamManager] = useState(false)
 
     const handleSuccess = () => {
         setRefreshKey(prev => prev + 1)
+    }
+
+    const handleActivateAdmin = async () => {
+        try {
+            setCreatingAdmin(true)
+            await createAdminProfile()
+            toast.success("Perfil ADMIN ativado com sucesso!")
+        } catch (err: any) {
+            console.error(err)
+            toast.error(err.message || "Erro ao ativar perfil")
+        } finally {
+            setCreatingAdmin(false)
+        }
     }
 
     if (loading) {
@@ -51,15 +83,28 @@ export function OperiumDashboard() {
         )
     }
 
+    // Se não tem perfil, oferecer ativação como ADMIN (para dono da conta)
     if (!hasProfile) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-4">
-                <Briefcase className="h-12 w-12 text-zinc-400 mb-4" />
-                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Sem perfil OPERIUM</h2>
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center mb-6">
+                    <Sparkles className="h-8 w-8 text-zinc-600 dark:text-zinc-400" />
+                </div>
+                <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+                    Ativar Sistema Operacional
+                </h2>
                 <p className="text-zinc-500 mt-2 max-w-md">
-                    Você ainda não tem um perfil operacional configurado.
-                    Entre em contato com um administrador para receber acesso.
+                    Configure o controle de acesso para sua equipe. Você será o administrador e poderá adicionar colaboradores.
                 </p>
+                <Button
+                    onClick={handleActivateAdmin}
+                    disabled={creatingAdmin}
+                    className="mt-6 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                >
+                    {creatingAdmin && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    Ativar como Administrador
+                </Button>
             </div>
         )
     }
@@ -76,8 +121,25 @@ export function OperiumDashboard() {
                         Registre atividades operacionais da sua organização
                     </p>
                 </div>
-                {role && <OperiumRoleBadge role={role} size="lg" />}
+                <div className="flex items-center gap-3">
+                    {isAdmin && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowTeamManager(!showTeamManager)}
+                            className="border-zinc-200 dark:border-zinc-700"
+                        >
+                            <Users className="mr-2 h-4 w-4" />
+                            Equipe
+                        </Button>
+                    )}
+                    {role && <OperiumRoleBadge role={role} size="lg" />}
+                </div>
             </div>
+
+            {/* Team Manager (ADMIN only) */}
+            {isAdmin && showTeamManager && (
+                <OperiumTeamManager />
+            )}
 
             {/* Quick Actions */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
