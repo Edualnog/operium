@@ -255,7 +255,9 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
         throw new Error("Ferramenta não encontrada")
     }
 
-    if (ferramenta.estado !== 'ok') {
+    // Only block if explicitly in maintenance or damaged state
+    const blockedStates = ['manutenção', 'danificada', 'em_conserto', 'perdida']
+    if (ferramenta.estado && blockedStates.includes(ferramenta.estado.toLowerCase())) {
         throw new Error(`Ferramenta "${ferramenta.nome}" não está disponível (status: ${ferramenta.estado})`)
     }
 
