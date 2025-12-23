@@ -61,7 +61,7 @@ function SignupForm() {
 
     try {
       const signUpOptions: Record<string, any> = {
-        emailRedirectTo: `${window.location.origin}/auth/verify`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         captchaToken,
         data: {
           full_name: name,
