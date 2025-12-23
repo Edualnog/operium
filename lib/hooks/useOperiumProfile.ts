@@ -60,24 +60,16 @@ export function useOperiumProfile() {
 
     /**
      * Cria perfil ADMIN automaticamente para o dono da conta
-     * org_id = user.id (o dono é a organização)
+     * Usa RPC function com SECURITY DEFINER para bypass do RLS
      */
     const createAdminProfile = useCallback(async () => {
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error("User not authenticated")
 
-            // Usar o próprio user.id como org_id (dono = organização)
+            // Chamar RPC function que faz bypass do RLS
             const { data, error } = await supabase
-                .from("operium_profiles")
-                .insert({
-                    user_id: user.id,
-                    org_id: user.id, // Dono é a própria organização
-                    role: 'ADMIN' as OperiumRole,
-                    active: true,
-                })
-                .select()
-                .single()
+                .rpc('operium_create_admin_profile')
 
             if (error) throw error
 
