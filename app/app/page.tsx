@@ -568,19 +568,188 @@ function DailyReportModal({
 }
 
 // ============================================================================
+// TEAM SELECTION SCREEN (for first-time onboarding)
+// ============================================================================
+
+function TeamSelectionScreen({
+    onComplete
+}: {
+    onComplete: () => void
+}) {
+    const supabase = createClientComponentClient()
+    const [hasTeam, setHasTeam] = useState<boolean | null>(null)
+    const [selectedTeam, setSelectedTeam] = useState('')
+    const [teams, setTeams] = useState<{ id: string; name: string }[]>([])
+    const [loading, setLoading] = useState(false)
+    const [loadingTeams, setLoadingTeams] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    // Fetch teams when user says "yes"
+    useEffect(() => {
+        if (hasTeam === true) {
+            fetchTeams()
+        }
+    }, [hasTeam])
+
+    const fetchTeams = async () => {
+        setLoadingTeams(true)
+        try {
+            const { data } = await supabase
+                .from('teams')
+                .select('id, name')
+                .order('name')
+            setTeams(data || [])
+        } catch (err) {
+            console.error('Error fetching teams:', err)
+        } finally {
+            setLoadingTeams(false)
+        }
+    }
+
+    const handleComplete = async () => {
+        setLoading(true)
+        setError(null)
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Não autenticado')
+
+            await supabase
+                .from('operium_profiles')
+                .update({
+                    team_id: hasTeam ? selectedTeam || null : null,
+                    onboarding_complete: true
+                })
+                .eq('user_id', user.id)
+
+            onComplete()
+        } catch (err: any) {
+            setError(err.message || 'Erro ao salvar')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center p-4">
+            <div className="w-full max-w-sm space-y-4">
+                <div className="text-center">
+                    <h1 className="text-xl font-semibold text-neutral-800">Bem-vindo! 👋</h1>
+                    <p className="text-sm text-neutral-500 mt-1">Vamos configurar seu perfil</p>
+                </div>
+
+                {error && (
+                    <div className="p-2 bg-red-50 border border-red-200 rounded-md">
+                        <p className="text-xs text-red-600">{error}</p>
+                    </div>
+                )}
+
+                <div className="bg-white border border-neutral-200 rounded-lg p-4 space-y-4">
+                    <div>
+                        <p className="text-sm font-medium text-neutral-700 mb-3">
+                            Você faz parte de alguma equipe?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setHasTeam(true)}
+                                className={`flex-1 py-2.5 text-sm rounded-md border transition-all ${hasTeam === true
+                                        ? 'bg-neutral-800 text-white border-neutral-800'
+                                        : 'bg-neutral-50 text-neutral-600 border-neutral-200'
+                                    }`}
+                            >
+                                Sim
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setHasTeam(false)}
+                                className={`flex-1 py-2.5 text-sm rounded-md border transition-all ${hasTeam === false
+                                        ? 'bg-neutral-800 text-white border-neutral-800'
+                                        : 'bg-neutral-50 text-neutral-600 border-neutral-200'
+                                    }`}
+                            >
+                                Não, trabalho sozinho
+                            </button>
+                        </div>
+                    </div>
+
+                    {hasTeam === true && (
+                        <div>
+                            <label className="block text-xs font-medium text-neutral-600 mb-1">
+                                Selecione sua equipe
+                            </label>
+                            {loadingTeams ? (
+                                <div className="h-10 flex items-center justify-center">
+                                    <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
+                                </div>
+                            ) : teams.length === 0 ? (
+                                <p className="text-xs text-neutral-400 py-2">
+                                    Nenhuma equipe cadastrada
+                                </p>
+                            ) : (
+                                <select
+                                    value={selectedTeam}
+                                    onChange={(e) => setSelectedTeam(e.target.value)}
+                                    className="w-full h-10 px-3 text-sm bg-neutral-50 border border-neutral-200 rounded-md
+                                               focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                                >
+                                    <option value="">Selecione...</option>
+                                    {teams.map((t) => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <button
+                    onClick={handleComplete}
+                    disabled={loading || hasTeam === null || (hasTeam === true && !selectedTeam && teams.length > 0)}
+                    className="w-full h-10 bg-neutral-800 text-white text-sm font-medium rounded-md
+                               disabled:opacity-50 active:bg-neutral-700"
+                >
+                    {loading ? 'Salvando...' : 'Continuar'}
+                </button>
+            </div>
+        </div>
+    )
+}
+
+// ============================================================================
 // MAIN PAGE
 // ============================================================================
 
 export default function AppPage() {
     const router = useRouter()
     const supabase = createClientComponentClient()
-    const { loading: loadingProfile } = useOperiumProfile()
+    const { loading: loadingProfile, profile: operiumProfile } = useOperiumProfile()
     const { events, loading: loadingEvents, refreshEvents } = useOperiumEvents({ limit: 5 })
 
     const [showExpenseModal, setShowExpenseModal] = useState(false)
     const [showStatusModal, setShowStatusModal] = useState(false)
     const [showReportModal, setShowReportModal] = useState(false)
     const [showReminder, setShowReminder] = useState(false)
+    const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null)
+
+    // Check onboarding status
+    useEffect(() => {
+        const checkOnboarding = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            const { data } = await supabase
+                .from('operium_profiles')
+                .select('onboarding_complete')
+                .eq('user_id', user.id)
+                .eq('active', true)
+                .maybeSingle()
+
+            setOnboardingComplete(data?.onboarding_complete ?? false)
+        }
+        if (!loadingProfile) {
+            checkOnboarding()
+        }
+    }, [supabase, loadingProfile])
 
     useEffect(() => {
         const hour = new Date().getHours()
@@ -594,12 +763,21 @@ export default function AppPage() {
 
     const handleSuccess = () => refreshEvents()
 
-    if (loadingProfile) {
+    const handleOnboardingComplete = () => {
+        setOnboardingComplete(true)
+    }
+
+    if (loadingProfile || onboardingComplete === null) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#FBFBFA]">
                 <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
             </div>
         )
+    }
+
+    // Show team selection if not onboarded
+    if (!onboardingComplete) {
+        return <TeamSelectionScreen onComplete={handleOnboardingComplete} />
     }
 
     return (
