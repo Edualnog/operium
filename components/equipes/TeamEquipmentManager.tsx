@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { TeamEquipment } from "@/app/dashboard/equipes/types"
-import { getTeamEquipment, assignEquipment, returnEquipment, returnEquipmentWithDiscrepancy, endTeamOperation, DiscrepancyType } from "@/app/dashboard/equipes/actions"
+import { TeamEquipment, EquipmentStatus } from "@/app/dashboard/equipes/types"
+import { getTeamEquipment, assignEquipment, returnEquipment, returnEquipmentWithDiscrepancy, endTeamOperation, DiscrepancyType, adminValidateReturn } from "@/app/dashboard/equipes/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, ArchiveRestore, PackageSearch, Loader2, AlertTriangle, CheckCircle2, XCircle, Power } from "lucide-react"
+import { Plus, ArchiveRestore, PackageSearch, Loader2, AlertTriangle, CheckCircle2, XCircle, Power, Clock, CheckCheck } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { toast } from "sonner"
 import { Card, CardContent } from "@/components/ui/card"
@@ -294,46 +294,88 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                     </div>
                 ) : (
                     <div className="grid gap-2">
-                        {equipment.map((item) => (
-                            <Card key={item.id} className="overflow-hidden">
-                                <CardContent className="p-3 flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <span className="font-medium text-sm">{item.ferramenta_nome}</span>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <Badge variant="outline" className="text-[10px] h-5">
-                                                {t('teams.equipment.qty')}: {item.quantity}
-                                            </Badge>
-                                            <span className="text-[10px] text-muted-foreground">
-                                                {t('teams.equipment.since')}: {new Date(item.assigned_at).toLocaleDateString()}
-                                            </span>
+                        {equipment.map((item) => {
+                            // Status badge helper
+                            const getStatusBadge = (status: EquipmentStatus | undefined) => {
+                                switch (status) {
+                                    case 'pending_acceptance':
+                                        return <Badge variant="outline" className="text-[10px] h-5 border-amber-300 bg-amber-50 text-amber-700"><Clock className="h-2.5 w-2.5 mr-1" />Pendente</Badge>
+                                    case 'pending_return':
+                                        return <Badge variant="outline" className="text-[10px] h-5 border-blue-300 bg-blue-50 text-blue-700"><ArchiveRestore className="h-2.5 w-2.5 mr-1" />Devolução</Badge>
+                                    case 'accepted':
+                                    case 'in_use':
+                                        return <Badge variant="outline" className="text-[10px] h-5 border-green-300 bg-green-50 text-green-700"><CheckCircle2 className="h-2.5 w-2.5 mr-1" />Em uso</Badge>
+                                    default:
+                                        return null
+                                }
+                            }
+
+                            const handleValidateReturn = async () => {
+                                try {
+                                    await adminValidateReturn([item.id])
+                                    await fetchEquipment()
+                                    toast.success(t('teams.equipment.toast.validated'))
+                                } catch (error: any) {
+                                    toast.error(error.message || t('teams.equipment.toast.error_validate'))
+                                }
+                            }
+
+                            return (
+                                <Card key={item.id} className="overflow-hidden">
+                                    <CardContent className="p-3 flex items-center justify-between">
+                                        <div className="flex flex-col">
+                                            <span className="font-medium text-sm">{item.ferramenta_nome}</span>
+                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                <Badge variant="outline" className="text-[10px] h-5">
+                                                    {t('teams.equipment.qty')}: {item.quantity}
+                                                </Badge>
+                                                {getStatusBadge(item.status)}
+                                                <span className="text-[10px] text-muted-foreground">
+                                                    {t('teams.equipment.since')}: {new Date(item.assigned_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                                            onClick={() => {
-                                                setDiscrepancyItem(item)
-                                                setDiscrepancyQty(item.quantity)
-                                            }}
-                                            title={t('teams.equipment.discrepancy.title')}
-                                        >
-                                            <AlertTriangle className="h-3.5 w-3.5" />
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8 ml-1 gap-1 text-xs"
-                                            onClick={() => handleReturn(item.id)}
-                                        >
-                                            <ArchiveRestore className="h-3.5 w-3.5" />
-                                            {t('teams.equipment.return')}
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                        <div className="flex items-center gap-1">
+                                            {item.status === 'pending_return' ? (
+                                                <Button
+                                                    variant="default"
+                                                    size="sm"
+                                                    className="h-8 gap-1 text-xs bg-green-600 hover:bg-green-700"
+                                                    onClick={handleValidateReturn}
+                                                >
+                                                    <CheckCheck className="h-3.5 w-3.5" />
+                                                    Validar
+                                                </Button>
+                                            ) : (
+                                                <>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                                        onClick={() => {
+                                                            setDiscrepancyItem(item)
+                                                            setDiscrepancyQty(item.quantity)
+                                                        }}
+                                                        title={t('teams.equipment.discrepancy.title')}
+                                                    >
+                                                        <AlertTriangle className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 ml-1 gap-1 text-xs"
+                                                        onClick={() => handleReturn(item.id)}
+                                                    >
+                                                        <ArchiveRestore className="h-3.5 w-3.5" />
+                                                        {t('teams.equipment.return')}
+                                                    </Button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )
+                        })}
                     </div>
                 )}
             </div>

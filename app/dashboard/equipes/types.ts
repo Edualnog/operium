@@ -1,5 +1,16 @@
 export type TeamStatus = 'active' | 'on_break' | 'off_duty'
 
+export type EquipmentStatus =
+    | 'pending_acceptance'
+    | 'accepted'
+    | 'in_use'
+    | 'pending_return'
+    | 'returned'
+    | 'returned_with_issue'
+
+export type EquipmentIssueType = 'damage' | 'malfunction' | 'loss' | 'wear' | 'other'
+export type EquipmentIssueSeverity = 'low' | 'medium' | 'high' | 'critical'
+
 export interface Team {
     id: string
     profile_id: string
@@ -44,9 +55,46 @@ export interface TeamEquipment {
     assigned_at: string
     returned_at: string | null
     notes: string | null
+    // Status tracking
+    status: EquipmentStatus
+    accepted_at?: string | null
+    accepted_by_user_id?: string | null
+    return_requested_at?: string | null
+    return_requested_by_user_id?: string | null
+    admin_validated_at?: string | null
+    admin_validated_by?: string | null
     // Joins
     ferramenta_nome?: string
     ferramenta_tipo?: string
+}
+
+export interface EquipmentIssue {
+    id: string
+    team_equipment_id: string
+    reported_by_user_id: string
+    org_id: string
+    issue_type: EquipmentIssueType
+    severity: EquipmentIssueSeverity
+    description: string
+    location?: string | null
+    photo_url?: string | null
+    resolved_at?: string | null
+    resolved_by?: string | null
+    resolution_notes?: string | null
+    created_at: string
+    updated_at: string
+}
+
+export interface EquipmentNotification {
+    id: string
+    user_id: string
+    org_id: string
+    team_equipment_id: string | null
+    notification_type: 'equipment_assigned' | 'equipment_accepted' | 'issue_reported' | 'return_requested' | 'return_validated'
+    title: string
+    message: string | null
+    read_at: string | null
+    created_at: string
 }
 
 export interface TeamAssignment {

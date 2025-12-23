@@ -349,11 +349,10 @@ export async function returnEquipmentWithDiscrepancy(
         .from("team_equipment")
         .update({
             returned_at: new Date().toISOString(),
-            notes: `[DIVERGÊNCIA: ${discrepancy.type.toUpperCase()}] ${discrepancy.notes}${
-                discrepancy.quantityReturned !== undefined
+            notes: `[DIVERGÊNCIA: ${discrepancy.type.toUpperCase()}] ${discrepancy.notes}${discrepancy.quantityReturned !== undefined
                     ? ` | Quantidade devolvida: ${discrepancy.quantityReturned}/${existing.quantity}`
                     : ''
-            }`
+                }`
         })
         .eq("id", assignmentId)
         .select()
@@ -445,3 +444,121 @@ export async function endTeamOperation(teamId: string, returnedItems: string[]) 
         details: results
     }
 }
+
+// --- ADMIN VALIDATION ---
+
+export async function adminValidateReturn(equipmentIds: string[]) {
+    const supabase = createServerActionClient({ cookies })
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+        throw new Error("Não autenticado")
+    }
+
+    // Get user profile
+    const { data: profile } = await supabase
+        .from("operium_profiles")
+        .select("org_id, name")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single()
+
+    const now = new Date().toISOString()
+    const results = []
+
+    for (const equipmentId of equipmentIds) {
+        try {
+            // Verify equipment exists and is pending return
+            const { data: equipment, error: eqError } = await supabase
+                .from("team_equipment")
+                .select("*, ferramentas(nome), teams(name)")
+                .eq("id", equipmentId)
+                .single()
+
+            if (eqError || !equipment) {
+                results.push({ id: equipmentId, success: false, error: "Não encontrado" })
+                continue
+            }
+
+            if (equipment.status !== 'pending_return') {
+                results.push({ id: equipmentId, success: false, error: "Não está pendente de devolução" })
+                continue
+            }
+
+            // Update equipment to returned
+            const { error } = await supabase
+                .from("team_equipment")
+                .update({
+                    status: 'returned',
+                    returned_at: now,
+                    admin_validated_at: now,
+                    admin_validated_by: user.id
+                })
+                .eq("id", equipmentId)
+
+            if (error) {
+                results.push({ id: equipmentId, success: false, error: error.message })
+                continue
+            }
+
+            results.push({ id: equipmentId, success: true })
+
+            // Log event
+            if (profile?.org_id) {
+                await supabase.from("operium_events").insert({
+                    org_id: profile.org_id,
+                    actor_user_id: user.id,
+                    event_type: 'equipment_return_validated',
+                    entity_type: 'team_equipment',
+                    entity_id: equipmentId,
+                    payload: {
+                        ferramenta_nome: (equipment.ferramentas as any)?.nome,
+                        team_name: (equipment.teams as any)?.name,
+                        validated_by: profile.name,
+                        validated_at: now
+                    }
+                })
+            }
+        } catch (error: any) {
+            results.push({ id: equipmentId, success: false, error: error.message })
+        }
+    }
+
+    revalidatePath("/dashboard/equipes")
+    return {
+        success: results.filter(r => r.success).length,
+        failed: results.filter(r => !r.success).length,
+        details: results
+    }
+}
+
+// Get equipment pending validation for admin
+export async function getPendingReturnValidation(teamId: string) {
+    const supabase = createServerActionClient({ cookies })
+
+    const { data, error } = await supabase
+        .from("team_equipment")
+        .select(`
+            *,
+            ferramentas (
+                nome,
+                tipo
+            )
+        `)
+        .eq("team_id", teamId)
+        .eq("status", "pending_return")
+        .is("returned_at", null)
+        .order("return_requested_at", { ascending: false })
+
+    if (error) {
+        console.error("Error fetching pending returns:", error)
+        return []
+    }
+
+    return data.map((item: any) => ({
+        ...item,
+        ferramenta_nome: item.ferramentas?.nome,
+        ferramenta_tipo: item.ferramentas?.tipo
+    })) as TeamEquipment[]
+}
+

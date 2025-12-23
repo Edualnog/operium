@@ -1679,9 +1679,11 @@
                 "returned": "Equipamento devolvido.",
                 "all_returned": "Operação encerrada! Todos os equipamentos devolvidos.",
                 "discrepancy_registered": "Divergência registrada.",
+                "validated": "Devolução validada com sucesso!",
                 "error_load": "Erro ao carregar equipamentos.",
                 "error_assign": "Erro ao iniciar custódia.",
-                "error_return": "Erro na devolução."
+                "error_return": "Erro na devolução.",
+                "error_validate": "Erro ao validar devolução."
             }
         },
         "vehicle": {

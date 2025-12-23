@@ -23,8 +23,19 @@ import {
     Clock,
     ChevronRight,
     Plus,
-    User
+    User,
+    AlertTriangle,
+    CheckCircle2,
+    ArrowDownToLine
 } from 'lucide-react'
+import {
+    getPendingEquipmentAcceptance,
+    acceptEquipment,
+    requestEquipmentReturn,
+    reportFieldIssue,
+    getMyTeamEquipment,
+    TeamEquipmentMobile
+} from './actions'
 
 // ============================================================================
 // NATIVE APP BOTTOM SHEET MODAL
@@ -341,8 +352,8 @@ function VehicleExpenseModal({
                                 type="button"
                                 onClick={() => setTipo(t.v as any)}
                                 className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${tipo === t.v
-                                        ? 'bg-neutral-900 text-white border-neutral-900 shadow-lg'
-                                        : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+                                    ? 'bg-neutral-900 text-white border-neutral-900 shadow-lg'
+                                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
                                     }`}
                             >
                                 <t.icon className="h-6 w-6" />
@@ -543,8 +554,8 @@ function VehicleStatusModal({
                                 type="button"
                                 onClick={() => setStatus(s.v as any)}
                                 className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 text-left ${status === s.v
-                                        ? 'border-neutral-900 bg-neutral-50'
-                                        : 'border-neutral-200 bg-white hover:border-neutral-300'
+                                    ? 'border-neutral-900 bg-neutral-50'
+                                    : 'border-neutral-200 bg-white hover:border-neutral-300'
                                     }`}
                             >
                                 <div className={`w-5 h-5 rounded-full ${s.color} flex-shrink-0`} />
@@ -767,6 +778,333 @@ function DailyReportModal({
 }
 
 // ============================================================================
+// EQUIPMENT ACCEPTANCE BANNER
+// ============================================================================
+
+function EquipmentAcceptanceBanner({
+    pendingCount,
+    onAcceptAll
+}: {
+    pendingCount: number
+    onAcceptAll: () => void
+}) {
+    if (pendingCount === 0) return null
+
+    return (
+        <div className="mx-4 mt-4">
+            <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-100 border border-amber-200
+                            rounded-2xl flex items-center gap-3 shadow-sm">
+                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Package className="h-5 w-5 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                    <p className="text-sm font-semibold text-amber-900">
+                        {pendingCount} equipamento{pendingCount > 1 ? 's' : ''} pendente{pendingCount > 1 ? 's' : ''}
+                    </p>
+                    <p className="text-xs text-amber-700">Confirme o recebimento</p>
+                </div>
+                <button
+                    onClick={onAcceptAll}
+                    className="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg
+                               active:scale-95 transition-transform"
+                >
+                    Aceitar
+                </button>
+            </div>
+        </div>
+    )
+}
+
+// ============================================================================
+// EQUIPMENT RETURN MODAL
+// ============================================================================
+
+function EquipmentReturnModal({
+    open,
+    onClose,
+    equipment,
+    onSuccess
+}: {
+    open: boolean
+    onClose: () => void
+    equipment: TeamEquipmentMobile[]
+    onSuccess: () => void
+}) {
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (open) {
+            // Pre-select all items
+            setSelectedItems(new Set(equipment.map(e => e.id)))
+        }
+    }, [open, equipment])
+
+    const toggleItem = (id: string) => {
+        const newSet = new Set(selectedItems)
+        if (newSet.has(id)) {
+            newSet.delete(id)
+        } else {
+            newSet.add(id)
+        }
+        setSelectedItems(newSet)
+    }
+
+    const handleSubmit = async () => {
+        if (selectedItems.size === 0) return
+        setLoading(true)
+        setError(null)
+        try {
+            await requestEquipmentReturn(Array.from(selectedItems))
+            onSuccess()
+            onClose()
+        } catch (err: any) {
+            setError(err.message || 'Erro ao solicitar devolução')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <NativeModal open={open} onClose={onClose} title="Devolver Equipamentos">
+            <div className="space-y-4">
+                {error && (
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                        <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                )}
+
+                <p className="text-sm text-neutral-500">
+                    Marque os equipamentos que serão devolvidos. O admin validará a devolução.
+                </p>
+
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                    {equipment.filter(e => e.status === 'accepted' || e.status === 'in_use').map((item) => (
+                        <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => toggleItem(item.id)}
+                            className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 text-left ${selectedItems.has(item.id)
+                                ? 'bg-green-50 border-green-300'
+                                : 'bg-white border-neutral-200'
+                                }`}
+                        >
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedItems.has(item.id)
+                                ? 'bg-green-500 border-green-500'
+                                : 'border-neutral-300'
+                                }`}>
+                                {selectedItems.has(item.id) && <Check className="h-4 w-4 text-white" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium text-neutral-900 truncate">{item.ferramenta_nome}</p>
+                                <p className="text-xs text-neutral-400">Qtd: {item.quantity}</p>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading || selectedItems.size === 0}
+                    className="w-full h-14 bg-green-600 text-white text-base font-semibold rounded-xl
+                               disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg
+                               flex items-center justify-center gap-2"
+                >
+                    {loading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <>
+                            <ArrowDownToLine className="h-5 w-5" />
+                            <span>Solicitar Devolução ({selectedItems.size})</span>
+                        </>
+                    )}
+                </button>
+            </div>
+        </NativeModal>
+    )
+}
+
+// ============================================================================
+// EQUIPMENT ISSUE REPORT MODAL
+// ============================================================================
+
+function EquipmentIssueModal({
+    open,
+    onClose,
+    equipment,
+    onSuccess
+}: {
+    open: boolean
+    onClose: () => void
+    equipment: TeamEquipmentMobile | null
+    onSuccess: () => void
+}) {
+    const [issueType, setIssueType] = useState<'damage' | 'malfunction' | 'loss' | 'wear' | 'other'>('damage')
+    const [severity, setSeverity] = useState<'low' | 'medium' | 'high' | 'critical'>('medium')
+    const [description, setDescription] = useState('')
+    const [location, setLocation] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (!open) {
+            setIssueType('damage')
+            setSeverity('medium')
+            setDescription('')
+            setLocation('')
+            setError(null)
+        }
+    }, [open])
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!equipment || !description.trim()) return
+        setLoading(true)
+        setError(null)
+        try {
+            await reportFieldIssue(equipment.id, {
+                type: issueType,
+                severity,
+                description,
+                location: location || undefined
+            })
+            onSuccess()
+            onClose()
+        } catch (err: any) {
+            setError(err.message || 'Erro ao reportar problema')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const issueTypes = [
+        { v: 'damage', n: 'Dano', color: 'bg-red-50 border-red-200' },
+        { v: 'malfunction', n: 'Defeito', color: 'bg-orange-50 border-orange-200' },
+        { v: 'wear', n: 'Desgaste', color: 'bg-yellow-50 border-yellow-200' },
+        { v: 'loss', n: 'Perda', color: 'bg-purple-50 border-purple-200' },
+        { v: 'other', n: 'Outro', color: 'bg-neutral-50 border-neutral-200' }
+    ]
+
+    const severities = [
+        { v: 'low', n: 'Baixa', color: 'bg-green-500' },
+        { v: 'medium', n: 'Média', color: 'bg-yellow-500' },
+        { v: 'high', n: 'Alta', color: 'bg-orange-500' },
+        { v: 'critical', n: 'Crítica', color: 'bg-red-500' }
+    ]
+
+    return (
+        <NativeModal open={open} onClose={onClose} title="Reportar Problema">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                    <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                        <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                )}
+
+                {equipment && (
+                    <div className="p-3 bg-neutral-50 rounded-xl">
+                        <p className="text-sm font-medium text-neutral-900">{equipment.ferramenta_nome}</p>
+                        <p className="text-xs text-neutral-400">Qtd: {equipment.quantity}</p>
+                    </div>
+                )}
+
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Tipo de Problema
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                        {issueTypes.map((t) => (
+                            <button
+                                key={t.v}
+                                type="button"
+                                onClick={() => setIssueType(t.v as any)}
+                                className={`py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all ${issueType === t.v
+                                    ? 'bg-neutral-900 text-white border-neutral-900'
+                                    : `${t.color} text-neutral-700`
+                                    }`}
+                            >
+                                {t.n}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Gravidade
+                    </label>
+                    <div className="flex gap-2">
+                        {severities.map((s) => (
+                            <button
+                                key={s.v}
+                                type="button"
+                                onClick={() => setSeverity(s.v as any)}
+                                className={`flex-1 py-3 rounded-xl border-2 text-sm font-medium transition-all flex items-center justify-center gap-2 ${severity === s.v
+                                    ? 'border-neutral-900 bg-neutral-50'
+                                    : 'border-neutral-200 bg-white'
+                                    }`}
+                            >
+                                <div className={`w-3 h-3 rounded-full ${s.color}`} />
+                                {s.n}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Descrição do Problema *
+                    </label>
+                    <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        required
+                        placeholder="Descreva o que aconteceu..."
+                        rows={3}
+                        className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                   focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
+                                   placeholder:text-neutral-400"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Local (opcional)
+                    </label>
+                    <input
+                        type="text"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Obra, rua, cidade..."
+                        className="w-full h-12 px-4 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                   focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white
+                                   placeholder:text-neutral-400"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={loading || !description.trim()}
+                    className="w-full h-14 bg-amber-600 text-white text-base font-semibold rounded-xl
+                               disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg shadow-amber-600/20
+                               flex items-center justify-center gap-2"
+                >
+                    {loading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <>
+                            <AlertTriangle className="h-5 w-5" />
+                            <span>Reportar Problema</span>
+                        </>
+                    )}
+                </button>
+            </form>
+        </NativeModal>
+    )
+}
+
+// ============================================================================
 // TEAM SELECTION SCREEN
 // ============================================================================
 
@@ -847,8 +1185,8 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
                                 type="button"
                                 onClick={() => setHasTeam(true)}
                                 className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${hasTeam === true
-                                        ? 'bg-neutral-900 text-white border-neutral-900'
-                                        : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+                                    ? 'bg-neutral-900 text-white border-neutral-900'
+                                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
                                     }`}
                             >
                                 Sim
@@ -857,8 +1195,8 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
                                 type="button"
                                 onClick={() => setHasTeam(false)}
                                 className={`py-4 text-base font-medium rounded-xl border-2 transition-all ${hasTeam === false
-                                        ? 'bg-neutral-900 text-white border-neutral-900'
-                                        : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
+                                    ? 'bg-neutral-900 text-white border-neutral-900'
+                                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300'
                                     }`}
                             >
                                 Não
@@ -927,6 +1265,14 @@ export default function AppPage() {
     const [showReminder, setShowReminder] = useState(false)
     const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null)
 
+    // Equipment workflow state
+    const [pendingEquipment, setPendingEquipment] = useState<any[]>([])
+    const [teamEquipment, setTeamEquipment] = useState<TeamEquipmentMobile[]>([])
+    const [showReturnModal, setShowReturnModal] = useState(false)
+    const [showIssueModal, setShowIssueModal] = useState(false)
+    const [selectedIssueEquipment, setSelectedIssueEquipment] = useState<TeamEquipmentMobile | null>(null)
+    const [acceptingAll, setAcceptingAll] = useState(false)
+
     // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
     // Supabase sends recovery emails with #access_token=...&type=recovery
     useEffect(() => {
@@ -975,6 +1321,47 @@ export default function AppPage() {
 
     const handleOnboardingComplete = () => {
         setOnboardingComplete(true)
+    }
+
+    // Fetch pending equipment for acceptance
+    const fetchEquipmentData = useCallback(async () => {
+        try {
+            const [pending, equipment] = await Promise.all([
+                getPendingEquipmentAcceptance(),
+                getMyTeamEquipment()
+            ])
+            setPendingEquipment(pending)
+            setTeamEquipment(equipment)
+        } catch (e) {
+            console.error('Error fetching equipment data:', e)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (onboardingComplete) {
+            fetchEquipmentData()
+        }
+    }, [onboardingComplete, fetchEquipmentData])
+
+    // Accept all pending equipment
+    const handleAcceptAllEquipment = async () => {
+        if (pendingEquipment.length === 0) return
+        setAcceptingAll(true)
+        try {
+            for (const item of pendingEquipment) {
+                await acceptEquipment(item.id)
+            }
+            await fetchEquipmentData()
+        } catch (e) {
+            console.error('Error accepting equipment:', e)
+        } finally {
+            setAcceptingAll(false)
+        }
+    }
+
+    const handleEquipmentSuccess = async () => {
+        await fetchEquipmentData()
+        refreshEvents()
     }
 
     if (loadingProfile || onboardingComplete === null) {
@@ -1035,6 +1422,12 @@ export default function AppPage() {
                 </div>
             )}
 
+            {/* Equipment Acceptance Banner */}
+            <EquipmentAcceptanceBanner
+                pendingCount={pendingEquipment.length}
+                onAcceptAll={handleAcceptAllEquipment}
+            />
+
             {/* Main Content */}
             <main className="px-5 py-6 space-y-8 pb-safe">
                 {/* Greeting */}
@@ -1071,6 +1464,15 @@ export default function AppPage() {
                         onClick={() => setShowReportModal(true)}
                         color="purple"
                     />
+                    {teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length > 0 && (
+                        <ActionCard
+                            icon={ArrowDownToLine}
+                            title="Devolver Equipamentos"
+                            subtitle={`${teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length} em custódia`}
+                            onClick={() => setShowReturnModal(true)}
+                            color="green"
+                        />
+                    )}
                 </div>
 
                 {/* Recent Activity */}
@@ -1115,6 +1517,18 @@ export default function AppPage() {
                 open={showReportModal}
                 onClose={() => setShowReportModal(false)}
                 onSuccess={handleSuccess}
+            />
+            <EquipmentReturnModal
+                open={showReturnModal}
+                onClose={() => setShowReturnModal(false)}
+                equipment={teamEquipment}
+                onSuccess={handleEquipmentSuccess}
+            />
+            <EquipmentIssueModal
+                open={showIssueModal}
+                onClose={() => setShowIssueModal(false)}
+                equipment={selectedIssueEquipment}
+                onSuccess={handleEquipmentSuccess}
             />
         </div>
     )
