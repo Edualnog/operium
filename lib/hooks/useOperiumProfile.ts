@@ -101,7 +101,38 @@ export function useOperiumProfile() {
             .select()
             .single()
 
-        if (error) throw error
+        if (error) {
+            // Duplicate key violation (PK is user_id)
+            if (error.code === '23505') {
+                // Check if profile exists and is visible (in my org)
+                const { data: existing } = await supabase
+                    .from('operium_profiles')
+                    .select('*')
+                    .eq('user_id', targetUserId)
+                    .maybeSingle()
+
+                if (existing) {
+                    if (existing.active) {
+                        throw new Error("Este usuário já faz parte da equipe")
+                    } else {
+                        // Reactivate user
+                        const { data: updated, error: updateError } = await supabase
+                            .from('operium_profiles')
+                            .update({ active: true, role, org_id: profile.org_id })
+                            .eq('user_id', targetUserId)
+                            .select()
+                            .single()
+
+                        if (updateError) throw updateError
+                        return updated
+                    }
+                } else {
+                    // Profile exists but not visible (likely other org)
+                    throw new Error("Este usuário já está vinculado a outra organização")
+                }
+            }
+            throw error
+        }
         return data
     }, [supabase, profile?.org_id])
 
