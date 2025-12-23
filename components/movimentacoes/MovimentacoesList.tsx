@@ -751,19 +751,22 @@ export default function MovimentacoesList({
             <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="devolucao">{t("dashboard.movimentacoes.filters.return")}</TabsTrigger>
           </TabsList>
 
-          <div className="flex flex-col-reverse sm:flex-row sm:flex-wrap gap-2">
+          {/* Button Grid: Mobile = 2 rows, Desktop = 1 row */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+            {/* Modo Rápido - 1st in DOM, appears 2nd row left on mobile */}
             <Button
               variant="outline"
               onClick={() => setIsScanning(true)}
-              className="gap-2 h-10 flex-1 sm:flex-none"
+              className="gap-2 h-10 order-2 sm:order-none"
             >
               <Zap size={16} className="fill-yellow-400 text-yellow-400" />
               <span className="text-sm">Modo Rápido</span>
             </Button>
 
+            {/* New Movement - 2nd in DOM, appears 1st row spanning full width on mobile */}
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2 h-12 sm:h-10 w-full sm:w-auto">
+                <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2 h-12 sm:h-10 col-span-2 sm:col-span-1 order-1 sm:order-none">
                   <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
                   + Nova Movimentação
                 </Button>
@@ -931,9 +934,10 @@ export default function MovimentacoesList({
 
 
 
+            {/* Export - 3rd in DOM, appears 2nd row right on mobile */}
             <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 h-10 flex-1 sm:flex-none">
+                <Button variant="outline" className="gap-2 h-10 order-3 sm:order-none">
                   <FileDown className="h-4 w-4" />
                   <span className="text-sm">Exportar</span>
                 </Button>
