@@ -54,9 +54,29 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
   useEffect(() => {
     const type = searchParams.get('type')
     const hash = typeof window !== 'undefined' ? window.location.hash : ''
+    const isInviteOrRecovery = type === 'invite' || type === 'recovery' || hash.includes('type=invite') || hash.includes('type=recovery')
 
-    if (type === 'invite' || type === 'recovery' || hash.includes('type=invite') || hash.includes('type=recovery')) {
-      router.push('/auth/update-password')
+    if (isInviteOrRecovery) {
+      const supabase = createClientComponentClient()
+
+      const checkAndRedirect = async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          router.push('/auth/update-password')
+        }
+      }
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session && (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY')) {
+          router.push('/auth/update-password')
+        }
+      })
+
+      checkAndRedirect()
+
+      return () => {
+        subscription.unsubscribe()
+      }
     }
   }, [searchParams, router])
   const [rankingView, setRankingView] = useState<"melhores" | "piores">("melhores")
