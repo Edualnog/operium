@@ -11,10 +11,15 @@ import {
     UserPlus,
     Sparkles,
     Shield,
-    ArrowRight
+    ArrowRight,
+    Terminal
 } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
 import { useState } from "react"
+
+// Tipos de acesso clarificados:
+// - Sistema: ADMIN, WAREHOUSE (dashboard/desktop)
+// - Mobile: FIELD (app de campo)
 
 export default function AcessosPage() {
     const {
@@ -141,17 +146,22 @@ export default function AcessosPage() {
     // Admin vê a página de gerenciamento
     return (
         <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+            {/* Indicador de Admin Ativo */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg w-fit">
+                <Terminal className="h-4 w-4 text-zinc-500" />
+                <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    Você está operando como <span className="font-medium text-zinc-900 dark:text-zinc-100">Administrador</span>
+                </span>
+            </div>
+
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-                        Controle de Acessos
-                    </h1>
-                    <p className="text-zinc-500 mt-1">
-                        Gerencie quem pode acessar o sistema operacional
-                    </p>
-                </div>
-                {role && <OperiumRoleBadge role={role} size="lg" />}
+            <div>
+                <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                    Governança de Acessos
+                </h1>
+                <p className="text-zinc-500 mt-1">
+                    Controle centralizado de permissões para operações de sistema e campo
+                </p>
             </div>
 
             {/* Team Manager */}
