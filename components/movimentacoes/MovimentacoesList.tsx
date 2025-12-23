@@ -70,6 +70,7 @@ interface Ferramenta {
   nome: string
   tipo_item?: string | null
   quantidade_disponivel?: number | null
+  codigo?: string | null
 }
 
 interface Colaborador {
@@ -98,21 +99,17 @@ export default function MovimentacoesList({
   // Scanner State
   const [isScanning, setIsScanning] = useState(false)
   const handleScanResult = (decodedText: string) => {
-    const searchCode = decodedText.trim().toUpperCase()
+    const scannedValue = decodedText.trim()
+    const scannedValueUpper = scannedValue.toUpperCase()
 
-    // Search for tool
-    // Note: ferramentas provided here might be basic info only, typically we need to ensure it has 'codigo'
-    // But interface Ferramenta above only has id/nome/tipo/qtd. 
-    // Usually 'ferramentas' prop in MovimentacoesList comes from 'getFerramentas' which might select less fields.
-    // Let's assume we match by ID (common qr content) or Name.
-    // If we need 'codigo', we should check if the parent passes it. 
-    // Assuming 'id' is in the QR.
-
-    // Ideally we match: ID, Name. 
-    // If 'codigo' is missing in props, we might need to fetch or assume ID fit.
+    // Search for product by:
+    // 1. Exact ID match (UUIDs are case-insensitive in most DBs)
+    // 2. Codigo (SKU) match
+    // 3. Name match
     const found = ferramentas.find(f =>
-      f.id === searchCode ||
-      f.nome.toUpperCase() === searchCode
+      f.id.toLowerCase() === scannedValue.toLowerCase() ||
+      (f.codigo && f.codigo.toUpperCase() === scannedValueUpper) ||
+      f.nome.toUpperCase() === scannedValueUpper
     )
 
     if (found) {
@@ -122,14 +119,14 @@ export default function MovimentacoesList({
       // Open New Movement Dialog with this item pre-selected
       setForm(prev => ({
         ...prev,
-        tipo: "retirada", // Default to Retirada for quick mode? Or Entry? Usually Scanner -> Checkout.
+        tipo: "retirada",
         produto: found.nome,
         produtoId: found.id,
         quantidade: "1"
       }))
       setOpen(true)
     } else {
-      toast.error(`Item não encontrado: ${searchCode}`)
+      toast.error(`Item não encontrado: ${scannedValue.substring(0, 20)}...`)
     }
   }
   const [movimentacoes, setMovimentacoes] = useState(initialMovs)
