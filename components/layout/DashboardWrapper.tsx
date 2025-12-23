@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Truck,
   Users2,
+  UserPlus,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
 import Image from "next/image"
@@ -135,6 +136,14 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       id: "sidebar-inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Acessos",
+      href: "/dashboard/acessos",
+      id: "sidebar-acessos",
+      icon: (
+        <UserPlus className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]

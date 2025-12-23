@@ -14,6 +14,7 @@ import {
   Truck,
   Users2,
   Briefcase,
+  UserPlus,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -98,6 +99,13 @@ export default function AppSidebar() {
       href: "/dashboard/operium",
       icon: (
         <Briefcase className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Acessos",
+      href: "/dashboard/acessos",
+      icon: (
+        <UserPlus className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
