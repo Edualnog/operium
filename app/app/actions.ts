@@ -50,8 +50,7 @@ export async function getMyTeamEquipment(): Promise<TeamEquipmentMobile[]> {
             returned_at,
             status,
             ferramentas (
-                nome,
-                tipo
+                nome
             )
         `)
         .eq("team_id", profile.team_id)
