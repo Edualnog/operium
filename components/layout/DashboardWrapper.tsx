@@ -177,10 +177,6 @@ function SidebarContent({
         <div className="mb-6 hidden md:block">
           {open ? <Logo /> : <LogoIcon />}
         </div>
-        {/* Mobile title */}
-        <div className="mb-4 md:hidden">
-          <h2 className="text-lg font-semibold text-foreground px-1">Menu</h2>
-        </div>
         <div className="flex flex-col gap-1.5 md:gap-1">
           {links.map((link) => (
             <SidebarLink
