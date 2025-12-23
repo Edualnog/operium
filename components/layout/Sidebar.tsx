@@ -94,13 +94,8 @@ export default function AppSidebar() {
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
       ),
     },
-    {
-      label: "Operacional",
-      href: "/dashboard/operium",
-      icon: (
-        <Briefcase className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
+    // NOTA: "Operacional" foi removido do sidebar admin
+    // Este painel é destinado apenas a colaboradores de campo via app mobile
     {
       label: "Acessos",
       href: "/dashboard/acessos",
