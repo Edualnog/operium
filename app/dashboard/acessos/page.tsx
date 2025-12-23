@@ -89,7 +89,7 @@ export default function AcessosPage() {
                                     <Shield className="h-5 w-5 text-zinc-500 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-zinc-900 dark:text-zinc-100 text-sm">Controle por Papel</p>
-                                        <p className="text-zinc-500 text-xs mt-0.5">Campo, Almoxarifado, ou Administrador</p>
+                                        <p className="text-zinc-500 text-xs mt-0.5">Campo ou Administrador</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">

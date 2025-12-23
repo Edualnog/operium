@@ -97,8 +97,8 @@ export function OperiumTeamManager() {
     const activeMembers = members.filter(m => m.active)
 
     // Separar membros por tipo de acesso
-    const systemMembers = activeMembers.filter(m => m.role === 'ADMIN' || m.role === 'WAREHOUSE')
-    const fieldMembers = activeMembers.filter(m => m.role === 'FIELD')
+    const systemMembers = activeMembers.filter(m => m.role === 'ADMIN')
+    const fieldMembers = activeMembers.filter(m => m.role === 'FIELD' || m.role === 'WAREHOUSE')
 
     return (
         <>
@@ -367,13 +367,6 @@ function ActionsDropdown({
                 >
                     <Shield className="mr-2 h-4 w-4" />
                     Administrador
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => handleRoleChange(member, 'WAREHOUSE')}
-                    disabled={member.role === 'WAREHOUSE'}
-                >
-                    <Package className="mr-2 h-4 w-4" />
-                    Almoxarifado
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => handleRoleChange(member, 'FIELD')}
