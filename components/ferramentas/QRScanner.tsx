@@ -16,60 +16,83 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
     const [isStarting, setIsStarting] = useState(true)
     const [cameraMode, setCameraMode] = useState<"stream" | "file">("stream")
     const [facingMode, setFacingMode] = useState<"environment" | "user">("environment")
-    const videoRef = useRef<HTMLVideoElement>(null)
-    const streamRef = useRef<MediaStream | null>(null)
+    const scannerRef = useRef<any>(null)
+    const containerIdRef = useRef(`qr-scanner-${Date.now()}`)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const isMountedRef = useRef(true)
+    const hasScannedRef = useRef(false)
 
-    // Stop camera stream
-    const stopCamera = () => {
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop())
-            streamRef.current = null
-        }
-        if (videoRef.current) {
-            videoRef.current.srcObject = null
+    // Stop scanner
+    const stopScanner = async () => {
+        if (scannerRef.current) {
+            try {
+                const state = scannerRef.current.getState()
+                if (state === 2) { // SCANNING
+                    await scannerRef.current.stop()
+                }
+                await scannerRef.current.clear()
+            } catch (err) {
+                console.log("Scanner cleanup:", err)
+            }
+            scannerRef.current = null
         }
     }
 
-    // Handle close button only
-    const handleCloseClick = () => {
-        stopCamera()
+    // Handle close
+    const handleCloseClick = async () => {
+        await stopScanner()
         onClose()
     }
 
-    // Start camera
-    const startCamera = async (mode: "environment" | "user") => {
+    // Handle successful scan
+    const handleSuccessfulScan = async (decodedText: string) => {
+        if (hasScannedRef.current) return
+        hasScannedRef.current = true
+
+        await stopScanner()
+        onScan(decodedText)
+        onClose()
+    }
+
+    // Start scanner
+    const startScanner = async (mode: "environment" | "user") => {
         if (!isMountedRef.current) return
 
         setIsStarting(true)
         setError(null)
-        stopCamera()
+        hasScannedRef.current = false
 
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { ideal: mode } },
-                audio: false
-            })
+            await stopScanner()
 
-            if (!isMountedRef.current) {
-                stream.getTracks().forEach(track => track.stop())
-                return
-            }
+            const { Html5Qrcode } = await import("html5-qrcode")
 
-            streamRef.current = stream
+            if (!isMountedRef.current) return
 
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream
-                videoRef.current.setAttribute('playsinline', 'true')
-                await videoRef.current.play()
-            }
+            const scanner = new Html5Qrcode(containerIdRef.current)
+            scannerRef.current = scanner
+
+            await scanner.start(
+                { facingMode: mode },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0,
+                },
+                (decodedText) => {
+                    // Success callback
+                    handleSuccessfulScan(decodedText)
+                },
+                () => {
+                    // Error callback - ignore, keep scanning
+                }
+            )
 
             setIsStarting(false)
             setCameraMode("stream")
 
         } catch (err: any) {
-            console.error("Camera error:", err)
+            console.error("Scanner error:", err)
             if (!isMountedRef.current) return
 
             setIsStarting(false)
@@ -78,14 +101,14 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
         }
     }
 
-    // Switch camera - simple version
-    const handleSwitchCamera = (e: React.MouseEvent) => {
+    // Switch camera
+    const handleSwitchCamera = async (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
 
         const newMode = facingMode === "environment" ? "user" : "environment"
         setFacingMode(newMode)
-        startCamera(newMode)
+        await startScanner(newMode)
     }
 
     // Handle file input click
@@ -100,56 +123,50 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
         const file = e.target.files?.[0]
         if (!file) return
 
-        // For now just show message - QR scanning from file is complex
-        // This uses the native camera which is more reliable on mobile
-        setError("Foto capturada. Processando...")
+        setError("Processando imagem...")
 
         try {
-            // Read file and try to scan
-            const reader = new FileReader()
-            reader.onload = async () => {
-                try {
-                    const { Html5Qrcode } = await import("html5-qrcode")
-                    const tempDiv = document.createElement('div')
-                    tempDiv.id = 'temp-scanner-' + Date.now()
-                    tempDiv.style.display = 'none'
-                    document.body.appendChild(tempDiv)
+            const { Html5Qrcode } = await import("html5-qrcode")
+            const tempId = 'temp-scanner-' + Date.now()
+            const tempDiv = document.createElement('div')
+            tempDiv.id = tempId
+            tempDiv.style.display = 'none'
+            document.body.appendChild(tempDiv)
 
-                    const scanner = new Html5Qrcode(tempDiv.id)
-                    const result = await scanner.scanFile(file, false)
+            const scanner = new Html5Qrcode(tempId)
+            const result = await scanner.scanFile(file, false)
 
-                    await scanner.clear()
-                    document.body.removeChild(tempDiv)
+            await scanner.clear()
+            document.body.removeChild(tempDiv)
 
-                    if (result) {
-                        stopCamera()
-                        onScan(result)
-                        onClose()
-                    } else {
-                        setError("Código não encontrado. Tente novamente.")
-                    }
-                } catch (scanErr) {
-                    console.error("Scan error:", scanErr)
-                    setError("Código não encontrado na imagem.")
-                }
+            if (result) {
+                await stopScanner()
+                onScan(result)
+                onClose()
+            } else {
+                setError("Código não encontrado. Tente novamente.")
             }
-            reader.readAsDataURL(file)
-        } catch (err) {
-            setError("Erro ao processar imagem.")
+        } catch (scanErr) {
+            console.error("Scan error:", scanErr)
+            setError("Código não encontrado na imagem.")
         }
 
-        // Reset input
         e.target.value = ''
     }
 
     // Mount/unmount
     useEffect(() => {
         isMountedRef.current = true
-        startCamera(facingMode)
+
+        // Small delay to ensure DOM is ready
+        const timer = setTimeout(() => {
+            startScanner(facingMode)
+        }, 100)
 
         return () => {
             isMountedRef.current = false
-            stopCamera()
+            clearTimeout(timer)
+            stopScanner()
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -182,28 +199,14 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
 
             {/* Main content */}
             <div className="flex-1 flex flex-col items-center justify-center px-4 relative">
-                {/* Video area */}
+                {/* Scanner container */}
                 {cameraMode === "stream" && (
                     <div className="w-full max-w-sm aspect-square relative rounded-2xl overflow-hidden bg-zinc-900">
-                        <video
-                            ref={videoRef}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            playsInline
-                            autoPlay
-                            muted
-                        />
-
-                        {/* Scan frame overlay */}
-                        <div className="absolute inset-4 pointer-events-none">
-                            <div className="absolute -top-1 -left-1 w-10 h-10 border-l-4 border-t-4 border-green-400 rounded-tl-xl" />
-                            <div className="absolute -top-1 -right-1 w-10 h-10 border-r-4 border-t-4 border-green-400 rounded-tr-xl" />
-                            <div className="absolute -bottom-1 -left-1 w-10 h-10 border-l-4 border-b-4 border-green-400 rounded-bl-xl" />
-                            <div className="absolute -bottom-1 -right-1 w-10 h-10 border-r-4 border-b-4 border-green-400 rounded-br-xl" />
-                        </div>
+                        <div id={containerIdRef.current} className="w-full h-full" />
 
                         {/* Loading overlay */}
                         {isStarting && (
-                            <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center">
+                            <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-10">
                                 <Loader2 className="h-10 w-10 text-white animate-spin mb-3" />
                                 <p className="text-white text-sm">Iniciando câmera...</p>
                             </div>
@@ -230,7 +233,7 @@ export function QRScanner({ onScan, onClose, title, description }: QRScannerProp
 
                 {/* Description */}
                 <p className="mt-6 text-center text-sm text-zinc-400 px-4 max-w-sm">
-                    {description || "Posicione o código QR ou de barras no centro"}
+                    {description || "Posicione o código QR no centro da tela"}
                 </p>
 
                 {/* Error/status message */}
