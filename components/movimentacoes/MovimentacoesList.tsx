@@ -751,22 +751,21 @@ export default function MovimentacoesList({
             <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="devolucao">{t("dashboard.movimentacoes.filters.return")}</TabsTrigger>
           </TabsList>
 
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="default"
               onClick={() => setIsScanning(true)}
-              className="gap-2 bg-[#37352f] hover:bg-[#37352f]/90 text-white flex-1 sm:flex-none"
+              className="gap-2 bg-[#37352f] hover:bg-[#37352f]/90 text-white h-10"
             >
               <Zap size={16} className="fill-yellow-400 text-yellow-400" />
-              {t("dashboard.movimentacoes.fast_mode")}
+              <span className="hidden sm:inline">{t("dashboard.movimentacoes.fast_mode")}</span>
             </Button>
 
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2 flex-1 sm:flex-none">
+                <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2 h-10">
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">{t("dashboard.movimentacoes.new_button")}</span>
-                  <span className="sm:hidden">Novo</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh] overflow-y-auto">
@@ -934,9 +933,9 @@ export default function MovimentacoesList({
 
             <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
               <DialogTrigger asChild>
-                <Button variant="outline">
-                  <FileDown className="h-4 w-4 mr-2" />
-                  {t("dashboard.movimentacoes.export_button")}
+                <Button variant="outline" className="gap-2 h-10">
+                  <FileDown className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t("dashboard.movimentacoes.export_button")}</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -1215,9 +1214,9 @@ export default function MovimentacoesList({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={`p-1.5 rounded-lg ${m.tipo === 'entrada' ? 'bg-green-100 dark:bg-green-900/30' :
-                        m.tipo === 'retirada' ? 'bg-red-100 dark:bg-red-900/30' :
-                          m.tipo === 'devolucao' ? 'bg-blue-100 dark:bg-blue-900/30' :
-                            'bg-orange-100 dark:bg-orange-900/30'
+                      m.tipo === 'retirada' ? 'bg-red-100 dark:bg-red-900/30' :
+                        m.tipo === 'devolucao' ? 'bg-blue-100 dark:bg-blue-900/30' :
+                          'bg-orange-100 dark:bg-orange-900/30'
                       }`}>
                       {m.tipo === 'entrada' && <PackagePlus className="h-4 w-4 text-green-600 dark:text-green-400" />}
                       {m.tipo === 'retirada' && <PackageMinus className="h-4 w-4 text-red-600 dark:text-red-400" />}
