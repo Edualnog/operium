@@ -7,7 +7,12 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
     const code = searchParams.get('code')
-    const next = searchParams.get('next') ?? '/dashboard'
+    const type = searchParams.get('type')
+    let next = searchParams.get('next') ?? '/dashboard'
+
+    if (type === 'invite' || type === 'recovery') {
+        next = '/auth/update-password'
+    }
 
     if (code) {
         const cookieStore = cookies()
