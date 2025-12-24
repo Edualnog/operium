@@ -1250,10 +1250,13 @@
             "subtitle": "Your assets disappear, break and no one knows where they are? You're losing money every month.",
             "tools_title": "Tools and assets that disappear",
             "tools_desc": "Tools, machines, vehicles, PPE... you buy, use once and nobody knows where it went.",
+            "tools_mobile": "• Buy and vanish without a trace\n• Silent and constant loss",
             "spreadsheets_title": "Outdated spreadsheets",
             "spreadsheets_desc": "The spreadsheet never matches reality. You lose hours counting assets and still have gaps.",
+            "spreadsheets_mobile": "• Never matches reality\n• Hours lost counting",
             "emergency_title": "Emergency purchases",
-            "emergency_desc": "Equipment runs out in the middle of work. You pay more to replace urgently."
+            "emergency_desc": "Equipment runs out in the middle of work. You pay more to replace urgently.",
+            "emergency_mobile": "• Material runs out on site\n• Urgent purchase = high price"
         },
         "solution": {
             "badge": "Complete Solution",
@@ -1261,10 +1264,13 @@
             "description": "Operium was designed for those who have no time to waste. Control tools, machines, vehicles and PPE simply and fast, works on your team's phone.",
             "mobile_title": "Control in your hand",
             "mobile_desc": "Register entries and exits by phone, directly from the workplace.",
+            "mobile_mobile": "• Entries/exits via mobile\n• Direct from site, no red tape",
             "lost_title": "No more 'missing assets'",
             "lost_desc": "Know exactly who took it, when and if they returned it.",
+            "lost_mobile": "• Who took it and when\n• Total accountability",
             "alerts_title": "Automatic Alerts",
-            "alerts_desc": "System warns when stock is low or PPE is expiring."
+            "alerts_desc": "System warns when stock is low or PPE is expiring.",
+            "alerts_mobile": "• Low stock warning\n• Expiring PPE alert"
         },
         "ai_features": {
             "badge": "Exclusive Feature",
@@ -1272,10 +1278,13 @@
             "subtitle": "Automate manual tasks and save time with the power of AI",
             "ocr_title": "Invoice OCR",
             "ocr_desc": "Upload a photo of the invoice and let AI identify and register products automatically.",
+            "ocr_mobile": "• Invoice photo\n• Auto item registration",
             "search_title": "Smart Search",
             "search_desc": "Find what you need by describing it in natural language (e.g., 'damaged cutting tools').",
+            "search_mobile": "• Voice/text search\n• Find any item",
             "autofill_title": "Organization by Criticality",
-            "autofill_desc": "AI organizes your assets by criticality and value, so you know what should never be idle or missing."
+            "autofill_desc": "AI organizes your assets by criticality and value, so you know what should never be idle or missing.",
+            "autofill_mobile": "• Organize by value/criticality\n• Focus on what matters"
         },
         "features": {
             "support_title": "Support with 95% satisfaction",

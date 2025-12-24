@@ -1325,10 +1325,13 @@
             "subtitle": "Seus ativos somem, quebram e ninguém sabe onde estão? Você está perdendo dinheiro todo mês.",
             "tools_title": "Ferramentas e ativos que somem",
             "tools_desc": "Ferramentas, máquinas, veículos, EPIs... você compra, usa uma vez e ninguém sabe onde foi parar.",
+            "tools_mobile": "• Compra e some sem rastro\n• Prejuízo silencioso e constante",
             "spreadsheets_title": "Planilhas desatualizadas",
             "spreadsheets_desc": "A planilha nunca bate com o real. Você perde horas contando ativos e ainda assim tem furos.",
+            "spreadsheets_mobile": "• Nunca bate com o real\n• Horas perdidas contando",
             "emergency_title": "Compras de emergência",
-            "emergency_desc": "Acaba o equipamento no meio da obra ou serviço. Você paga mais caro para repor com urgência."
+            "emergency_desc": "Acaba o equipamento no meio da obra ou serviço. Você paga mais caro para repor com urgência.",
+            "emergency_mobile": "• Material acaba na obra\n• Compra urgente = preço alto"
         },
         "solution": {
             "badge": "A solução definitiva",
@@ -1336,10 +1339,13 @@
             "description": "O Operium foi desenhado para quem não tem tempo a perder. Controle ferramentas, máquinas, veículos e EPIs de forma simples, rápido e funciona no celular da sua equipe.",
             "mobile_title": "Controle na palma da mão",
             "mobile_desc": "Registre entradas e saídas pelo celular, direto do local de trabalho. Sem burocracia.",
+            "mobile_mobile": "• Entradas e saídas pelo celular\n• Direto da obra, sem burocracia",
             "lost_title": "Fim do 'ativo sumido'",
             "lost_desc": "Saiba exatamente quem pegou, quando e se já devolveu. Responsabilize sua equipe.",
+            "lost_mobile": "• Quem pegou e quando\n• Responsabilidade total",
             "alerts_title": "Alertas automáticos",
-            "alerts_desc": "O sistema avisa quando o estoque está baixo ou EPIs estão vencendo. Zero surpresas."
+            "alerts_desc": "O sistema avisa quando o estoque está baixo ou EPIs estão vencendo. Zero surpresas.",
+            "alerts_mobile": "• Aviso de estoque baixo\n• Alerta de EPI vencendo"
         },
         "ai_features": {
             "badge": "Novidade Exclusiva",
@@ -1347,10 +1353,13 @@
             "subtitle": "Automatize tarefas manuais e ganhe tempo com o poder da IA",
             "ocr_title": "Leitura de Notas Fiscais",
             "ocr_desc": "Envie uma foto da nota e deixe a IA identificar e cadastrar os produtos automaticamente.",
+            "ocr_mobile": "• Foto da nota fiscal\n• Cadastro automático de itens",
             "search_title": "Busca Inteligente",
             "search_desc": "Encontre o que precisa descrevendo em linguagem natural (ex: 'ferramentas danificadas de corte').",
+            "search_mobile": "• Busca por voz ou texto\n• Encontre qualquer item",
             "autofill_title": "Organização por Criticidade",
-            "autofill_desc": "A IA organiza seus ativos por criticidade e valor, para você saber o que nunca pode ficar parado ou sumir."
+            "autofill_desc": "A IA organiza seus ativos por criticidade e valor, para você saber o que nunca pode ficar parado ou sumir.",
+            "autofill_mobile": "• Organiza por valor/criticidade\n• Foco no que importa"
         },
         "features": {
             "support_title": "Suporte com 95% de satisfação",

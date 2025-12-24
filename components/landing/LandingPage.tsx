@@ -361,7 +361,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </section>
 
         {/* Pain Points Section - Minimalist Grid */}
-        <section id="problemas" className="py-8 sm:py-24 bg-white border-y border-slate-100">
+        <section id="problemas" className="py-6 sm:py-24 bg-white border-y border-slate-100">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div className="text-left mb-6 sm:mb-16">
               <h2 className="text-lg sm:text-3xl font-bold text-[#37352f] mb-2 sm:mb-4 font-serif">{t('landing.pain_points.title')}</h2>
@@ -377,9 +377,15 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                     <pain.icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                   </div>
                   <h3 className="text-sm sm:text-lg font-semibold text-[#37352f] mb-1 sm:mb-2">{pain.title}</h3>
-                  <p className="text-[#37352f]/70 leading-relaxed text-[11px] sm:text-sm">
+                  <p className="text-[#37352f]/70 leading-relaxed text-[11px] sm:text-sm hidden sm:block">
                     {pain.description}
                   </p>
+                  {/* Mobile Bullets */}
+                  <div className="sm:hidden flex flex-col gap-0.5 mt-1">
+                    {t(`landing.pain_points.${Object.keys(t('landing.pain_points', { returnObjects: true }))[index + 2]}_mobile`, { defaultValue: pain.description }).split('\n').map((line, i) => (
+                      <span key={i} className="text-[#37352f]/70 text-[11px] leading-tight block">{line}</span>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -387,7 +393,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </section>
 
         {/* Solution Section - Light Mode */}
-        <section id="solucao" className="py-8 sm:py-24 bg-[#F7F7F5]">
+        <section id="solucao" className="py-6 sm:py-24 bg-[#F7F7F5]">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-6 sm:gap-16 items-center">
               <div>
@@ -410,10 +416,26 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       </div>
                       <div>
                         <h3 className="text-sm sm:text-lg font-bold text-[#37352f] mb-0.5 sm:mb-1">{benefit.title}</h3>
-                        <p className="text-[#37352f]/70 text-[11px] sm:text-sm">{benefit.description}</p>
+                        <p className="text-[#37352f]/70 text-[11px] sm:text-sm hidden sm:block">{benefit.description}</p>
+                        {/* Mobile Bullets */}
+                        <div className="sm:hidden flex flex-col gap-0.5 mt-0.5">
+                          {t(`landing.solution.${['mobile', 'lost', 'alerts'][index]}_mobile`, { defaultValue: benefit.description }).split('\n').map((line, i) => (
+                            <span key={i} className="text-[#37352f]/70 text-[11px] leading-tight block">{line}</span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* Mobile CTA 1 - After Solution */}
+                <div className="mt-8 sm:hidden w-full flex justify-center">
+                  <button
+                    onClick={handleStart}
+                    className="w-full bg-[#1C1C1C] text-white px-6 py-3 rounded-lg font-medium text-sm transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    {t('landing.hero.cta_button')} <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
 
@@ -673,52 +695,49 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         </div>
 
         {/* AI Features Section - Clean Light Style */}
-        <section className="py-12 sm:py-24 bg-white border-t border-slate-100">
+        <section className="py-6 sm:py-24 bg-white border-t border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8 sm:mb-16">
+            <div className="text-center mb-6 sm:mb-16">
               <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                 <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 {t('landing.ai_features.badge')}
               </div>
-              <h2 className="text-xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 text-[#37352f] font-serif">{t('landing.ai_features.title')}</h2>
-              <p className="text-[#37352f]/70 max-w-2xl mx-auto text-sm sm:text-lg px-2 sm:px-0">
+              <h2 className="text-lg sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-6 leading-tight text-[#37352f] font-serif">
+                {t('landing.ai_features.title')}
+              </h2>
+              <p className="text-[#37352f]/70 text-xs sm:text-lg max-w-2xl mx-auto leading-relaxed">
                 {t('landing.ai_features.subtitle')}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
-              {/* OCR */}
-              <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                  <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
+            <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+              {aiFeatures.map((feature, index) => (
+                <div key={index} className="flex flex-col items-center text-center p-4 sm:p-6 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all group">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center text-slate-700 mb-3 sm:mb-4 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
+                    <feature.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </div>
+                  <h3 className="text-sm sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{feature.title}</h3>
+                  <p className="text-[#37352f]/70 text-xs sm:text-sm hidden sm:block">
+                    {feature.description}
+                  </p>
+                  {/* Mobile Bullets */}
+                  <div className="sm:hidden flex flex-col gap-0.5 mt-1">
+                    {t(`landing.ai_features.${['ocr', 'search', 'autofill'][index]}_mobile`, { defaultValue: feature.description }).split('\n').map((line, i) => (
+                      <span key={i} className="text-[#37352f]/70 text-[11px] leading-tight block text-center">{line}</span>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{t('landing.ai_features.ocr_title')}</h3>
-                <p className="text-[#37352f]/70 text-xs sm:text-sm leading-relaxed">
-                  {t('landing.ai_features.ocr_desc')}
-                </p>
-              </div>
+              ))}
+            </div>
 
-              {/* Smart Search */}
-              <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                  <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{t('landing.ai_features.search_title')}</h3>
-                <p className="text-[#37352f]/70 text-xs sm:text-sm leading-relaxed">
-                  {t('landing.ai_features.search_desc')}
-                </p>
-              </div>
-
-              {/* Auto-fill */}
-              <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                  <Wand2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{t('landing.ai_features.autofill_title')}</h3>
-                <p className="text-[#37352f]/70 text-xs sm:text-sm leading-relaxed">
-                  {t('landing.ai_features.autofill_desc')}
-                </p>
-              </div>
+            {/* Mobile CTA 2 - Before Testimonials (After AI) */}
+            <div className="mt-8 sm:hidden w-full flex justify-center">
+              <button
+                onClick={handleStart}
+                className="w-full bg-[#1C1C1C] text-white px-6 py-3 rounded-lg font-medium text-sm transition-all shadow-lg flex items-center justify-center gap-2"
+              >
+                {t('landing.hero.cta_button')} <ArrowRight className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         </section>
@@ -767,10 +786,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               </div>
             </div>
           </div>
-        </section>
+        </section >
 
         {/* How it Works */}
-        <section className="py-12 sm:py-24 bg-white">
+        < section className="py-12 sm:py-24 bg-white" >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-16">
               <h2 className="text-xl sm:text-3xl font-bold text-slate-900 mb-2 sm:mb-4">{t('landing.how_it_works.title')}</h2>
@@ -794,10 +813,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               ))}
             </div>
           </div>
-        </section>
+        </section >
 
         {/* Social Proof */}
-        <div id="depoimentos">
+        < div id="depoimentos" >
           <TestimonialsSection
             title={t('landing.testimonials.title')}
             description={t('landing.testimonials.subtitle')}
@@ -815,11 +834,11 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               href: "#",
             }))}
           />
-        </div>
+        </div >
 
 
         {/* Final CTA - Minimalist */}
-        <section className="py-12 sm:py-24 bg-[#F7F7F5] text-center px-4 relative overflow-hidden">
+        < section className="py-12 sm:py-24 bg-[#F7F7F5] text-center px-4 relative overflow-hidden" >
           <div className="max-w-4xl mx-auto relative z-10">
             <h2 className="text-xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 text-[#37352f] font-serif">
               {t('landing.cta_final.title')}
@@ -837,11 +856,11 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               {t('landing.cta_final.join')}
             </p>
           </div>
-        </section>
-      </main>
+        </section >
+      </main >
 
       {/* Footer */}
-      <footer className="bg-slate-50 py-8 sm:py-12 border-t border-slate-200">
+      < footer className="bg-slate-50 py-8 sm:py-12 border-t border-slate-200" >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-4 sm:gap-8">
           <div className="flex items-center gap-2">
             {/* Operium Icon - Geometric brackets */}
@@ -870,7 +889,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             © {new Date().getFullYear()} Operium - Todos os direitos reservados
           </div>
         </div>
-      </footer>
+      </footer >
 
     </div >
   )
