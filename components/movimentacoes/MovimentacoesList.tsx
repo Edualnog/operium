@@ -768,7 +768,7 @@ export default function MovimentacoesList({
               <DialogTrigger asChild>
                 <Button onClick={() => setOpen(true)} className="bg-[#37352f] hover:bg-zinc-800 text-white gap-2 h-12 sm:h-10 col-span-2 sm:col-span-1 order-1 sm:order-none">
                   <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
-                  + Nova Movimentação
+                  Nova Movimentação
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh] overflow-y-auto">
