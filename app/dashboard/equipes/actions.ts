@@ -254,11 +254,11 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
     }
     console.log("[assignEquipment] Team found:", team.name)
 
-    // Verify ferramenta exists and check status
+    // Verify ferramenta exists and check status + stock
     console.log("[assignEquipment] Checking ferramenta...")
     const { data: ferramenta, error: ferramentaError } = await supabase
         .from("ferramentas")
-        .select("id, nome, estado")
+        .select("id, nome, estado, quantidade_disponivel")
         .eq("id", ferramentaId)
         .single()
 
@@ -270,13 +270,19 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
         console.error("[assignEquipment] FAIL: ferramenta is null")
         throw new Error("Ferramenta não encontrada")
     }
-    console.log("[assignEquipment] Ferramenta found:", ferramenta.nome, "estado:", ferramenta.estado)
+    console.log("[assignEquipment] Ferramenta found:", ferramenta.nome, "estado:", ferramenta.estado, "disponivel:", ferramenta.quantidade_disponivel)
 
     // Only block if explicitly in maintenance or damaged state
     const blockedStates = ['danificada', 'em_conserto']
     if (ferramenta.estado && blockedStates.includes(ferramenta.estado.toLowerCase())) {
         console.error("[assignEquipment] FAIL: blocked state", ferramenta.estado)
         throw new Error(`Ferramenta "${ferramenta.nome}" não está disponível (status: ${ferramenta.estado})`)
+    }
+
+    // Check stock availability
+    if (ferramenta.quantidade_disponivel < quantity) {
+        console.error("[assignEquipment] FAIL: insufficient stock", ferramenta.quantidade_disponivel, "<", quantity)
+        throw new Error(`Estoque insuficiente para "${ferramenta.nome}". Disponível: ${ferramenta.quantidade_disponivel}, Solicitado: ${quantity}`)
     }
 
     // Check if already assigned to this team (not returned)
@@ -326,6 +332,7 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
 
     console.log("[assignEquipment] SUCCESS", data)
     revalidatePath("/dashboard/equipes")
+    revalidatePath("/dashboard/estoque")  // Sync stock page
     return data
 }
 
@@ -362,6 +369,7 @@ export async function returnEquipment(assignmentId: string) {
     }
 
     revalidatePath("/dashboard/equipes")
+    revalidatePath("/dashboard/estoque")  // Sync stock page
     return data
 }
 
