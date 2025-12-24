@@ -117,8 +117,8 @@ export default function ReportsList({
                                             {report.user_name}
                                         </h3>
                                         <span className={`px-2 py-0.5 text-xs rounded-full border ${report.team_deleted
-                                                ? 'bg-red-50 text-red-700 border-red-100'
-                                                : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+                                            ? 'bg-red-50 text-red-700 border-red-100'
+                                            : 'bg-zinc-100 text-zinc-600 border-zinc-200'
                                             }`}>
                                             {report.team_name}
                                         </span>
@@ -136,7 +136,7 @@ export default function ReportsList({
                                 </p>
                                 {report.notes && (
                                     <p className="text-xs text-zinc-500 italic border-l-2 border-zinc-200 pl-3 py-1">
-                                        "{report.notes}"
+                                        {report.notes}
                                     </p>
                                 )}
                             </div>
