@@ -272,9 +272,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Free Forever Badge - More prominent */}
-              <div className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-green-50 border-2 border-green-200 text-green-700 text-xs sm:text-sm font-bold mb-4 sm:mb-8 tracking-wide cursor-default shadow-sm">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              {/* Free Forever Badge - Neutral */}
+              <div className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-slate-100 border-2 border-slate-300 text-slate-700 text-xs sm:text-sm font-bold mb-4 sm:mb-8 tracking-wide cursor-default shadow-sm">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#1C1C1C] rounded-full flex items-center justify-center flex-shrink-0">
                   <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
                 <span>100% Grátis para sempre</span>
@@ -313,7 +313,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   {checkoutLoading ? <Loader2 className="animate-spin h-5 w-5" /> : (
                     <>
                       {t('landing.hero.cta_button')}
-                      <span className="bg-green-500 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs ml-1 font-bold">GRÁTIS</span>
+                      <span className="bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs ml-1 font-bold">GRÁTIS</span>
                     </>
                   )}
                   {!checkoutLoading && <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
@@ -487,17 +487,17 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                       <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                         {/* Action buttons */}
                         <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                          <div className="bg-blue-50 border border-blue-100 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <div className="bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 bg-[#1C1C1C] rounded-lg flex items-center justify-center">
                               <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-white rotate-180" />
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium text-blue-700">Entrada</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-slate-700">Entrada</span>
                           </div>
-                          <div className="bg-orange-50 border border-orange-100 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 bg-orange-500 rounded-lg flex items-center justify-center">
+                          <div className="bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 bg-slate-600 rounded-lg flex items-center justify-center">
                               <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium text-orange-700">Saída</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-slate-700">Saída</span>
                           </div>
                         </div>
 
@@ -526,7 +526,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                                   <div className="text-[10px] sm:text-xs font-medium text-slate-700 truncate">{item.name}</div>
                                   <div className="text-[8px] sm:text-[10px] text-slate-400">{item.time}</div>
                                 </div>
-                                <span className={`text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-full font-medium ${item.type === 'Saída' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                                <span className={`text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-full font-medium ${item.type === 'Saída' ? 'bg-slate-200 text-slate-700' : 'bg-slate-100 text-slate-600'}`}>
                                   {item.type}
                                 </span>
                               </div>
@@ -538,8 +538,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   </div>
 
                   {/* Decorative elements */}
-                  <div className="absolute -z-10 top-10 -left-4 w-24 sm:w-32 h-24 sm:h-32 bg-blue-100 rounded-full blur-3xl opacity-50" />
-                  <div className="absolute -z-10 bottom-10 -right-4 w-20 sm:w-28 h-20 sm:h-28 bg-purple-100 rounded-full blur-3xl opacity-50" />
+                  <div className="absolute -z-10 top-10 -left-4 w-24 sm:w-32 h-24 sm:h-32 bg-slate-200 rounded-full blur-3xl opacity-50" />
+                  <div className="absolute -z-10 bottom-10 -right-4 w-20 sm:w-28 h-20 sm:h-28 bg-slate-200 rounded-full blur-3xl opacity-50" />
                 </div>
               </motion.div>
 
@@ -551,7 +551,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="order-1 lg:order-2"
               >
-                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                   <Smartphone className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   {t('landing.field_app.badge')}
                 </div>
@@ -587,7 +587,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <section className="py-12 sm:py-24 bg-[#F7F7F5] relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-16">
-              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                 <Shield className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 {t('landing.loss_prevention.badge')}
               </div>
@@ -608,9 +608,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               className="grid grid-cols-3 gap-3 sm:gap-8 mb-8 sm:mb-16"
             >
               {[
-                { value: t('landing.loss_prevention.stat1_value'), label: t('landing.loss_prevention.stat1_label'), color: "text-green-600" },
-                { value: t('landing.loss_prevention.stat2_value'), label: t('landing.loss_prevention.stat2_label'), color: "text-blue-600" },
-                { value: t('landing.loss_prevention.stat3_value'), label: t('landing.loss_prevention.stat3_label'), color: "text-purple-600" },
+                { value: t('landing.loss_prevention.stat1_value'), label: t('landing.loss_prevention.stat1_label'), color: "text-[#37352f]" },
+                { value: t('landing.loss_prevention.stat2_value'), label: t('landing.loss_prevention.stat2_label'), color: "text-[#37352f]" },
+                { value: t('landing.loss_prevention.stat3_value'), label: t('landing.loss_prevention.stat3_label'), color: "text-[#37352f]" },
               ].map((stat, idx) => (
                 <div key={idx} className="text-center p-3 sm:p-6 bg-white rounded-xl border border-slate-200">
                   <div className={`text-2xl sm:text-4xl md:text-5xl font-bold ${stat.color} mb-1 sm:mb-2`}>
@@ -638,7 +638,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group"
                 >
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-600 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
                     <feature.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{feature.title}</h3>
