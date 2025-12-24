@@ -37,6 +37,7 @@ import {
     TeamEquipmentMobile
 } from './actions'
 import { toast } from 'sonner'
+import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
 
 // ============================================================================
 // NATIVE APP BOTTOM SHEET MODAL
@@ -1549,17 +1550,20 @@ export default function AppPage() {
             <header className="bg-[#F2F2F7] pt-safe">
                 <div className="px-4 pt-2 pb-1">
                     <div className="flex items-center justify-between">
-                        <div>
+                        <div className="flex-1">
                             <p className="text-[13px] font-medium text-neutral-500 uppercase tracking-wide">Operium</p>
                             <h1 className="text-[28px] font-bold text-neutral-900 -mt-0.5">Equipe de Campo</h1>
                         </div>
-                        <button
-                            onClick={handleLogout}
-                            className="w-10 h-10 flex items-center justify-center text-neutral-400
-                                       active:bg-neutral-200/50 rounded-full transition-colors"
-                        >
-                            <LogOut className="h-5 w-5" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <FieldLanguageSwitcher />
+                            <button
+                                onClick={handleLogout}
+                                className="w-10 h-10 flex items-center justify-center text-neutral-400
+                                           active:bg-neutral-200/50 rounded-full transition-colors"
+                            >
+                                <LogOut className="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
