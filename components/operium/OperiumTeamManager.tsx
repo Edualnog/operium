@@ -257,10 +257,20 @@ export function OperiumTeamManager() {
             <AlertDialog open={!!confirmDeactivate} onOpenChange={() => setConfirmDeactivate(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            O colaborador será <strong>permanentemente removido</strong> do sistema e perderá todo o acesso.
-                            O histórico de atividades será preservado. Esta ação não pode ser desfeita.
+                        <AlertDialogTitle>Excluir colaborador permanentemente?</AlertDialogTitle>
+                        <AlertDialogDescription className="space-y-2">
+                            <p>
+                                Ao confirmar, este colaborador será <strong>permanentemente removido</strong> do sistema:
+                            </p>
+                            <ul className="list-disc list-inside space-y-1 text-sm">
+                                <li>A conta de acesso será deletada do banco de dados</li>
+                                <li>O colaborador perderá acesso imediato ao sistema</li>
+                                <li>As credenciais (email/senha) não funcionarão mais</li>
+                                <li>O histórico de atividades será preservado para auditoria</li>
+                            </ul>
+                            <p className="text-amber-600 dark:text-amber-500 font-medium pt-2">
+                                ⚠️ Esta ação não pode ser desfeita
+                            </p>
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

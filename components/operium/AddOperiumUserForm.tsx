@@ -101,7 +101,15 @@ export function AddOperiumUserForm({ open, onOpenChange, onSuccess }: AddOperium
 
         } catch (err: any) {
             console.error(err)
-            toast.error(err.message || "Erro ao criar usuário")
+
+            // Detectar erro de email duplicado
+            const errorMessage = err.message || "Erro ao criar usuário"
+
+            if (errorMessage.includes('já possui uma conta')) {
+                toast.error(errorMessage)
+            } else {
+                toast.error(errorMessage)
+            }
         } finally {
             setLoading(false)
         }

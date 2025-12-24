@@ -104,14 +104,14 @@ export async function POST(request: Request) {
                 // Se pertence à mesma organização
                 if (existingProfile.org_id === org_id) {
                     return NextResponse.json(
-                        { error: 'Este email já está cadastrado na sua organização.' },
+                        { error: 'Esse email já possui uma conta cadastrada. Use outro email ou entre em contato com o colaborador.' },
                         { status: 409 }
                     )
                 }
 
                 // Pertence a outra organização
                 return NextResponse.json(
-                    { error: 'Este email já possui uma conta ativa em outra organização. Não é possível adicioná-lo como membro.' },
+                    { error: 'Esse email já possui uma conta em outra organização. Cada email pode estar vinculado a apenas uma organização.' },
                     { status: 409 }
                 )
             }
@@ -173,7 +173,9 @@ export async function POST(request: Request) {
 
             // Tratar erros específicos
             if (createError.message.includes('already registered')) {
-                return NextResponse.json({ error: 'Este email já está cadastrado' }, { status: 400 })
+                return NextResponse.json({
+                    error: 'Esse email já possui uma conta. Verifique se o email está correto ou use outro email.'
+                }, { status: 409 })
             }
 
             throw createError
