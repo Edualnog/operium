@@ -134,10 +134,11 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
             const startDate = new Date()
             startDate.setDate(startDate.getDate() - days)
 
-            // 1. MOVIMENTAÇÕES (dados existentes)
+            // 1. MOVIMENTAÇÕES (dados existentes - apenas ferramentas)
             const { data: movementsData, error: movError } = await supabase
                 .from("movimentacoes")
-                .select("tipo, quantidade, data, ferramentas(nome)")
+                .select("tipo, quantidade, data, ferramentas!inner(nome, tipo_item)")
+                .eq("ferramentas.tipo_item", "ferramenta") // Filtrar apenas ferramentas
                 .gte("data", startDate.toISOString())
                 .order("data", { ascending: false })
                 .limit(50)

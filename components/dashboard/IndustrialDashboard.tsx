@@ -540,8 +540,16 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
         ferramentas?.forEach((f: any) => {
           const qtdTotal = f.quantidade_total || 0
-          const qtdDisponivel = f.quantidade_disponivel || 0
+          const qtdDisponivelRaw = f.quantidade_disponivel || 0
           const qtdEmConserto = unidadesEmConserto[f.id] || 0
+
+          // VALIDAÇÃO: quantidade_disponivel não pode ser maior que quantidade_total
+          const qtdDisponivel = Math.min(qtdDisponivelRaw, qtdTotal)
+
+          // Log de warning se houver inconsistência
+          if (qtdDisponivelRaw > qtdTotal) {
+            console.warn(`⚠️ Ferramenta ${f.id}: quantidade_disponivel (${qtdDisponivelRaw}) > quantidade_total (${qtdTotal})`)
+          }
 
           totalUnidades += qtdTotal
 

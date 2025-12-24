@@ -264,6 +264,10 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                 }
 
                 // 8. ANÁLISE DE PERDAS POR COLABORADOR
+                // TODO: Reimplementar com lógica correta
+                // PROBLEMA: Lógica atual não considera itens ainda em uso legítimo
+                // Apenas conta retiradas - devoluções, o que não é uma "perda" real
+                /*
                 const thirtyDaysAgoForLoss = new Date()
                 thirtyDaysAgoForLoss.setDate(thirtyDaysAgoForLoss.getDate() - 30)
 
@@ -303,6 +307,7 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                         }
                     }
                 })
+                */
 
                 setItems(bottlenecks.slice(0, 8)) // Show top 8
             } catch (error) {
