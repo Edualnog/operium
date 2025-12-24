@@ -41,6 +41,7 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                 const { data: legacyBreakage } = await supabase
                     .from('ferramentas')
                     .select('id, nome, estado, quantidade_total')
+                    .eq('profile_id', userId)  // CRITICAL: Filter by user!
                     .eq('estado', 'danificada')
                     .limit(5)
 
@@ -65,6 +66,7 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                 const { data: topStock } = await supabase
                     .from('ferramentas')
                     .select('id, nome, quantidade_disponivel')
+                    .eq('profile_id', userId)  // CRITICAL: Filter by user!
                     .gt('quantidade_disponivel', 0)
                     .order('quantidade_disponivel', { ascending: false })
                     .limit(10)
@@ -74,6 +76,7 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                         const { data: lastMove } = await supabase
                             .from('movimentacoes')
                             .select('data')
+                            .eq('profile_id', userId)  // CRITICAL: Filter by user!
                             .eq('ferramenta_id', item.id)
                             .order('data', { ascending: false })
                             .limit(1)
