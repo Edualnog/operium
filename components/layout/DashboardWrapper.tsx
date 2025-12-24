@@ -119,11 +119,19 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
-      label: "Equipes",
+      label: "Gestão de Equipes",
       href: "/dashboard/equipes",
       id: "sidebar-equipes",
       icon: (
         <Users2 className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Relatórios",
+      href: "/dashboard/relatorios",
+      id: "sidebar-relatorios",
+      icon: (
+        <FileText className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
@@ -166,14 +174,6 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       id: "sidebar-acessos",
       icon: (
         <UserPlus className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Relatórios",
-      href: "/dashboard/relatorios",
-      id: "sidebar-relatorios",
-      icon: (
-        <FileText className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
