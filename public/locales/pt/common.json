@@ -1745,4 +1745,23 @@
         "tab_observability": "Observabilidade",
         "tab_export": "Exportar Dados"
     }
+,
+    "field_dashboard": {
+        "title": "Painel Operacional",
+        "subtitle": "Registre atividades operacionais",
+        "team_info": {
+            "team": "Equipe",
+            "vehicle": "Veículo"
+        },
+        "actions": {
+            "new_expense": "Nova Despesa",
+            "new_expense_desc": "Registrar abastecimento ou gasto com veículo",
+            "vehicle_status": "Status do Veículo",
+            "vehicle_status_desc": "Atualizar condição (Oficina, Ativo, etc)"
+        },
+        "activity": {
+            "title": "Suas Atividades Recentes",
+            "empty": "Nenhuma atividade registrada ainda"
+        }
+    }
 }

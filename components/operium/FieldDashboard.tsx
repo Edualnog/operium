@@ -8,6 +8,8 @@ import { EventsList } from "./EventsList"
 import { Card, CardContent } from "@/components/ui/card"
 import { Truck, Wrench, Users, Car } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
+import { FieldLanguageSwitcher } from "./FieldLanguageSwitcher"
+import { useTranslation } from "react-i18next"
 
 interface TeamInfo {
     id: string
@@ -23,6 +25,7 @@ export function FieldDashboard() {
     const [statusOpen, setStatusOpen] = useState(false)
     const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null)
     const supabase = createClientComponentClient()
+    const { t } = useTranslation('common')
 
     // Fetch team info with vehicle
     useEffect(() => {
@@ -66,6 +69,19 @@ export function FieldDashboard() {
 
     return (
         <div className="space-y-6">
+            {/* Header with Language Switcher */}
+            <div className="flex items-center justify-between">
+                <div className="flex-1">
+                    <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                        {t('field_dashboard.title')}
+                    </h1>
+                    <p className="text-zinc-500 mt-1">
+                        {t('field_dashboard.subtitle')}
+                    </p>
+                </div>
+                <FieldLanguageSwitcher />
+            </div>
+
             {/* Team & Vehicle Header (Minimal) */}
             {teamInfo && (
                 <div className="flex flex-wrap items-center gap-3 px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
@@ -108,8 +124,12 @@ export function FieldDashboard() {
                             <Truck className="h-8 w-8" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">Nova Despesa</h3>
-                            <p className="text-sm text-zinc-500">Registrar abastecimento ou gasto com veículo</p>
+                            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                                {t('field_dashboard.actions.new_expense')}
+                            </h3>
+                            <p className="text-sm text-zinc-500">
+                                {t('field_dashboard.actions.new_expense_desc')}
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -123,8 +143,12 @@ export function FieldDashboard() {
                             <Wrench className="h-8 w-8" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">Status do Veículo</h3>
-                            <p className="text-sm text-zinc-500">Atualizar condição (Oficina, Ativo, etc)</p>
+                            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                                {t('field_dashboard.actions.vehicle_status')}
+                            </h3>
+                            <p className="text-sm text-zinc-500">
+                                {t('field_dashboard.actions.vehicle_status_desc')}
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -133,7 +157,7 @@ export function FieldDashboard() {
             {/* Recent Activity */}
             <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                    Suas Atividades Recentes
+                    {t('field_dashboard.activity.title')}
                 </h2>
 
                 {/* Only show vehicle events */}

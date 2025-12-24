@@ -1650,4 +1650,23 @@
         "tab_observability": "Observability",
         "tab_export": "Export Data"
     }
+,
+    "field_dashboard": {
+        "title": "Field Operations Panel",
+        "subtitle": "Record operational activities",
+        "team_info": {
+            "team": "Team",
+            "vehicle": "Vehicle"
+        },
+        "actions": {
+            "new_expense": "New Expense",
+            "new_expense_desc": "Log fuel or vehicle expenses",
+            "vehicle_status": "Vehicle Status",
+            "vehicle_status_desc": "Update condition (Workshop, Active, etc)"
+        },
+        "activity": {
+            "title": "Your Recent Activities",
+            "empty": "No activities recorded yet"
+        }
+    }
 }
