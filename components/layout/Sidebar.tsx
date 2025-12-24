@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import {
   LayoutDashboard,
-  Users,
+  User,
   Wrench,
   Hammer,
   Package,
@@ -57,7 +57,7 @@ export default function AppSidebar() {
       label: t('dashboard.sidebar.collaborators'),
       href: "/dashboard/colaboradores",
       icon: (
-        <Users className="h-5 w-5 flex-shrink-0" />
+        <User className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
