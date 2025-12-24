@@ -28,6 +28,7 @@ export interface OperiumProfile {
     active: boolean
     created_at: string
     name?: string
+    team_id?: string | null  // Link to teams table when user is assigned to a team
 }
 
 export interface OperiumVehicle {
