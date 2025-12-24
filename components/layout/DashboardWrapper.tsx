@@ -18,6 +18,7 @@ import {
   Truck,
   Users2,
   UserPlus,
+  FileText,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
 import Image from "next/image"
@@ -165,6 +166,14 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       id: "sidebar-acessos",
       icon: (
         <UserPlus className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Relatórios",
+      href: "/dashboard/relatorios",
+      id: "sidebar-relatorios",
+      icon: (
+        <FileText className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
