@@ -95,7 +95,7 @@ function NativeModal({
 }
 
 // ============================================================================
-// ACTION CARD - Native App Style
+// ACTION CARD - Native App Style (iOS-like)
 // ============================================================================
 
 function ActionCard({
@@ -103,89 +103,85 @@ function ActionCard({
     title,
     subtitle,
     onClick,
-    color = 'neutral'
 }: {
     icon: any
     title: string
     subtitle: string
     onClick: () => void
-    color?: 'neutral' | 'blue' | 'green' | 'orange' | 'purple'
 }) {
-    // Notion-style: minimal colors, mostly grayscale with subtle indicators
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center gap-4 p-4 bg-white rounded-xl border border-neutral-200
-                       active:bg-neutral-50 transition-all duration-150 shadow-[0_2px_4px_rgba(0,0,0,0.02)]
-                       hover:border-neutral-300 group"
+            className="w-full flex items-center gap-3.5 px-4 py-3.5 bg-white
+                       active:bg-neutral-50 active:scale-[0.98] transition-all duration-150"
         >
-            <div className="p-2.5 rounded-lg bg-neutral-100 text-neutral-600 group-hover:text-neutral-900 transition-colors flex-shrink-0">
-                <Icon className="h-5 w-5" strokeWidth={1.5} />
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center flex-shrink-0">
+                <Icon className="h-5 w-5 text-neutral-600" strokeWidth={1.75} />
             </div>
             <div className="flex-1 text-left min-w-0">
-                <p className="text-[15px] font-medium text-neutral-900 truncate tracking-tight">{title}</p>
-                <p className="text-[13px] text-neutral-500 truncate mt-0.5 font-normal">{subtitle}</p>
+                <p className="text-[16px] font-semibold text-neutral-900 truncate">{title}</p>
+                <p className="text-[14px] text-neutral-500 truncate">{subtitle}</p>
             </div>
-            <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-600 transition-colors flex-shrink-0" />
+            <ChevronRight className="h-5 w-5 text-neutral-300 flex-shrink-0" />
         </button>
     )
 }
 
 // ============================================================================
-// ACTIVITY CARD
+// ACTIVITY CARD - Minimal native style
 // ============================================================================
 
-function ActivityCard({ event }: { event: any }) {
+function ActivityCard({ event, isLast }: { event: any; isLast?: boolean }) {
     const getEventInfo = () => {
         switch (event.type) {
             case 'VEHICLE_EXPENSE':
                 return {
                     icon: Fuel,
                     label: 'Despesa registrada',
-                    color: 'bg-blue-50 text-blue-600',
+                    iconBg: 'bg-blue-500',
                     value: event.metadata?.valor ? `R$ ${event.metadata.valor.toFixed(2)}` : null
                 }
             case 'VEHICLE_STATUS':
                 return {
                     icon: Car,
                     label: 'Status atualizado',
-                    color: 'bg-orange-50 text-orange-600',
+                    iconBg: 'bg-orange-500',
                     value: null
                 }
             case 'ITEM_IN':
                 return {
                     icon: Package,
                     label: 'Item recebido',
-                    color: 'bg-green-50 text-green-600',
+                    iconBg: 'bg-green-500',
                     value: null
                 }
             case 'ITEM_OUT':
                 return {
                     icon: Package,
                     label: 'Item enviado',
-                    color: 'bg-red-50 text-red-600',
+                    iconBg: 'bg-red-500',
                     value: null
                 }
             default:
                 return {
                     icon: Activity,
                     label: 'Atividade',
-                    color: 'bg-neutral-50 text-neutral-600',
+                    iconBg: 'bg-neutral-400',
                     value: null
                 }
         }
     }
 
-    const { icon: EventIcon, label, color, value } = getEventInfo()
+    const { icon: EventIcon, label, iconBg, value } = getEventInfo()
 
     return (
-        <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-neutral-100">
-            <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center flex-shrink-0`}>
-                <EventIcon className="h-5 w-5" />
+        <div className={`flex items-center gap-3 px-4 py-3 bg-white ${!isLast ? 'border-b border-neutral-100' : ''}`}>
+            <div className={`w-8 h-8 rounded-full ${iconBg} flex items-center justify-center flex-shrink-0`}>
+                <EventIcon className="h-4 w-4 text-white" strokeWidth={2} />
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-neutral-900">{label}</p>
-                <p className="text-xs text-neutral-400 mt-0.5">
+                <p className="text-[15px] font-medium text-neutral-900">{label}</p>
+                <p className="text-[13px] text-neutral-400">
                     {new Date(event.created_at).toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: 'short',
@@ -195,7 +191,7 @@ function ActivityCard({ event }: { event: any }) {
                 </p>
             </div>
             {value && (
-                <span className="text-sm font-semibold text-neutral-700">{value}</span>
+                <span className="text-[15px] font-semibold text-neutral-900">{value}</span>
             )}
         </div>
     )
@@ -774,7 +770,7 @@ function DailyReportModal({
 }
 
 // ============================================================================
-// EQUIPMENT ACCEPTANCE BANNER
+// EQUIPMENT ACCEPTANCE BANNER - iOS Alert Style
 // ============================================================================
 
 function EquipmentAcceptanceBanner({
@@ -787,22 +783,21 @@ function EquipmentAcceptanceBanner({
     if (pendingCount === 0) return null
 
     return (
-        <div className="mx-4 mt-4 animate-in slide-in-from-top-4 duration-500">
-            <div className="p-4 bg-white border border-orange-200/60
-                            rounded-xl flex items-center gap-4 shadow-[0_2px_8px_rgba(251,146,60,0.08)]">
-                <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center flex-shrink-0 border border-orange-100">
-                    <Package className="h-5 w-5 text-orange-600" strokeWidth={2} />
+        <div className="px-4 pt-3 animate-in slide-in-from-top-4 duration-300">
+            <div className="p-4 bg-orange-50 rounded-2xl flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Package className="h-5 w-5 text-white" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-medium text-neutral-900">
-                        {pendingCount} novo{pendingCount > 1 ? 's' : ''} item{pendingCount > 1 ? 'ns' : ''} recebido{pendingCount > 1 ? 's' : ''}
+                    <p className="text-[15px] font-semibold text-neutral-900">
+                        {pendingCount} {pendingCount > 1 ? 'novos itens' : 'novo item'}
                     </p>
-                    <p className="text-[12px] text-neutral-500 mt-0.5">Confirme o recebimento para usar</p>
+                    <p className="text-[13px] text-neutral-600">Aguardando confirmação</p>
                 </div>
                 <button
                     onClick={onAcceptAll}
-                    className="px-4 py-2 bg-neutral-900 text-white text-[13px] font-medium rounded-lg
-                               active:scale-95 transition-all hover:bg-neutral-800 shadow-sm"
+                    className="px-4 py-2 bg-orange-500 text-white text-[14px] font-semibold rounded-xl
+                               active:scale-95 transition-all"
                 >
                     Aceitar
                 </button>
@@ -1101,7 +1096,7 @@ function EquipmentIssueModal({
 }
 
 // ============================================================================
-// TEAM EQUIPMENT SECTION - Shows all equipment for the team
+// TEAM EQUIPMENT SECTION - iOS List Style
 // ============================================================================
 
 function TeamEquipmentSection({
@@ -1138,91 +1133,82 @@ function TeamEquipmentSection({
         }
     }
 
-    const getStatusLabel = (item: any) => {
+    const getStatusBadge = (item: any) => {
         if (item._isPending || item.status === 'pending_acceptance') {
-            return { text: 'Pendente', color: 'bg-orange-50 text-orange-700 border border-orange-100' }
+            return { text: 'Pendente', bg: 'bg-orange-500' }
         }
         if (item.status === 'pending_return') {
-            return { text: 'Devolução', color: 'bg-blue-50 text-blue-700 border border-blue-100' }
+            return { text: 'Devolução', bg: 'bg-blue-500' }
         }
-        return { text: 'Em uso', color: 'bg-neutral-100 text-neutral-600 border border-neutral-200' }
+        return { text: 'Em uso', bg: 'bg-green-500' }
     }
 
     return (
-        <div className="mx-4 mt-6">
+        <div>
             {/* Section Header */}
             <button
                 onClick={() => setExpanded(!expanded)}
-                className="w-full flex items-center justify-between mb-3"
+                className="w-full flex items-center justify-between px-4 mb-2"
             >
+                <h3 className="text-[13px] font-semibold text-neutral-500 uppercase tracking-wide">
+                    Equipamentos da Equipe
+                </h3>
                 <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4 text-neutral-500" />
-                    <h3 className="text-sm font-semibold text-neutral-600 uppercase tracking-wide">
-                        Equipamentos da Equipe
-                    </h3>
-                    <span className="px-1.5 py-0.5 bg-neutral-200 text-neutral-600 text-xs font-medium rounded-full">
+                    <span className="w-5 h-5 bg-neutral-200 text-neutral-600 text-[11px] font-bold rounded-full flex items-center justify-center">
                         {allEquipment.length}
                     </span>
+                    <ChevronRight className={`h-4 w-4 text-neutral-400 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`} />
                 </div>
-                <ChevronRight className={`h-4 w-4 text-neutral-400 transition-transform ${expanded ? 'rotate-90' : ''}`} />
             </button>
 
             {/* Equipment List */}
             {expanded && (
-                <div className="space-y-2">
-                    {allEquipment.map((item: any) => {
-                        const status = getStatusLabel(item)
+                <div className="bg-white rounded-2xl overflow-hidden">
+                    {allEquipment.map((item: any, index: number) => {
+                        const status = getStatusBadge(item)
                         const isPending = item._isPending || item.status === 'pending_acceptance'
+                        const isLast = index === allEquipment.length - 1
 
                         return (
                             <div
                                 key={item.id}
-                                className="p-4 bg-white rounded-2xl border border-neutral-100 shadow-sm"
+                                className={`flex items-center gap-3 px-4 py-3 ${!isLast ? 'border-b border-neutral-100' : ''}`}
                             >
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <h4 className="font-semibold text-neutral-900 truncate">
-                                                {item.ferramenta_nome}
-                                            </h4>
-                                            <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${status.color}`}>
-                                                {status.text}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-neutral-500 mt-0.5">
-                                            Qtd: {item.quantity} • {new Date(item.assigned_at).toLocaleDateString('pt-BR')}
-                                        </p>
-                                    </div>
+                                {/* Status indicator */}
+                                <div className={`w-2 h-2 rounded-full ${status.bg} flex-shrink-0`} />
 
-                                    {/* Actions */}
-                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                        {isPending ? (
-                                            <button
-                                                onClick={() => handleAccept(item.id)}
-                                                disabled={acceptingId === item.id}
-                                                className="px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg
-                                                           active:scale-95 transition-all disabled:opacity-50"
-                                            >
-                                                {acceptingId === item.id ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                ) : (
-                                                    <span className="flex items-center gap-1.5">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                        Aceitar
-                                                    </span>
-                                                )}
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => onReportIssue(item)}
-                                                className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                                                title="Reportar problema"
-                                            >
-                                                <AlertTriangle className="h-4 w-4" />
-                                            </button>
-                                        )}
-                                    </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[15px] font-medium text-neutral-900 truncate">
+                                        {item.ferramenta_nome}
+                                    </p>
+                                    <p className="text-[13px] text-neutral-400">
+                                        Qtd: {item.quantity}
+                                    </p>
                                 </div>
+
+                                {/* Actions */}
+                                {isPending ? (
+                                    <button
+                                        onClick={() => handleAccept(item.id)}
+                                        disabled={acceptingId === item.id}
+                                        className="px-3 py-1.5 bg-green-500 text-white text-[13px] font-semibold rounded-lg
+                                                   active:scale-95 transition-all disabled:opacity-50"
+                                    >
+                                        {acceptingId === item.id ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            'Aceitar'
+                                        )}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => onReportIssue(item)}
+                                        className="w-8 h-8 flex items-center justify-center text-amber-500
+                                                   active:bg-amber-50 rounded-full transition-colors"
+                                    >
+                                        <AlertTriangle className="h-4 w-4" />
+                                    </button>
+                                )}
                             </div>
                         )
                     })}
@@ -1557,19 +1543,19 @@ export default function AppPage() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50">
-            {/* Header - iOS Style */}
-            <header className="bg-white border-b border-neutral-100 sticky top-0 z-40 backdrop-blur-xl bg-white/80">
-                <div className="px-5 py-4">
+        <div className="min-h-screen bg-[#F2F2F7]">
+            {/* Header - iOS Native Style */}
+            <header className="bg-[#F2F2F7] pt-safe">
+                <div className="px-4 pt-2 pb-1">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-xl font-bold text-neutral-900">Operium</h1>
-                            <p className="text-sm text-neutral-500 mt-0.5">Equipe de Campo</p>
+                            <p className="text-[13px] font-medium text-neutral-500 uppercase tracking-wide">Operium</p>
+                            <h1 className="text-[28px] font-bold text-neutral-900 -mt-0.5">Equipe de Campo</h1>
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="p-3 text-neutral-400 hover:text-neutral-600 active:bg-neutral-100 rounded-xl
-                                       transition-colors"
+                            className="w-10 h-10 flex items-center justify-center text-neutral-400
+                                       active:bg-neutral-200/50 rounded-full transition-colors"
                         >
                             <LogOut className="h-5 w-5" />
                         </button>
@@ -1579,13 +1565,12 @@ export default function AppPage() {
 
             {/* Reminder Banner */}
             {showReminder && (
-                <div className="mx-4 mt-4">
-                    <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200
-                                    rounded-2xl flex items-center gap-3 shadow-sm">
-                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Clock className="h-5 w-5 text-purple-600" />
+                <div className="px-4 pt-3">
+                    <div className="p-4 bg-purple-50 rounded-2xl flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Clock className="h-5 w-5 text-white" strokeWidth={2} />
                         </div>
-                        <p className="text-sm font-medium text-purple-900 flex-1">
+                        <p className="text-[15px] font-semibold text-neutral-900 flex-1">
                             Hora do relatório diário!
                         </p>
                         <button
@@ -1593,8 +1578,8 @@ export default function AppPage() {
                                 setShowReminder(false)
                                 setShowReportModal(true)
                             }}
-                            className="px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-lg
-                                       active:scale-95 transition-transform"
+                            className="px-4 py-2 bg-purple-500 text-white text-[14px] font-semibold rounded-xl
+                                       active:scale-95 transition-all"
                         >
                             Fazer
                         </button>
@@ -1609,50 +1594,48 @@ export default function AppPage() {
             />
 
             {/* Main Content */}
-            <main className="px-5 py-6 space-y-8 pb-safe">
-                {/* Greeting */}
-                <div>
-                    <h2 className="text-2xl font-bold text-neutral-900">
-                        Olá{userName ? `, ${userName}` : ''}! 👋
+            <main className="px-4 pt-4 pb-safe space-y-5">
+                {/* Greeting Card */}
+                <div className="bg-white rounded-2xl px-4 py-5">
+                    <h2 className="text-[22px] font-bold text-neutral-900">
+                        Olá{userName ? `, ${userName.split(' ')[0]}` : ''}!
                     </h2>
-                    <p className="text-base text-neutral-500 mt-1">O que você precisa fazer hoje?</p>
+                    <p className="text-[15px] text-neutral-500 mt-0.5">O que você precisa fazer hoje?</p>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="space-y-3">
-                    <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide px-1">
+                {/* Quick Actions - iOS Settings Style */}
+                <div>
+                    <h3 className="text-[13px] font-semibold text-neutral-500 uppercase tracking-wide px-4 mb-2">
                         Ações Rápidas
                     </h3>
-                    <ActionCard
-                        icon={Fuel}
-                        title="Nova Despesa"
-                        subtitle="Registrar combustível ou manutenção"
-                        onClick={() => setShowExpenseModal(true)}
-                        color="blue"
-                    />
-                    <ActionCard
-                        icon={Car}
-                        title="Status do Veículo"
-                        subtitle="Atualizar condição atual"
-                        onClick={() => setShowStatusModal(true)}
-                        color="orange"
-                    />
-                    <ActionCard
-                        icon={FileText}
-                        title="Relatório do Dia"
-                        subtitle="Resumo das atividades realizadas"
-                        onClick={() => setShowReportModal(true)}
-                        color="purple"
-                    />
-                    {teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length > 0 && (
+                    <div className="bg-white rounded-2xl overflow-hidden divide-y divide-neutral-100">
                         <ActionCard
-                            icon={ArrowDownToLine}
-                            title="Devolver Equipamentos"
-                            subtitle={`${teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length} em custódia`}
-                            onClick={() => setShowReturnModal(true)}
-                            color="green"
+                            icon={Receipt}
+                            title="Nova Despesa"
+                            subtitle="Registrar combustível ou manutenção"
+                            onClick={() => setShowExpenseModal(true)}
                         />
-                    )}
+                        <ActionCard
+                            icon={Car}
+                            title="Status do Veículo"
+                            subtitle="Atualizar condição atual"
+                            onClick={() => setShowStatusModal(true)}
+                        />
+                        <ActionCard
+                            icon={FileText}
+                            title="Relatório do Dia"
+                            subtitle="Resumo das atividades realizadas"
+                            onClick={() => setShowReportModal(true)}
+                        />
+                        {teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length > 0 && (
+                            <ActionCard
+                                icon={ArrowDownToLine}
+                                title="Devolver Equipamentos"
+                                subtitle={`${teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length} em custódia`}
+                                onClick={() => setShowReturnModal(true)}
+                            />
+                        )}
+                    </div>
                 </div>
 
                 {/* Team Equipment Section */}
@@ -1664,30 +1647,41 @@ export default function AppPage() {
                     onRefresh={fetchEquipmentData}
                 />
 
-                {/* Recent Activity */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2 px-1">
-                        <History className="h-4 w-4 text-neutral-400" />
-                        <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
-                            Atividade Recente
-                        </h3>
+                {/* Recent Activity - With pagination */}
+                <div>
+                    <h3 className="text-[13px] font-semibold text-neutral-500 uppercase tracking-wide px-4 mb-2">
+                        Atividade Recente
+                    </h3>
+                    <div className="bg-white rounded-2xl overflow-hidden">
+                        {loadingEvents ? (
+                            <div className="flex items-center justify-center py-12">
+                                <Loader2 className="h-5 w-5 animate-spin text-neutral-300" />
+                            </div>
+                        ) : events.length === 0 ? (
+                            <div className="text-center py-10">
+                                <Activity className="h-10 w-10 text-neutral-200 mx-auto mb-2" />
+                                <p className="text-[14px] text-neutral-400">Nenhuma atividade</p>
+                            </div>
+                        ) : (
+                            <>
+                                {events.slice(0, 5).map((event, index) => (
+                                    <ActivityCard
+                                        key={event.id}
+                                        event={event}
+                                        isLast={index === Math.min(events.length - 1, 4)}
+                                    />
+                                ))}
+                                {events.length > 5 && (
+                                    <button
+                                        className="w-full py-3 text-[15px] font-medium text-blue-500
+                                                   active:bg-neutral-50 transition-colors"
+                                    >
+                                        Ver todas ({events.length})
+                                    </button>
+                                )}
+                            </>
+                        )}
                     </div>
-                    {loadingEvents ? (
-                        <div className="flex items-center justify-center py-12">
-                            <Loader2 className="h-5 w-5 animate-spin text-neutral-300" />
-                        </div>
-                    ) : events.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Activity className="h-12 w-12 text-neutral-200 mx-auto mb-3" />
-                            <p className="text-sm text-neutral-400">Nenhuma atividade registrada</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {events.map((event) => (
-                                <ActivityCard key={event.id} event={event} />
-                            ))}
-                        </div>
-                    )}
                 </div>
             </main>
 

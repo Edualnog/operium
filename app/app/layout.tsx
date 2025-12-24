@@ -41,7 +41,7 @@ export default async function AppLayout({
     }
 
     return (
-        <div className="min-h-screen bg-[#FBFBFA]">
+        <div className="min-h-screen bg-[#F2F2F7]">
             {children}
         </div>
     )
