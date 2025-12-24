@@ -27,10 +27,6 @@ export function FieldDashboard() {
     // Fetch team info with vehicle
     useEffect(() => {
         const fetchTeamInfo = async () => {
-            // Debug log
-            console.log("FieldDashboard - profile:", profile)
-            console.log("FieldDashboard - team_id:", profile?.team_id)
-
             if (!profile?.team_id) return
 
             const { data, error } = await supabase
