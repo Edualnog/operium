@@ -2,7 +2,9 @@
 
 import { useState } from "react"
 import { DailyReport, getDailyReports } from "@/app/dashboard/relatorios/actions"
-import { Calendar, Filter, Search, FileText, Download } from "lucide-react"
+import { Calendar, Filter, Search, FileText, Download, ChevronLeft, ChevronRight } from "lucide-react"
+
+const ITEMS_PER_PAGE = 10
 
 export default function ReportsList({
     initialReports,
@@ -16,9 +18,11 @@ export default function ReportsList({
     const [dateFilter, setDateFilter] = useState("")
     const [teamFilter, setTeamFilter] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
+    const [currentPage, setCurrentPage] = useState(1)
 
     const handleFilter = async () => {
         setLoading(true)
+        setCurrentPage(1) // Reset to first page on filter
         try {
             const data = await getDailyReports(
                 dateFilter || undefined,
@@ -36,6 +40,61 @@ export default function ReportsList({
         r.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.user_name.toLowerCase().includes(searchTerm.toLowerCase())
     )
+
+    // Pagination
+    const totalPages = Math.ceil(filteredReports.length / ITEMS_PER_PAGE)
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const paginatedReports = filteredReports.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+    // PDF Export function
+    const handleExportPDF = (report: DailyReport) => {
+        // Create a simple HTML content for the PDF
+        const content = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Relatório - ${report.user_name}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+                    h1 { color: #18181b; border-bottom: 2px solid #e4e4e7; padding-bottom: 10px; }
+                    .meta { color: #71717a; font-size: 14px; margin-bottom: 20px; }
+                    .content { font-size: 16px; line-height: 1.6; color: #27272a; }
+                    .notes { margin-top: 20px; padding: 15px; background: #f4f4f5; border-left: 4px solid #a1a1aa; font-style: italic; }
+                    .footer { margin-top: 40px; font-size: 12px; color: #a1a1aa; border-top: 1px solid #e4e4e7; padding-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <h1>Relatório de Campo</h1>
+                <div class="meta">
+                    <strong>Colaborador:</strong> ${report.user_name}<br>
+                    <strong>Equipe:</strong> ${report.team_name}<br>
+                    <strong>Data:</strong> ${new Date(report.report_date).toLocaleDateString('pt-BR')}<br>
+                    <strong>Enviado em:</strong> ${new Date(report.created_at).toLocaleString('pt-BR')}
+                </div>
+                <div class="content">
+                    <strong>Resumo das Atividades:</strong>
+                    <p>${report.summary}</p>
+                </div>
+                ${report.notes ? `<div class="notes"><strong>Observações:</strong><br>${report.notes}</div>` : ''}
+                <div class="footer">
+                    Gerado pelo Operium em ${new Date().toLocaleString('pt-BR')}
+                </div>
+            </body>
+            </html>
+        `
+
+        // Open print dialog which allows saving as PDF
+        const printWindow = window.open('', '_blank')
+        if (printWindow) {
+            printWindow.document.write(content)
+            printWindow.document.close()
+            printWindow.focus()
+            setTimeout(() => {
+                printWindow.print()
+            }, 250)
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -93,19 +152,24 @@ export default function ReportsList({
                     type="text"
                     placeholder="Buscar por resumo ou usuário..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
                     className="w-full pl-9 pr-4 py-2.5 bg-transparent border-b border-zinc-200 dark:border-zinc-800 text-sm focus:outline-none focus:border-zinc-400 transition-colors"
                 />
             </div>
 
+            {/* Results count */}
+            <div className="text-sm text-zinc-500">
+                {filteredReports.length} relatório{filteredReports.length !== 1 ? 's' : ''} encontrado{filteredReports.length !== 1 ? 's' : ''}
+            </div>
+
             {/* List */}
             <div className="space-y-4">
-                {filteredReports.length === 0 ? (
+                {paginatedReports.length === 0 ? (
                     <div className="text-center py-12 text-zinc-500">
                         Nenhum relatório encontrado para os filtros selecionados.
                     </div>
                 ) : (
-                    filteredReports.map(report => (
+                    paginatedReports.map(report => (
                         <div
                             key={report.id}
                             className="group p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm"
@@ -127,7 +191,13 @@ export default function ReportsList({
                                         {new Date(report.report_date).toLocaleDateString()} • Enviado em {new Date(report.created_at).toLocaleString()}
                                     </p>
                                 </div>
-                                <FileText className="h-5 w-5 text-zinc-300 group-hover:text-zinc-500 transition-colors" />
+                                <button
+                                    onClick={() => handleExportPDF(report)}
+                                    className="p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                    title="Baixar PDF"
+                                >
+                                    <Download className="h-4 w-4" />
+                                </button>
                             </div>
 
                             <div className="mt-3 space-y-2">
@@ -144,6 +214,57 @@ export default function ReportsList({
                     ))
                 )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    <p className="text-sm text-zinc-500">
+                        Página {currentPage} de {totalPages}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                let pageNum: number
+                                if (totalPages <= 5) {
+                                    pageNum = i + 1
+                                } else if (currentPage <= 3) {
+                                    pageNum = i + 1
+                                } else if (currentPage >= totalPages - 2) {
+                                    pageNum = totalPages - 4 + i
+                                } else {
+                                    pageNum = currentPage - 2 + i
+                                }
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        className={`w-8 h-8 text-sm rounded-lg transition-colors ${currentPage === pageNum
+                                                ? 'bg-zinc-900 text-white'
+                                                : 'text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                                            }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight className="h-5 w-5" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
