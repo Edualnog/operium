@@ -283,7 +283,18 @@ export async function promoverColaborador(id: string, newRole: string, notes?: s
   revalidateAllPages()
 }
 
-export async function demitirColaborador(id: string, motivo: string) {
+export interface DemissaoResult {
+  success: boolean
+  ferramentasPendentes: Array<{
+    id: string
+    nome: string
+    quantidade: number
+  }>
+  equipesAfetadas: string[]
+  liderancasRemovidas: string[]
+}
+
+export async function demitirColaborador(id: string, motivo: string): Promise<DemissaoResult> {
   const supabase = await createServerComponentClient()
   const {
     data: { user },
@@ -291,6 +302,107 @@ export async function demitirColaborador(id: string, motivo: string) {
 
   if (!user) throw new Error("Não autenticado")
 
+  const result: DemissaoResult = {
+    success: false,
+    ferramentasPendentes: [],
+    equipesAfetadas: [],
+    liderancasRemovidas: []
+  }
+
+  // 1. Buscar ferramentas pendentes (retiradas sem devolução)
+  const { data: movimentacoesPendentes } = await supabase
+    .from("movimentacoes")
+    .select(`
+      id,
+      quantidade,
+      ferramenta:ferramentas!inner(id, nome)
+    `)
+    .eq("colaborador_id", id)
+    .eq("tipo", "retirada")
+    .is("devolucao_at", null)
+    .eq("profile_id", user.id)
+
+  if (movimentacoesPendentes && movimentacoesPendentes.length > 0) {
+    // Agregar por ferramenta (pode ter múltiplas retiradas da mesma)
+    const ferramentasMap = new Map<string, { id: string; nome: string; quantidade: number }>()
+
+    for (const mov of movimentacoesPendentes) {
+      const ferramenta = mov.ferramenta as unknown as { id: string; nome: string }
+      if (ferramenta) {
+        const existing = ferramentasMap.get(ferramenta.id)
+        if (existing) {
+          existing.quantidade += mov.quantidade
+        } else {
+          ferramentasMap.set(ferramenta.id, {
+            id: ferramenta.id,
+            nome: ferramenta.nome,
+            quantidade: mov.quantidade
+          })
+        }
+      }
+    }
+
+    result.ferramentasPendentes = Array.from(ferramentasMap.values())
+  }
+
+  // 2. Marcar team_members.left_at para todas as equipes
+  const { data: teamMemberships } = await supabase
+    .from("team_members")
+    .select("id, team_id, team:teams!inner(name)")
+    .eq("colaborador_id", id)
+    .is("left_at", null)
+
+  if (teamMemberships && teamMemberships.length > 0) {
+    const teamIds = teamMemberships.map(tm => tm.id)
+
+    await supabase
+      .from("team_members")
+      .update({ left_at: new Date().toISOString() })
+      .in("id", teamIds)
+
+    result.equipesAfetadas = teamMemberships.map(tm => {
+      const team = tm.team as unknown as { name: string }
+      return team?.name || tm.team_id
+    })
+  }
+
+  // 3. Remover de liderança de equipes (teams.leader_id)
+  const { data: teamsAsLeader } = await supabase
+    .from("teams")
+    .select("id, name")
+    .eq("leader_id", id)
+    .eq("profile_id", user.id)
+
+  if (teamsAsLeader && teamsAsLeader.length > 0) {
+    const teamIds = teamsAsLeader.map(t => t.id)
+
+    await supabase
+      .from("teams")
+      .update({ leader_id: null })
+      .in("id", teamIds)
+
+    result.liderancasRemovidas = teamsAsLeader.map(t => t.name)
+  }
+
+  // 4. Marcar team_equipment como devolvido (se existir)
+  // Buscar equipamentos atribuídos via equipes do colaborador
+  if (teamMemberships && teamMemberships.length > 0) {
+    const teamIds = teamMemberships.map(tm => tm.team_id)
+
+    // Marcar como devolvido com nota de demissão
+    // Nota: O trigger cuidará do estoque
+    await supabase
+      .from("team_equipment")
+      .update({
+        returned_at: new Date().toISOString(),
+        status: 'returned',
+        notes: `Devolução automática - Colaborador demitido: ${motivo}`
+      })
+      .in("team_id", teamIds)
+      .is("returned_at", null)
+  }
+
+  // 5. Finalmente, marcar colaborador como demitido
   const { error } = await supabase
     .from("colaboradores")
     .update({
@@ -302,7 +414,11 @@ export async function demitirColaborador(id: string, motivo: string) {
     .eq("profile_id", user.id)
 
   if (error) throw error
+
+  result.success = true
   revalidateAllPages()
+
+  return result
 }
 
 // Ferramentas
@@ -839,23 +955,67 @@ export async function registrarDevolucao(
 
   if (ferError || !ferramenta) throw new Error("Ferramenta não encontrada")
 
-  // Atualizar ferramenta
-  const novaQuantidadeDisponivel =
-    ferramenta.quantidade_disponivel + quantidade
+  // 🔄 SYNC: Verificar se existe team_equipment para este colaborador/ferramenta
+  // Se existir, o trigger cuidará do estoque. Se não, atualizamos manualmente.
+  let teamEquipmentHandled = false
 
-  if (novaQuantidadeDisponivel > ferramenta.quantidade_total) {
-    throw new Error("Quantidade de devolução excede o total")
+  // Buscar equipe atual do colaborador
+  const { data: teamMember } = await supabase
+    .from("team_members")
+    .select("team_id")
+    .eq("colaborador_id", colaboradorId)
+    .is("left_at", null)
+    .single()
+
+  if (teamMember?.team_id) {
+    // Buscar team_equipment pendente para esta ferramenta/equipe
+    const { data: teamEquipment } = await supabase
+      .from("team_equipment")
+      .select("id, quantity")
+      .eq("team_id", teamMember.team_id)
+      .eq("ferramenta_id", ferramentaId)
+      .is("returned_at", null)
+      .order("assigned_at", { ascending: false })
+      .limit(1)
+      .single()
+
+    if (teamEquipment && quantidade >= teamEquipment.quantity) {
+      // Marcar team_equipment como devolvido
+      // O trigger fn_team_equipment_increment_stock cuidará do estoque
+      const { error: teUpdateError } = await supabase
+        .from("team_equipment")
+        .update({
+          returned_at: new Date().toISOString(),
+          status: 'returned',
+          notes: observacoes ? `Devolução via QuickReturn: ${observacoes}` : 'Devolução via QuickReturn'
+        })
+        .eq("id", teamEquipment.id)
+
+      if (!teUpdateError) {
+        teamEquipmentHandled = true
+        console.log("🔄 team_equipment sincronizado (trigger cuidará do estoque):", teamEquipment.id)
+      }
+    }
   }
 
-  const { error: updateError } = await supabase
-    .from("ferramentas")
-    .update({
-      quantidade_disponivel: novaQuantidadeDisponivel,
-    })
-    .eq("id", ferramentaId)
-    .eq("profile_id", user.id) // Validação de segurança adicional
+  // Só atualiza estoque manualmente se NÃO foi tratado pelo team_equipment
+  if (!teamEquipmentHandled) {
+    const novaQuantidadeDisponivel = ferramenta.quantidade_disponivel + quantidade
 
-  if (updateError) throw updateError
+    if (novaQuantidadeDisponivel > ferramenta.quantidade_total) {
+      throw new Error("Quantidade de devolução excede o total")
+    }
+
+    const { error: updateError } = await supabase
+      .from("ferramentas")
+      .update({
+        quantidade_disponivel: novaQuantidadeDisponivel,
+      })
+      .eq("id", ferramentaId)
+      .eq("profile_id", user.id)
+
+    if (updateError) throw updateError
+  }
 
   // Registrar movimentação
   const movData = {

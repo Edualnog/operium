@@ -1081,6 +1081,9 @@ function EquipmentIssueModal({
     const [severity, setSeverity] = useState<'low' | 'medium' | 'high' | 'critical'>('medium')
     const [description, setDescription] = useState('')
     const [location, setLocation] = useState('')
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+    const [uploadingPhoto, setUploadingPhoto] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -1090,9 +1093,61 @@ function EquipmentIssueModal({
             setSeverity('medium')
             setDescription('')
             setLocation('')
+            setPhotoUrl(null)
+            setPhotoPreview(null)
             setError(null)
         }
     }, [open])
+
+    const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        // Validar tipo
+        if (!file.type.startsWith('image/')) {
+            setError('Selecione apenas imagens')
+            return
+        }
+
+        // Validar tamanho (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            setError('A imagem deve ter no máximo 5MB')
+            return
+        }
+
+        // Preview
+        const reader = new FileReader()
+        reader.onloadend = () => setPhotoPreview(reader.result as string)
+        reader.readAsDataURL(file)
+
+        // Upload
+        setUploadingPhoto(true)
+        setError(null)
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('bucket', 'equipment-issues')
+            formData.append('folder', 'issues')
+
+            const response = await fetch('/api/upload-photo', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response.ok) {
+                const data = await response.json()
+                throw new Error(data.error || 'Erro ao fazer upload')
+            }
+
+            const data = await response.json()
+            setPhotoUrl(data.url)
+        } catch (err: any) {
+            setError(err.message || 'Erro ao fazer upload da foto')
+            setPhotoPreview(null)
+        } finally {
+            setUploadingPhoto(false)
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -1104,7 +1159,8 @@ function EquipmentIssueModal({
                 type: issueType,
                 severity,
                 description,
-                location: location || undefined
+                location: location || undefined,
+                photo_url: photoUrl || undefined
             })
             onSuccess()
             onClose()
@@ -1220,9 +1276,60 @@ function EquipmentIssueModal({
                     />
                 </div>
 
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Foto do Problema (opcional)
+                    </label>
+                    <div className="flex items-center gap-3">
+                        {photoPreview ? (
+                            <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-neutral-200">
+                                <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPhotoPreview(null)
+                                        setPhotoUrl(null)
+                                    }}
+                                    className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full
+                                               flex items-center justify-center text-xs"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ) : (
+                            <label className={`flex-1 h-20 border-2 border-dashed border-neutral-300 rounded-xl
+                                              flex flex-col items-center justify-center gap-1 cursor-pointer
+                                              hover:bg-neutral-50 transition-colors
+                                              ${uploadingPhoto ? 'opacity-50 pointer-events-none' : ''}`}>
+                                {uploadingPhoto ? (
+                                    <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+                                ) : (
+                                    <>
+                                        <Camera className="h-6 w-6 text-neutral-400" />
+                                        <span className="text-xs text-neutral-500">Tirar ou escolher foto</span>
+                                    </>
+                                )}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={handlePhotoChange}
+                                    className="hidden"
+                                    disabled={uploadingPhoto}
+                                />
+                            </label>
+                        )}
+                    </div>
+                    {photoUrl && (
+                        <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                            <Check className="h-3 w-3" /> Foto anexada
+                        </p>
+                    )}
+                </div>
+
                 <button
                     type="submit"
-                    disabled={loading || !description.trim()}
+                    disabled={loading || !description.trim() || uploadingPhoto}
                     className="w-full h-14 bg-amber-600 text-white text-base font-semibold rounded-xl
                                disabled:opacity-50 active:scale-[0.98] transition-all shadow-lg shadow-amber-600/20
                                flex items-center justify-center gap-2"

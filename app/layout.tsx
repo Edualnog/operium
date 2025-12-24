@@ -10,6 +10,7 @@ import { ServiceWorkerRegistration } from "@/components/offline/ServiceWorkerReg
 import { CommandMenu } from "@/components/ui/command-menu"
 import I18nProvider from "@/components/I18nProvider"
 import { ToastProvider } from "@/components/ui/toast-context"
+import { QueryProvider } from "@/lib/providers/query-provider"
 
 // Otimização de fonte: display swap para melhor performance (evita FOIT - Flash of Invisible Text)
 const inter = Inter({
@@ -109,20 +110,22 @@ export default function RootLayout({
           `}
         </Script>
 
-        <I18nProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
-            <ToastProvider>
-              <OfflineBanner />
-              <CommandMenu />
-              {children}
-            </ToastProvider>
-          </ThemeProvider>
-        </I18nProvider>
+        <QueryProvider>
+          <I18nProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem={false}
+              disableTransitionOnChange
+            >
+              <ToastProvider>
+                <OfflineBanner />
+                <CommandMenu />
+                {children}
+              </ToastProvider>
+            </ThemeProvider>
+          </I18nProvider>
+        </QueryProvider>
         <ServiceWorkerRegistration />
         <SpeedInsights />
         <Analytics />

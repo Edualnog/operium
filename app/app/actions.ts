@@ -460,6 +460,7 @@ export async function reportFieldIssue(
         severity: 'low' | 'medium' | 'high' | 'critical'
         description: string
         location?: string
+        photo_url?: string
     }
 ) {
     const supabase = await createServerComponentClient()
@@ -504,7 +505,8 @@ export async function reportFieldIssue(
             issue_type: issue.type,
             severity: issue.severity,
             description: issue.description,
-            location: issue.location
+            location: issue.location,
+            photo_url: issue.photo_url
         })
 
     if (issueError) {
@@ -524,6 +526,7 @@ export async function reportFieldIssue(
             severity: issue.severity,
             description: issue.description,
             location: issue.location,
+            photo_url: issue.photo_url,
             ferramenta_nome: (equipment.ferramentas as any)?.nome,
             team_name: (equipment.teams as any)?.name,
             reporter_name: profile.name,
