@@ -473,6 +473,7 @@ function VehicleStatusModal({
     onClose: () => void
     onSuccess: () => void
 }) {
+    const { t } = useTranslation('common')
     const [vehicleId, setVehicleId] = useState('')
     const [status, setStatus] = useState<'ACTIVE' | 'MAINTENANCE' | 'INACTIVE'>('ACTIVE')
     const [observacoes, setObservacoes] = useState('')
@@ -498,20 +499,20 @@ function VehicleStatusModal({
             setVehicleId('')
             setObservacoes('')
         } catch (err: any) {
-            setError(err.message || 'Erro ao atualizar status')
+            setError(err.message || t('modals.status.error'))
         } finally {
             setLoading(false)
         }
     }
 
     const statusOptions = [
-        { v: 'ACTIVE', color: 'bg-green-500', n: 'Em operação', desc: 'Funcionando normalmente' },
-        { v: 'MAINTENANCE', color: 'bg-yellow-500', n: 'Manutenção', desc: 'Em reparo ou revisão' },
-        { v: 'INACTIVE', color: 'bg-red-500', n: 'Parado', desc: 'Fora de operação' }
+        { v: 'ACTIVE', color: 'bg-green-500', n: t('modals.status.active'), desc: t('modals.status.active_desc') },
+        { v: 'MAINTENANCE', color: 'bg-yellow-500', n: t('modals.status.maintenance'), desc: t('modals.status.maintenance_desc') },
+        { v: 'INACTIVE', color: 'bg-red-500', n: t('modals.status.inactive'), desc: t('modals.status.inactive_desc') }
     ]
 
     return (
-        <NativeModal open={open} onClose={onClose} title="Status do Veículo">
+        <NativeModal open={open} onClose={onClose} title={t('modals.status.title')}>
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
                     <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
@@ -521,7 +522,7 @@ function VehicleStatusModal({
 
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Veículo
+                        {t('modals.status.vehicle')}
                     </label>
                     <select
                         value={vehicleId}
@@ -531,7 +532,7 @@ function VehicleStatusModal({
                                    focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white
                                    appearance-none font-medium text-neutral-900"
                     >
-                        <option value="">Selecione o veículo</option>
+                        <option value="">{t('modals.status.select_vehicle')}</option>
                         {vehicles.map((v) => (
                             <option key={v.id} value={v.id}>
                                 {v.plate} {v.model && `- ${v.model}`}
@@ -542,7 +543,7 @@ function VehicleStatusModal({
 
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Novo status
+                        {t('modals.status.new_status')}
                     </label>
                     <div className="space-y-3">
                         {statusOptions.map((s) => (
@@ -570,12 +571,12 @@ function VehicleStatusModal({
 
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Observações
+                        {t('modals.status.notes')}
                     </label>
                     <textarea
                         value={observacoes}
                         onChange={(e) => setObservacoes(e.target.value)}
-                        placeholder="Detalhes sobre o status..."
+                        placeholder={t('modals.status.notes_placeholder')}
                         rows={3}
                         className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
                                    focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
@@ -595,7 +596,7 @@ function VehicleStatusModal({
                     ) : (
                         <>
                             <Check className="h-5 w-5" />
-                            <span>Atualizar Status</span>
+                            <span>{t('modals.status.submit')}</span>
                         </>
                     )}
                 </button>
@@ -618,6 +619,7 @@ function DailyReportModal({
     onSuccess: () => void
 }) {
     const supabase = createClientComponentClient()
+    const { t } = useTranslation('common')
 
     const [summary, setSummary] = useState('')
     const [notes, setNotes] = useState('')
@@ -697,7 +699,7 @@ function DailyReportModal({
     }
 
     return (
-        <NativeModal open={open} onClose={onClose} title="Relatório do Dia">
+        <NativeModal open={open} onClose={onClose} title={t('modals.daily_report.title')}>
             {checking ? (
                 <div className="flex items-center justify-center py-12">
                     <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
@@ -716,21 +718,21 @@ function DailyReportModal({
                                 <Check className="h-5 w-5 text-blue-600" />
                             </div>
                             <div>
-                                <p className="text-sm font-semibold text-blue-900">Relatório de hoje</p>
-                                <p className="text-xs text-blue-600 mt-0.5">Você já preencheu - pode editar abaixo</p>
+                                <p className="text-sm font-semibold text-blue-900">{t('modals.daily_report.already_filled')}</p>
+                                <p className="text-xs text-blue-600 mt-0.5">{t('modals.daily_report.can_edit')}</p>
                             </div>
                         </div>
                     )}
 
                     <div>
                         <label className="block text-sm font-medium text-neutral-700 mb-2">
-                            Resumo das atividades *
+                            {t('modals.daily_report.summary_required')}
                         </label>
                         <textarea
                             value={summary}
                             onChange={(e) => setSummary(e.target.value)}
                             required
-                            placeholder="O que você fez hoje?"
+                            placeholder={t('modals.daily_report.summary_placeholder')}
                             rows={4}
                             className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
                                        focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
@@ -740,12 +742,12 @@ function DailyReportModal({
 
                     <div>
                         <label className="block text-sm font-medium text-neutral-700 mb-2">
-                            Observações
+                            {t('modals.daily_report.notes')}
                         </label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Problemas, pendências, sugestões..."
+                            placeholder={t('modals.daily_report.notes_placeholder')}
                             rows={3}
                             className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
                                        focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
@@ -765,7 +767,7 @@ function DailyReportModal({
                         ) : (
                             <>
                                 <Check className="h-5 w-5" />
-                                <span>{existingReport ? 'Atualizar Relatório' : 'Enviar Relatório'}</span>
+                                <span>{existingReport ? t('modals.daily_report.update') : t('modals.daily_report.submit')}</span>
                             </>
                         )}
                     </button>
