@@ -69,19 +69,27 @@ BEGIN
     -- 3. CALCULAR SCORE DE CUIDADO (0 a 200 pontos)
     -- ========================================================================
     -- Quanto menos consertos, melhor
-    -- 0 consertos = +200 pts (cuidado perfeito)
+    -- MAS: Só dá pontos se tiver atividade (não recompensa quem nunca usou nada)
+    -- 0 consertos COM atividade = +200 pts (cuidado perfeito)
     -- 1 conserto = +150 pts
     -- 2 consertos = +100 pts
     -- 3 consertos = +50 pts
     -- 4+ consertos = 0 pts
+    -- SEM atividade = 0 pts (neutro)
     
-    v_score_cuidado := CASE
-        WHEN v_total_consertos_relacionados = 0 THEN 200  -- Perfeito
-        WHEN v_total_consertos_relacionados = 1 THEN 150  -- Muito bom
-        WHEN v_total_consertos_relacionados = 2 THEN 100  -- Bom
-        WHEN v_total_consertos_relacionados = 3 THEN 50   -- Regular
-        ELSE 0  -- Ruim (4+ consertos)
-    END;
+    IF v_total_retiradas > 0 THEN
+        -- Tem atividade: avaliar cuidado baseado em consertos
+        v_score_cuidado := CASE
+            WHEN v_total_consertos_relacionados = 0 THEN 200  -- Perfeito
+            WHEN v_total_consertos_relacionados = 1 THEN 150  -- Muito bom
+            WHEN v_total_consertos_relacionados = 2 THEN 100  -- Bom
+            WHEN v_total_consertos_relacionados = 3 THEN 50   -- Regular
+            ELSE 0  -- Ruim (4+ consertos)
+        END;
+    ELSE
+        -- Sem atividade: neutro (não ganha nem perde pontos de cuidado)
+        v_score_cuidado := 0;
+    END IF;
     
     -- ========================================================================
     -- 4. PENALIDADE ADICIONAL POR CONSERTOS EXCESSIVOS
