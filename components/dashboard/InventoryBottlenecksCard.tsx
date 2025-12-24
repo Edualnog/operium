@@ -16,7 +16,7 @@ interface BottleneckItem {
     name: string
     metric: string
     value: string | number
-    type: "high_breakage" | "zombie_inventory" | "stockout_risk" | "team_no_leader" | "team_overdue_equipment" | "vehicle_overdue_maintenance" | "vehicle_high_cost" | "vehicle_high_fuel" | "collaborator_high_loss" | "collaborator_high_damage"
+    type: "high_breakage" | "zombie_inventory" | "stockout_risk" | "team_no_leader" | "team_overdue_equipment" | "vehicle_overdue_maintenance" | "vehicle_high_cost" | "vehicle_high_fuel" | "collaborator_high_loss" | "collaborator_high_damage" | "collaborator_high_withdrawals"
     trend?: "up" | "down" | "stable"
 }
 
@@ -309,6 +309,47 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                 })
                 */
 
+                // 9. COLABORADORES COM ALTO VOLUME DE RETIRADAS (Informativo)
+                const thirtyDaysAgoWithdrawals = new Date()
+                thirtyDaysAgoWithdrawals.setDate(thirtyDaysAgoWithdrawals.getDate() - 30)
+
+                const { data: withdrawals } = await supabase
+                    .from('movimentacoes')
+                    .select('colaborador_id, quantidade, colaboradores!inner(nome, profile_id)')
+                    .eq('colaboradores.profile_id', userId)
+                    .eq('tipo', 'retirada')
+                    .gte('data', thirtyDaysAgoWithdrawals.toISOString())
+                    .limit(500)
+
+                // Agrupar por colaborador
+                const withdrawalsByCollab = new Map()
+                safeArray(withdrawals).forEach(m => {
+                    if (!m.colaborador_id) return
+                    const current = withdrawalsByCollab.get(m.colaborador_id) || {
+                        nome: m.colaboradores?.nome,
+                        total: 0
+                    }
+                    current.total += (m.quantidade || 0)
+                    withdrawalsByCollab.set(m.colaborador_id, current)
+                })
+
+                // Pegar top 2 com mais retiradas (se > 20 itens em 30 dias)
+                const topWithdrawers = Array.from(withdrawalsByCollab.entries())
+                    .sort((a, b) => b[1].total - a[1].total)
+                    .slice(0, 2)
+                    .filter(([_, data]) => data.total > 20)
+
+                topWithdrawers.forEach(([id, data]) => {
+                    bottlenecks.push({
+                        id,
+                        name: data.nome || 'Colaborador',
+                        metric: "Volume de retiradas",
+                        value: `${data.total} itens`,
+                        type: "collaborator_high_withdrawals",
+                        trend: "up"
+                    })
+                })
+
                 setItems(bottlenecks.slice(0, 8)) // Show top 8
             } catch (error) {
                 console.error("Error fetching bottlenecks:", error)
@@ -368,7 +409,8 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                                                         item.type === 'vehicle_high_fuel' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400' :
                                                             item.type === 'collaborator_high_loss' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
                                                                 item.type === 'collaborator_high_damage' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
-                                                                    'bg-amber-100 text-amber-600'
+                                                                    item.type === 'collaborator_high_withdrawals' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' :
+                                                                        'bg-amber-100 text-amber-600'
                                     }`}>
                                     {item.type === 'high_breakage' ? <AlertCircle className="h-4 w-4" /> :
                                         item.type === 'zombie_inventory' ? <Package className="h-4 w-4" /> :
@@ -379,7 +421,8 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                                                             item.type === 'vehicle_high_fuel' ? <AlertTriangle className="h-4 w-4" /> :
                                                                 item.type === 'collaborator_high_loss' ? <AlertCircle className="h-4 w-4" /> :
                                                                     item.type === 'collaborator_high_damage' ? <AlertCircle className="h-4 w-4" /> :
-                                                                        <Clock className="h-4 w-4" />}
+                                                                        item.type === 'collaborator_high_withdrawals' ? <AlertCircle className="h-4 w-4" /> :
+                                                                            <Clock className="h-4 w-4" />}
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{item.name}</p>
@@ -393,7 +436,8 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                                                                 item.type === 'vehicle_high_fuel' ? 'Combustível excessivo' :
                                                                     item.type === 'collaborator_high_loss' ? 'Alta taxa de perdas' :
                                                                         item.type === 'collaborator_high_damage' ? 'Muitos danos causados' :
-                                                                            'Risco de ruptura'}
+                                                                            item.type === 'collaborator_high_withdrawals' ? 'Alto volume de retiradas' :
+                                                                                'Risco de ruptura'}
                                         {item.trend === 'up' && <TrendingUp className="h-3 w-3 text-red-500" />}
                                     </p>
                                 </div>
