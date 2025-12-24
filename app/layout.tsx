@@ -20,9 +20,9 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Operium - Gestão de Almoxarifado Simples e Poderosa",
-  description: "Controle seu estoque, ferramentas, colaboradores e movimentações em uma plataforma completa. 7 dias grátis para testar!",
-  keywords: ["almoxarifado", "gestão de estoque", "controle de ferramentas", "ERP", "indústria"],
+  title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
+  description: "Elimine planilhas e perdas de equipamentos. A plataforma completa para controle de ferramentas, EPIs, frota e equipes externas. Teste grátis!",
+  keywords: ["gestão de ativos", "controle de ferramentas", "equipes de campo", "almoxarifado digital", "prevenção de perdas", "app operacional", "construção civil", "manutenção"],
   authors: [{ name: "Operium" }],
   creator: "Operium",
   metadataBase: new URL("https://operium.com.br"),
@@ -45,22 +45,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     url: "https://operium.com.br",
-    title: "Operium - Gestão de Almoxarifado Simples e Poderosa",
-    description: "Controle seu estoque, ferramentas, colaboradores e movimentações em uma plataforma completa. 7 dias grátis para testar!",
+    title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
+    description: "Elimine planilhas e perdas de equipamentos. A plataforma completa para controle de ferramentas, EPIs, frota e equipes externas.",
     siteName: "Operium",
     images: [
       {
         url: "/images/mockup-devices.png",
         width: 1200,
         height: 630,
-        alt: "Operium - Gestão de Almoxarifado em Desktop, Tablet e Mobile",
+        alt: "Operium - Gestão de Ativos e Equipes",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Operium - Gestão de Almoxarifado Simples e Poderosa",
-    description: "Controle seu estoque, ferramentas, colaboradores e movimentações em uma plataforma completa.",
+    title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
+    description: "Elimine planilhas e perdas de equipamentos. A plataforma completa para controle de ferramentas e equipes externas.",
     images: ["/images/mockup-devices.png"],
   },
   icons: {
