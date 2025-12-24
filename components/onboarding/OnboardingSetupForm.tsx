@@ -154,11 +154,8 @@ export default function OnboardingSetupForm({ isFieldUser = false }: OnboardingS
 
     const handleJoinTeam = () => {
         setJoinTeamMode(true)
-        // Here we would typically redirect to a "Waiting for Approval" screen or
-        // automatically link them if the invite system handles it.
-        // For now, based on user request, this is the "Classic Onboarding" flow.
-        // We'll proceed to a success/confirmation state for them.
-        router.push("/dashboard")
+        // Redirect to the specific Field App (Mobile)
+        router.push("/app")
     }
 
     const handleCreateCompany = () => {
