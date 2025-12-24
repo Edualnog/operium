@@ -258,7 +258,7 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
     console.log("[assignEquipment] Checking ferramenta...")
     const { data: ferramenta, error: ferramentaError } = await supabase
         .from("ferramentas")
-        .select("id, nome, estado, quantidade_disponivel")
+        .select("id, nome, estado, quantidade_disponivel, profile_id")
         .eq("id", ferramentaId)
         .single()
 
@@ -330,6 +330,22 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
         throw new Error(`Falha ao iniciar custódia: ${error.message}`)
     }
 
+    // --- SYNC WITH MOVIMENTACOES (RETIRADA) ---
+    try {
+        await supabase.from("movimentacoes").insert({
+            profile_id: ferramenta.profile_id,
+            ferramenta_id: ferramentaId,
+            tipo: 'retirada',
+            quantidade: quantity,
+            data: new Date().toISOString(),
+            observacoes: `Retirada para equipe: ${team.name}`
+        })
+    } catch (movError) {
+        console.error("[assignEquipment] WARN: Failed to sync movimentacoes", movError)
+        // Don't fail the main action if logging fails, but log it.
+    }
+    // ------------------------------------------
+
     console.log("[assignEquipment] SUCCESS", data)
     revalidatePath("/dashboard/equipes")
     revalidatePath("/dashboard/estoque")  // Sync stock page
@@ -342,7 +358,7 @@ export async function returnEquipment(assignmentId: string) {
     // Verify assignment exists and hasn't been returned already
     const { data: existing, error: existingError } = await supabase
         .from("team_equipment")
-        .select("id, returned_at, ferramenta_id, ferramentas(nome)")
+        .select("id, returned_at, ferramenta_id, quantity, ferramentas(nome), teams(name)")
         .eq("id", assignmentId)
         .single()
 
@@ -361,16 +377,39 @@ export async function returnEquipment(assignmentId: string) {
         .select()
         .single()
 
-    if (error) {
-        if (error.code === '42501') {
-            throw new Error("Sem permissão para registrar devolução")
-        }
-        throw new Error(`Falha ao encerrar custódia: ${error.message}`)
-    }
+    throw new Error(`Falha ao encerrar custódia: ${error.message}`)
+}
 
-    revalidatePath("/dashboard/equipes")
-    revalidatePath("/dashboard/estoque")  // Sync stock page
-    return data
+// --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) ---
+try {
+    // Need profile_id from existing assignment or fetch it.
+    // Since we have existing record, let's fetch profile_id from tools if needed, 
+    // but 'team_equipment' doesn't usually store profile_id directly unless added.
+    // Let's fetch the tool's profile_id to be safe.
+    const { data: toolData } = await supabase
+        .from("ferramentas")
+        .select("profile_id")
+        .eq("id", existing.ferramenta_id)
+        .single()
+
+    if (toolData) {
+        await supabase.from("movimentacoes").insert({
+            profile_id: toolData.profile_id,
+            ferramenta_id: existing.ferramenta_id,
+            tipo: 'devolucao',
+            quantidade: (existing as any).quantity || 1, // Cast safely
+            data: new Date().toISOString(),
+            observacoes: `Devolução de equipe: ${(existing.teams as any)?.name || 'Equipe'}`
+        })
+    }
+} catch (movError) {
+    console.error("[returnEquipment] WARN: Failed to sync movimentacoes", movError)
+}
+// ------------------------------------------
+
+revalidatePath("/dashboard/equipes")
+revalidatePath("/dashboard/estoque")  // Sync stock page
+return data
 }
 
 // --- CUSTODY OPERATIONS ---
@@ -428,6 +467,29 @@ export async function returnEquipmentWithDiscrepancy(
     if (error) {
         throw new Error(`Falha ao registrar divergência: ${error.message}`)
     }
+
+    // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO COM DIVERGENCIA) ---
+    try {
+        const { data: toolData } = await supabase
+            .from("ferramentas")
+            .select("profile_id")
+            .eq("id", existing.ferramenta_id)
+            .single()
+
+        if (toolData) {
+            await supabase.from("movimentacoes").insert({
+                profile_id: toolData.profile_id,
+                ferramenta_id: existing.ferramenta_id,
+                tipo: 'devolucao',
+                quantidade: discrepancy.quantityReturned !== undefined ? discrepancy.quantityReturned : existing.quantity,
+                data: new Date().toISOString(),
+                observacoes: `Devolução de equipe: ${(existing.teams as any)?.name} | [DIVERGÊNCIA: ${discrepancy.type.toUpperCase()}] ${discrepancy.notes}`
+            })
+        }
+    } catch (movError) {
+        console.error("[returnEquipmentWithDiscrepancy] WARN: Failed to sync movimentacoes", movError)
+    }
+    // ------------------------------------------
 
     // Log the discrepancy event in operium_events
     if (profile?.org_id) {
