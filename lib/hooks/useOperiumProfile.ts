@@ -170,6 +170,27 @@ export function useOperiumProfile() {
     }, [supabase, profile?.org_id])
 
     /**
+     * Atualiza a equipe de um membro (vincula/desvincula de um team)
+     */
+    const updateMemberTeam = useCallback(async (
+        targetUserId: string,
+        teamId: string | null
+    ) => {
+        if (!profile?.org_id) throw new Error("No org_id found")
+
+        const { data, error } = await supabase
+            .from("operium_profiles")
+            .update({ team_id: teamId })
+            .eq("user_id", targetUserId)
+            .eq("org_id", profile.org_id)
+            .select()
+            .single()
+
+        if (error) throw error
+        return data
+    }, [supabase, profile?.org_id])
+
+    /**
      * Desativa membro da equipe e DELETA o usuário do auth.users
      */
     const deactivateMember = useCallback(async (targetUserId: string) => {
@@ -251,6 +272,7 @@ export function useOperiumProfile() {
         createAdminProfile,
         addTeamMember,
         updateMemberRole,
+        updateMemberTeam,
         deactivateMember,
     }
 }

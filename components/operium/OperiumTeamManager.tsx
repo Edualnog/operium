@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useOperiumProfile, useOperiumTeam } from "@/lib/hooks/useOperiumProfile"
 import { OperiumProfile, OperiumRole } from "@/lib/types/operium"
 import { OperiumRoleBadge, AccessTypeTag, ROLE_RESPONSIBILITIES } from "./OperiumRoleBadge"
@@ -22,6 +22,10 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+    DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import {
     AlertDialog,
@@ -45,18 +49,44 @@ import {
     RefreshCw,
     Loader2,
     Monitor,
-    Smartphone
+    Smartphone,
+    Users,
+    X
 } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
+import { createClientComponentClient } from "@/lib/supabase-client"
+
+interface TeamOption {
+    id: string
+    name: string
+}
 
 export function OperiumTeamManager() {
-    const { isAdmin, userId, updateMemberRole, deactivateMember } = useOperiumProfile()
+    const { isAdmin, userId, updateMemberRole, updateMemberTeam, deactivateMember } = useOperiumProfile()
     const { members, loading, refreshMembers } = useOperiumTeam()
     const { toast } = useToast()
+    const supabase = createClientComponentClient()
 
     const [addFormOpen, setAddFormOpen] = useState(false)
     const [confirmDeactivate, setConfirmDeactivate] = useState<OperiumProfile | null>(null)
     const [actionLoading, setActionLoading] = useState(false)
+    const [teams, setTeams] = useState<TeamOption[]>([])
+
+    // Fetch teams for the dropdown
+    useEffect(() => {
+        const fetchTeams = async () => {
+            const { data, error } = await supabase
+                .from("teams")
+                .select("id, name")
+                .is("deleted_at", null)
+                .order("name")
+
+            if (!error && data) {
+                setTeams(data)
+            }
+        }
+        fetchTeams()
+    }, [supabase])
 
     const handleRoleChange = async (member: OperiumProfile, newRole: OperiumRole) => {
         if (member.user_id === userId) {
@@ -71,6 +101,20 @@ export function OperiumTeamManager() {
             refreshMembers()
         } catch (err: any) {
             toast.error(err.message || "Erro ao alterar papel")
+        } finally {
+            setActionLoading(false)
+        }
+    }
+
+    const handleTeamChange = async (member: OperiumProfile, teamId: string | null) => {
+        try {
+            setActionLoading(true)
+            await updateMemberTeam(member.user_id, teamId)
+            const teamName = teamId ? teams.find(t => t.id === teamId)?.name : null
+            toast.success(teamId ? `Vinculado à equipe ${teamName}` : "Desvinculado da equipe")
+            refreshMembers()
+        } catch (err: any) {
+            toast.error(err.message || "Erro ao alterar equipe")
         } finally {
             setActionLoading(false)
         }
@@ -154,6 +198,8 @@ export function OperiumTeamManager() {
                             members={systemMembers}
                             userId={userId}
                             handleRoleChange={handleRoleChange}
+                            handleTeamChange={handleTeamChange}
+                            teams={teams}
                             onDeactivate={setConfirmDeactivate}
                         />
                     )}
@@ -192,6 +238,8 @@ export function OperiumTeamManager() {
                             members={fieldMembers}
                             userId={userId}
                             handleRoleChange={handleRoleChange}
+                            handleTeamChange={handleTeamChange}
+                            teams={teams}
                             onDeactivate={setConfirmDeactivate}
                         />
                     )}
@@ -237,11 +285,15 @@ function TeamTable({
     members,
     userId,
     handleRoleChange,
+    handleTeamChange,
+    teams,
     onDeactivate
 }: {
     members: OperiumProfile[]
     userId: string | undefined
     handleRoleChange: (member: OperiumProfile, newRole: OperiumRole) => void
+    handleTeamChange: (member: OperiumProfile, teamId: string | null) => void
+    teams: TeamOption[]
     onDeactivate: (member: OperiumProfile) => void
 }) {
     return (
@@ -253,8 +305,8 @@ function TeamTable({
                         <TableRow className="border-zinc-200 dark:border-zinc-800">
                             <TableHead className="font-medium text-zinc-500">Colaborador</TableHead>
                             <TableHead className="font-medium text-zinc-500">Papel</TableHead>
+                            <TableHead className="font-medium text-zinc-500">Equipe</TableHead>
                             <TableHead className="font-medium text-zinc-500">Tipo de Acesso</TableHead>
-                            <TableHead className="font-medium text-zinc-500">Responsabilidade de Dados</TableHead>
                             <TableHead className="font-medium text-zinc-500">Desde</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
@@ -281,10 +333,17 @@ function TeamTable({
                                     <OperiumRoleBadge role={member.role} size="sm" />
                                 </TableCell>
                                 <TableCell>
-                                    <AccessTypeTag role={member.role} size="sm" />
+                                    {member.team_id ? (
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
+                                            <Users className="h-3.5 w-3.5" />
+                                            {teams.find(t => t.id === member.team_id)?.name || '—'}
+                                        </span>
+                                    ) : (
+                                        <span className="text-xs text-zinc-400">Sem equipe</span>
+                                    )}
                                 </TableCell>
-                                <TableCell className="text-sm text-zinc-500">
-                                    {ROLE_RESPONSIBILITIES[member.role]}
+                                <TableCell>
+                                    <AccessTypeTag role={member.role} size="sm" />
                                 </TableCell>
                                 <TableCell className="text-sm text-zinc-500">
                                     {format(new Date(member.created_at), "dd/MM/yyyy", { locale: ptBR })}
@@ -294,6 +353,8 @@ function TeamTable({
                                         <ActionsDropdown
                                             member={member}
                                             handleRoleChange={handleRoleChange}
+                                            handleTeamChange={handleTeamChange}
+                                            teams={teams}
                                             onDeactivate={() => onDeactivate(member)}
                                         />
                                     )}
@@ -320,6 +381,8 @@ function TeamTable({
                                 <ActionsDropdown
                                     member={member}
                                     handleRoleChange={handleRoleChange}
+                                    handleTeamChange={handleTeamChange}
+                                    teams={teams}
                                     onDeactivate={() => onDeactivate(member)}
                                 />
                             )}
@@ -327,6 +390,12 @@ function TeamTable({
                         <div className="flex items-center gap-2 flex-wrap">
                             <OperiumRoleBadge role={member.role} size="sm" />
                             <AccessTypeTag role={member.role} size="sm" />
+                            {member.team_id && (
+                                <span className="text-xs text-zinc-500 flex items-center gap-1">
+                                    <Users className="h-3 w-3" />
+                                    {teams.find(t => t.id === member.team_id)?.name || '—'}
+                                </span>
+                            )}
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-zinc-500">{ROLE_RESPONSIBILITIES[member.role]}</span>
@@ -344,10 +413,14 @@ function TeamTable({
 function ActionsDropdown({
     member,
     handleRoleChange,
+    handleTeamChange,
+    teams,
     onDeactivate
 }: {
     member: OperiumProfile
     handleRoleChange: (member: OperiumProfile, newRole: OperiumRole) => void
+    handleTeamChange: (member: OperiumProfile, teamId: string | null) => void
+    teams: TeamOption[]
     onDeactivate: () => void
 }) {
     return (
@@ -357,7 +430,7 @@ function ActionsDropdown({
                     <MoreHorizontal className="h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="text-xs text-zinc-500">
                     Alterar papel para
                 </DropdownMenuLabel>
@@ -375,6 +448,46 @@ function ActionsDropdown({
                     <Truck className="mr-2 h-4 w-4" />
                     Campo
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+
+                {/* Team Assignment Submenu */}
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                        <Users className="mr-2 h-4 w-4" />
+                        Vincular à equipe
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                            {/* Option to remove from team */}
+                            <DropdownMenuItem
+                                onClick={() => handleTeamChange(member, null)}
+                                disabled={!member.team_id}
+                            >
+                                <X className="mr-2 h-4 w-4" />
+                                Sem equipe
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {/* List available teams */}
+                            {teams.length === 0 ? (
+                                <DropdownMenuItem disabled>
+                                    Nenhuma equipe cadastrada
+                                </DropdownMenuItem>
+                            ) : (
+                                teams.map((team) => (
+                                    <DropdownMenuItem
+                                        key={team.id}
+                                        onClick={() => handleTeamChange(member, team.id)}
+                                        disabled={member.team_id === team.id}
+                                    >
+                                        <Users className="mr-2 h-4 w-4" />
+                                        {team.name}
+                                    </DropdownMenuItem>
+                                ))
+                            )}
+                        </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                </DropdownMenuSub>
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     onClick={onDeactivate}
