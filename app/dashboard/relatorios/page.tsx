@@ -23,7 +23,7 @@ export default async function ReportsPage() {
                             Relatórios de Campo
                         </h1>
                         <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                            Acompanhe as atividades diárias de todas as equipes (ativas e arquivadas).
+                            Acompanhe registros operacionais enviados pelas equipes em campo.
                         </p>
                     </div>
                 </div>

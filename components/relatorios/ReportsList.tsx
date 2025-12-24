@@ -100,19 +100,7 @@ export default function ReportsList({
         <div className="space-y-6">
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                <div className="flex-1 space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Data</label>
-                    <div className="relative">
-                        <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
-                        <input
-                            type="date"
-                            value={dateFilter}
-                            onChange={(e) => setDateFilter(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm"
-                        />
-                    </div>
-                </div>
-
+                {/* Equipe first - primary filter for managers */}
                 <div className="flex-1 space-y-2">
                     <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Equipe</label>
                     <select
@@ -127,6 +115,20 @@ export default function ReportsList({
                             </option>
                         ))}
                     </select>
+                </div>
+
+                {/* Data second */}
+                <div className="flex-1 space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Data</label>
+                    <div className="relative">
+                        <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+                        <input
+                            type="date"
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm"
+                        />
+                    </div>
                 </div>
 
                 <div className="flex items-end">
@@ -174,41 +176,54 @@ export default function ReportsList({
                             key={report.id}
                             className="group p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm"
                         >
+                            {/* Header: Author, Team, Timestamp */}
                             <div className="flex items-start justify-between gap-4">
                                 <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 flex-wrap">
                                         <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                                             {report.user_name}
                                         </h3>
-                                        <span className={`px-2 py-0.5 text-xs rounded-full border ${report.team_deleted
-                                            ? 'bg-red-50 text-red-700 border-red-100'
-                                            : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+                                        <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                                        <span className={`px-2 py-0.5 text-xs rounded border ${report.team_deleted
+                                            ? 'bg-red-50 text-red-600 border-red-100 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900'
+                                            : 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
                                             }`}>
                                             {report.team_name}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-zinc-500">
-                                        {new Date(report.report_date).toLocaleDateString()} • Enviado em {new Date(report.created_at).toLocaleString()}
+                                    <p className="text-xs text-zinc-400">
+                                        {new Date(report.report_date).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })} — {new Date(report.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                 </div>
                                 <button
                                     onClick={() => handleExportPDF(report)}
-                                    className="p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-                                    title="Baixar PDF"
+                                    className="p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors flex-shrink-0"
+                                    title="Exportar relatório"
                                 >
                                     <Download className="h-4 w-4" />
                                 </button>
                             </div>
 
+                            {/* Body: Report content */}
                             <div className="mt-3 space-y-2">
-                                <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                                <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
                                     {report.summary}
                                 </p>
                                 {report.notes && (
-                                    <p className="text-xs text-zinc-500 italic border-l-2 border-zinc-200 pl-3 py-1">
+                                    <p className="text-xs text-zinc-500 italic border-l-2 border-zinc-200 dark:border-zinc-700 pl-3 py-1">
                                         {report.notes}
                                     </p>
                                 )}
+                            </div>
+
+                            {/* Footer: Document type tags (audit-like) */}
+                            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                                <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium text-zinc-400 bg-zinc-50 dark:bg-zinc-800 rounded border border-zinc-200 dark:border-zinc-700">
+                                    Registro de Campo
+                                </span>
+                                <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium text-zinc-400 bg-zinc-50 dark:bg-zinc-800 rounded border border-zinc-200 dark:border-zinc-700">
+                                    Relatório Diário
+                                </span>
                             </div>
                         </div>
                     ))
@@ -246,8 +261,8 @@ export default function ReportsList({
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
                                         className={`w-8 h-8 text-sm rounded-lg transition-colors ${currentPage === pageNum
-                                                ? 'bg-zinc-900 text-white'
-                                                : 'text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                                            ? 'bg-zinc-900 text-white'
+                                            : 'text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                                             }`}
                                     >
                                         {pageNum}
