@@ -332,7 +332,15 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
 
     // --- SYNC WITH MOVIMENTACOES (RETIRADA) ---
     try {
-        await supabase.from("movimentacoes").insert({
+        console.log("[assignEquipment] Syncing movimentacoes...", {
+            profile_id: ferramenta.profile_id,
+            ferramenta_id: ferramentaId,
+            tipo: 'retirada',
+            quantidade: quantity,
+            team_name: team.name
+        })
+
+        const { data: movData, error: movError } = await supabase.from("movimentacoes").insert({
             profile_id: ferramenta.profile_id,
             ferramenta_id: ferramentaId,
             tipo: 'retirada',
@@ -340,9 +348,20 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
             data: new Date().toISOString(),
             observacoes: `Retirada para equipe: ${team.name}`
         })
+
+        if (movError) {
+            console.error("[assignEquipment] ERROR: movimentacoes sync failed", {
+                error: movError,
+                code: movError.code,
+                message: movError.message,
+                details: movError.details,
+                hint: movError.hint
+            })
+        } else {
+            console.log("[assignEquipment] SUCCESS: movimentacoes synced", movData)
+        }
     } catch (movError) {
-        console.error("[assignEquipment] WARN: Failed to sync movimentacoes", movError)
-        // Don't fail the main action if logging fails, but log it.
+        console.error("[assignEquipment] EXCEPTION: Failed to sync movimentacoes", movError)
     }
     // ------------------------------------------
 
