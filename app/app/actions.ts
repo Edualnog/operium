@@ -257,8 +257,7 @@ export async function getPendingEquipmentAcceptance() {
             assigned_at,
             status,
             ferramentas (
-                nome,
-                tipo
+                nome
             ),
             teams (
                 name

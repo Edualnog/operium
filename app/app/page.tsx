@@ -1709,7 +1709,7 @@ export default function AppPage() {
             <EquipmentReturnModal
                 open={showReturnModal}
                 onClose={() => setShowReturnModal(false)}
-                equipment={teamEquipment}
+                equipment={teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use')}
                 onSuccess={handleEquipmentSuccess}
             />
             <EquipmentIssueModal
