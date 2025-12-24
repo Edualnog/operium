@@ -33,7 +33,11 @@ const COMPANY_SIZES = [
 
 const TOTAL_STEPS = 3
 
-export default function OnboardingSetupForm() {
+interface OnboardingSetupFormProps {
+    isFieldUser?: boolean
+}
+
+export default function OnboardingSetupForm({ isFieldUser = false }: OnboardingSetupFormProps) {
     const router = useRouter()
     const { t } = useTranslation()
     const supabase = createClientComponentClient()
@@ -46,6 +50,14 @@ export default function OnboardingSetupForm() {
     const [error, setError] = useState("")
     const [isChecking, setIsChecking] = useState(true)
     const [alreadyCompleted, setAlreadyCompleted] = useState(false)
+    const [joinTeamMode, setJoinTeamMode] = useState<boolean | null>(null)
+
+    // Set initial step based on user type
+    useEffect(() => {
+        if (isFieldUser) {
+            setCurrentStep(0) // Step 0 is the "Join Team?" question
+        }
+    }, [isFieldUser])
 
     // Check if user already completed onboarding on mount
     useEffect(() => {
@@ -140,6 +152,20 @@ export default function OnboardingSetupForm() {
         exit: (direction: number) => ({ x: direction < 0 ? 100 : -100, opacity: 0 }),
     }
 
+    const handleJoinTeam = () => {
+        setJoinTeamMode(true)
+        // Here we would typically redirect to a "Waiting for Approval" screen or
+        // automatically link them if the invite system handles it.
+        // For now, based on user request, this is the "Classic Onboarding" flow.
+        // We'll proceed to a success/confirmation state for them.
+        router.push("/dashboard")
+    }
+
+    const handleCreateCompany = () => {
+        setJoinTeamMode(false)
+        setCurrentStep(1) // Go to normal flow
+    }
+
     // Show loading state while checking
     if (isChecking) {
         return (
@@ -207,6 +233,59 @@ export default function OnboardingSetupForm() {
                             exit="exit"
                             transition={{ duration: 0.2 }}
                         >
+                            {/* Step 0: Field User Check (Only for invited users) */}
+                            {currentStep === 0 && (
+                                <div className="space-y-6">
+                                    <div className="text-center">
+                                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 mb-4 shadow-lg">
+                                            <Users className="w-7 h-7 text-white" />
+                                        </div>
+                                        <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+                                            {t("onboarding_setup.step0.title", { defaultValue: "Você faz parte de uma equipe?" })}
+                                        </h2>
+                                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                            {t("onboarding_setup.step0.subtitle", { defaultValue: "Identificamos que seu email pode estar vinculado a um convite." })}
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={handleJoinTeam}
+                                            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all text-left group"
+                                        >
+                                            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                                <Users className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <span className="block text-sm font-bold text-zinc-900 dark:text-white">
+                                                    {t("onboarding_setup.step0.join_button", { defaultValue: "Sim, entrar na equipe" })}
+                                                </span>
+                                                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                                                    {t("onboarding_setup.step0.join_desc", { defaultValue: "Acessar como colaborador convidado" })}
+                                                </span>
+                                            </div>
+                                        </button>
+
+                                        <button
+                                            onClick={handleCreateCompany}
+                                            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 hover:border-emerald-500 dark:hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all text-left group"
+                                        >
+                                            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                                                <Building2 className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <span className="block text-sm font-bold text-zinc-900 dark:text-white">
+                                                    {t("onboarding_setup.step0.create_button", { defaultValue: "Não, criar nova empresa" })}
+                                                </span>
+                                                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                                                    {t("onboarding_setup.step0.create_desc", { defaultValue: "Configurar um novo ambiente do zero" })}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Step 1: Company Name */}
                             {currentStep === 1 && (
                                 <div className="space-y-6">

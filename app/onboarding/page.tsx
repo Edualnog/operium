@@ -46,7 +46,16 @@ export default async function OnboardingPage() {
         redirect("/dashboard")
     }
 
+    // Check if user is an invited collaborator (is in colaboradores table)
+    const { data: collaborator } = await supabase
+        .from("colaboradores")
+        .select("id")
+        .eq("email", user.email)
+        .single()
+
+    const isFieldUser = !!collaborator
+
     // If there was an error reading profile but user exists,
     // still show the form - they need to complete it
-    return <OnboardingSetupForm />
+    return <OnboardingSetupForm isFieldUser={isFieldUser} />
 }
