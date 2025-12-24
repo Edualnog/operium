@@ -48,7 +48,7 @@ export default function TeamVehicleSection({ teamId, vehicleModel, vehiclePlate,
                 <div className="space-y-1">
                     <h4 className="text-sm font-medium">{t('teams.vehicle.current')}</h4>
                     <div className="flex items-center gap-2">
-                        <Truck className="h-4 w-4 text-primary" />
+                        <Truck className="h-4 w-4 text-[#37352f] dark:text-zinc-400" />
                         <span className="text-base font-semibold">{vehicleModel}</span>
                     </div>
                     <p className="text-sm text-muted-foreground pl-6">{t('teams.vehicle.plate')}: {vehiclePlate}</p>
@@ -56,7 +56,7 @@ export default function TeamVehicleSection({ teamId, vehicleModel, vehiclePlate,
                 <Button
                     variant="outline"
                     size="sm"
-                    className="text-destructive hover:bg-destructive/10"
+                    className="text-zinc-600 hover:text-zinc-800 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800"
                     onClick={handleUnassign}
                     disabled={isLoading}
                 >

@@ -272,7 +272,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 gap-1.5 text-xs border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950"
+                            className="h-8 gap-1.5 text-xs border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
                             onClick={() => {
                                 setSelectedItems(new Set(equipment.map(e => e.id)))
                                 setIsEndOperationOpen(true)
@@ -300,12 +300,12 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                             const getStatusBadge = (status: EquipmentStatus | undefined) => {
                                 switch (status) {
                                     case 'pending_acceptance':
-                                        return <Badge variant="outline" className="text-[10px] h-5 border-amber-300 bg-amber-50 text-amber-700"><Clock className="h-2.5 w-2.5 mr-1" />Pendente</Badge>
+                                        return <Badge variant="outline" className="text-[10px] h-5 border-zinc-400 bg-zinc-100 text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"><Clock className="h-2.5 w-2.5 mr-1" />Pendente</Badge>
                                     case 'pending_return':
-                                        return <Badge variant="outline" className="text-[10px] h-5 border-blue-300 bg-blue-50 text-blue-700"><ArchiveRestore className="h-2.5 w-2.5 mr-1" />Devolução</Badge>
+                                        return <Badge variant="outline" className="text-[10px] h-5 border-zinc-400 bg-zinc-100 text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"><ArchiveRestore className="h-2.5 w-2.5 mr-1" />Devolução</Badge>
                                     case 'accepted':
                                     case 'in_use':
-                                        return <Badge variant="outline" className="text-[10px] h-5 border-green-300 bg-green-50 text-green-700"><CheckCircle2 className="h-2.5 w-2.5 mr-1" />Em uso</Badge>
+                                        return <Badge variant="outline" className="text-[10px] h-5 border-[#37352f] bg-[#37352f]/10 text-[#37352f] dark:border-zinc-500 dark:bg-zinc-700 dark:text-zinc-200"><CheckCircle2 className="h-2.5 w-2.5 mr-1" />Em uso</Badge>
                                     default:
                                         return null
                                 }
@@ -341,7 +341,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                                                 <Button
                                                     variant="default"
                                                     size="sm"
-                                                    className="h-8 gap-1 text-xs bg-green-600 hover:bg-green-700"
+                                                    className="h-8 gap-1 text-xs bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600"
                                                     onClick={handleValidateReturn}
                                                 >
                                                     <CheckCheck className="h-3.5 w-3.5" />
@@ -352,7 +352,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                                        className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-300 dark:hover:bg-zinc-800"
                                                         onClick={() => {
                                                             setDiscrepancyItem(item)
                                                             setDiscrepancyQty(item.quantity)
@@ -418,7 +418,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                                     className={cn(
                                         "flex items-center gap-3 p-3 rounded-lg border transition-colors cursor-pointer",
                                         selectedItems.has(item.id)
-                                            ? "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800"
+                                            ? "bg-[#37352f]/10 border-[#37352f]/30 dark:bg-zinc-700 dark:border-zinc-600"
                                             : "bg-zinc-50 border-zinc-200 dark:bg-zinc-800/50 dark:border-zinc-700"
                                     )}
                                     onClick={() => toggleItem(item.id)}
@@ -434,7 +434,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                                         </p>
                                     </div>
                                     {selectedItems.has(item.id) && (
-                                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                                        <CheckCircle2 className="h-4 w-4 text-[#37352f] dark:text-zinc-300 shrink-0" />
                                     )}
                                 </div>
                             ))}
@@ -448,7 +448,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                         <Button
                             onClick={handleEndOperation}
                             disabled={selectedItems.size === 0 || isEndingOperation}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600"
                         >
                             {isEndingOperation ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -523,7 +523,7 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                         <Button
                             onClick={handleDiscrepancy}
                             disabled={!discrepancyNotes.trim() || isRegisteringDiscrepancy}
-                            className="bg-amber-600 hover:bg-amber-700"
+                            className="bg-[#37352f] hover:bg-[#2f2e29] dark:bg-zinc-700 dark:hover:bg-zinc-600"
                         >
                             {isRegisteringDiscrepancy ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
