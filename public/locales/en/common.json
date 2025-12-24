@@ -1350,6 +1350,36 @@
             "quantity": "Quantity",
             "responsible": "Responsible",
             "confirm_exit": "Confirm Exit"
+        },
+        "field_app": {
+            "badge": "Field Team App",
+            "title": "Your technicians control stock directly from the site",
+            "description": "A simple and fast app for your team to register entries, withdrawals and returns directly from their phone — even without internet.",
+            "qr_scan": "QR Code Scanning",
+            "qr_scan_desc": "Scan codes to register movements in seconds",
+            "offline": "Works Offline",
+            "offline_desc": "Work without internet and sync when connected",
+            "photo": "Visual Documentation",
+            "photo_desc": "Take photos to document equipment condition",
+            "instant": "Real Time",
+            "instant_desc": "Data updated instantly on admin dashboard"
+        },
+        "loss_prevention": {
+            "badge": "Loss Prevention",
+            "title": "Stop losing money on missing tools",
+            "subtitle": "Companies lose on average $100/month from asset mismanagement. Operium eliminates this loss.",
+            "stat1_value": "$100+",
+            "stat1_label": "average monthly savings",
+            "stat2_value": "100%",
+            "stat2_label": "traceability",
+            "stat3_value": "80%",
+            "stat3_label": "less time on inventory",
+            "feature1_title": "Know who took each tool",
+            "feature1_desc": "Complete responsibility history for each item.",
+            "feature2_title": "Alerts for unreturned items",
+            "feature2_desc": "Automatic notifications when something is overdue.",
+            "feature3_title": "Loss and damage reports",
+            "feature3_desc": "Identify patterns and reduce recurring losses."
         }
     },
     "vehicles": {

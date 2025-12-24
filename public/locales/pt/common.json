@@ -1425,6 +1425,36 @@
             "quantity": "Quantidade",
             "responsible": "Responsável",
             "confirm_exit": "Confirmar Saída"
+        },
+        "field_app": {
+            "badge": "App para Equipe de Campo",
+            "title": "Seus técnicos controlam o estoque direto da obra",
+            "description": "Um app simples e rápido para sua equipe registrar entradas, saídas e devoluções diretamente do celular — mesmo sem internet.",
+            "qr_scan": "Leitura de QR Code",
+            "qr_scan_desc": "Escaneie códigos para registrar movimentações em segundos",
+            "offline": "Funciona Offline",
+            "offline_desc": "Trabalhe sem internet e sincronize quando conectar",
+            "photo": "Documentação Visual",
+            "photo_desc": "Tire fotos para documentar condição de equipamentos",
+            "instant": "Tempo Real",
+            "instant_desc": "Dados atualizados instantaneamente no painel administrativo"
+        },
+        "loss_prevention": {
+            "badge": "Prevenção de Perdas",
+            "title": "Pare de perder dinheiro com ferramentas sumidas",
+            "subtitle": "Empresas perdem em média R$500/mês com descontrole de ativos. O Operium elimina esse prejuízo.",
+            "stat1_value": "R$500+",
+            "stat1_label": "economia média mensal",
+            "stat2_value": "100%",
+            "stat2_label": "rastreabilidade",
+            "stat3_value": "80%",
+            "stat3_label": "menos tempo em inventário",
+            "feature1_title": "Saiba quem pegou cada ferramenta",
+            "feature1_desc": "Histórico completo de responsabilidade para cada item.",
+            "feature2_title": "Alertas de itens não devolvidos",
+            "feature2_desc": "Notificações automáticas quando algo está atrasado.",
+            "feature3_title": "Relatórios de perdas e danos",
+            "feature3_desc": "Identifique padrões e reduza prejuízos recorrentes."
         }
     },
     "vehicles": {

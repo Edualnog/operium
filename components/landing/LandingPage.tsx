@@ -272,10 +272,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Badge Minimalista */}
-              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600 text-[10px] sm:text-xs font-semibold mb-4 sm:mb-8 tracking-wide cursor-default">
-                <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                <span>Simples. Gratuito. Poderoso.</span>
+              {/* Free Forever Badge - More prominent */}
+              <div className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-green-50 border-2 border-green-200 text-green-700 text-xs sm:text-sm font-bold mb-4 sm:mb-8 tracking-wide cursor-default shadow-sm">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                </div>
+                <span>100% Grátis para sempre</span>
               </div>
 
               <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#37352f] mb-4 sm:mb-6 leading-[1.15] font-serif">
@@ -286,6 +288,22 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 {t('landing.hero.description')}
               </p>
 
+              {/* Mobile + Asset Management highlights */}
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-medium">
+                  <Smartphone className="h-3 w-3" />
+                  <span>App Mobile</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-medium">
+                  <Box className="h-3 w-3" />
+                  <span>Gestão de Ativos</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-medium">
+                  <Shield className="h-3 w-3" />
+                  <span>Prevenção de Perdas</span>
+                </div>
+              </div>
+
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-16">
                 <button
                   onClick={handleStart}
@@ -295,7 +313,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   {checkoutLoading ? <Loader2 className="animate-spin h-5 w-5" /> : (
                     <>
                       {t('landing.hero.cta_button')}
-                      <span className="bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs ml-1">100% Grátis</span>
+                      <span className="bg-green-500 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs ml-1 font-bold">GRÁTIS</span>
                     </>
                   )}
                   {!checkoutLoading && <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
@@ -416,6 +434,217 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Field Team Mobile App Section */}
+        <section className="py-12 sm:py-24 bg-white relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
+              {/* Phone Mockup - Left side */}
+              <motion.div
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="relative flex justify-center lg:justify-start order-2 lg:order-1"
+              >
+                {/* Phone Frame */}
+                <div className="relative">
+                  {/* Phone outer shell */}
+                  <div className="relative bg-[#1C1C1C] rounded-[2.5rem] sm:rounded-[3rem] p-2 sm:p-3 shadow-2xl shadow-slate-900/20">
+                    {/* Dynamic island / notch */}
+                    <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 w-16 sm:w-24 h-5 sm:h-7 bg-[#1C1C1C] rounded-full z-10" />
+
+                    {/* Screen */}
+                    <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden w-56 sm:w-72 aspect-[9/19]">
+                      {/* Status bar */}
+                      <div className="h-8 sm:h-10 bg-slate-50 flex items-center justify-between px-4 sm:px-6 pt-2">
+                        <span className="text-[10px] sm:text-xs font-medium text-slate-600">9:41</span>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
+                          </div>
+                          <div className="w-4 h-2 sm:w-6 sm:h-3 bg-green-500 rounded-sm" />
+                        </div>
+                      </div>
+
+                      {/* App header */}
+                      <div className="bg-[#1C1C1C] px-3 sm:px-4 py-2 sm:py-3">
+                        <div className="flex items-center gap-2">
+                          <svg width="20" height="20" viewBox="0 0 100 100" fill="none" className="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5">
+                            <rect x="10" y="10" width="15" height="40" fill="white" />
+                            <rect x="10" y="10" width="40" height="15" fill="white" />
+                            <rect x="50" y="75" width="40" height="15" fill="white" />
+                            <rect x="75" y="50" width="15" height="40" fill="white" />
+                          </svg>
+                          <span className="text-white font-bold text-xs sm:text-sm">Operium</span>
+                        </div>
+                      </div>
+
+                      {/* App content */}
+                      <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+                        {/* Action buttons */}
+                        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                          <div className="bg-blue-50 border border-blue-100 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 bg-blue-500 rounded-lg flex items-center justify-center">
+                              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-white rotate-180" />
+                            </div>
+                            <span className="text-[10px] sm:text-xs font-medium text-blue-700">Entrada</span>
+                          </div>
+                          <div className="bg-orange-50 border border-orange-100 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 bg-orange-500 rounded-lg flex items-center justify-center">
+                              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                            </div>
+                            <span className="text-[10px] sm:text-xs font-medium text-orange-700">Saída</span>
+                          </div>
+                        </div>
+
+                        {/* QR Scanner button */}
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl p-2 sm:p-3 flex items-center gap-2 sm:gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#1C1C1C] rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          </div>
+                          <div>
+                            <div className="text-xs sm:text-sm font-bold text-slate-700">Escanear QR Code</div>
+                            <div className="text-[10px] sm:text-xs text-slate-500">Registro rápido</div>
+                          </div>
+                        </div>
+
+                        {/* Recent items */}
+                        <div>
+                          <div className="text-[10px] sm:text-xs font-medium text-slate-500 mb-1.5 sm:mb-2">Últimas movimentações</div>
+                          <div className="space-y-1.5 sm:space-y-2">
+                            {[
+                              { name: "Furadeira Bosch", type: "Saída", time: "10 min" },
+                              { name: "EPI - Capacete", type: "Entrada", time: "1h" },
+                            ].map((item, idx) => (
+                              <div key={idx} className="flex items-center gap-2 bg-white border border-slate-100 rounded-lg p-1.5 sm:p-2">
+                                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-slate-100 rounded flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-[10px] sm:text-xs font-medium text-slate-700 truncate">{item.name}</div>
+                                  <div className="text-[8px] sm:text-[10px] text-slate-400">{item.time}</div>
+                                </div>
+                                <span className={`text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-full font-medium ${item.type === 'Saída' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                                  {item.type}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Decorative elements */}
+                  <div className="absolute -z-10 top-10 -left-4 w-24 sm:w-32 h-24 sm:h-32 bg-blue-100 rounded-full blur-3xl opacity-50" />
+                  <div className="absolute -z-10 bottom-10 -right-4 w-20 sm:w-28 h-20 sm:h-28 bg-purple-100 rounded-full blur-3xl opacity-50" />
+                </div>
+              </motion.div>
+
+              {/* Content - Right side */}
+              <motion.div
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="order-1 lg:order-2"
+              >
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
+                  <Smartphone className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  {t('landing.field_app.badge')}
+                </div>
+                <h2 className="text-xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 leading-tight text-[#37352f] font-serif">
+                  {t('landing.field_app.title')}
+                </h2>
+                <p className="text-[#37352f]/70 text-sm sm:text-lg mb-6 sm:mb-8 leading-relaxed">
+                  {t('landing.field_app.description')}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  {[
+                    { icon: Camera, title: t('landing.field_app.qr_scan'), desc: t('landing.field_app.qr_scan_desc') },
+                    { icon: Zap, title: t('landing.field_app.offline'), desc: t('landing.field_app.offline_desc') },
+                    { icon: Search, title: t('landing.field_app.photo'), desc: t('landing.field_app.photo_desc') },
+                    { icon: TrendingUp, title: t('landing.field_app.instant'), desc: t('landing.field_app.instant_desc') },
+                  ].map((feature, idx) => (
+                    <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 hover:shadow-sm transition-all">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg flex items-center justify-center text-slate-700 mb-2 sm:mb-3 border border-slate-200">
+                        <feature.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-bold text-[#37352f] mb-0.5 sm:mb-1">{feature.title}</h3>
+                      <p className="text-[#37352f]/60 text-xs sm:text-sm">{feature.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Loss Prevention Section */}
+        <section className="py-12 sm:py-24 bg-[#F7F7F5] relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8 sm:mb-16">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
+                <Shield className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                {t('landing.loss_prevention.badge')}
+              </div>
+              <h2 className="text-xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-[#37352f] font-serif">
+                {t('landing.loss_prevention.title')}
+              </h2>
+              <p className="text-[#37352f]/70 text-sm sm:text-lg max-w-2xl mx-auto">
+                {t('landing.loss_prevention.subtitle')}
+              </p>
+            </div>
+
+            {/* Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-3 gap-3 sm:gap-8 mb-8 sm:mb-16"
+            >
+              {[
+                { value: t('landing.loss_prevention.stat1_value'), label: t('landing.loss_prevention.stat1_label'), color: "text-green-600" },
+                { value: t('landing.loss_prevention.stat2_value'), label: t('landing.loss_prevention.stat2_label'), color: "text-blue-600" },
+                { value: t('landing.loss_prevention.stat3_value'), label: t('landing.loss_prevention.stat3_label'), color: "text-purple-600" },
+              ].map((stat, idx) => (
+                <div key={idx} className="text-center p-3 sm:p-6 bg-white rounded-xl border border-slate-200">
+                  <div className={`text-2xl sm:text-4xl md:text-5xl font-bold ${stat.color} mb-1 sm:mb-2`}>
+                    {stat.value}
+                  </div>
+                  <div className="text-[10px] sm:text-sm text-[#37352f]/60 font-medium">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Features */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8">
+              {[
+                { icon: Users, title: t('landing.loss_prevention.feature1_title'), desc: t('landing.loss_prevention.feature1_desc') },
+                { icon: Clock, title: t('landing.loss_prevention.feature2_title'), desc: t('landing.loss_prevention.feature2_desc') },
+                { icon: BarChart3, title: t('landing.loss_prevention.feature3_title'), desc: t('landing.loss_prevention.feature3_desc') },
+              ].map((feature, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group"
+                >
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-600 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{feature.title}</h3>
+                  <p className="text-[#37352f]/60 text-xs sm:text-sm leading-relaxed">{feature.desc}</p>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
