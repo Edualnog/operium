@@ -134,40 +134,42 @@ function ActionCard({
 // ============================================================================
 
 function ActivityCard({ event, isLast }: { event: any; isLast?: boolean }) {
+    const { t, i18n } = useTranslation('common')
+
     const getEventInfo = () => {
         switch (event.type) {
             case 'VEHICLE_EXPENSE':
                 return {
                     icon: Fuel,
-                    label: 'Despesa registrada',
+                    label: t('event_types.expense_registered'),
                     iconBg: 'bg-blue-500',
                     value: event.metadata?.valor ? `R$ ${event.metadata.valor.toFixed(2)}` : null
                 }
             case 'VEHICLE_STATUS':
                 return {
                     icon: Car,
-                    label: 'Status atualizado',
+                    label: t('event_types.status_updated'),
                     iconBg: 'bg-orange-500',
                     value: null
                 }
             case 'ITEM_IN':
                 return {
                     icon: Package,
-                    label: 'Item recebido',
+                    label: t('event_types.item_received'),
                     iconBg: 'bg-green-500',
                     value: null
                 }
             case 'ITEM_OUT':
                 return {
                     icon: Package,
-                    label: 'Item enviado',
+                    label: t('event_types.item_sent'),
                     iconBg: 'bg-red-500',
                     value: null
                 }
             default:
                 return {
                     icon: Activity,
-                    label: 'Atividade',
+                    label: t('event_types.activity'),
                     iconBg: 'bg-neutral-400',
                     value: null
                 }
@@ -175,6 +177,7 @@ function ActivityCard({ event, isLast }: { event: any; isLast?: boolean }) {
     }
 
     const { icon: EventIcon, label, iconBg, value } = getEventInfo()
+    const currentLocale = i18n.language?.startsWith('pt') ? 'pt-BR' : 'en-US'
 
     return (
         <div className={`flex items-center gap-3 px-4 py-3 bg-white ${!isLast ? 'border-b border-neutral-100' : ''}`}>
@@ -184,7 +187,7 @@ function ActivityCard({ event, isLast }: { event: any; isLast?: boolean }) {
             <div className="flex-1 min-w-0">
                 <p className="text-[15px] font-medium text-neutral-900">{label}</p>
                 <p className="text-[13px] text-neutral-400">
-                    {new Date(event.created_at).toLocaleDateString('pt-BR', {
+                    {new Date(event.created_at).toLocaleDateString(currentLocale, {
                         day: '2-digit',
                         month: 'short',
                         hour: '2-digit',

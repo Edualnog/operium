@@ -1703,4 +1703,12 @@
             "action": "Do it"
         }
     }
+,
+    "event_types": {
+        "expense_registered": "Expense registered",
+        "status_updated": "Status updated",
+        "item_received": "Item received",
+        "item_sent": "Item sent",
+        "activity": "Activity"
+    }
 }

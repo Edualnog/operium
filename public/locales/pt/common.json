@@ -1798,4 +1798,12 @@
             "action": "Fazer"
         }
     }
+,
+    "event_types": {
+        "expense_registered": "Despesa registrada",
+        "status_updated": "Status atualizado",
+        "item_received": "Item recebido",
+        "item_sent": "Item enviado",
+        "activity": "Atividade"
+    }
 }
