@@ -117,11 +117,44 @@ export async function POST(request: Request) {
             }
 
             // Usuário existe mas não tem operium_profile ativo
-            // Isso significa conta abandonada - podemos tentar reativar
-            return NextResponse.json(
-                { error: 'Este email já está registrado no sistema. Use a opção de convite para reativar a conta.' },
-                { status: 409 }
+            // Conta abandonada - podemos reativar criando um novo profile
+            const { error: reactivateError } = await supabaseAdmin
+                .from('operium_profiles')
+                .insert({
+                    user_id: existingUser.id,
+                    org_id: org_id,
+                    role: role || 'FIELD',
+                    name,
+                    active: true,
+                    onboarding_complete: false,
+                })
+
+            if (reactivateError) {
+                console.error('[CREATE_USER] Reactivate error:', reactivateError)
+                return NextResponse.json(
+                    { error: 'Erro ao reativar conta existente' },
+                    { status: 500 }
+                )
+            }
+
+            // Atualizar senha do usuário existente
+            const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+                existingUser.id,
+                { password }
             )
+
+            if (updateError) {
+                console.error('[CREATE_USER] Update password error:', updateError)
+            }
+
+            console.log('[CREATE_USER] Reactivated user:', { userId: existingUser.id, email, role })
+
+            return NextResponse.json({
+                success: true,
+                userId: existingUser.id,
+                message: 'Conta reativada com sucesso',
+                reactivated: true
+            })
         }
 
         // Criar usuário com senha definida
