@@ -6,7 +6,7 @@ import { createClientComponentClient } from "@/lib/supabase-client"
 import { useTranslation } from "react-i18next"
 import {
   LayoutDashboard,
-  Users,
+  User,
   Wrench,
   Hammer,
   Package,
@@ -115,7 +115,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       href: "/dashboard/colaboradores",
       id: "sidebar-colaboradores",
       icon: (
-        <Users className="h-5 w-5 flex-shrink-0" />
+        <User className="h-5 w-5 flex-shrink-0" />
       ),
     },
     {
