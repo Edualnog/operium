@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     siteName: "Operium",
     images: [
       {
-        url: "/images/mockup-devices.png",
+        url: "/images/og-image-operium.png",
         width: 1200,
         height: 630,
         alt: "Operium - Gestão de Ativos 100% Gratuita",
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Operium - Gestão Inteligente de Ativos e Equipes",
     description: "Sistema 100% Gratuito para controle de almoxarifado e equipes de campo.",
-    images: ["/images/mockup-devices.png"],
+    images: ["/images/og-image-operium.png"],
   },
 }
 
