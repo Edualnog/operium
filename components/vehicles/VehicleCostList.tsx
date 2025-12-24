@@ -59,7 +59,7 @@ export function VehicleCostList({ vehicleId }: { vehicleId: string }) {
                         ) : (
                             costs.map((c: any) => (
                                 <TableRow key={c.id}>
-                                    <TableCell>{format(new Date(c.reference_month), 'MM/yyyy')}</TableCell>
+                                    <TableCell>{c.reference_month ? c.reference_month.substring(0, 7).split('-').reverse().join('/') : '-'}</TableCell>
                                     <TableCell>{t(`vehicles.costs.types.${c.cost_type}`)}</TableCell>
                                     <TableCell>
                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.amount)}
