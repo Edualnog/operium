@@ -1764,4 +1764,38 @@
             "empty": "Nenhuma atividade registrada ainda"
         }
     }
+,
+    "mobile_app": {
+        "header": {
+            "title": "Equipe de Campo"
+        },
+        "greeting": {
+            "hello": "Olá",
+            "subtitle": "O que você precisa fazer hoje?"
+        },
+        "quick_actions": {
+            "title": "Ações Rápidas",
+            "new_expense": "Nova Despesa",
+            "new_expense_desc": "Registrar combustível ou manutenção",
+            "vehicle_status": "Status do Veículo",
+            "vehicle_status_desc": "Atualizar condição atual",
+            "daily_report": "Relatório do Dia",
+            "daily_report_desc": "Resumo das atividades realizadas",
+            "return_equipment": "Devolver Equipamentos",
+            "in_custody": "em custódia"
+        },
+        "equipment": {
+            "title": "Equipamentos da Equipe"
+        },
+        "activity": {
+            "title": "Atividade Recente",
+            "no_activity": "Nenhuma atividade",
+            "see_all": "Ver todas",
+            "see_less": "Ver menos"
+        },
+        "reminder": {
+            "daily_report": "Hora do relatório diário!",
+            "action": "Fazer"
+        }
+    }
 }

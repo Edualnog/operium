@@ -38,6 +38,7 @@ import {
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 // ============================================================================
 // NATIVE APP BOTTOM SHEET MODAL
@@ -1373,6 +1374,7 @@ export default function AppPage() {
     const supabase = createClientComponentClient()
     const { loading: loadingProfile, profile: operiumProfile, userName } = useOperiumProfile()
     const { events, loading: loadingEvents, refreshEvents } = useOperiumEvents({ limit: 20 })
+    const { t } = useTranslation('common')
 
     const [showExpenseModal, setShowExpenseModal] = useState(false)
     const [showAllActivities, setShowAllActivities] = useState(false)
@@ -1552,7 +1554,7 @@ export default function AppPage() {
                     <div className="flex items-center justify-between">
                         <div className="flex-1">
                             <p className="text-[13px] font-medium text-neutral-500 uppercase tracking-wide">Operium</p>
-                            <h1 className="text-[28px] font-bold text-neutral-900 -mt-0.5">Equipe de Campo</h1>
+                            <h1 className="text-[28px] font-bold text-neutral-900 -mt-0.5">{t('mobile_app.header.title')}</h1>
                         </div>
                         <div className="flex items-center gap-2">
                             <FieldLanguageSwitcher />
@@ -1576,7 +1578,7 @@ export default function AppPage() {
                             <Clock className="h-5 w-5 text-white" strokeWidth={2} />
                         </div>
                         <p className="text-[15px] font-semibold text-neutral-900 flex-1">
-                            Hora do relatório diário!
+                            {t('mobile_app.reminder.daily_report')}
                         </p>
                         <button
                             onClick={() => {
@@ -1586,7 +1588,7 @@ export default function AppPage() {
                             className="px-4 py-2 bg-purple-500 text-white text-[14px] font-semibold rounded-xl
                                        active:scale-95 transition-all"
                         >
-                            Fazer
+                            {t('mobile_app.reminder.action')}
                         </button>
                     </div>
                 </div>
@@ -1603,40 +1605,40 @@ export default function AppPage() {
                 {/* Greeting Card */}
                 <div className="bg-white rounded-2xl px-4 py-5">
                     <h2 className="text-[22px] font-bold text-neutral-900">
-                        Olá{userName ? `, ${userName.split(' ')[0]}` : ''}!
+                        {t('mobile_app.greeting.hello')}{userName ? `, ${userName.split(' ')[0]}` : ''}!
                     </h2>
-                    <p className="text-[15px] text-neutral-500 mt-0.5">O que você precisa fazer hoje?</p>
+                    <p className="text-[15px] text-neutral-500 mt-0.5">{t('mobile_app.greeting.subtitle')}</p>
                 </div>
 
                 {/* Quick Actions - iOS Settings Style */}
                 <div>
                     <h3 className="text-[13px] font-semibold text-neutral-500 uppercase tracking-wide px-4 mb-2">
-                        Ações Rápidas
+                        {t('mobile_app.quick_actions.title')}
                     </h3>
                     <div className="bg-white rounded-2xl overflow-hidden divide-y divide-neutral-100">
                         <ActionCard
                             icon={Receipt}
-                            title="Nova Despesa"
-                            subtitle="Registrar combustível ou manutenção"
+                            title={t('mobile_app.quick_actions.new_expense')}
+                            subtitle={t('mobile_app.quick_actions.new_expense_desc')}
                             onClick={() => setShowExpenseModal(true)}
                         />
                         <ActionCard
                             icon={Car}
-                            title="Status do Veículo"
-                            subtitle="Atualizar condição atual"
+                            title={t('mobile_app.quick_actions.vehicle_status')}
+                            subtitle={t('mobile_app.quick_actions.vehicle_status_desc')}
                             onClick={() => setShowStatusModal(true)}
                         />
                         <ActionCard
                             icon={FileText}
-                            title="Relatório do Dia"
-                            subtitle="Resumo das atividades realizadas"
+                            title={t('mobile_app.quick_actions.daily_report')}
+                            subtitle={t('mobile_app.quick_actions.daily_report_desc')}
                             onClick={() => setShowReportModal(true)}
                         />
                         {teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length > 0 && (
                             <ActionCard
                                 icon={ArrowDownToLine}
-                                title="Devolver Equipamentos"
-                                subtitle={`${teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length} em custódia`}
+                                title={t('mobile_app.quick_actions.return_equipment')}
+                                subtitle={`${teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length} ${t('mobile_app.quick_actions.in_custody')}`}
                                 onClick={() => setShowReturnModal(true)}
                             />
                         )}
@@ -1655,7 +1657,7 @@ export default function AppPage() {
                 {/* Recent Activity - With pagination */}
                 <div>
                     <h3 className="text-[13px] font-semibold text-neutral-500 uppercase tracking-wide px-4 mb-2">
-                        Atividade Recente
+                        {t('mobile_app.activity.title')}
                     </h3>
                     <div className="bg-white rounded-2xl overflow-hidden">
                         {loadingEvents ? (
@@ -1665,7 +1667,7 @@ export default function AppPage() {
                         ) : events.length === 0 ? (
                             <div className="text-center py-10">
                                 <Activity className="h-10 w-10 text-neutral-200 mx-auto mb-2" />
-                                <p className="text-[14px] text-neutral-400">Nenhuma atividade</p>
+                                <p className="text-[14px] text-neutral-400">{t('mobile_app.activity.no_activity')}</p>
                             </div>
                         ) : (
                             <>
@@ -1682,7 +1684,7 @@ export default function AppPage() {
                                         className="w-full py-3 text-[15px] font-medium text-blue-500
                                                    active:bg-neutral-50 transition-colors border-t border-neutral-100"
                                     >
-                                        {showAllActivities ? 'Ver menos' : `Ver todas (${events.length})`}
+                                        {showAllActivities ? t('mobile_app.activity.see_less') : `${t('mobile_app.activity.see_all')} (${events.length})`}
                                     </button>
                                 )}
                             </>

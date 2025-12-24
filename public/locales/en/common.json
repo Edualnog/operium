@@ -1669,4 +1669,38 @@
             "empty": "No activities recorded yet"
         }
     }
+,
+    "mobile_app": {
+        "header": {
+            "title": "Field Team"
+        },
+        "greeting": {
+            "hello": "Hello",
+            "subtitle": "What do you need to do today?"
+        },
+        "quick_actions": {
+            "title": "Quick Actions",
+            "new_expense": "New Expense",
+            "new_expense_desc": "Log fuel or maintenance",
+            "vehicle_status": "Vehicle Status",
+            "vehicle_status_desc": "Update current condition",
+            "daily_report": "Daily Report",
+            "daily_report_desc": "Summary of activities performed",
+            "return_equipment": "Return Equipment",
+            "in_custody": "in custody"
+        },
+        "equipment": {
+            "title": "Team Equipment"
+        },
+        "activity": {
+            "title": "Recent Activity",
+            "no_activity": "No activity",
+            "see_all": "See all",
+            "see_less": "See less"
+        },
+        "reminder": {
+            "daily_report": "Time for daily report!",
+            "action": "Do it"
+        }
+    }
 }
