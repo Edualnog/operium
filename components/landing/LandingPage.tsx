@@ -418,32 +418,32 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-6 sm:gap-16 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-3 sm:mb-6 uppercase tracking-wide">
+                <div className="inline-flex items-center gap-2 sm:gap-2 px-3 sm:px-3 py-1.5 sm:py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                   <Zap className="h-3 w-3 sm:h-3 sm:w-3" />
                   {t('landing.solution.badge')}
                 </div>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-6 leading-tight text-[#37352f] font-serif">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 leading-tight text-[#37352f] font-serif">
                   {t('landing.solution.title')}
                 </h2>
-                <p className="text-[#37352f]/70 text-sm sm:text-lg mb-6 sm:mb-8 leading-relaxed">
+                <p className="text-[#37352f]/70 text-sm sm:text-lg mb-10 sm:mb-12 leading-relaxed">
                   {t('landing.solution.description')}
                 </p>
 
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-8 sm:space-y-8">
                   {benefits.map((benefit, index) => (
-                    <div key={index} className="flex gap-3 sm:gap-4 group">
-                      <div className="w-10 h-10 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center text-slate-700 flex-shrink-0 border border-slate-200 shadow-sm group-hover:border-slate-400 transition-colors">
+                    <div key={index} className="flex gap-4 sm:gap-5 group">
+                      <div className="w-12 h-12 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center text-slate-700 flex-shrink-0 border border-slate-200 shadow-sm group-hover:border-slate-400 transition-colors">
                         <benefit.icon className="h-5 w-5 sm:h-5 sm:w-5" />
                       </div>
                       <div>
-                        <h3 className="text-lg sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-1">{benefit.title}</h3>
+                        <h3 className="text-lg sm:text-lg font-bold text-[#37352f] mb-1.5 sm:mb-1">{benefit.title}</h3>
                         <p className="text-[#37352f]/70 text-sm sm:text-sm hidden sm:block">{benefit.description}</p>
-                        {/* Mobile Bullets - Increased Size */}
-                        <div className="sm:hidden flex flex-col gap-1.5 mt-1">
+                        {/* Mobile Bullets - Increased Size & Spacing */}
+                        <div className="sm:hidden flex flex-col gap-2.5 mt-2">
                           {t(`landing.solution.${['mobile', 'lost', 'alerts'][index]}_mobile`, { defaultValue: benefit.description }).split('\n').map((line, i) => (
-                            <div key={i} className="flex gap-2 items-start">
-                              <Check className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#37352f]/80 text-sm leading-snug">{line}</span>
+                            <div key={i} className="flex gap-2.5 items-start">
+                              <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-[#37352f]/80 text-sm leading-relaxed">{line}</span>
                             </div>
                           ))}
                         </div>
