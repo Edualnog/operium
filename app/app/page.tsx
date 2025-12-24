@@ -41,6 +41,144 @@ import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitche
 import { useTranslation } from 'react-i18next'
 
 // ============================================================================
+// SMART REPORT REMINDER - Shows at right time with status
+// ============================================================================
+
+function SmartReportReminder({
+    onOpenReport
+}: {
+    onOpenReport: () => void
+}) {
+    const { t } = useTranslation('common')
+    const supabase = createClientComponentClient()
+    const [hasReportToday, setHasReportToday] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [currentTime, setCurrentTime] = useState(new Date())
+
+    // Check if user has filled report today
+    useEffect(() => {
+        const checkReport = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return
+
+                const today = new Date().toISOString().split('T')[0]
+                const { data } = await supabase
+                    .from('field_reports')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('report_date', today)
+                    .maybeSingle()
+
+                setHasReportToday(!!data)
+            } catch {
+                // Ignore errors
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        checkReport()
+    }, [supabase])
+
+    // Update time every minute
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(new Date())
+        }, 60000) // 1 minute
+
+        return () => clearInterval(interval)
+    }, [])
+
+    if (loading) return null
+
+    const REMINDER_HOUR = 18 // 6 PM
+    const currentHour = currentTime.getHours()
+    const currentMinute = currentTime.getMinutes()
+
+    // Calculate next reminder time (tomorrow at 6 PM)
+    const nextReminder = new Date(currentTime)
+    if (currentHour >= REMINDER_HOUR || hasReportToday) {
+        nextReminder.setDate(nextReminder.getDate() + 1)
+    }
+    nextReminder.setHours(REMINDER_HOUR, 0, 0, 0)
+
+    // Calculate time until next reminder
+    const timeDiff = nextReminder.getTime() - currentTime.getTime()
+    const hoursUntil = Math.floor(timeDiff / (1000 * 60 * 60))
+    const minutesUntil = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))
+
+    // State A: Already filled today - show success message
+    if (hasReportToday) {
+        return (
+            <div className="px-4 pt-3">
+                <div className="p-4 bg-green-50 rounded-2xl flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 className="h-5 w-5 text-white" strokeWidth={2} />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-[15px] font-semibold text-green-900">
+                            {t('report_reminder.already_filled')}
+                        </p>
+                        <p className="text-[13px] text-green-600 mt-0.5">
+                            {t('report_reminder.next_available')}: {t('report_reminder.tomorrow_at')} 18:00
+                        </p>
+                    </div>
+                    <button
+                        onClick={onOpenReport}
+                        className="px-3 py-1.5 text-[13px] font-medium text-green-700 hover:bg-green-100 rounded-lg transition-colors"
+                    >
+                        {t('report_reminder.view')}
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
+    // State B: Reminder time (6 PM - 11:59 PM) and not filled - show action reminder
+    if (currentHour >= REMINDER_HOUR) {
+        return (
+            <div className="px-4 pt-3">
+                <div className="p-4 bg-purple-50 rounded-2xl flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+                        <Clock className="h-5 w-5 text-white" strokeWidth={2} />
+                    </div>
+                    <p className="text-[15px] font-semibold text-neutral-900 flex-1">
+                        {t('report_reminder.call_to_action')}
+                    </p>
+                    <button
+                        onClick={onOpenReport}
+                        className="px-4 py-2 bg-purple-500 text-white text-[14px] font-semibold rounded-xl
+                                   active:scale-95 transition-all"
+                    >
+                        {t('report_reminder.do_now')}
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
+    // State C: Before reminder time - show countdown
+    return (
+        <div className="px-4 pt-3">
+            <div className="p-4 bg-neutral-100 rounded-2xl flex items-center gap-3">
+                <div className="w-10 h-10 bg-neutral-300 rounded-full flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-5 w-5 text-neutral-600" strokeWidth={2} />
+                </div>
+                <div className="flex-1">
+                    <p className="text-[15px] font-semibold text-neutral-700">
+                        {t('report_reminder.daily_report')}
+                    </p>
+                    <p className="text-[13px] text-neutral-500 mt-0.5">
+                        {t('report_reminder.available_at')} 18:00 ({t('report_reminder.in')} {hoursUntil}{t('report_reminder.hours')} {minutesUntil}{t('report_reminder.minutes')})
+                    </p>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ============================================================================
 // NATIVE APP BOTTOM SHEET MODAL
 // ============================================================================
 

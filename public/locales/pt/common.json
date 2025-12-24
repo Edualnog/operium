@@ -1909,4 +1909,18 @@
             "error": "Erro ao salvar"
         }
     }
+,
+    "report_reminder": {
+        "call_to_action": "Hora do relatório diário!",
+        "already_filled": "Relatório de hoje completo!",
+        "next_available": "Próximo relatório",
+        "tomorrow_at": "Amanhã às",
+        "available_at": "Disponível às",
+        "in": "em",
+        "hours": "h",
+        "minutes": "min",
+        "do_now": "Fazer Agora",
+        "view": "Ver",
+        "daily_report": "Relatório diário"
+    }
 }

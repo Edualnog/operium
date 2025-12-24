@@ -1814,4 +1814,18 @@
             "error": "Error saving"
         }
     }
+,
+    "report_reminder": {
+        "call_to_action": "Time for daily report!",
+        "already_filled": "Today's report complete!",
+        "next_available": "Next report",
+        "tomorrow_at": "Tomorrow at",
+        "available_at": "Available at",
+        "in": "in",
+        "hours": "h",
+        "minutes": "min",
+        "do_now": "Do Now",
+        "view": "View",
+        "daily_report": "Daily report"
+    }
 }
