@@ -60,23 +60,24 @@ export function QuickReturnModal({
 
         setLoading(true)
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error('Not authenticated')
+            // Import the proper registrarDevolucao function
+            const { registrarDevolucao } = await import('@/lib/actions')
 
-            // Update each selected movimentacao with retorno_at
-            const updates = Array.from(selectedIds).map(async (movId) => {
-                return supabase
-                    .from('movimentacoes')
-                    .update({
-                        retorno_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', movId)
-                    .eq('colaborador_id', colaboradorId) // Safety check
-                    .is('retorno_at', null) // Only update if not already returned
-            })
+            // Get selected tools
+            const selectedTools = pendingTools.filter(tool =>
+                selectedIds.has(tool.movimentacao_id)
+            )
 
-            await Promise.all(updates)
+            // Process each return using the correct function
+            // This will: update stock, create movement record, emit events
+            for (const tool of selectedTools) {
+                await registrarDevolucao(
+                    tool.item_id,
+                    colaboradorId,
+                    tool.quantity,
+                    'Devolução via quick return' // observacoes
+                )
+            }
 
             toast.success(t('colaboradores.return_success'))
             setSelectedIds(new Set())
