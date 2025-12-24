@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Operium',
     short_name: 'Operium',
-    description: 'Gestão de Almoxarifado Simples e Poderosa',
+    description: 'Software 100% Gratuito. Controle ferramentas, EPIs, frota e equipes externas sem custos.',
     start_url: '/dashboard',
     display: 'standalone',
     background_color: '#ffffff',
