@@ -217,6 +217,7 @@ function VehicleExpenseModal({
 }) {
     const supabase = createClientComponentClient()
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const { t } = useTranslation('common')
 
     const [vehicleId, setVehicleId] = useState('')
     const [tipo, setTipo] = useState<'combustivel' | 'manutencao' | 'pedagio' | 'estacionamento' | 'outros'>('combustivel')
@@ -291,22 +292,22 @@ function VehicleExpenseModal({
             setObservacoes('')
             removeReceipt()
         } catch (err: any) {
-            setError(err.message || 'Erro ao registrar')
+            setError(err.message || t('modals.expense.error'))
         } finally {
             setLoading(false)
         }
     }
 
     const tipos = [
-        { v: 'combustivel', icon: Fuel, n: 'Combustível' },
-        { v: 'manutencao', icon: Wrench, n: 'Manutenção' },
-        { v: 'pedagio', icon: Receipt, n: 'Pedágio' },
-        { v: 'estacionamento', icon: ParkingCircle, n: 'Estacionar' },
-        { v: 'outros', icon: Package, n: 'Outros' }
+        { v: 'combustivel', icon: Fuel, n: t('modals.expense.fuel') },
+        { v: 'manutencao', icon: Wrench, n: t('modals.expense.maintenance') },
+        { v: 'pedagio', icon: Receipt, n: t('modals.expense.toll') },
+        { v: 'estacionamento', icon: ParkingCircle, n: t('modals.expense.parking') },
+        { v: 'outros', icon: Package, n: t('modals.expense.other') }
     ]
 
     return (
-        <NativeModal open={open} onClose={onClose} title="Nova Despesa">
+        <NativeModal open={open} onClose={onClose} title={t('modals.expense.title')}>
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
                     <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
@@ -317,7 +318,7 @@ function VehicleExpenseModal({
                 {/* Vehicle Select */}
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Veículo
+                        {t('modals.expense.vehicle')}
                     </label>
                     <select
                         value={vehicleId}
@@ -327,7 +328,7 @@ function VehicleExpenseModal({
                                    focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white
                                    appearance-none font-medium text-neutral-900"
                     >
-                        <option value="">Selecione o veículo</option>
+                        <option value="">{t('modals.expense.select_vehicle')}</option>
                         {vehicles.map((v) => (
                             <option key={v.id} value={v.id}>
                                 {v.plate} {v.model && `- ${v.model}`}
@@ -339,7 +340,7 @@ function VehicleExpenseModal({
                 {/* Type Selection */}
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Tipo de despesa
+                        {t('modals.expense.expense_type')}
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                         {tipos.map((t) => (
@@ -362,7 +363,7 @@ function VehicleExpenseModal({
                 {/* Amount */}
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Valor
+                        {t('modals.expense.amount')}
                     </label>
                     <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-neutral-400 font-semibold">
@@ -385,7 +386,7 @@ function VehicleExpenseModal({
                 {/* Receipt Photo */}
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Comprovante (opcional)
+                        {t('modals.expense.receipt')}
                     </label>
                     {receiptPreview ? (
                         <div className="relative h-40 rounded-xl overflow-hidden border-2 border-neutral-200">
@@ -408,7 +409,7 @@ function VehicleExpenseModal({
                                        active:bg-neutral-50 transition-colors"
                         >
                             <Camera className="h-8 w-8" />
-                            <span className="text-sm font-medium">Tirar foto ou anexar</span>
+                            <span className="text-sm font-medium">{t('modals.expense.photo_hint')}</span>
                         </button>
                     )}
                     <input
@@ -424,12 +425,12 @@ function VehicleExpenseModal({
                 {/* Notes */}
                 <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Observações
+                        {t('modals.expense.notes')}
                     </label>
                     <textarea
                         value={observacoes}
                         onChange={(e) => setObservacoes(e.target.value)}
-                        placeholder="Adicione uma nota (opcional)"
+                        placeholder={t('modals.expense.notes_placeholder')}
                         rows={3}
                         className="w-full px-4 py-3 text-base bg-neutral-50 border border-neutral-200 rounded-xl
                                    focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white resize-none
@@ -450,7 +451,7 @@ function VehicleExpenseModal({
                     ) : (
                         <>
                             <Check className="h-5 w-5" />
-                            <span>Registrar Despesa</span>
+                            <span>{t('modals.expense.submit')}</span>
                         </>
                     )}
                 </button>

@@ -1806,4 +1806,107 @@
         "item_sent": "Item enviado",
         "activity": "Atividade"
     }
+,
+    "modals": {
+        "expense": {
+            "title": "Nova Despesa",
+            "vehicle": "Veículo",
+            "select_vehicle": "Selecione o veículo",
+            "expense_type": "Tipo de despesa",
+            "fuel": "Combustível",
+            "maintenance": "Manutenção",
+            "toll": "Pedágio",
+            "parking": "Estacionar",
+            "other": "Outros",
+            "amount": "Valor",
+            "receipt": "Comprovante (opcional)",
+            "photo_hint": "Tirar foto ou anexar",
+            "notes": "Observações",
+            "notes_placeholder": "Adicione uma nota (opcional)",
+            "submit": "Registrar Despesa",
+            "error": "Erro ao registrar"
+        },
+        "status": {
+            "title": "Status do Veículo",
+            "vehicle": "Veículo",
+            "select_vehicle": "Selecione o veículo",
+            "new_status": "Novo status",
+            "active": "Em operação",
+            "active_desc": "Funcionando normalmente",
+            "maintenance": "Manutenção",
+            "maintenance_desc": "Em reparo ou revisão",
+            "inactive": "Parado",
+            "inactive_desc": "Fora de operação",
+            "notes": "Observações",
+            "notes_placeholder": "Detalhes sobre o status...",
+            "submit": "Atualizar Status",
+            "error": "Erro ao atualizar status"
+        },
+        "daily_report": {
+            "title": "Relatório do Dia",
+            "already_filled": "Relatório de hoje",
+            "can_edit": "Você já preencheu - pode editar abaixo",
+            "summary": "Resumo das atividades",
+            "summary_required": "Resumo das atividades *",
+            "summary_placeholder": "O que você fez hoje?",
+            "notes": "Observações",
+            "notes_placeholder": "Problemas, pendências, sugestões...",
+            "submit": "Enviar Relatório",
+            "update": "Atualizar Relatório",
+            "error": "Erro ao salvar"
+        },
+        "equipment_return": {
+            "title": "Devolver Equipamentos",
+            "instructions": "Marque os equipamentos que serão devolvidos. O admin validará a devolução.",
+            "qty": "Qtd",
+            "submit": "Solicitar Devolução",
+            "error": "Erro ao solicitar devolução"
+        },
+        "equipment_issue": {
+            "title": "Reportar Problema",
+            "issue_type": "Tipo de Problema",
+            "damage": "Dano",
+            "malfunction": "Defeito",
+            "wear": "Desgaste",
+            "loss": "Perda",
+            "other": "Outro",
+            "severity": "Gravidade",
+            "low": "Baixa",
+            "medium": "Média",
+            "high": "Alta",
+            "critical": "Crítica",
+            "description": "Descrição do Problema",
+            "description_required": "Descrição do Problema *",
+            "description_placeholder": "Descreva o que aconteceu...",
+            "location": "Local (opcional)",
+            "location_placeholder": "Obra, rua, cidade...",
+            "submit": "Reportar Problema",
+            "error": "Erro ao reportar problema"
+        },
+        "equipment_banner": {
+            "new_items": "novos itens",
+            "new_item": "novo item",
+            "waiting": "Aguardando confirmação",
+            "accept": "Aceitar"
+        },
+        "equipment_section": {
+            "title": "Equipamentos da Equipe",
+            "pending": "Pendente",
+            "returning": "Devolução",
+            "in_use": "Em uso",
+            "accept": "Aceitar"
+        },
+        "onboarding": {
+            "welcome": "Bem-vindo!",
+            "configure": "Configure seu perfil para começar",
+            "has_team": "Você faz parte de alguma equipe?",
+            "yes": "Sim",
+            "no": "Não",
+            "select_team": "Selecione sua equipe",
+            "no_teams": "Nenhuma equipe cadastrada",
+            "select_placeholder": "Selecione...",
+            "continue": "Continuar",
+            "error": "Erro ao salvar"
+        }
+    }
 }

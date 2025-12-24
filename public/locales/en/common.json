@@ -1711,4 +1711,107 @@
         "item_sent": "Item sent",
         "activity": "Activity"
     }
+,
+    "modals": {
+        "expense": {
+            "title": "New Expense",
+            "vehicle": "Vehicle",
+            "select_vehicle": "Select vehicle",
+            "expense_type": "Expense type",
+            "fuel": "Fuel",
+            "maintenance": "Maintenance",
+            "toll": "Toll",
+            "parking": "Parking",
+            "other": "Other",
+            "amount": "Amount",
+            "receipt": "Receipt (optional)",
+            "photo_hint": "Take photo or attach",
+            "notes": "Notes",
+            "notes_placeholder": "Add a note (optional)",
+            "submit": "Register Expense",
+            "error": "Error registering"
+        },
+        "status": {
+            "title": "Vehicle Status",
+            "vehicle": "Vehicle",
+            "select_vehicle": "Select vehicle",
+            "new_status": "New status",
+            "active": "In operation",
+            "active_desc": "Working normally",
+            "maintenance": "Maintenance",
+            "maintenance_desc": "Under repair or revision",
+            "inactive": "Stopped",
+            "inactive_desc": "Out of operation",
+            "notes": "Notes",
+            "notes_placeholder": "Details about status...",
+            "submit": "Update Status",
+            "error": "Error updating status"
+        },
+        "daily_report": {
+            "title": "Daily Report",
+            "already_filled": "Today's report",
+            "can_edit": "Already filled - you can edit below",
+            "summary": "Activity summary",
+            "summary_required": "Activity summary *",
+            "summary_placeholder": "What did you do today?",
+            "notes": "Notes",
+            "notes_placeholder": "Problems, pending items, suggestions...",
+            "submit": "Submit Report",
+            "update": "Update Report",
+            "error": "Error saving"
+        },
+        "equipment_return": {
+            "title": "Return Equipment",
+            "instructions": "Check equipment to be returned. Admin will validate the return.",
+            "qty": "Qty",
+            "submit": "Request Return",
+            "error": "Error requesting return"
+        },
+        "equipment_issue": {
+            "title": "Report Issue",
+            "issue_type": "Issue Type",
+            "damage": "Damage",
+            "malfunction": "Malfunction",
+            "wear": "Wear",
+            "loss": "Loss",
+            "other": "Other",
+            "severity": "Severity",
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High",
+            "critical": "Critical",
+            "description": "Issue Description",
+            "description_required": "Issue Description *",
+            "description_placeholder": "Describe what happened...",
+            "location": "Location (optional)",
+            "location_placeholder": "Site, street, city...",
+            "submit": "Report Issue",
+            "error": "Error reporting issue"
+        },
+        "equipment_banner": {
+            "new_items": "new items",
+            "new_item": "new item",
+            "waiting": "Waiting confirmation",
+            "accept": "Accept"
+        },
+        "equipment_section": {
+            "title": "Team Equipment",
+            "pending": "Pending",
+            "returning": "Returning",
+            "in_use": "In use",
+            "accept": "Accept"
+        },
+        "onboarding": {
+            "welcome": "Welcome!",
+            "configure": "Configure your profile to start",
+            "has_team": "Are you part of a team?",
+            "yes": "Yes",
+            "no": "No",
+            "select_team": "Select your team",
+            "no_teams": "No teams registered",
+            "select_placeholder": "Select...",
+            "continue": "Continue",
+            "error": "Error saving"
+        }
+    }
 }
