@@ -13,6 +13,7 @@ export async function getTeams(): Promise<Team[]> {
     const { data, error } = await supabase
         .from("v_teams_summary")
         .select("*")
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
 
     if (error) {
@@ -83,10 +84,10 @@ export async function deleteTeam(teamId: string) {
         throw new Error("Não é possível excluir equipe com equipamentos em custódia. Devolva todos os equipamentos primeiro.")
     }
 
-    // Delete the team (cascade will handle related records)
+    // Soft delete the team (preserve historical reports)
     const { error } = await supabase
         .from("teams")
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq("id", teamId)
 
     if (error) {

@@ -666,7 +666,7 @@ function DailyReportModal({
             if (!user) throw new Error('Não autenticado')
             const { data: profile } = await supabase
                 .from('operium_profiles')
-                .select('org_id')
+                .select('org_id, team_id')
                 .eq('user_id', user.id)
                 .eq('active', true)
                 .single()
@@ -678,6 +678,7 @@ function DailyReportModal({
             } else {
                 await supabase.from('field_reports').insert({
                     org_id: profile.org_id,
+                    team_id: profile.team_id,
                     user_id: user.id,
                     report_date: today,
                     summary,
