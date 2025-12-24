@@ -1371,9 +1371,10 @@ export default function AppPage() {
     const router = useRouter()
     const supabase = createClientComponentClient()
     const { loading: loadingProfile, profile: operiumProfile, userName } = useOperiumProfile()
-    const { events, loading: loadingEvents, refreshEvents } = useOperiumEvents({ limit: 5 })
+    const { events, loading: loadingEvents, refreshEvents } = useOperiumEvents({ limit: 20 })
 
     const [showExpenseModal, setShowExpenseModal] = useState(false)
+    const [showAllActivities, setShowAllActivities] = useState(false)
     const [showStatusModal, setShowStatusModal] = useState(false)
     const [showReportModal, setShowReportModal] = useState(false)
     const [showReminder, setShowReminder] = useState(false)
@@ -1664,19 +1665,20 @@ export default function AppPage() {
                             </div>
                         ) : (
                             <>
-                                {events.slice(0, 5).map((event, index) => (
+                                {(showAllActivities ? events : events.slice(0, 5)).map((event, index, arr) => (
                                     <ActivityCard
                                         key={event.id}
                                         event={event}
-                                        isLast={index === Math.min(events.length - 1, 4)}
+                                        isLast={index === arr.length - 1 && (showAllActivities || events.length <= 5)}
                                     />
                                 ))}
                                 {events.length > 5 && (
                                     <button
+                                        onClick={() => setShowAllActivities(!showAllActivities)}
                                         className="w-full py-3 text-[15px] font-medium text-blue-500
-                                                   active:bg-neutral-50 transition-colors"
+                                                   active:bg-neutral-50 transition-colors border-t border-neutral-100"
                                     >
-                                        Ver todas ({events.length})
+                                        {showAllActivities ? 'Ver menos' : `Ver todas (${events.length})`}
                                     </button>
                                 )}
                             </>
