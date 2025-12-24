@@ -655,6 +655,30 @@ export async function adminValidateReturn(equipmentIds: string[]) {
 
             results.push({ id: equipmentId, success: true })
 
+            // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) ---
+            try {
+                const { data: toolData } = await supabase
+                    .from("ferramentas")
+                    .select("profile_id")
+                    .eq("id", equipment.ferramenta_id)
+                    .single()
+
+                if (toolData) {
+                    await supabase.from("movimentacoes").insert({
+                        profile_id: toolData.profile_id,
+                        ferramenta_id: equipment.ferramenta_id,
+                        tipo: 'devolucao',
+                        quantidade: equipment.quantity || 1,
+                        data: now,
+                        observacoes: `Devolução de equipe: ${(equipment.teams as any)?.name || 'Equipe'}`
+                    })
+                    console.log("[adminValidateReturn] Movimentação de devolução registrada")
+                }
+            } catch (movError) {
+                console.error("[adminValidateReturn] Erro ao registrar movimentação:", movError)
+            }
+            // ------------------------------------------
+
             // Log event
             if (profile?.org_id) {
                 await supabase.from("operium_events").insert({
