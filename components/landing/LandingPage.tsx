@@ -360,7 +360,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
               {painPoints.map((pain, index) => (
                 <div key={index} className="p-4 sm:p-6 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all bg-white group">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-50 rounded-md flex items-center justify-center text-red-600 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-md flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
                     <pain.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold text-[#37352f] mb-1 sm:mb-2">{pain.title}</h3>
@@ -378,7 +378,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
               <div>
-                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                   <Zap className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   {t('landing.solution.badge')}
                 </div>
@@ -466,7 +466,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                           <div className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
                           </div>
-                          <div className="w-4 h-2 sm:w-6 sm:h-3 bg-green-500 rounded-sm" />
+                          <div className="w-4 h-2 sm:w-6 sm:h-3 bg-slate-400 rounded-sm" />
                         </div>
                       </div>
 
@@ -663,7 +663,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <section className="py-12 sm:py-24 bg-white border-t border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-16">
-              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-purple-100 border border-purple-200 text-purple-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                 <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 {t('landing.ai_features.badge')}
               </div>
@@ -676,7 +676,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
               {/* OCR */}
               <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
                   <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{t('landing.ai_features.ocr_title')}</h3>
@@ -687,7 +687,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
               {/* Smart Search */}
               <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
                   <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{t('landing.ai_features.search_title')}</h3>
@@ -698,7 +698,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
               {/* Auto-fill */}
               <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
                   <Wand2 className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-[#37352f] mb-1 sm:mb-2">{t('landing.ai_features.autofill_title')}</h3>
@@ -718,7 +718,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               <div className="absolute left-[19px] sm:left-[27px] top-8 bottom-8 w-0.5 bg-slate-200 hidden md:block" />
 
               <div className="relative flex gap-4 sm:gap-8 items-start">
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-blue-600/20">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-[#1C1C1C] flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-slate-900/20">
                   <Headphones className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
@@ -730,7 +730,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               </div>
 
               <div className="relative flex gap-4 sm:gap-8 items-start">
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-blue-600/20">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-[#1C1C1C] flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-slate-900/20">
                   <Smartphone className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
@@ -742,7 +742,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               </div>
 
               <div className="relative flex gap-4 sm:gap-8 items-start">
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-blue-600/20">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-[#1C1C1C] flex items-center justify-center flex-shrink-0 z-10 shadow-lg shadow-slate-900/20">
                   <CreditCard className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
