@@ -15,6 +15,7 @@ import {
   Users2,
   Briefcase,
   UserPlus,
+  FileText,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -101,6 +102,13 @@ export default function AppSidebar() {
       href: "/dashboard/acessos",
       icon: (
         <UserPlus className="h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Relatórios",
+      href: "/dashboard/relatorios",
+      icon: (
+        <FileText className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]

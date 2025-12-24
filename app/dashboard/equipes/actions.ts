@@ -13,7 +13,6 @@ export async function getTeams(): Promise<Team[]> {
     const { data, error } = await supabase
         .from("v_teams_summary")
         .select("*")
-        .is("deleted_at", null)
         .order("created_at", { ascending: false })
 
     if (error) {
