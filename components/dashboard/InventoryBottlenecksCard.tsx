@@ -15,7 +15,7 @@ interface BottleneckItem {
     name: string
     metric: string
     value: string | number
-    type: "high_breakage" | "zombie_inventory" | "stockout_risk"
+    type: "high_breakage" | "zombie_inventory" | "stockout_risk" | "team_no_leader" | "team_overdue_equipment" | "vehicle_overdue_maintenance" | "vehicle_high_cost"
     trend?: "up" | "down" | "stable"
 }
 
@@ -93,7 +93,133 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                     }
                 }
 
-                setItems(bottlenecks.slice(0, 4)) // Show top 4
+                // 3. ANÁLISE DE EQUIPES - Equipes sem líder
+                const { data: teamsWithoutLeader } = await supabase
+                    .from('teams')
+                    .select('id, name, status')
+                    .eq('profile_id', userId)
+                    .is('leader_id', null)
+                    .eq('status', 'active')
+                    .limit(3)
+
+                teamsWithoutLeader?.forEach(team => {
+                    bottlenecks.push({
+                        id: team.id,
+                        name: team.name,
+                        metric: "Status",
+                        value: "Sem líder",
+                        type: "team_no_leader",
+                        trend: "up"
+                    })
+                })
+
+                // 4. ANÁLISE DE EQUIPES - Equipamentos não devolvidos há muito tempo
+                const thirtyDaysAgo = new Date()
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+                const { data: allTeamEquipment } = await supabase
+                    .from('team_equipment')
+                    .select('id, assigned_at, team_id')
+                    .is('returned_at', null)
+                    .lt('assigned_at', thirtyDaysAgo.toISOString())
+                    .limit(10)
+
+                // Fetch team names separately
+                if (allTeamEquipment && allTeamEquipment.length > 0) {
+                    const teamIds = allTeamEquipment.map(eq => eq.team_id)
+                    const { data: teams } = await supabase
+                        .from('teams')
+                        .select('id, name')
+                        .eq('profile_id', userId)
+                        .in('id', teamIds)
+
+                    const teamsMap = new Map(teams?.map(t => [t.id, t.name]) || [])
+
+                    allTeamEquipment.slice(0, 3).forEach(eq => {
+                        const teamName = teamsMap.get(eq.team_id)
+                        if (teamName) {
+                            const daysOld = Math.floor((Date.now() - new Date(eq.assigned_at).getTime()) / (1000 * 60 * 60 * 24))
+                            bottlenecks.push({
+                                id: eq.id,
+                                name: teamName,
+                                metric: "Equipamento retido",
+                                value: `${daysOld} dias`,
+                                type: "team_overdue_equipment"
+                            })
+                        }
+                    })
+                }
+
+                // 5. ANÁLISE DE VEÍCULOS - Manutenções atrasadas
+                const { data: vehiclesData } = await supabase
+                    .from('vehicles')
+                    .select(`
+                        id,
+                        plate,
+                        model,
+                        vehicle_maintenances(next_maintenance_date)
+                    `)
+                    .eq('profile_id', userId)
+                    .limit(10)
+
+                const today = new Date()
+                vehiclesData?.forEach(vehicle => {
+                    const maintenances = vehicle.vehicle_maintenances || []
+                    const nextMaintenance = maintenances
+                        .map(m => new Date(m.next_maintenance_date))
+                        .filter(d => !isNaN(d.getTime()))
+                        .sort((a, b) => a.getTime() - b.getTime())[0]
+
+                    if (nextMaintenance && nextMaintenance < today) {
+                        const daysOverdue = Math.floor((today.getTime() - nextMaintenance.getTime()) / (1000 * 60 * 60 * 24))
+                        bottlenecks.push({
+                            id: vehicle.id,
+                            name: `${vehicle.plate} - ${vehicle.model || 'Veículo'}`,
+                            metric: "Manutenção atrasada",
+                            value: `${daysOverdue} dias`,
+                            type: "vehicle_overdue_maintenance",
+                            trend: "up"
+                        })
+                    }
+                })
+
+                // 6. ANÁLISE DE VEÍCULOS - Custos elevados
+                const { data: highCostVehicles } = await supabase
+                    .from('vehicles')
+                    .select(`
+                        id,
+                        plate,
+                        model,
+                        vehicle_costs(amount),
+                        vehicle_maintenances(cost)
+                    `)
+                    .eq('profile_id', userId)
+                    .limit(10)
+
+                const vehiclesWithCosts = highCostVehicles?.map(v => {
+                    const totalCosts = (
+                        (v.vehicle_costs || []).reduce((sum, c) => sum + (Number(c.amount) || 0), 0) +
+                        (v.vehicle_maintenances || []).reduce((sum, m) => sum + (Number(m.cost) || 0), 0)
+                    )
+                    return { ...v, totalCosts }
+                }).sort((a, b) => b.totalCosts - a.totalCosts) || []
+
+                if (vehiclesWithCosts.length > 0 && vehiclesWithCosts[0].totalCosts > 1000) {
+                    vehiclesWithCosts.slice(0, 2).forEach(v => {
+                        if (v.totalCosts > 1000) {
+                            bottlenecks.push({
+                                id: v.id,
+                                name: `${v.plate} - ${v.model || 'Veículo'}`,
+                                metric: "Custo total",
+                                value: `R$ ${v.totalCosts.toFixed(2)}`,
+                                type: "vehicle_high_cost",
+                                trend: "up"
+                            })
+                        }
+                    })
+                }
+
+                setItems(bottlenecks.slice(0, 6)) // Show top 6
             } catch (error) {
                 console.error("Error fetching bottlenecks:", error)
             } finally {
@@ -145,17 +271,30 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                             <div className="flex items-start gap-3">
                                 <div className={`mt-1 p-1.5 rounded-full ${item.type === 'high_breakage' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
                                     item.type === 'zombie_inventory' ? 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400' :
-                                        'bg-amber-100 text-amber-600'
+                                        item.type === 'team_no_leader' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400' :
+                                            item.type === 'team_overdue_equipment' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400' :
+                                                item.type === 'vehicle_overdue_maintenance' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                                                    item.type === 'vehicle_high_cost' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' :
+                                                        'bg-amber-100 text-amber-600'
                                     }`}>
                                     {item.type === 'high_breakage' ? <AlertCircle className="h-4 w-4" /> :
                                         item.type === 'zombie_inventory' ? <Package className="h-4 w-4" /> :
-                                            <Clock className="h-4 w-4" />}
+                                            item.type === 'team_no_leader' ? <AlertTriangle className="h-4 w-4" /> :
+                                                item.type === 'team_overdue_equipment' ? <Clock className="h-4 w-4" /> :
+                                                    item.type === 'vehicle_overdue_maintenance' ? <AlertCircle className="h-4 w-4" /> :
+                                                        item.type === 'vehicle_high_cost' ? <TrendingUp className="h-4 w-4" /> :
+                                                            <Clock className="h-4 w-4" />}
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{item.name}</p>
                                     <p className="text-xs text-zinc-500 flex items-center gap-1">
                                         {item.type === 'high_breakage' ? 'Alta taxa de defeito' :
-                                            item.type === 'zombie_inventory' ? 'Estoque estagnado' : 'Risco de ruptura'}
+                                            item.type === 'zombie_inventory' ? 'Estoque estagnado' :
+                                                item.type === 'team_no_leader' ? 'Equipe sem liderança' :
+                                                    item.type === 'team_overdue_equipment' ? 'Equipamento não devolvido' :
+                                                        item.type === 'vehicle_overdue_maintenance' ? 'Manutenção vencida' :
+                                                            item.type === 'vehicle_high_cost' ? 'Custo elevado' :
+                                                                'Risco de ruptura'}
                                         {item.trend === 'up' && <TrendingUp className="h-3 w-3 text-red-500" />}
                                     </p>
                                 </div>

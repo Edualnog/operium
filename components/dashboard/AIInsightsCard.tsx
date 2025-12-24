@@ -134,14 +134,15 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
             const startDate = new Date()
             startDate.setDate(startDate.getDate() - days)
 
-            const { data: movementsData, error } = await supabase
+            // 1. MOVIMENTAÇÕES (dados existentes)
+            const { data: movementsData, error: movError } = await supabase
                 .from("movimentacoes")
                 .select("tipo, quantidade, data, ferramentas(nome)")
                 .gte("data", startDate.toISOString())
                 .order("data", { ascending: false })
-                .limit(50) // Limit to avoid token limits
+                .limit(50)
 
-            if (error) throw error
+            if (movError) throw movError
 
             const formattedMovements = safeArray(movementsData).map((m: any) => ({
                 tipo: m.tipo,
@@ -150,6 +151,67 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                 data: new Date(m.data).toLocaleDateString('pt-BR')
             })) || []
 
+            // 2. DADOS DE EQUIPES
+            const { data: teamsData } = await supabase
+                .from("teams")
+                .select(`
+                    id,
+                    name,
+                    status,
+                    leader_id,
+                    vehicle_id,
+                    team_members(id),
+                    team_equipment(quantity, returned_at)
+                `)
+                .limit(20)
+
+            const activeTeams = safeArray(teamsData).filter(t => t.status === 'active').length
+            const teamsWithoutLeader = safeArray(teamsData).filter(t => !t.leader_id).length
+            const totalEquipmentAllocated = safeArray(teamsData).reduce((sum, team) => {
+                const activeEquipment = safeArray(team.team_equipment).filter(eq => !eq.returned_at)
+                return sum + activeEquipment.reduce((s, eq) => s + (eq.quantity || 0), 0)
+            }, 0)
+
+            // 3. DADOS DE VEÍCULOS
+            const { data: vehiclesData } = await supabase
+                .from("vehicles")
+                .select(`
+                    id,
+                    plate,
+                    vehicle_type,
+                    vehicle_maintenances(cost, maintenance_date),
+                    vehicle_costs(amount)
+                `)
+                .limit(20)
+
+            const totalVehicles = safeArray(vehiclesData).length
+            const maintenanceCosts = safeArray(vehiclesData).reduce((sum, v) => {
+                return sum + safeArray(v.vehicle_maintenances).reduce((s, m) => s + (Number(m.cost) || 0), 0)
+            }, 0)
+            const totalCosts = safeArray(vehiclesData).reduce((sum, v) => {
+                return sum + safeArray(v.vehicle_costs).reduce((s, c) => s + (Number(c.amount) || 0), 0)
+            }, 0)
+
+            // 4. DADOS DE COLABORADORES
+            const { data: collaboratorsData } = await supabase
+                .from("colaboradores")
+                .select("id, nome, cargo")
+                .limit(50)
+
+            // 5. DADOS DE CONSERTOS
+            const { data: repairsData } = await supabase
+                .from("consertos")
+                .select("custo, status, ferramentas(nome)")
+                .gte("data_envio", startDate.toISOString())
+                .limit(50)
+
+            const totalRepairs = safeArray(repairsData).length
+            const avgRepairCost = totalRepairs > 0
+                ? safeArray(repairsData).reduce((sum, r) => sum + (Number(r.custo) || 0), 0) / totalRepairs
+                : 0
+            const pendingRepairs = safeArray(repairsData).filter(r => r.status !== 'concluido').length
+
+            // Consolidar todos os dados
             const response = await fetch("/api/ai/insights", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -159,9 +221,30 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                         valorTotal: kpis.totais?.valorTotal || 0,
                         itensAbaixoMinimo: kpis.totais?.itensAbaixoMinimo || 0,
                     },
-                    recentMovements: formattedMovements, // Use fetched movements
-                    period: days, // Inform API about the period
-                    lang: i18n.language?.startsWith('en') ? 'en' : 'pt' // Pass current language
+                    recentMovements: formattedMovements,
+                    // NOVOS DADOS
+                    teamsData: {
+                        activeTeams,
+                        teamsWithoutLeader,
+                        totalEquipmentAllocated,
+                        totalTeams: safeArray(teamsData).length
+                    },
+                    vehiclesData: {
+                        totalVehicles,
+                        maintenanceCosts,
+                        totalCosts,
+                        avgCostPerVehicle: totalVehicles > 0 ? totalCosts / totalVehicles : 0
+                    },
+                    collaboratorsData: {
+                        totalCollaborators: safeArray(collaboratorsData).length
+                    },
+                    repairsData: {
+                        totalRepairs,
+                        avgRepairCost,
+                        pendingRepairs
+                    },
+                    period: days,
+                    lang: i18n.language?.startsWith('en') ? 'en' : 'pt'
                 }),
             })
 

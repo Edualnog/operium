@@ -32,7 +32,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const { kpis, recentMovements, period, lang } = await req.json();
+        const { kpis, recentMovements, teamsData, vehiclesData, collaboratorsData, repairsData, period, lang } = await req.json();
 
         if (!process.env.OPENAI_API_KEY) {
             return NextResponse.json(
@@ -45,37 +45,91 @@ export async function POST(req: Request) {
         const isEnglish = lang === 'en';
 
         const systemMessage = isEnglish
-            ? "You are an expert in logistics and inventory management."
-            : "Você é um especialista em logística e gestão de estoque.";
+            ? "You are an expert in logistics, operations, fleet management, and team coordination."
+            : "Você é um especialista em logística, operações, gestão de frotas e coordenação de equipes.";
 
         const prompt = isEnglish
             ? `
-You are an intelligent inventory management assistant for a system called "Operium".
-Analyze the following dashboard data from the last ${period || 30} days and provide 3 short, actionable insights (max 2 sentences each) for the manager.
-Focus on efficiency, cost reduction, and failure prevention.
+You are an intelligent operational management assistant for \"Operium\", a comprehensive platform for managing tools, teams, vehicles, and field operations.
+
+Analyze the following dashboard data from the last ${period || 30} days and provide 3 SHORT, actionable insights (max 2 sentences each).
+Focus on efficiency, cost reduction, team coordination, and failure prevention.
+
 REQUIRED FORMAT: "**Short Title:** Insight explanation."
 Use emojis at the beginning of each insight.
 
-Dashboard Data:
+📊 INVENTORY DATA:
 - Total Items: ${kpis.totalItens}
-- Total Stock Value: ${kpis.valorTotal}
+- Total Stock Value: R$ ${kpis.valorTotal}
 - Items Below Minimum: ${kpis.itensAbaixoMinimo}
-- Period Movements (${recentMovements.length} records): ${JSON.stringify(recentMovements)}
+- Period Movements (${recentMovements?.length || 0} records)
+
+👥 TEAMS DATA:
+- Active Teams: ${teamsData?.activeTeams || 0}
+- Teams Without Leader: ${teamsData?.teamsWithoutLeader || 0}
+- Equipment Allocated to Teams: ${teamsData?.totalEquipmentAllocated || 0}
+- Total Teams: ${teamsData?.totalTeams || 0}
+
+🚗 VEHICLES DATA:
+- Total Vehicles: ${vehiclesData?.totalVehicles || 0}
+- Maintenance Costs: R$ ${vehiclesData?.maintenanceCosts || 0}
+- Total Costs: R$ ${vehiclesData?.totalCosts || 0}
+- Average Cost per Vehicle: R$ ${vehiclesData?.avgCostPerVehicle?.toFixed(2) || 0}
+
+👷 COLLABORATORS:
+- Total Collaborators: ${collaboratorsData?.totalCollaborators || 0}
+
+🔧 REPAIRS:
+- Total Repairs: ${repairsData?.totalRepairs || 0}
+- Average Repair Cost: R$ ${repairsData?.avgRepairCost?.toFixed(2) || 0}
+- Pending Repairs: ${repairsData?.pendingRepairs || 0}
+
+Provide insights that connect these different modules. For example:
+- If teams have equipment but no leader, suggest assigning one
+- If vehicle costs are high, recommend maintenance review
+- If many repairs are pending, highlight potential operational impact
 
 Reply ONLY with a JSON array of strings, example: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
 `
             : `
-Você é um assistente inteligente de gestão de estoque para um sistema chamado "Operium".
-Analise os seguintes dados do dashboard referentes aos últimos ${period || 30} dias e forneça 3 insights curtos e acionáveis (máximo 2 frases cada) para o gestor.
-Foque em eficiência, redução de custos e prevenção de falhas.
+Você é um assistente inteligente de gestão operacional para \"Operium\", uma plataforma completa de gestão de ferramentas, equipes, veículos e operações de campo.
+
+Analise os seguintes dados do dashboard referentes aos últimos ${period || 30} dias e forneça 3 insights CURTOS e acionáveis (máximo 2 frases cada).
+Foque em eficiência, redução de custos, coordenação de equipes e prevenção de falhas.
+
 Formato OBRIGATÓRIO: "**Título Curto:** Explicação do insight."
 Use emojis no início de cada insight.
 
-Dados do Dashboard:
+📊 DADOS DE ESTOQUE:
 - Total de Itens: ${kpis.totalItens}
-- Valor Total em Estoque: ${kpis.valorTotal}
+- Valor Total em Estoque: R$ ${kpis.valorTotal}
 - Itens Abaixo do Mínimo: ${kpis.itensAbaixoMinimo}
-- Movimentações do Período (${recentMovements.length} registros): ${JSON.stringify(recentMovements)}
+- Movimentações do Período (${recentMovements?.length || 0} registros)
+
+👥 DADOS DE EQUIPES:
+- Equipes Ativas: ${teamsData?.activeTeams || 0}
+- Equipes Sem Líder: ${teamsData?.teamsWithoutLeader || 0}
+- Equipamentos Alocados às Equipes: ${teamsData?.totalEquipmentAllocated || 0}
+- Total de Equipes: ${teamsData?.totalTeams || 0}
+
+🚗 DADOS DE VEÍCULOS:
+- Total de Veículos: ${vehiclesData?.totalVehicles || 0}
+- Custos de Manutenções: R$ ${vehiclesData?.maintenanceCosts || 0}
+- Custos Totais: R$ ${vehiclesData?.totalCosts || 0}
+- Custo Médio por Veículo: R$ ${vehiclesData?.avgCostPerVehicle?.toFixed(2) || 0}
+
+👷 COLABORADORES:
+- Total de Colaboradores: ${collaboratorsData?.totalCollaborators || 0}
+
+🔧 CONSERTOS:
+- Total de Consertos: ${repairsData?.totalRepairs || 0}
+- Custo Médio de Conserto: R$ ${repairsData?.avgRepairCost?.toFixed(2) || 0}
+- Consertos Pendentes: ${repairsData?.pendingRepairs || 0}
+
+Forneça insights que conectem esses diferentes módulos. Por exemplo:
+- Se equipes têm equipamentos mas não têm líder, sugira designar um
+- Se custos de veículos estão altos, recomende revisão de manutenção
+- Se há muitos consertos pendentes, destaque o impacto operacional potencial
 
 Responda APENAS com um array JSON de strings, exemplo: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
 `;
