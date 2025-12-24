@@ -272,39 +272,49 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Free Forever Badge - Neutral */}
-              <div className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-slate-100 border-2 border-slate-300 text-slate-700 text-xs sm:text-sm font-bold mb-4 sm:mb-8 tracking-wide cursor-default shadow-sm">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#1C1C1C] rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+              {/* Free Forever + Mobile App Chips - Above title */}
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold">
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 bg-[#1C1C1C] rounded-full flex items-center justify-center flex-shrink-0">
+                    <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
+                  </div>
+                  <span>{t('landing.hero.chip_free')}</span>
                 </div>
-                <span>100% Grátis para sempre</span>
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold">
+                  <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <span>{t('landing.hero.chip_mobile')}</span>
+                </div>
               </div>
 
               <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#37352f] mb-4 sm:mb-6 leading-[1.15] font-serif">
                 {t('landing.hero.title_part1')} <span className="underline decoration-2 sm:decoration-4 decoration-yellow-200 decoration-skip-ink-none">{t('landing.hero.title_part2')}</span>
               </h1>
 
-              <p className="text-sm sm:text-lg md:text-xl text-[#37352f]/70 mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0">
+              <p className="text-sm sm:text-lg md:text-xl text-[#37352f]/70 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0">
                 {t('landing.hero.description')}
               </p>
 
-              {/* Mobile + Asset Management highlights */}
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-medium">
-                  <Smartphone className="h-3 w-3" />
-                  <span>App Mobile</span>
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-medium">
+              {/* Asset types highlights */}
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 text-slate-500 text-[10px] sm:text-xs font-medium border border-slate-200">
                   <Box className="h-3 w-3" />
-                  <span>Gestão de Ativos</span>
+                  <span>Ferramentas</span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-medium">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 text-slate-500 text-[10px] sm:text-xs font-medium border border-slate-200">
+                  <Zap className="h-3 w-3" />
+                  <span>Máquinas</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 text-slate-500 text-[10px] sm:text-xs font-medium border border-slate-200">
                   <Shield className="h-3 w-3" />
-                  <span>Prevenção de Perdas</span>
+                  <span>EPIs</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 text-slate-500 text-[10px] sm:text-xs font-medium border border-slate-200">
+                  <TrendingUp className="h-3 w-3" />
+                  <span>Veículos</span>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-16">
+              <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-12">
                 <button
                   onClick={handleStart}
                   disabled={checkoutLoading}
@@ -318,9 +328,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   )}
                   {!checkoutLoading && <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
                 </button>
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium">
+                  {t('landing.hero.cta_subtext')}
+                </p>
               </div>
 
-              <div className="w-full text-center -mt-4 sm:-mt-12 mb-8 sm:mb-16">
+              <div className="w-full text-center mb-6 sm:mb-10">
                 <p className="text-[10px] sm:text-sm text-slate-500/80 font-medium">
                   {t('landing.hero.no_card')}
                 </p>

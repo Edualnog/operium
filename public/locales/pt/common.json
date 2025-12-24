@@ -1309,31 +1309,34 @@
         },
         "hero": {
             "badge": "Mais de 200 empresas já organizaram a casa",
-            "title_part1": "Operium - ERP gratuito para almoxarifado",
-            "title_part2": "e controle de estoque",
+            "title_part1": "Operium – ERP gratuito para gestão de ativos",
+            "title_part2": "e almoxarifado",
             "title_part3": "",
-            "description": "Organize ferramentas, materiais e ativos da sua empresa em um sistema simples, rápido e 100% grátis.",
+            "description": "Organize ferramentas, máquinas, veículos, EPIs e materiais em um único sistema simples, rápido e 100% grátis, com app mobile.",
             "cta_button": "Criar conta grátis agora",
-            "no_card": "Plataforma gratuita para sempre para pequenas empresas. Sem cartão de crédito. Sem pegadinhas.",
-            "partners": "Empresas parceiras que confiam no Operium"
+            "cta_subtext": "Leva menos de 2 minutos, sem cartão",
+            "no_card": "Para sempre gratuito para pequenas empresas. Sem cartão. Sem pegadinhas. App mobile incluído.",
+            "partners": "Empresas parceiras que confiam no Operium",
+            "chip_free": "Para sempre gratuito",
+            "chip_mobile": "App mobile incluído"
         },
         "pain_points": {
-            "title": "Seu estoque é um buraco negro de dinheiro?",
-            "subtitle": "Se você ainda usa papel ou planilhas, provavelmente está perdendo dinheiro sem perceber.",
-            "tools_title": "Ferramentas que somem",
-            "tools_desc": "Você compra, usa uma vez e ninguém sabe onde foi parar. O prejuízo é silencioso, mas constante.",
+            "title": "Seus ativos são um buraco negro de dinheiro?",
+            "subtitle": "Seus ativos somem, quebram e ninguém sabe onde estão? Você está perdendo dinheiro todo mês.",
+            "tools_title": "Ferramentas e ativos que somem",
+            "tools_desc": "Ferramentas, máquinas, veículos, EPIs... você compra, usa uma vez e ninguém sabe onde foi parar.",
             "spreadsheets_title": "Planilhas desatualizadas",
-            "spreadsheets_desc": "A planilha nunca bate com o real. Você perde horas contando estoque e ainda assim tem furos.",
+            "spreadsheets_desc": "A planilha nunca bate com o real. Você perde horas contando ativos e ainda assim tem furos.",
             "emergency_title": "Compras de emergência",
-            "emergency_desc": "Acaba o material no meio da obra ou serviço. Você paga mais caro para repor com urgência."
+            "emergency_desc": "Acaba o equipamento no meio da obra ou serviço. Você paga mais caro para repor com urgência."
         },
         "solution": {
             "badge": "A solução definitiva",
-            "title": "Retome o controle total da sua operação",
-            "description": "O Operium foi desenhado para quem não tem tempo a perder. Simples, rápido e funciona no celular da sua equipe.",
+            "title": "Gestão de ativos e almoxarifado no computador e no app mobile",
+            "description": "O Operium foi desenhado para quem não tem tempo a perder. Controle ferramentas, máquinas, veículos e EPIs de forma simples, rápido e funciona no celular da sua equipe.",
             "mobile_title": "Controle na palma da mão",
             "mobile_desc": "Registre entradas e saídas pelo celular, direto do local de trabalho. Sem burocracia.",
-            "lost_title": "Fim da 'ferramenta sumida'",
+            "lost_title": "Fim do 'ativo sumido'",
             "lost_desc": "Saiba exatamente quem pegou, quando e se já devolveu. Responsabilize sua equipe.",
             "alerts_title": "Alertas automáticos",
             "alerts_desc": "O sistema avisa quando o estoque está baixo ou EPIs estão vencendo. Zero surpresas."
@@ -1346,8 +1349,8 @@
             "ocr_desc": "Envie uma foto da nota e deixe a IA identificar e cadastrar os produtos automaticamente.",
             "search_title": "Busca Inteligente",
             "search_desc": "Encontre o que precisa descrevendo em linguagem natural (ex: 'ferramentas danificadas de corte').",
-            "autofill_title": "Preenchimento Automático",
-            "autofill_desc": "A IA sugere categorias, códigos e pontos de ressuprimento para seus produtos."
+            "autofill_title": "Organização por Criticidade",
+            "autofill_desc": "A IA organiza seus ativos por criticidade e valor, para você saber o que nunca pode ficar parado ou sumir."
         },
         "features": {
             "support_title": "Suporte com 95% de satisfação",
@@ -1406,9 +1409,10 @@
             "cancel_anytime": "Cancele quando quiser. Sem fidelidade."
         },
         "cta_final": {
-            "title": "Almoxarifado organizado sem pagar mensalidade.",
-            "subtitle": "",
+            "title": "Gestão de ativos organizada sem pagar mensalidade.",
+            "subtitle": "Todos os recursos principais já estão na versão grátis: controle de ativos, QR Code, app mobile, alertas.",
             "button": "Criar conta grátis agora",
+            "button_subtext": "Leva menos de 2 minutos, sem cartão",
             "join": "Grátis para sempre para pequenas empresas. Comece agora."
         },
         "footer": {
@@ -1427,9 +1431,9 @@
             "confirm_exit": "Confirmar Saída"
         },
         "field_app": {
-            "badge": "App para Equipe de Campo",
-            "title": "Seus técnicos controlam o estoque direto da obra",
-            "description": "Um app simples e rápido para sua equipe registrar entradas, saídas e devoluções diretamente do celular — mesmo sem internet.",
+            "badge": "App para Gestão de Ativos em Campo",
+            "title": "Seus técnicos controlam ativos direto da obra",
+            "description": "Um app simples e rápido para sua equipe registrar entradas, saídas e devoluções de ferramentas, EPIs e equipamentos — mesmo sem internet.",
             "qr_scan": "Leitura de QR Code",
             "qr_scan_desc": "Escaneie códigos para registrar movimentações em segundos",
             "offline": "Funciona Offline",
@@ -1441,16 +1445,16 @@
         },
         "loss_prevention": {
             "badge": "Prevenção de Perdas",
-            "title": "Pare de perder dinheiro com ferramentas sumidas",
-            "subtitle": "Empresas perdem em média R$500/mês com descontrole de ativos. O Operium elimina esse prejuízo.",
+            "title": "Pare de perder dinheiro com ativos sumidos",
+            "subtitle": "Controle total de ativos: de uma chave de fenda a uma máquina de 200 mil. O Operium elimina o prejuízo.",
             "stat1_value": "R$500+",
             "stat1_label": "economia média mensal",
             "stat2_value": "100%",
             "stat2_label": "rastreabilidade",
             "stat3_value": "80%",
             "stat3_label": "menos tempo em inventário",
-            "feature1_title": "Saiba quem pegou cada ferramenta",
-            "feature1_desc": "Histórico completo de responsabilidade para cada item.",
+            "feature1_title": "Saiba quem pegou cada ativo",
+            "feature1_desc": "Histórico completo de responsabilidade para cada item, de ferramentas a máquinas.",
             "feature2_title": "Alertas de itens não devolvidos",
             "feature2_desc": "Notificações automáticas quando algo está atrasado.",
             "feature3_title": "Relatórios de perdas e danos",

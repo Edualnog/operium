@@ -1234,45 +1234,48 @@
         },
         "hero": {
             "badge": "More than 200 companies have already organized their house",
-            "title_part1": "Operium - Free ERP for warehouse",
-            "title_part2": "and inventory control",
+            "title_part1": "Operium – Free ERP for asset management",
+            "title_part2": "and warehouse control",
             "title_part3": "",
-            "description": "Organize your company's tools, materials, and assets in a simple, fast, and 100% free system.",
+            "description": "Organize tools, machines, vehicles, PPE and materials in a single simple, fast and 100% free system, with mobile app.",
             "cta_button": "Create free account now",
-            "no_card": "Free forever platform for small businesses. No credit card. No catches.",
-            "partners": "Partner companies that trust Operium"
+            "cta_subtext": "Takes less than 2 minutes, no card",
+            "no_card": "Free forever for small businesses. No card. No catches. Mobile app included.",
+            "partners": "Partner companies that trust Operium",
+            "chip_free": "Free forever",
+            "chip_mobile": "Mobile app included"
         },
         "pain_points": {
-            "title": "Is your stock a money black hole?",
-            "subtitle": "If you still use paper or spreadsheets, you are probably losing money without realizing it.",
-            "tools_title": "Tools that disappear",
-            "tools_desc": "You buy, use once and nobody knows where it went. The loss is silent, but constant.",
+            "title": "Are your assets a money black hole?",
+            "subtitle": "Your assets disappear, break and no one knows where they are? You're losing money every month.",
+            "tools_title": "Tools and assets that disappear",
+            "tools_desc": "Tools, machines, vehicles, PPE... you buy, use once and nobody knows where it went.",
             "spreadsheets_title": "Outdated spreadsheets",
-            "spreadsheets_desc": "The spreadsheet never matches reality. You lose hours counting stock and still have gaps.",
+            "spreadsheets_desc": "The spreadsheet never matches reality. You lose hours counting assets and still have gaps.",
             "emergency_title": "Emergency purchases",
-            "emergency_desc": "Material runs out in the middle of the work or service. You pay more to replace urgently."
+            "emergency_desc": "Equipment runs out in the middle of work. You pay more to replace urgently."
         },
         "solution": {
             "badge": "Complete Solution",
-            "title": "Total control in the palm of your hand",
-            "description": "Ditch the spreadsheets and notebooks. Have a professional system that organizes your stock, controls who took what, and alerts you when you need to buy more.",
-            "mobile_title": "Works on Mobile",
-            "mobile_desc": "Access from anywhere, whether on site or in the office.",
-            "lost_title": "No More Lost Items",
-            "lost_desc": "Know exactly who has each tool.",
+            "title": "Asset and warehouse management on desktop and mobile app",
+            "description": "Operium was designed for those who have no time to waste. Control tools, machines, vehicles and PPE simply and fast, works on your team's phone.",
+            "mobile_title": "Control in your hand",
+            "mobile_desc": "Register entries and exits by phone, directly from the workplace.",
+            "lost_title": "No more 'missing assets'",
+            "lost_desc": "Know exactly who took it, when and if they returned it.",
             "alerts_title": "Automatic Alerts",
-            "alerts_desc": "Get notified before stock runs out."
+            "alerts_desc": "System warns when stock is low or PPE is expiring."
         },
         "ai_features": {
             "badge": "Exclusive Feature",
-            "title": "Integrated Artificial Intelligence",
+            "title": "Save hours of typing with AI that reads invoices",
             "subtitle": "Automate manual tasks and save time with the power of AI",
             "ocr_title": "Invoice OCR",
             "ocr_desc": "Upload a photo of the invoice and let AI identify and register products automatically.",
             "search_title": "Smart Search",
             "search_desc": "Find what you need by describing it in natural language (e.g., 'damaged cutting tools').",
-            "autofill_title": "Smart Auto-fill",
-            "autofill_desc": "AI suggests categories, codes, and reorder points for your products."
+            "autofill_title": "Organization by Criticality",
+            "autofill_desc": "AI organizes your assets by criticality and value, so you know what should never be idle or missing."
         },
         "features": {
             "support_title": "Support with 95% satisfaction",
@@ -1331,9 +1334,10 @@
             "cancel_anytime": "Cancel anytime. No loyalty."
         },
         "cta_final": {
-            "title": "Organized warehouse without paying monthly fees.",
-            "subtitle": "",
+            "title": "Organized asset management without paying monthly fees.",
+            "subtitle": "All main features are already in the free version: asset control, QR Code, mobile app, alerts.",
             "button": "Create free account now",
+            "button_subtext": "Takes less than 2 minutes, no card",
             "join": "Free forever for small businesses. Start now."
         },
         "footer": {
@@ -1352,9 +1356,9 @@
             "confirm_exit": "Confirm Exit"
         },
         "field_app": {
-            "badge": "Field Team App",
-            "title": "Your technicians control stock directly from the site",
-            "description": "A simple and fast app for your team to register entries, withdrawals and returns directly from their phone — even without internet.",
+            "badge": "Field Asset Management App",
+            "title": "Your technicians control assets directly from the site",
+            "description": "A simple and fast app for your team to register entries, exits and returns of tools, PPE and equipment — even without internet.",
             "qr_scan": "QR Code Scanning",
             "qr_scan_desc": "Scan codes to register movements in seconds",
             "offline": "Works Offline",
@@ -1366,16 +1370,16 @@
         },
         "loss_prevention": {
             "badge": "Loss Prevention",
-            "title": "Stop losing money on missing tools",
-            "subtitle": "Companies lose on average $100/month from asset mismanagement. Operium eliminates this loss.",
+            "title": "Stop losing money on missing assets",
+            "subtitle": "Total asset control: from a screwdriver to a $50,000 machine. Operium eliminates the loss.",
             "stat1_value": "$100+",
             "stat1_label": "average monthly savings",
             "stat2_value": "100%",
             "stat2_label": "traceability",
             "stat3_value": "80%",
             "stat3_label": "less time on inventory",
-            "feature1_title": "Know who took each tool",
-            "feature1_desc": "Complete responsibility history for each item.",
+            "feature1_title": "Know who took each asset",
+            "feature1_desc": "Complete responsibility history for each item, from tools to machines.",
             "feature2_title": "Alerts for unreturned items",
             "feature2_desc": "Automatic notifications when something is overdue.",
             "feature3_title": "Loss and damage reports",
