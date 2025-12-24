@@ -85,6 +85,45 @@ export async function POST(request: Request) {
             }
         )
 
+        // Verificar se o email já está registrado em outra organização
+        const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
+        const existingUser = existingUsers?.users?.find(
+            (u: { id: string; email?: string }) => u.email?.toLowerCase() === email.toLowerCase()
+        )
+
+        if (existingUser) {
+            // Verificar se já tem um operium_profile ativo
+            const { data: existingProfile } = await supabaseAdmin
+                .from('operium_profiles')
+                .select('org_id, role')
+                .eq('user_id', existingUser.id)
+                .eq('active', true)
+                .single()
+
+            if (existingProfile) {
+                // Se pertence à mesma organização
+                if (existingProfile.org_id === org_id) {
+                    return NextResponse.json(
+                        { error: 'Este email já está cadastrado na sua organização.' },
+                        { status: 409 }
+                    )
+                }
+
+                // Pertence a outra organização
+                return NextResponse.json(
+                    { error: 'Este email já possui uma conta ativa em outra organização. Não é possível adicioná-lo como membro.' },
+                    { status: 409 }
+                )
+            }
+
+            // Usuário existe mas não tem operium_profile ativo
+            // Isso significa conta abandonada - podemos tentar reativar
+            return NextResponse.json(
+                { error: 'Este email já está registrado no sistema. Use a opção de convite para reativar a conta.' },
+                { status: 409 }
+            )
+        }
+
         // Criar usuário com senha definida
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
             email,

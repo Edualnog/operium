@@ -77,6 +77,41 @@ export async function POST(request: NextRequest) {
             { auth: { autoRefreshToken: false, persistSession: false } }
         )
 
+        // Verificar se o email já está registrado em outra organização
+        const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers()
+        const existingUser = existingUsers?.users?.find(
+            (u: { email?: string }) => u.email?.toLowerCase() === email.toLowerCase()
+        )
+
+        if (existingUser) {
+            // Verificar se já tem um operium_profile
+            const { data: existingProfile } = await supabaseAdmin
+                .from('operium_profiles')
+                .select('org_id, role')
+                .eq('user_id', existingUser.id)
+                .eq('active', true)
+                .single()
+
+            if (existingProfile) {
+                // Se pertence à mesma organização, é um erro diferente
+                if (existingProfile.org_id === org_id) {
+                    return NextResponse.json(
+                        { error: 'Este email já está cadastrado na sua organização.' },
+                        { status: 409 }
+                    )
+                }
+
+                // Pertence a outra organização
+                return NextResponse.json(
+                    { error: 'Este email já possui uma conta ativa em outra organização. Não é possível adicioná-lo como membro.' },
+                    { status: 409 }
+                )
+            }
+
+            // Usuário existe mas não tem operium_profile ativo (conta abandonada ou excluída)
+            // Podemos permitir o convite neste caso, pois o usuário não está ativo em nenhuma org
+        }
+
         // Enviar convite
         const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin
         const inviteRedirectUrl = `${origin}/auth/callback`
