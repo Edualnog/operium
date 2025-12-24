@@ -1923,4 +1923,17 @@
         "view": "Ver",
         "daily_report": "Relatório diário"
     }
+,
+    "colaboradores": {
+        "pending_tools": "{{count}} ferramenta pendente",
+        "pending_tools_plural": "{{count}} ferramentas pendentes",
+        "quick_return": "Devolução Rápida",
+        "select_items": "Selecione os itens para devolver",
+        "return_selected": "Devolver Selecionados",
+        "withdrawn_on": "Retirado em",
+        "no_pending": "Sem pendências",
+        "tools_in_possession": "Ferramentas em posse",
+        "return_success": "Ferramentas devolvidas com sucesso!",
+        "return_error": "Erro ao devolver ferramentas"
+    }
 }

@@ -1828,4 +1828,17 @@
         "view": "View",
         "daily_report": "Daily report"
     }
+,
+    "colaboradores": {
+        "pending_tools": "{{count}} pending tool",
+        "pending_tools_plural": "{{count}} pending tools",
+        "quick_return": "Quick Return",
+        "select_items": "Select items to return",
+        "return_selected": "Return Selected",
+        "withdrawn_on": "Withdrawn on",
+        "no_pending": "No pending items",
+        "tools_in_possession": "Tools in possession",
+        "return_success": "Tools returned successfully!",
+        "return_error": "Error returning tools"
+    }
 }

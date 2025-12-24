@@ -44,7 +44,8 @@ import {
   HardHat,
   Briefcase,
   Clock,
-  UserX
+  UserX,
+  Wrench
 } from "lucide-react"
 import SmartImport from "@/components/import/SmartImport"
 import { useRouter } from "next/navigation"
@@ -92,6 +93,7 @@ import { useToast } from "@/components/ui/toast-context"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
+import { QuickReturnModal } from "./QuickReturnModal"
 
 interface RoleHistoryEntry {
   role_function: string
@@ -142,14 +144,28 @@ interface EPIAtivo {
   dias_restantes?: number
 }
 
+interface PendingTool {
+  movimentacao_id: string
+  item_id: string
+  item_name: string
+  quantity: number
+  saida_at: string
+}
+
+interface PendingToolsByColaborador {
+  [colaboradorId: string]: PendingTool[]
+}
+
 const ITEMS_PER_PAGE = 35
 
 function ColaboradoresList({
   colaboradores: initialColaboradores,
   movimentacoesStats = {},
+  pendingTools = {},
 }: {
   colaboradores: Colaborador[]
   movimentacoesStats?: MovimentacoesStats
+  pendingTools?: PendingToolsByColaborador
 }) {
   const [colaboradores, setColaboradores] = useState(initialColaboradores)
   const [open, setOpen] = useState(false)
@@ -174,6 +190,10 @@ function ColaboradoresList({
 
   // Estado para dados preenchidos por voz
   const [voiceData, setVoiceData] = useState<any>(null)
+
+  // Estado para Modal de Devolução Rápida
+  const [quickReturnModalOpen, setQuickReturnModalOpen] = useState(false)
+  const [quickReturnTarget, setQuickReturnTarget] = useState<Colaborador | null>(null)
 
 
 
@@ -898,6 +918,26 @@ function ColaboradoresList({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
+                    {/* Pending Tools Badge */}
+                    {pendingTools[colaborador.id] && pendingTools[colaborador.id].length > 0 && (
+                      <button
+                        onClick={() => {
+                          setQuickReturnTarget(colaborador)
+                          setQuickReturnModalOpen(true)
+                        }}
+                        className={cn(
+                          "h-8 px-2.5 rounded-lg flex items-center gap-1.5 transition-all hover:scale-105",
+                          "border text-xs font-semibold",
+                          pendingTools[colaborador.id].length >= 3
+                            ? "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
+                            : "bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100"
+                        )}
+                        title={t('colaboradores.pending_tools_plural', { count: pendingTools[colaborador.id].length })}
+                      >
+                        <Wrench className="h-3.5 w-3.5" />
+                        {pendingTools[colaborador.id].length}
+                      </button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -1502,6 +1542,19 @@ function ColaboradoresList({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Quick Return Modal */}
+      <QuickReturnModal
+        open={quickReturnModalOpen}
+        onClose={() => setQuickReturnModalOpen(false)}
+        colaboradorId={quickReturnTarget?.id || ''}
+        colaboradorName={quickReturnTarget?.nome || ''}
+        pendingTools={quickReturnTarget ? (pendingTools[quickReturnTarget.id] || []) : []}
+        onSuccess={() => {
+          router.refresh()
+          toast.success(t('colaboradores.return_success'))
+        }}
+      />
     </div>
   )
 }

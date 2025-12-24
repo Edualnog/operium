@@ -134,6 +134,53 @@ async function getMovimentacoesStats(userId: string) {
   return stats
 }
 
+async function getPendingToolsByColaborador(userId: string) {
+  const supabase = await createServerComponentClient()
+
+  const { data } = await supabase
+    .from("movimentacoes")
+    .select(`
+      id,
+      colaborador_id,
+      item_id,
+      quantity,
+      saida_at,
+      items:item_id (
+        id,
+        name,
+        category
+      )
+    `)
+    .eq("profile_id", userId)
+    .eq("tipo_movimentacao", "saida")
+    .is("retorno_at", null)
+
+  if (!data) return {}
+
+  const pendingByColaborador: Record<string, any[]> = {}
+
+  data.forEach((mov) => {
+    if (!mov.colaborador_id) return
+
+    const item = mov.items as any
+    if (item?.category !== 'FERRAMENTA') return
+
+    if (!pendingByColaborador[mov.colaborador_id]) {
+      pendingByColaborador[mov.colaborador_id] = []
+    }
+
+    pendingByColaborador[mov.colaborador_id].push({
+      movimentacao_id: mov.id,
+      item_id: item.id,
+      item_name: item.name,
+      quantity: mov.quantity || 1,
+      saida_at: mov.saida_at
+    })
+  })
+
+  return pendingByColaborador
+}
+
 export default async function ColaboradoresPage() {
   const { user } = await getSupabaseUser()
 
@@ -141,9 +188,10 @@ export default async function ColaboradoresPage() {
     redirect("/login")
   }
 
-  const [colaboradores, movimentacoesStats] = await Promise.all([
+  const [colaboradores, movimentacoesStats, pendingTools] = await Promise.all([
     getColaboradores(user.id),
     getMovimentacoesStats(user.id),
+    getPendingToolsByColaborador(user.id),
   ])
 
   return (
@@ -153,7 +201,11 @@ export default async function ColaboradoresPage() {
         subtitleKey="dashboard.colaboradores.subtitle"
       />
       <Suspense fallback={<ListSkeleton />}>
-        <ColaboradoresList colaboradores={colaboradores} movimentacoesStats={movimentacoesStats} />
+        <ColaboradoresList
+          colaboradores={colaboradores}
+          movimentacoesStats={movimentacoesStats}
+          pendingTools={pendingTools}
+        />
       </Suspense>
     </div>
   )
