@@ -381,8 +381,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         {/* Pain Points Section - Minimalist Grid */}
         <section id="problemas" className="py-6 sm:py-24 bg-white border-y border-slate-100">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="text-left mb-8 sm:mb-16">
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#37352f] mb-3 sm:mb-4 font-serif leading-tight">{t('landing.pain_points.title')}</h2>
+            <div className="text-left mb-10 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#37352f] mb-4 sm:mb-4 font-serif leading-tight">{t('landing.pain_points.title')}</h2>
               <p className="text-[#37352f]/70 max-w-2xl text-sm sm:text-lg">
                 {t('landing.pain_points.subtitle')}
               </p>
@@ -614,10 +614,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <Smartphone className="h-3 w-3 sm:h-3 sm:w-3" />
                   {t('landing.field_app.badge')}
                 </div>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-6 leading-tight text-[#37352f] font-serif">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 leading-tight text-[#37352f] font-serif">
                   {t('landing.field_app.title')}
                 </h2>
-                <p className="text-[#37352f]/70 text-sm sm:text-lg mb-6 sm:mb-8 leading-relaxed">
+                <p className="text-[#37352f]/70 text-sm sm:text-lg mb-10 sm:mb-12 leading-relaxed">
                   {t('landing.field_app.description')}
                 </p>
 
@@ -647,12 +647,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         {/* Loss Prevention Section */}
         <section className="py-8 sm:py-24 bg-[#F7F7F5] relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="text-center mb-8 sm:mb-16">
-              <div className="inline-flex items-center gap-2 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-3 sm:mb-6 uppercase tracking-wide">
+            <div className="text-center mb-10 sm:mb-16">
+              <div className="inline-flex items-center gap-2 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                 <Shield className="h-3 w-3 sm:h-3 sm:w-3" />
                 {t('landing.loss_prevention.badge')}
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-6 text-[#37352f] font-serif leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-[#37352f] font-serif leading-tight">
                 {t('landing.loss_prevention.title')}
               </h2>
               <p className="text-[#37352f]/70 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
@@ -723,12 +723,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         {/* AI Features Section - Clean Light Style */}
         <section className="py-6 sm:py-24 bg-white border-t border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8 sm:mb-16">
-              <div className="inline-flex items-center gap-2 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-3 sm:mb-6 uppercase tracking-wide">
+            <div className="text-center mb-10 sm:mb-16">
+              <div className="inline-flex items-center gap-2 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 uppercase tracking-wide">
                 <Sparkles className="h-3 sm:h-3 sm:w-3" />
                 {t('landing.ai_features.badge')}
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-6 leading-tight text-[#37352f] font-serif">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 leading-tight text-[#37352f] font-serif">
                 {t('landing.ai_features.title')}
               </h2>
               <p className="text-[#37352f]/70 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
