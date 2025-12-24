@@ -377,39 +377,43 @@ export async function returnEquipment(assignmentId: string) {
         .select()
         .single()
 
-    throw new Error(`Falha ao encerrar custódia: ${error.message}`)
-}
-
-// --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) ---
-try {
-    // Need profile_id from existing assignment or fetch it.
-    // Since we have existing record, let's fetch profile_id from tools if needed, 
-    // but 'team_equipment' doesn't usually store profile_id directly unless added.
-    // Let's fetch the tool's profile_id to be safe.
-    const { data: toolData } = await supabase
-        .from("ferramentas")
-        .select("profile_id")
-        .eq("id", existing.ferramenta_id)
-        .single()
-
-    if (toolData) {
-        await supabase.from("movimentacoes").insert({
-            profile_id: toolData.profile_id,
-            ferramenta_id: existing.ferramenta_id,
-            tipo: 'devolucao',
-            quantidade: (existing as any).quantity || 1, // Cast safely
-            data: new Date().toISOString(),
-            observacoes: `Devolução de equipe: ${(existing.teams as any)?.name || 'Equipe'}`
-        })
+    if (error) {
+        if (error.code === '42501') {
+            throw new Error("Sem permissão para registrar devolução")
+        }
+        throw new Error(`Falha ao encerrar custódia: ${error.message}`)
     }
-} catch (movError) {
-    console.error("[returnEquipment] WARN: Failed to sync movimentacoes", movError)
-}
-// ------------------------------------------
 
-revalidatePath("/dashboard/equipes")
-revalidatePath("/dashboard/estoque")  // Sync stock page
-return data
+    // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) ---
+    try {
+        // Need profile_id from existing assignment or fetch it.
+        // Since we have existing record, let's fetch profile_id from tools if needed, 
+        // but 'team_equipment' doesn't usually store profile_id directly unless added.
+        // Let's fetch the tool's profile_id to be safe.
+        const { data: toolData } = await supabase
+            .from("ferramentas")
+            .select("profile_id")
+            .eq("id", existing.ferramenta_id)
+            .single()
+
+        if (toolData) {
+            await supabase.from("movimentacoes").insert({
+                profile_id: toolData.profile_id,
+                ferramenta_id: existing.ferramenta_id,
+                tipo: 'devolucao',
+                quantidade: (existing as any).quantity || 1, // Cast safely
+                data: new Date().toISOString(),
+                observacoes: `Devolução de equipe: ${(existing.teams as any)?.name || 'Equipe'}`
+            })
+        }
+    } catch (movError) {
+        console.error("[returnEquipment] WARN: Failed to sync movimentacoes", movError)
+    }
+    // ------------------------------------------
+
+    revalidatePath("/dashboard/equipes")
+    revalidatePath("/dashboard/estoque")  // Sync stock page
+    return data
 }
 
 // --- CUSTODY OPERATIONS ---
