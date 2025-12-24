@@ -64,15 +64,21 @@ export function VehicleAssignmentDialog({
     }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const fetchData = async () => {
+        // Get current user for security filtering
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
         const [colabRes, teamsRes] = await Promise.all([
             supabase
                 .from('colaboradores')
                 .select('id, name:nome, status')
+                .eq('profile_id', user.id)  // Security: Filter by user
                 .eq('status', 'ATIVO')
                 .order('nome'),
             supabase
                 .from('teams')
                 .select('id, name, status, vehicle_id')
+                .eq('profile_id', user.id)  // Security: Filter by user
                 .eq('status', 'active')
                 .order('name')
         ])

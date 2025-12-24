@@ -53,10 +53,15 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
             const fetchOptions = async () => {
                 console.log("Fetching options for modal...")
 
-                // Fetch eligible leaders (colaboradores)
+                // Get current user for security filtering
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return
+
+                // Fetch eligible leaders (colaboradores) - filtered by profile_id
                 const { data: colabs, error: colabsError } = await supabase
                     .from('colaboradores')
                     .select('id, nome, status')
+                    .eq('profile_id', user.id)  // Security: Filter by user
                     .order('nome')
 
                 if (colabsError) {
@@ -72,10 +77,11 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                     setLeaders(activeColabs.map(c => ({ id: c.id, name: c.nome })))
                 }
 
-                // Fetch available vehicles
+                // Fetch available vehicles - filtered by profile_id
                 const { data: vehs, error: vehsError } = await supabase
                     .from('vehicles')
                     .select('id, plate, model, status')
+                    .eq('profile_id', user.id)  // Security: Filter by user
                     .order('plate')
 
                 if (vehsError) {
@@ -92,6 +98,7 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                             .from('vehicles')
                             .select('id, plate, model')
                             .eq('id', teamToEdit.vehicle_id)
+                            .eq('profile_id', user.id)  // Security: Filter by user
                             .single()
 
                         if (currentVeh) {

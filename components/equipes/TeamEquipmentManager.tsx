@@ -89,9 +89,14 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
     }, [teamId, t])
 
     const fetchAvailableTools = useCallback(async () => {
+        // Get current user for security filtering
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
         const { data, error } = await supabase
             .from('ferramentas')
             .select('id, nome, estado')
+            .eq('profile_id', user.id)  // Security: Filter by user
             .order('nome')
             .limit(100)
 

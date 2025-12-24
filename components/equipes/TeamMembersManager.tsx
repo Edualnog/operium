@@ -58,9 +58,15 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
 
     const fetchAvailableCollaborators = useCallback(async () => {
         console.log("Fetching available collaborators...")
+
+        // Get current user for security filtering
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
         const { data, error } = await supabase
             .from('colaboradores')
             .select('id, nome, status')
+            .eq('profile_id', user.id)  // Security: Filter by user
             .order('nome')
 
         if (error) {

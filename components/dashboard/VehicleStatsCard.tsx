@@ -29,10 +29,15 @@ export function VehicleStats() {
     useEffect(() => {
         async function fetchStats() {
             try {
-                // 1. Fetch Vehicles Status
+                // Get current user for profile_id filter
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return
+
+                // 1. Fetch Vehicles Status - filtered by profile_id
                 const { data: vehicles, error: vError } = await supabase
                     .from('vehicles')
                     .select('id, status, current_driver_id')
+                    .eq('profile_id', user.id)  // Security: Filter by user
 
                 if (vError) throw vError
 
@@ -41,19 +46,24 @@ export function VehicleStats() {
                 const start = startOfMonth(now).toISOString()
                 const end = endOfMonth(now).toISOString()
 
-                // Maintenance Costs
+                // Get vehicle IDs for this user
+                const vehicleIds = vehicles?.map(v => v.id) || []
+
+                // Maintenance Costs - filtered by user's vehicles
                 const { data: maintenanceData, error: mError } = await supabase
                     .from('vehicle_maintenances')
                     .select('cost')
+                    .in('vehicle_id', vehicleIds.length > 0 ? vehicleIds : ['00000000-0000-0000-0000-000000000000'])
                     .gte('maintenance_date', start)
                     .lte('maintenance_date', end)
 
                 if (mError) throw mError
 
-                // Other Costs
+                // Other Costs - filtered by user's vehicles
                 const { data: costsData, error: cError } = await supabase
                     .from('vehicle_costs')
                     .select('amount')
+                    .in('vehicle_id', vehicleIds.length > 0 ? vehicleIds : ['00000000-0000-0000-0000-000000000000'])
                     .gte('reference_month', start)
                     .lte('reference_month', end)
 
