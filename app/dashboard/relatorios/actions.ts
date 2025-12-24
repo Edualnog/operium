@@ -19,6 +19,8 @@ export async function getDailyReports(
     teamId?: string
 ): Promise<DailyReport[]> {
     const supabase = createServerActionClient({ cookies })
+
+    // First, get the reports
     let query = supabase
         .from("field_reports")
         .select(`
@@ -27,13 +29,8 @@ export async function getDailyReports(
             summary,
             notes,
             created_at,
-            operium_profiles!field_reports_user_id_fkey_operium_profiles (
-                name
-            ),
-            teams (
-                name,
-                deleted_at
-            )
+            user_id,
+            team_id
         `)
         .order("report_date", { ascending: false })
         .order("created_at", { ascending: false })
@@ -46,22 +43,46 @@ export async function getDailyReports(
         query = query.eq("team_id", teamId)
     }
 
-    const { data, error } = await query
+    const { data: reports, error } = await query
 
     if (error) {
         console.error("Error fetching reports:", error)
         return []
     }
 
-    return data.map((item: any) => ({
+    if (!reports || reports.length === 0) {
+        return []
+    }
+
+    // Get unique user IDs and team IDs
+    const userIds = Array.from(new Set(reports.map(r => r.user_id).filter(Boolean)))
+    const teamIds = Array.from(new Set(reports.map(r => r.team_id).filter(Boolean)))
+
+    // Fetch profiles
+    const { data: profiles } = await supabase
+        .from("operium_profiles")
+        .select("user_id, name")
+        .in("user_id", userIds)
+
+    // Fetch teams
+    const { data: teams } = await supabase
+        .from("teams")
+        .select("id, name, deleted_at")
+        .in("id", teamIds)
+
+    // Create lookup maps
+    const profileMap = new Map((profiles || []).map(p => [p.user_id, p.name]))
+    const teamMap = new Map((teams || []).map(t => [t.id, { name: t.name, deleted_at: t.deleted_at }]))
+
+    return reports.map((item: any) => ({
         id: item.id,
         report_date: item.report_date,
         summary: item.summary,
         notes: item.notes,
         created_at: item.created_at,
-        user_name: item.operium_profiles?.name || "Usuário desconhecido",
-        team_name: item.teams?.name || "Sem equipe",
-        team_deleted: !!item.teams?.deleted_at
+        user_name: profileMap.get(item.user_id) || "Usuário desconhecido",
+        team_name: teamMap.get(item.team_id)?.name || "Sem equipe",
+        team_deleted: !!teamMap.get(item.team_id)?.deleted_at
     }))
 }
 
