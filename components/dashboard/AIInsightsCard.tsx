@@ -211,6 +211,82 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                 : 0
             const pendingRepairs = safeArray(repairsData).filter(r => r.status !== 'concluido').length
 
+            // 6. ANÁLISE DETALHADA DE CUSTOS DE VEÍCULOS (por tipo)
+            const startOfMonth = new Date()
+            startOfMonth.setDate(1) // Primeiro dia do mês para custos recorrentes
+
+            const { data: vehicleCostsDetailed } = await supabase
+                .from('vehicle_costs')
+                .select('vehicle_id, cost_type, amount')
+                .gte('reference_month', startOfMonth.toISOString())
+
+            // Calcular custos de combustível
+            const fuelCosts = safeArray(vehicleCostsDetailed).filter(c =>
+                c.cost_type?.toLowerCase().includes('fuel') ||
+                c.cost_type?.toLowerCase().includes('combustivel') ||
+                c.cost_type?.toLowerCase().includes('gasolina') ||
+                c.cost_type?.toLowerCase().includes('diesel')
+            )
+            const totalFuel = fuelCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
+            const vehiclesWithFuel = new Set(fuelCosts.map(c => c.vehicle_id)).size
+            const avgFuelPerVehicle = vehiclesWithFuel > 0 ? totalFuel / vehiclesWithFuel : 0
+
+            // Veículos com gasto acima da média (30%)
+            const vehicleFuelMap = new Map()
+            fuelCosts.forEach(c => {
+                const current = vehicleFuelMap.get(c.vehicle_id) || 0
+                vehicleFuelMap.set(c.vehicle_id, current + (Number(c.amount) || 0))
+            })
+            const vehiclesAboveAverage = Array.from(vehicleFuelMap.values())
+                .filter(cost => cost > avgFuelPerVehicle * 1.3).length
+
+            // 7. ANÁLISE DE PERDAS POR COLABORADOR
+            const { data: allMovements } = await supabase
+                .from('movimentacoes')
+                .select('colaborador_id, tipo')
+                .gte('data', startDate.toISOString())
+                .in('tipo', ['retirada', 'devolucao'])
+                .limit(500)
+
+            // Calcular taxa de perdas por colaborador
+            const collaboratorMovements = new Map()
+            safeArray(allMovements).forEach(m => {
+                if (!m.colaborador_id) return
+                const stats = collaboratorMovements.get(m.colaborador_id) || { retiradas: 0, devolucoes: 0 }
+                if (m.tipo === 'retirada') stats.retiradas++
+                if (m.tipo === 'devolucao') stats.devolucoes++
+                collaboratorMovements.set(m.colaborador_id, stats)
+            })
+
+            let highLossRateCount = 0
+            collaboratorMovements.forEach(stats => {
+                if (stats.retiradas > 0) {
+                    const lossRate = (stats.retiradas - stats.devolucoes) / stats.retiradas
+                    if (lossRate > 0.2) highLossRateCount++ // > 20% de perdas
+                }
+            })
+
+            // 8. ANÁLISE DE DANOS POR COLABORADOR
+            const { data: repairsWithCollab } = await supabase
+                .from('consertos')
+                .select(`
+                    ferramenta_id,
+                    movimentacoes!inner(colaborador_id)
+                `)
+                .gte('data_envio', startDate.toISOString())
+                .limit(100)
+
+            const collaboratorDamages = new Map()
+            safeArray(repairsWithCollab).forEach(repair => {
+                const collabId = repair.movimentacoes?.colaborador_id
+                if (collabId) {
+                    collaboratorDamages.set(collabId, (collaboratorDamages.get(collabId) || 0) + 1)
+                }
+            })
+
+            const highDamageRateCount = Array.from(collaboratorDamages.values())
+                .filter(count => count >= 3).length // 3+ itens danificados
+
             // Consolidar todos os dados
             const response = await fetch("/api/ai/insights", {
                 method: "POST",
@@ -242,6 +318,16 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                         totalRepairs,
                         avgRepairCost,
                         pendingRepairs
+                    },
+                    // ANÁLISE DETALHADA
+                    vehicleCostsDetailed: {
+                        totalFuel,
+                        avgFuelPerVehicle,
+                        vehiclesAboveAverage
+                    },
+                    collaboratorIssues: {
+                        highLossRate: highLossRateCount,
+                        highDamageRate: highDamageRateCount
                     },
                     period: days,
                     lang: i18n.language?.startsWith('en') ? 'en' : 'pt'

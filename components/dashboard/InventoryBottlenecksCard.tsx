@@ -9,13 +9,14 @@ import { useTranslation } from "react-i18next"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { safeArray } from "@/lib/utils/safe-array"
 
 interface BottleneckItem {
     id: string
     name: string
     metric: string
     value: string | number
-    type: "high_breakage" | "zombie_inventory" | "stockout_risk" | "team_no_leader" | "team_overdue_equipment" | "vehicle_overdue_maintenance" | "vehicle_high_cost"
+    type: "high_breakage" | "zombie_inventory" | "stockout_risk" | "team_no_leader" | "team_overdue_equipment" | "vehicle_overdue_maintenance" | "vehicle_high_cost" | "vehicle_high_fuel" | "collaborator_high_loss" | "collaborator_high_damage"
     trend?: "up" | "down" | "stable"
 }
 
@@ -219,7 +220,91 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                     })
                 }
 
-                setItems(bottlenecks.slice(0, 6)) // Show top 6
+                // 7. ANÁLISE DE COMBUSTÍVEL - Veículos com gasto excessivo
+                const startOfMonth = new Date()
+                startOfMonth.setDate(1)
+
+                const { data: fuelCostsData } = await supabase
+                    .from('vehicle_costs')
+                    .select('vehicle_id, amount, vehicles!inner(plate, model, profile_id)')
+                    .eq('vehicles.profile_id', userId)
+                    .gte('reference_month', startOfMonth.toISOString())
+                    .limit(50)
+
+                const fuelCosts = safeArray(fuelCostsData).filter(c =>
+                    c.cost_type?.toLowerCase().includes('fuel') ||
+                    c.cost_type?.toLowerCase().includes('combustivel') ||
+                    c.cost_type?.toLowerCase().includes('gasolina') ||
+                    c.cost_type?.toLowerCase().includes('diesel ')
+                )
+
+                const vehicleFuelMap = new Map()
+                fuelCosts.forEach(cost => {
+                    if (!cost.vehicles) return
+                    const current = vehicleFuelMap.get(cost.vehicle_id) || { total: 0, vehicle: cost.vehicles }
+                    current.total += Number(cost.amount) || 0
+                    vehicleFuelMap.set(cost.vehicle_id, current)
+                })
+
+                if (vehicleFuelMap.size > 0) {
+                    const avgFuel = Array.from(vehicleFuelMap.values()).reduce((sum, v) => sum + v.total, 0) / vehicleFuelMap.size
+
+                    vehicleFuelMap.forEach((data, id) => {
+                        if (data.total > avgFuel * 1.3) { // 30% acima da média
+                            bottlenecks.push({
+                                id,
+                                name: `${data.vehicle.plate} - ${data.vehicle.model || 'Veículo'}`,
+                                metric: "Combustível",
+                                value: `R$ ${data.total.toFixed(2)}`,
+                                type: "vehicle_high_fuel",
+                                trend: "up"
+                            })
+                        }
+                    })
+                }
+
+                // 8. ANÁLISE DE PERDAS POR COLABORADOR
+                const thirtyDaysAgoForLoss = new Date()
+                thirtyDaysAgoForLoss.setDate(thirtyDaysAgoForLoss.getDate() - 30)
+
+                const { data: movements } = await supabase
+                    .from('movimentacoes')
+                    .select('colaborador_id, tipo, colaboradores!inner(nome, profile_id)')
+                    .eq('colaboradores.profile_id', userId)
+                    .gte('data', thirtyDaysAgoForLoss.toISOString())
+                    .in('tipo', ['retirada', 'devolucao'])
+                    .limit(500)
+
+                const collabStats = new Map()
+                safeArray(movements).forEach(m => {
+                    if (!m.colaborador_id) return
+                    const stats = collabStats.get(m.colaborador_id) || {
+                        retiradas: 0,
+                        devolucoes: 0,
+                        nome: m.colaboradores?.nome
+                    }
+                    if (m.tipo === 'retirada') stats.retiradas++
+                    if (m.tipo === 'devolucao') stats.devolucoes++
+                    collabStats.set(m.colaborador_id, stats)
+                })
+
+                collabStats.forEach((stats, id) => {
+                    if (stats.retiradas > 0) {
+                        const lossRate = (stats.retiradas - stats.devolucoes) / stats.retiradas
+                        if (lossRate > 0.2 && stats.retiradas >= 5) { // > 20% de perdas E pelo menos 5 retiradas
+                            bottlenecks.push({
+                                id,
+                                name: stats.nome || 'Colaborador',
+                                metric: "Taxa de perdas",
+                                value: `${(lossRate * 100).toFixed(0)}%`,
+                                type: "collaborator_high_loss",
+                                trend: "up"
+                            })
+                        }
+                    }
+                })
+
+                setItems(bottlenecks.slice(0, 8)) // Show top 8
             } catch (error) {
                 console.error("Error fetching bottlenecks:", error)
             } finally {
@@ -275,7 +360,10 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                                             item.type === 'team_overdue_equipment' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400' :
                                                 item.type === 'vehicle_overdue_maintenance' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
                                                     item.type === 'vehicle_high_cost' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400' :
-                                                        'bg-amber-100 text-amber-600'
+                                                        item.type === 'vehicle_high_fuel' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400' :
+                                                            item.type === 'collaborator_high_loss' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                                                                item.type === 'collaborator_high_damage' ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                                                                    'bg-amber-100 text-amber-600'
                                     }`}>
                                     {item.type === 'high_breakage' ? <AlertCircle className="h-4 w-4" /> :
                                         item.type === 'zombie_inventory' ? <Package className="h-4 w-4" /> :
@@ -283,7 +371,10 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                                                 item.type === 'team_overdue_equipment' ? <Clock className="h-4 w-4" /> :
                                                     item.type === 'vehicle_overdue_maintenance' ? <AlertCircle className="h-4 w-4" /> :
                                                         item.type === 'vehicle_high_cost' ? <TrendingUp className="h-4 w-4" /> :
-                                                            <Clock className="h-4 w-4" />}
+                                                            item.type === 'vehicle_high_fuel' ? <AlertTriangle className="h-4 w-4" /> :
+                                                                item.type === 'collaborator_high_loss' ? <AlertCircle className="h-4 w-4" /> :
+                                                                    item.type === 'collaborator_high_damage' ? <AlertCircle className="h-4 w-4" /> :
+                                                                        <Clock className="h-4 w-4" />}
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{item.name}</p>
@@ -294,7 +385,10 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                                                     item.type === 'team_overdue_equipment' ? 'Equipamento não devolvido' :
                                                         item.type === 'vehicle_overdue_maintenance' ? 'Manutenção vencida' :
                                                             item.type === 'vehicle_high_cost' ? 'Custo elevado' :
-                                                                'Risco de ruptura'}
+                                                                item.type === 'vehicle_high_fuel' ? 'Combustível excessivo' :
+                                                                    item.type === 'collaborator_high_loss' ? 'Alta taxa de perdas' :
+                                                                        item.type === 'collaborator_high_damage' ? 'Muitos danos causados' :
+                                                                            'Risco de ruptura'}
                                         {item.trend === 'up' && <TrendingUp className="h-3 w-3 text-red-500" />}
                                     </p>
                                 </div>

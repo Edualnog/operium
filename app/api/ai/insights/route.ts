@@ -32,7 +32,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const { kpis, recentMovements, teamsData, vehiclesData, collaboratorsData, repairsData, period, lang } = await req.json();
+        const { kpis, recentMovements, teamsData, vehiclesData, collaboratorsData, repairsData, vehicleCostsDetailed, collaboratorIssues, period, lang } = await req.json();
 
         if (!process.env.OPENAI_API_KEY) {
             return NextResponse.json(
@@ -84,10 +84,20 @@ Use emojis at the beginning of each insight.
 - Average Repair Cost: R$ ${repairsData?.avgRepairCost?.toFixed(2) || 0}
 - Pending Repairs: ${repairsData?.pendingRepairs || 0}
 
+⛽ DETAILED VEHICLE COSTS:
+- Total Fuel Expenses: R$ ${vehicleCostsDetailed?.totalFuel?.toFixed(2) || 0}
+- Avg Fuel per Vehicle: R$ ${vehicleCostsDetailed?.avgFuelPerVehicle?.toFixed(2) || 0}
+- Vehicles Above Average (30%+): ${vehicleCostsDetailed?.vehiclesAboveAverage || 0}
+
+⚠️ COLLABORATOR ISSUES:
+- Collaborators with High Loss Rate (>20%): ${collaboratorIssues?.highLossRate || 0}
+- Collaborators with High Damage Rate (3+ items): ${collaboratorIssues?.highDamageRate || 0}
+
 Provide insights that connect these different modules. For example:
 - If teams have equipment but no leader, suggest assigning one
-- If vehicle costs are high, recommend maintenance review
+- If vehicle fuel costs are above average, recommend route optimization or driver training
 - If many repairs are pending, highlight potential operational impact
+- If collaborators have high loss rates, suggest corrective actions or training
 
 Reply ONLY with a JSON array of strings, example: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
 `
@@ -126,10 +136,20 @@ Use emojis no início de cada insight.
 - Custo Médio de Conserto: R$ ${repairsData?.avgRepairCost?.toFixed(2) || 0}
 - Consertos Pendentes: ${repairsData?.pendingRepairs || 0}
 
+⛽ CUSTOS DETALHADOS DE VEÍCULOS:
+- Gasto Total com Combustível: R$ ${vehicleCostsDetailed?.totalFuel?.toFixed(2) || 0}
+- Gasto Médio de Combustível/Veículo: R$ ${vehicleCostsDetailed?.avgFuelPerVehicle?.toFixed(2) || 0}
+- Veículos Acima da Média (30%+): ${vehicleCostsDetailed?.vehiclesAboveAverage || 0}
+
+⚠️ PROBLEMAS COM COLABORADORES:
+- Colaboradores com Alta Taxa de Perdas (>20%): ${collaboratorIssues?.highLossRate || 0}
+- Colaboradores com Alto Índice de Danos (3+ itens): ${collaboratorIssues?.highDamageRate || 0}
+
 Forneça insights que conectem esses diferentes módulos. Por exemplo:
 - Se equipes têm equipamentos mas não têm líder, sugira designar um
-- Se custos de veículos estão altos, recomende revisão de manutenção
+- Se custos de combustível estão acima da média, recomende otimização de rotas ou treinamento de motoristas
 - Se há muitos consertos pendentes, destaque o impacto operacional potencial
+- Se colaboradores têm alta taxa de perdas, sugira ações corretivas ou treinamento
 
 Responda APENAS com um array JSON de strings, exemplo: ["💡 Insight 1", "⚠️ Insight 2", "📈 Insight 3"]
 `;
