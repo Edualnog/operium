@@ -21,8 +21,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
-  description: "Elimine planilhas e perdas de equipamentos. A plataforma completa para controle de ferramentas, EPIs, frota e equipes externas. Teste grátis!",
-  keywords: ["gestão de ativos", "controle de ferramentas", "equipes de campo", "almoxarifado digital", "prevenção de perdas", "app operacional", "construção civil", "manutenção"],
+  description: "A plataforma #1 para controle de ferramentas, EPIs e veículos. Elimine planilhas e perdas agora mesmo. Software 100% Gratuito para sua empresa.",
+  keywords: ["gestão de ativos", "controle de ferramentas", "equipes de campo", "almoxarifado digital", "prevenção de perdas", "sistema grátis", "software gratuito", "construção civil"],
   authors: [{ name: "Operium" }],
   creator: "Operium",
   metadataBase: new URL("https://operium.com.br"),
@@ -30,6 +30,21 @@ export const metadata: Metadata = {
     canonical: "https://operium.com.br",
   },
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/icons/icon-192.png",
+    apple: "/icons/icon-192.png",
+    other: [
+      {
+        rel: "apple-touch-icon-precomposed",
+        url: "/icons/icon-192.png",
+      },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -46,30 +61,22 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: "https://operium.com.br",
     title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
-    description: "Elimine planilhas e perdas de equipamentos. A plataforma completa para controle de ferramentas, EPIs, frota e equipes externas.",
+    description: "Software 100% Gratuito. Controle ferramentas, EPIs, frota e equipes externas sem custos. Elimine planilhas hoje!",
     siteName: "Operium",
     images: [
       {
         url: "/images/mockup-devices.png",
         width: 1200,
         height: 630,
-        alt: "Operium - Gestão de Ativos e Equipes",
+        alt: "Operium - Gestão de Ativos 100% Gratuita",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
-    description: "Elimine planilhas e perdas de equipamentos. A plataforma completa para controle de ferramentas e equipes externas.",
+    title: "Operium - Gestão Inteligente de Ativos e Equipes",
+    description: "Sistema 100% Gratuito para controle de almoxarifado e equipes de campo.",
     images: ["/images/mockup-devices.png"],
-  },
-  icons: {
-    icon: [
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    shortcut: "/icons/icon-192.png",
-    apple: "/icons/icon-192.png",
   },
 }
 
