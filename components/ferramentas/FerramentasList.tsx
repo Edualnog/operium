@@ -1009,7 +1009,7 @@ function FerramentasList({
                   {t("dashboard.ferramentas.new_button")}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-[92vw] sm:max-w-[85vw] md:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                 <form onSubmit={handleSubmit}>
                   <DialogHeader>
                     <DialogTitle>
@@ -1029,7 +1029,7 @@ function FerramentasList({
                     </div>
                   )}
 
-                  <div className="grid gap-4 py-4">
+                  <div className="grid gap-3 sm:gap-4 py-3 sm:py-4">
                     {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
                     <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
                     <input type="hidden" name="estado" value={editing?.estado || "ok"} />
@@ -1038,7 +1038,7 @@ function FerramentasList({
                     <input type="hidden" name="catalog_item_id" value={catalogItemId || ""} />
 
                     {!editing && (
-                      <div className="bg-slate-50 dark:bg-zinc-800/50 p-4 rounded-lg border border-dashed border-slate-200 dark:border-zinc-700 mb-4">
+                      <div className="bg-slate-50 dark:bg-zinc-800/50 p-3 sm:p-4 rounded-lg border border-dashed border-slate-200 dark:border-zinc-700 mb-3 sm:mb-4">
                         <Label className="mb-2 block text-blue-600 dark:text-blue-400 font-medium">
                           ✨ {t("dashboard.ferramentas.form.catalog_search_label") || "Comece buscando no Catálogo Global"}
                         </Label>
@@ -1128,7 +1128,7 @@ function FerramentasList({
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="grid gap-2">
                         <Label htmlFor="categoria">{t("dashboard.ferramentas.form.line_group")}</Label>
                         <div className="flex gap-2">
@@ -1179,7 +1179,7 @@ function FerramentasList({
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="grid gap-2">
                         <Label htmlFor="tamanho">{t("dashboard.ferramentas.form.size")}</Label>
                         <Input
@@ -1219,7 +1219,7 @@ function FerramentasList({
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="grid gap-2">
                         <Label htmlFor="quantidade_total">{t("dashboard.ferramentas.form.quantity_total")} *</Label>
                         <Input

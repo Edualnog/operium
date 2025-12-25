@@ -70,14 +70,14 @@ export function CatalogSearch({ onSelect }: CatalogSearchProps) {
                     aria-expanded={open}
                     className="w-full justify-between h-12 text-left font-normal"
                 >
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Search className="h-4 w-4" />
-                        {query ? query : "Buscar no Catálogo Global (Ex: Makita, Furadeira...)"}
+                    <div className="flex items-center gap-2 text-muted-foreground truncate">
+                        <Search className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{query ? query : "Buscar no Catálogo Global (Ex: Makita, Furadeira...)"}</span>
                     </div>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[400px] p-0" align="start">
+            <PopoverContent className="w-[92vw] sm:w-[400px] p-0" align="start">
                 <Command shouldFilter={false}>
                     <CommandInput
                         placeholder="Digite marca ou modelo..."
