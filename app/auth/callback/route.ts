@@ -13,9 +13,15 @@ export async function GET(request: Request) {
     // DEBUG: Log to see what Supabase is sending
     console.log('🔍 Auth callback - type:', type, 'code:', code ? 'present' : 'none', 'token_hash:', token_hash ? 'present' : 'none')
 
-    // ULTRA-SIMPLIFIED: Only recovery goes to password reset, everything else goes to dashboard
-    const next = (type === 'recovery') ? '/auth/reset-password' : '/dashboard'
-    console.log('➡️ Redirecting to:', next)
+    // SMART DETECTION: Recovery can come as type=recovery OR type=magiclink with token_hash
+    // Also, password recovery emails might not send type at all, just token_hash
+    const isRecovery = type === 'recovery' ||
+        type === 'magiclink' ||
+        (token_hash && !type) ||
+        (token_hash && type !== 'signup' && type !== 'email')
+
+    const next = isRecovery ? '/auth/reset-password' : '/dashboard'
+    console.log('➡️ Redirecting to:', next, '(isRecovery:', isRecovery, ')')
 
     const cookieStore = cookies()
     const supabase = createServerClient(
