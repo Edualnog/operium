@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import Script from "next/script"
 import "./globals.css"
-import { ThemeProvider } from "@/components/providers/ThemeProvider"
+import { Providers } from "./providers"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import OfflineBanner from "@/components/offline/OfflineBanner"
@@ -109,6 +108,13 @@ export default function RootLayout({
             gtag('config', 'G-T7QX1XRLMJ');
           `}
         </Script>
+
+        {/* Cloudflare Web Analytics */}
+        <Script
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "8643a05aafb74f4594fa79fac639ded8"}'
+          strategy="afterInteractive"
+        />
 
         <QueryProvider>
           <I18nProvider>
