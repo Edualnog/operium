@@ -20,6 +20,7 @@ interface CreateEditTeamModalProps {
     onOpenChange: (open: boolean) => void
     teamToEdit?: Team
     onTeamCreated?: (team: Team) => void
+    onTeamUpdated?: (team: Team) => void
 }
 
 interface FormData {
@@ -31,7 +32,7 @@ interface FormData {
     current_location: string
 }
 
-export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, onTeamCreated }: CreateEditTeamModalProps) {
+export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, onTeamCreated, onTeamUpdated }: CreateEditTeamModalProps) {
     const { t, ready } = useTranslation()
     const [isLoading, setIsLoading] = useState(false)
     const [leaders, setLeaders] = useState<{ id: string, name: string }[]>([])
@@ -155,8 +156,9 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
         setIsLoading(true)
         try {
             if (teamToEdit) {
-                await updateTeam(teamToEdit.id, data)
+                const updatedTeam = await updateTeam(teamToEdit.id, data)
                 toast.success(safeT('teams.toast.updated', 'Equipe atualizada com sucesso!'))
+                onTeamUpdated?.(updatedTeam)
             } else {
                 const newTeam = await createTeam(data)
                 toast.success(safeT('teams.toast.created', 'Equipe criada com sucesso!'))

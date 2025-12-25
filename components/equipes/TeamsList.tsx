@@ -59,6 +59,11 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
         router.refresh()
     }
 
+    const handleTeamUpdated = (updatedTeam: Team) => {
+        setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t))
+        router.refresh()
+    }
+
     const filteredTeams = useMemo(() => {
         let result = [...teams]
 
@@ -169,7 +174,7 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <TeamCard team={team} onDeleted={() => handleTeamDeleted(team.id)} />
+                                        <TeamCard team={team} onDeleted={() => handleTeamDeleted(team.id)} onUpdated={handleTeamUpdated} />
                                     </motion.div>
                                 ))}
                             </AnimatePresence>

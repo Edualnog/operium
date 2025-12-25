@@ -25,9 +25,10 @@ import { toast } from "sonner"
 interface TeamCardProps {
     team: Team
     onDeleted?: () => void
+    onUpdated?: (team: Team) => void
 }
 
-export default function TeamCard({ team, onDeleted }: TeamCardProps) {
+export default function TeamCard({ team, onDeleted, onUpdated }: TeamCardProps) {
     const { t } = useTranslation()
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
@@ -216,6 +217,7 @@ export default function TeamCard({ team, onDeleted }: TeamCardProps) {
                 open={isEditModalOpen}
                 onOpenChange={setIsEditModalOpen}
                 teamToEdit={team}
+                onTeamUpdated={onUpdated}
             />
 
             <TeamDetailsSheet
