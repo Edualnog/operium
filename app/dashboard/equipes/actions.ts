@@ -10,9 +10,17 @@ import { Team, TeamStatus, TeamMember, TeamEquipment } from "./types"
 export async function getTeams(): Promise<Team[]> {
     const supabase = createServerActionClient({ cookies })
 
+    // Get current user for security filtering
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+        console.error("User not authenticated")
+        return []
+    }
+
     const { data, error } = await supabase
         .from("v_teams_summary")
         .select("*")
+        .eq("profile_id", user.id)  // CRITICAL: Filter by user's profile_id
         .order("created_at", { ascending: false })
 
     if (error) {
