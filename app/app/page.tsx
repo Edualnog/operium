@@ -1493,47 +1493,37 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
     const fetchTeams = async () => {
         setLoadingTeams(true)
         try {
-            // Get current user's org_id
+            // First check if user has org_id (for debugging)
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-
-            const { data: profile } = await supabase
-                .from('operium_profiles')
-                .select('org_id')
-                .eq('user_id', user.id)
-                .eq('active', true)
-                .single()
-
-            if (!profile?.org_id) {
-                setTeams([])
-                return
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('operium_profiles')
+                    .select('org_id, team_id')
+                    .eq('user_id', user.id)
+                    .eq('active', true)
+                    .single()
+                console.log('[fetchTeams] User profile:', { org_id: profile?.org_id, team_id: profile?.team_id })
             }
 
-            // Get all profile_ids from the same org
-            const { data: orgProfiles } = await supabase
-                .from('operium_profiles')
-                .select('user_id')
-                .eq('org_id', profile.org_id)
-                .eq('active', true)
-
-            const profileIds = orgProfiles?.map(p => p.user_id) || []
-
-            if (profileIds.length === 0) {
-                setTeams([])
-                return
-            }
-
-            // Get teams created by users in the same org, excluding deleted teams
-            const { data } = await supabase
+            // RLS policy filters by org_id automatically using get_user_org_id()
+            // Just fetch all teams - RLS will show only teams from user's org
+            const { data, error } = await supabase
                 .from('teams')
-                .select('id, name, deleted_at')
-                .in('profile_id', profileIds)
+                .select('id, name, org_id, profile_id')
                 .is('deleted_at', null)
                 .order('name')
 
+            if (error) {
+                console.error('[fetchTeams] Error:', error)
+                setTeams([])
+                return
+            }
+
+            console.log('[fetchTeams] Teams returned by RLS:', data?.length || 0, data)
             setTeams(data || [])
         } catch (err) {
-            console.error('Error fetching teams:', err)
+            console.error('[fetchTeams] Exception:', err)
+            setTeams([])
         } finally {
             setLoadingTeams(false)
         }
