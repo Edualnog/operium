@@ -375,7 +375,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 <Mail className="h-4 w-4" />
               </a>
               <a
-                href="https://www.youtube.com/@operium"
+                href="https://www.youtube.com/@operiumerp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-red-100 hover:text-red-500 active:bg-red-200 transition-all touch-manipulation dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-red-900/30 dark:hover:text-red-400"
@@ -384,7 +384,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 <YouTubeIcon className="h-4 w-4" />
               </a>
               <a
-                href="https://www.instagram.com/operium"
+                href="https://www.instagram.com/operium.com.br"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-pink-100 hover:text-pink-500 active:bg-pink-200 transition-all touch-manipulation dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-pink-900/30 dark:hover:text-pink-400"
@@ -393,7 +393,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
                 <InstagramIcon className="h-4 w-4" />
               </a>
               <a
-                href="https://www.linkedin.com/company/operium"
+                href="https://www.linkedin.com/company/operiumerp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 md:p-2 rounded-full bg-zinc-100 text-zinc-500 hover:bg-blue-100 hover:text-blue-600 active:bg-blue-200 transition-all touch-manipulation dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"

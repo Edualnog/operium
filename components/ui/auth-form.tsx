@@ -245,7 +245,7 @@ const AuthForm: React.FC = () => {
                 <span className="font-semibold text-foreground">Operium</span>
               </a>
               <a
-                href="https://www.linkedin.com/company/operium"
+                href="https://www.linkedin.com/company/operiumerp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-600 transition-colors flex-shrink-0"

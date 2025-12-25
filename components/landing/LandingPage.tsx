@@ -906,9 +906,9 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           </div>
 
           <div className="flex gap-4 text-slate-400">
-            <a href="#" className="hover:text-blue-600"><InstagramIcon className="h-4 w-4 sm:h-5 sm:w-5" /></a>
-            <a href="#" className="hover:text-blue-600"><YouTubeIcon className="h-4 w-4 sm:h-5 sm:w-5" /></a>
-            <a href="https://www.linkedin.com/company/operium" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600"><LinkedInIcon className="h-4 w-4 sm:h-5 sm:w-5" /></a>
+            <a href="https://www.instagram.com/operium.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600"><InstagramIcon className="h-4 w-4 sm:h-5 sm:w-5" /></a>
+            <a href="https://www.youtube.com/@operiumerp" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600"><YouTubeIcon className="h-4 w-4 sm:h-5 sm:w-5" /></a>
+            <a href="https://www.linkedin.com/company/operiumerp" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600"><LinkedInIcon className="h-4 w-4 sm:h-5 sm:w-5" /></a>
           </div>
 
           <div className="text-[10px] sm:text-xs text-slate-400 mt-1 sm:mt-2">
