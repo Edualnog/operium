@@ -556,20 +556,38 @@ export async function criarFerramenta(formData: FormData) {
           insertedData = result1
           insertError = null
         } else {
-          // Realmente não inseriu - mas NÃO bloquear, tentar inserir sem trigger
-          console.warn("⚠️ Produto não encontrado após erro de trigger, tentando inserção alternativa...")
+          // Realmente não inseriu - usar RPC segura que contorna triggers
+          console.warn("⚠️ Produto não encontrado após erro de trigger, tentando RPC insert_ferramenta_safe...")
 
-          // Tentar RPC ou inserção direta ignorando trigger
-          const { data: retryResult, error: retryError } = await supabase
-            .from("ferramentas")
-            .insert(insertData)
-            .select()
+          // Tentar RPC que contorna triggers problemáticos
+          const { data: rpcResult, error: rpcError } = await supabase
+            .rpc("insert_ferramenta_safe", {
+              p_profile_id: user.id,
+              p_nome: insertData.nome,
+              p_categoria: insertData.categoria || null,
+              p_quantidade_total: insertData.quantidade_total,
+              p_estado: insertData.estado,
+              p_codigo: insertData.codigo || null,
+              p_linha_grupo: insertData.linha_grupo || null,
+              p_tamanho: insertData.tamanho || null,
+              p_cor: insertData.cor || null,
+              p_foto_url: insertData.foto_url || null,
+              p_estoque_minimo: insertData.estoque_minimo || null,
+            })
 
-          if (retryResult && retryResult.length > 0) {
-            insertedData = retryResult
+          if (rpcResult) {
+            console.log("✅ Produto inserido via RPC segura!")
+            insertedData = [rpcResult]
             insertError = null
-          } else {
-            // Última tentativa: buscar novamente
+          } else if (rpcError?.message?.includes("does not exist") || rpcError?.message?.includes("insert_ferramenta_safe")) {
+            // RPC não existe ainda, tentar insert direto mais uma vez e buscar
+            console.warn("⚠️ RPC não disponível, tentando insert direto...")
+
+            await supabase
+              .from("ferramentas")
+              .insert(insertData)
+
+            // Independente do erro, buscar o produto
             const { data: finalCheck } = await supabase
               .from("ferramentas")
               .select("*")
@@ -582,8 +600,14 @@ export async function criarFerramenta(formData: FormData) {
               insertedData = finalCheck
               insertError = null
             } else {
-              insertError = retryError || error1
+              // Reportar erro claro pedindo para executar migration
+              insertError = new Error(
+                "Não foi possível inserir o produto devido a triggers problemáticos. " +
+                "Execute a migration 106_insert_ferramenta_bypass_trigger.sql no Supabase SQL Editor."
+              )
             }
+          } else {
+            insertError = rpcError
           }
         }
       } else {
