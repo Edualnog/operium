@@ -127,6 +127,9 @@ export interface MyTeamInfo {
     leader_id: string | null
     leader_name: string | null
     leader_photo: string | null
+    vehicle_id: string | null
+    vehicle_plate: string | null
+    vehicle_model: string | null
     members: TeamMemberInfo[]
 }
 
@@ -155,6 +158,9 @@ export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
         leader_id: string | null
         leader_name: string | null
         leader_photo: string | null
+        vehicle_id: string | null
+        vehicle_plate: string | null
+        vehicle_model: string | null
         members: Array<{
             id: string
             name: string
@@ -171,6 +177,9 @@ export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
         leader_id: teamData.leader_id,
         leader_name: teamData.leader_name,
         leader_photo: teamData.leader_photo,
+        vehicle_id: teamData.vehicle_id,
+        vehicle_plate: teamData.vehicle_plate,
+        vehicle_model: teamData.vehicle_model,
         members: teamData.members || []
     }
 }

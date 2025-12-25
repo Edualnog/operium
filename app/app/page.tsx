@@ -624,11 +624,13 @@ function VehicleExpenseModal({
 function VehicleStatusModal({
     open,
     onClose,
-    onSuccess
+    onSuccess,
+    teamVehicle
 }: {
     open: boolean
     onClose: () => void
     onSuccess: () => void
+    teamVehicle?: { id: string; plate: string; model: string | null } | null
 }) {
     const { t } = useTranslation('common')
     const [vehicleId, setVehicleId] = useState('')
@@ -640,14 +642,25 @@ function VehicleStatusModal({
     const { vehicles } = useOperiumVehicles()
     const { createVehicleStatus } = useOperiumEvents()
 
+    // Use team vehicle if available, otherwise allow selection
+    const hasTeamVehicle = !!teamVehicle?.id
+    const effectiveVehicleId = hasTeamVehicle ? teamVehicle.id : vehicleId
+
+    // Set vehicle ID from team when modal opens
+    useEffect(() => {
+        if (open && teamVehicle?.id) {
+            setVehicleId(teamVehicle.id)
+        }
+    }, [open, teamVehicle?.id])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!vehicleId) return
+        if (!effectiveVehicleId) return
         setLoading(true)
         setError(null)
         try {
             await createVehicleStatus({
-                vehicle_id: vehicleId,
+                vehicle_id: effectiveVehicleId,
                 status,
                 observacoes: observacoes || undefined
             })
@@ -681,21 +694,32 @@ function VehicleStatusModal({
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                         {t('modals.status.vehicle')}
                     </label>
-                    <select
-                        value={vehicleId}
-                        onChange={(e) => setVehicleId(e.target.value)}
-                        required
-                        className="w-full h-14 px-4 text-base bg-neutral-50 border border-neutral-200 rounded-xl
-                                   focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white
-                                   appearance-none font-medium text-neutral-900"
-                    >
-                        <option value="">{t('modals.status.select_vehicle')}</option>
-                        {vehicles.map((v) => (
-                            <option key={v.id} value={v.id}>
-                                {v.plate} {v.model && `- ${v.model}`}
-                            </option>
-                        ))}
-                    </select>
+                    {hasTeamVehicle ? (
+                        // Fixed vehicle from team - not editable
+                        <div className="w-full h-14 px-4 flex items-center bg-neutral-100 border border-neutral-200 rounded-xl">
+                            <Car className="h-5 w-5 text-neutral-500 mr-3" />
+                            <span className="text-base font-medium text-neutral-900">
+                                {teamVehicle.plate} {teamVehicle.model && `- ${teamVehicle.model}`}
+                            </span>
+                        </div>
+                    ) : (
+                        // Selectable vehicle (fallback if no team vehicle)
+                        <select
+                            value={vehicleId}
+                            onChange={(e) => setVehicleId(e.target.value)}
+                            required
+                            className="w-full h-14 px-4 text-base bg-neutral-50 border border-neutral-200 rounded-xl
+                                       focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:bg-white
+                                       appearance-none font-medium text-neutral-900"
+                        >
+                            <option value="">{t('modals.status.select_vehicle')}</option>
+                            {vehicles.map((v) => (
+                                <option key={v.id} value={v.id}>
+                                    {v.plate} {v.model && `- ${v.model}`}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                 </div>
 
                 <div>
@@ -2191,6 +2215,11 @@ export default function AppPage() {
                 open={showStatusModal}
                 onClose={() => setShowStatusModal(false)}
                 onSuccess={handleSuccess}
+                teamVehicle={teamInfo?.vehicle_id ? {
+                    id: teamInfo.vehicle_id,
+                    plate: teamInfo.vehicle_plate || '',
+                    model: teamInfo.vehicle_model
+                } : null}
             />
             <DailyReportModal
                 open={showReportModal}
