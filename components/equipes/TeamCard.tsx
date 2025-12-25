@@ -19,16 +19,36 @@ import CreateEditTeamModal from "./CreateEditTeamModal"
 import TeamDetailsSheet from "./TeamDetailsSheet"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
+import { deleteTeam } from "@/app/dashboard/equipes/actions"
+import { toast } from "sonner"
 
 interface TeamCardProps {
     team: Team
+    onDeleted?: () => void
 }
 
-export default function TeamCard({ team }: TeamCardProps) {
+export default function TeamCard({ team, onDeleted }: TeamCardProps) {
     const { t } = useTranslation()
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [selectedTab, setSelectedTab] = useState<"members" | "equipment" | "vehicle">("members")
+    const [isDeleting, setIsDeleting] = useState(false)
+
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (isDeleting) return
+
+        setIsDeleting(true)
+        try {
+            await deleteTeam(team.id)
+            toast.success("Equipe desativada com sucesso!")
+            onDeleted?.()
+        } catch (error: any) {
+            toast.error(error.message || "Erro ao desativar equipe")
+        } finally {
+            setIsDeleting(false)
+        }
+    }
 
     // Status neutro estilo Notion - sem cores chamativas
     const getStatusColor = (status: string) => {
@@ -105,8 +125,12 @@ export default function TeamCard({ team }: TeamCardProps) {
                                 {t('teams.card.equipment')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                {t('teams.card.deactivate')}
+                            <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? "Desativando..." : t('teams.card.deactivate')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

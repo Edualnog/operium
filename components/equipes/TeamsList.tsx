@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
+import { useRouter } from "next/navigation"
 
 interface TeamsListProps {
     initialTeams: Team[]
@@ -32,21 +33,31 @@ interface TeamsListProps {
 
 export default function TeamsList({ initialTeams }: TeamsListProps) {
     const { t } = useTranslation()
+    const router = useRouter()
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [activeTab, setActiveTab] = useState<"todos" | "ativas" | "pausa">("ativas")
     const [search, setSearch] = useState("")
+
+    // Internal state for teams list
+    const [teams, setTeams] = useState<Team[]>(Array.isArray(initialTeams) ? initialTeams : [])
 
     // State for auto-opening details after create
     const [justCreatedTeam, setJustCreatedTeam] = useState<Team | null>(null)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
     const handleTeamCreated = (team: Team) => {
+        // Add team to local state immediately
+        setTeams(prev => [team, ...prev])
         setJustCreatedTeam(team)
         setIsDetailsOpen(true)
+        // Also refresh from server
+        router.refresh()
     }
 
-    // Safe array check
-    const teams = Array.isArray(initialTeams) ? initialTeams : []
+    const handleTeamDeleted = (teamId: string) => {
+        setTeams(prev => prev.filter(t => t.id !== teamId))
+        router.refresh()
+    }
 
     const filteredTeams = useMemo(() => {
         let result = [...teams]
@@ -158,7 +169,7 @@ export default function TeamsList({ initialTeams }: TeamsListProps) {
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <TeamCard team={team} />
+                                        <TeamCard team={team} onDeleted={() => handleTeamDeleted(team.id)} />
                                     </motion.div>
                                 ))}
                             </AnimatePresence>

@@ -1615,7 +1615,8 @@
         }
     },
     "teams": {
-        "title": "Equipes",
+        "title": "Unidades Operacionais",
+        "description": "Gerencie equipes e execuções individuais em campo.",
         "subtitle": "Gerencie equipes operacionais, atribua veículos e controle equipamentos.",
         "loading": "Carregando equipes...",
         "new_team": "Nova Equipe",
@@ -1949,24 +1950,6 @@
             "footer_note": "Ao continuar, você confirma que leu todos os documentos.",
             "confirm_button": "Confirmar e Continuar",
             "processing": "Processando..."
-        }
-    },
-    "teams": {
-        "title": "Unidades Operacionais",
-        "description": "Gerencie equipes e execuções individuais em campo.",
-        "loading": "Carregando equipes...",
-        "new_team": "Nova Equipe",
-        "search_placeholder": "Buscar equipes...",
-        "tabs": {
-            "active": "Ativas",
-            "on_break": "Em Pausa",
-            "all": "Todas"
-        },
-        "empty": {
-            "title": "Nenhuma equipe encontrada",
-            "start_hint": "Crie sua primeira equipe operacional para começar.",
-            "search_hint": "Nenhuma equipe corresponde à sua busca. Tente outras palavras-chave.",
-            "create_button": "Criar Nova Equipe"
         }
     },
     "reports": {
