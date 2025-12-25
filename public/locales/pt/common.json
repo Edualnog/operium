@@ -1786,7 +1786,8 @@
             "daily_report_desc": "Resumo das atividades realizadas",
             "return_equipment": "Devolver Equipamentos",
             "in_custody": "em custódia",
-            "available_at_18": "Disponível às 18:00"
+            "available_at_18": "Disponível às 18:00",
+            "report_completed": "Relatório de hoje já enviado ✓"
         },
         "equipment": {
             "title": "Equipamentos da Equipe"

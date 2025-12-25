@@ -265,8 +265,8 @@ function ActionCard({
             onClick={disabled ? undefined : onClick}
             disabled={disabled}
             className={`w-full flex items-center gap-3.5 px-4 py-3.5 bg-white transition-all duration-150 ${disabled
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'active:bg-neutral-50 active:scale-[0.98]'
+                ? 'opacity-50 cursor-not-allowed'
+                : 'active:bg-neutral-50 active:scale-[0.98]'
                 }`}
         >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${disabled ? 'bg-neutral-50' : 'bg-neutral-100'
@@ -1419,8 +1419,8 @@ function TeamInfoSection({ teamInfo, loading }: { teamInfo: MyTeamInfo | null; l
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex-1 py-3 text-[13px] font-semibold transition-colors relative ${activeTab === tab.id
-                                ? 'text-neutral-900'
-                                : 'text-neutral-400'
+                            ? 'text-neutral-900'
+                            : 'text-neutral-400'
                             }`}
                     >
                         <span>{tab.label}</span>
@@ -1839,6 +1839,7 @@ export default function AppPage() {
     const [acceptingAll, setAcceptingAll] = useState(false)
     const [teamInfo, setTeamInfo] = useState<MyTeamInfo | null>(null)
     const [loadingTeamInfo, setLoadingTeamInfo] = useState(true)
+    const [hasReportToday, setHasReportToday] = useState(false)
 
     // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
     // Supabase sends recovery emails with #access_token=...&type=recovery
@@ -1884,7 +1885,38 @@ export default function AppPage() {
         router.push('/login')
     }
 
+    // Check if user has already filled today's report
+    const checkTodayReport = useCallback(async () => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+            const today = new Date().toISOString().split('T')[0]
+            const { data } = await supabase
+                .from('field_reports')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('report_date', today)
+                .maybeSingle()
+            setHasReportToday(!!data)
+        } catch {
+            // Ignore errors
+        }
+    }, [supabase])
+
+    // Check report status on load and when onboarding completes
+    useEffect(() => {
+        if (onboardingComplete) {
+            checkTodayReport()
+        }
+    }, [onboardingComplete, checkTodayReport])
+
     const handleSuccess = () => refreshEvents()
+
+    // Handle report success - update state immediately without refresh
+    const handleReportSuccess = () => {
+        setHasReportToday(true) // Immediately mark as filled
+        refreshEvents()
+    }
 
     const handleOnboardingComplete = () => {
         setOnboardingComplete(true)
@@ -2081,10 +2113,14 @@ export default function AppPage() {
                         <ActionCard
                             icon={FileText}
                             title={t('mobile_app.quick_actions.daily_report')}
-                            subtitle={t('mobile_app.quick_actions.daily_report_desc')}
+                            subtitle={hasReportToday
+                                ? t('mobile_app.quick_actions.report_completed')
+                                : t('mobile_app.quick_actions.daily_report_desc')}
                             onClick={() => setShowReportModal(true)}
-                            disabled={new Date().getHours() < 18}
-                            disabledMessage={t('mobile_app.quick_actions.available_at_18')}
+                            disabled={new Date().getHours() < 18 || hasReportToday}
+                            disabledMessage={hasReportToday
+                                ? t('mobile_app.quick_actions.report_completed')
+                                : t('mobile_app.quick_actions.available_at_18')}
                         />
                         {teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length > 0 && (
                             <ActionCard
@@ -2159,7 +2195,7 @@ export default function AppPage() {
             <DailyReportModal
                 open={showReportModal}
                 onClose={() => setShowReportModal(false)}
-                onSuccess={handleSuccess}
+                onSuccess={handleReportSuccess}
             />
             <EquipmentReturnModal
                 open={showReturnModal}
