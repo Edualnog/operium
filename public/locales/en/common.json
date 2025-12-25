@@ -1855,5 +1855,27 @@
             "confirm_button": "Confirm and Continue",
             "processing": "Processing..."
         }
+    },
+    "teams": {
+        "title": "Operational Units",
+        "description": "Manage teams and individual field operations.",
+        "loading": "Loading teams..."
+    },
+    "reports": {
+        "title": "Field Reports",
+        "description": "Track operational records submitted by field teams.",
+        "loading": "Loading reports..."
+    },
+    "access": {
+        "title": "Access Control",
+        "description": "Manage who has access to the system and define permissions by role",
+        "role_control": "Role-Based Control",
+        "role_description": "Field or Administrator",
+        "add_collaborators": "Add Collaborators",
+        "invite_description": "Invite by email with specific permissions",
+        "activate_button": "Activate Access Control",
+        "error_loading": "Error loading",
+        "activated": "Access system activated!",
+        "error_activating": "Error activating"
     }
 }

@@ -1950,5 +1950,27 @@
             "confirm_button": "Confirmar e Continuar",
             "processing": "Processando..."
         }
+    },
+    "teams": {
+        "title": "Unidades Operacionais",
+        "description": "Gerencie equipes e execuções individuais em campo.",
+        "loading": "Carregando equipes..."
+    },
+    "reports": {
+        "title": "Relatórios de Campo",
+        "description": "Acompanhe registros operacionais enviados pelas equipes em campo.",
+        "loading": "Carregando relatórios..."
+    },
+    "access": {
+        "title": "Controle de Acessos",
+        "description": "Gerencie quem tem acesso ao sistema e defina permissões por papel",
+        "role_control": "Controle por Papel",
+        "role_description": "Campo ou Administrador",
+        "add_collaborators": "Adicione Colaboradores",
+        "invite_description": "Convide por email com permissões específicas",
+        "activate_button": "Ativar Controle de Acessos",
+        "error_loading": "Erro ao carregar",
+        "activated": "Sistema de acessos ativado!",
+        "error_activating": "Erro ao ativar"
     }
 }
