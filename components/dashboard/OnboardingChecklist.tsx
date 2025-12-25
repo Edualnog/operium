@@ -150,7 +150,7 @@ export function OnboardingChecklist({ userId }: OnboardingChecklistProps) {
     // Se estiver carregando, mostra skeleton
     if (loading) {
         return (
-            <Card className="mb-8 border-zinc-100 bg-white shadow-sm">
+            <Card className="mb-8 border-zinc-100 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
                 <CardContent className="p-6">
                     <div className="h-6 w-48 bg-zinc-100 rounded animate-pulse mb-6" />
                     <div className="space-y-4">
