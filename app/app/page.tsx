@@ -24,6 +24,7 @@ import {
     ChevronRight,
     Plus,
     User,
+    Users,
     AlertTriangle,
     CheckCircle2,
     ArrowDownToLine
@@ -34,6 +35,7 @@ import {
     requestEquipmentReturn,
     reportFieldIssue,
     getMyTeamEquipment,
+    getMyTeamInfo,
     getAvailableTeams,
     TeamEquipmentMobile,
     AvailableTeam
@@ -1646,6 +1648,7 @@ export default function AppPage() {
     const [showIssueModal, setShowIssueModal] = useState(false)
     const [selectedIssueEquipment, setSelectedIssueEquipment] = useState<TeamEquipmentMobile | null>(null)
     const [acceptingAll, setAcceptingAll] = useState(false)
+    const [teamInfo, setTeamInfo] = useState<{ id: string; name: string; status: string } | null>(null)
 
     // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
     // Supabase sends recovery emails with #access_token=...&type=recovery
@@ -1697,15 +1700,17 @@ export default function AppPage() {
         setOnboardingComplete(true)
     }
 
-    // Fetch pending equipment for acceptance
+    // Fetch pending equipment for acceptance and team info
     const fetchEquipmentData = useCallback(async () => {
         try {
-            const [pending, equipment] = await Promise.all([
+            const [pending, equipment, team] = await Promise.all([
                 getPendingEquipmentAcceptance(),
-                getMyTeamEquipment()
+                getMyTeamEquipment(),
+                getMyTeamInfo()
             ])
             setPendingEquipment(pending)
             setTeamEquipment(equipment)
+            setTeamInfo(team)
         } catch (e) {
             console.error('Error fetching equipment data:', e)
         }
@@ -1843,6 +1848,12 @@ export default function AppPage() {
                         {t('mobile_app.greeting.hello')}{userName ? `, ${userName.split(' ')[0]}` : ''}!
                     </h2>
                     <p className="text-[15px] text-neutral-500 mt-0.5">{t('mobile_app.greeting.subtitle')}</p>
+                    {teamInfo && (
+                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-neutral-100">
+                            <Users className="h-4 w-4 text-neutral-400" />
+                            <span className="text-[14px] font-medium text-neutral-700">{teamInfo.name}</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Quick Actions - iOS Settings Style */}
