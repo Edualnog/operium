@@ -15,21 +15,57 @@ export default function CreatePasswordPage() {
     const router = useRouter()
     const supabase = createClientComponentClient()
 
-    // Verificação de segurança: se já tem senha, vai pro dashboard
+    // Verificação CRÍTICA: distinguir confirmação de email vs convite real
     useEffect(() => {
         const checkStatus = async () => {
             const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('password_set')
-                    .eq('id', user.id)
-                    .single()
 
-                if (profile?.password_set) {
-                    router.replace('/dashboard')
-                }
+            if (!user) {
+                // Não logado, redireciona para login
+                router.replace('/login')
+                return
             }
+
+            // Verificar se já tem senha definida
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('password_set')
+                .eq('id', user.id)
+                .single()
+
+            // Se password_set = true, usuário já tem senha → não precisa criar
+            if (profile?.password_set === true) {
+                router.replace('/dashboard')
+                return
+            }
+
+            // Se password_set = false OU null, verificar se é um signup normal
+            // Em signup normal, o usuário JÁ criou senha ao se cadastrar
+            // Apenas invites de admin vêm para esta página sem senha
+
+            // Verificar se tem operium_profile (significa que foi convidado por admin)
+            const { data: operiumProfile } = await supabase
+                .from('operium_profiles')
+                .select('user_id, role')
+                .eq('user_id', user.id)
+                .eq('active', true)
+                .single()
+
+            // Se NÃO tem operium_profile = signup normal (não é convite)
+            // → Já tem senha, vai pro dashboard
+            if (!operiumProfile) {
+                // Atualizar password_set para true
+                await supabase
+                    .from('profiles')
+                    .update({ password_set: true })
+                    .eq('id', user.id)
+
+                router.replace('/dashboard')
+                return
+            }
+
+            // Se chegou aqui: TEM operium_profile = foi convidado por admin
+            // → Precisa criar senha, então FICA nesta página
         }
         checkStatus()
     }, [router, supabase])
