@@ -329,6 +329,10 @@
             "stock": "Estoque",
             "repairs": "Consertos",
             "inventory": "Inventário",
+            "teams": "Gestão de Equipes",
+            "reports": "Relatórios",
+            "vehicles": "Veículos",
+            "access": "Acessos",
             "account": "Conta",
             "logout": "Sair"
         },

@@ -281,6 +281,10 @@
             "stock": "Stock",
             "repairs": "Repairs",
             "inventory": "Inventory",
+            "teams": "Team Management",
+            "reports": "Reports",
+            "vehicles": "Vehicles",
+            "access": "Access",
             "account": "Account",
             "logout": "Logout"
         },

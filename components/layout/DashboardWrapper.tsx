@@ -109,7 +109,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
-      label: "Gestão de Equipes",
+      label: t('dashboard.sidebar.teams'),
       href: "/dashboard/equipes",
       id: "sidebar-equipes",
       icon: (
@@ -117,7 +117,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
-      label: "Relatórios",
+      label: t('dashboard.sidebar.reports'),
       href: "/dashboard/relatorios",
       id: "sidebar-relatorios",
       icon: (
@@ -141,7 +141,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
       ),
     },
     {
-      label: "Veículos",
+      label: t('dashboard.sidebar.vehicles'),
       href: "/dashboard/veiculos",
       id: "sidebar-veiculos",
       icon: (
@@ -159,7 +159,7 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     // NOTA: "Operacional" removido do sidebar admin
     // Este painel é destinado apenas a colaboradores de campo via app mobile
     {
-      label: "Acessos",
+      label: t('dashboard.sidebar.access'),
       href: "/dashboard/acessos",
       id: "sidebar-acessos",
       icon: (
