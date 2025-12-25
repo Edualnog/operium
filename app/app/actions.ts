@@ -112,7 +112,25 @@ export async function getMyTeamEquipment(): Promise<TeamEquipmentMobile[]> {
 }
 
 // Get team info for user
-export async function getMyTeamInfo() {
+export interface TeamMemberInfo {
+    id: string
+    name: string
+    role: string | null
+    photo: string | null
+}
+
+export interface MyTeamInfo {
+    id: string
+    name: string
+    status: string
+    current_location: string | null
+    leader_id: string | null
+    leader_name: string | null
+    leader_photo: string | null
+    members: TeamMemberInfo[]
+}
+
+export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
     const supabase = await createServerComponentClient()
 
     const { data: { user } } = await supabase.auth.getUser()
@@ -127,13 +145,51 @@ export async function getMyTeamInfo() {
 
     if (!profile?.team_id) return null
 
+    // Get team with leader info
     const { data: team } = await supabase
         .from("teams")
-        .select("id, name, status")
+        .select(`
+            id,
+            name,
+            status,
+            current_location,
+            leader_id,
+            colaboradores!teams_leader_id_fkey(nome, foto_url)
+        `)
         .eq("id", profile.team_id)
         .single()
 
-    return team
+    if (!team) return null
+
+    // Get team members
+    const { data: members } = await supabase
+        .from("team_members")
+        .select(`
+            id,
+            role,
+            colaboradores(id, nome, foto_url)
+        `)
+        .eq("team_id", profile.team_id)
+        .is("left_at", null)
+
+    const leaderData = team.colaboradores as any
+    const membersList: TeamMemberInfo[] = (members || []).map((m: any) => ({
+        id: m.colaboradores?.id || m.id,
+        name: m.colaboradores?.nome || 'Sem nome',
+        role: m.role,
+        photo: m.colaboradores?.foto_url || null
+    }))
+
+    return {
+        id: team.id,
+        name: team.name,
+        status: team.status,
+        current_location: team.current_location,
+        leader_id: team.leader_id,
+        leader_name: leaderData?.nome || null,
+        leader_photo: leaderData?.foto_url || null,
+        members: membersList
+    }
 }
 
 // Report equipment issue from mobile

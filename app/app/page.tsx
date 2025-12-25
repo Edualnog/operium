@@ -27,7 +27,9 @@ import {
     Users,
     AlertTriangle,
     CheckCircle2,
-    ArrowDownToLine
+    ArrowDownToLine,
+    MapPin,
+    Crown
 } from 'lucide-react'
 import {
     getPendingEquipmentAcceptance,
@@ -38,7 +40,8 @@ import {
     getMyTeamInfo,
     getAvailableTeams,
     TeamEquipmentMobile,
-    AvailableTeam
+    AvailableTeam,
+    MyTeamInfo
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
@@ -1353,6 +1356,153 @@ function EquipmentIssueModal({
 }
 
 // ============================================================================
+// TEAM INFO SECTION - iOS Tabs Style
+// ============================================================================
+
+function TeamInfoSection({ teamInfo }: { teamInfo: MyTeamInfo | null }) {
+    const [activeTab, setActiveTab] = useState<'members' | 'leader' | 'location'>('members')
+
+    if (!teamInfo) return null
+
+    const tabs = [
+        { id: 'members' as const, label: 'Membros', count: teamInfo.members.length },
+        { id: 'leader' as const, label: 'Líder' },
+        { id: 'location' as const, label: 'Local' }
+    ]
+
+    return (
+        <div className="bg-white rounded-2xl overflow-hidden">
+            {/* Tab Headers */}
+            <div className="flex border-b border-neutral-100">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex-1 py-3 text-[13px] font-semibold transition-colors relative ${
+                            activeTab === tab.id
+                                ? 'text-neutral-900'
+                                : 'text-neutral-400'
+                        }`}
+                    >
+                        <span>{tab.label}</span>
+                        {tab.count !== undefined && tab.count > 0 && (
+                            <span className="ml-1 text-[11px] text-neutral-400">({tab.count})</span>
+                        )}
+                        {activeTab === tab.id && (
+                            <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-neutral-900 rounded-full" />
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-4">
+                {/* Members Tab */}
+                {activeTab === 'members' && (
+                    <div className="space-y-3">
+                        {teamInfo.members.length === 0 ? (
+                            <div className="text-center py-6">
+                                <Users className="h-8 w-8 text-neutral-200 mx-auto mb-2" />
+                                <p className="text-[14px] text-neutral-400">Nenhum membro na equipe</p>
+                            </div>
+                        ) : (
+                            teamInfo.members.map((member) => (
+                                <div key={member.id} className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                        {member.photo ? (
+                                            <img
+                                                src={member.photo}
+                                                alt={member.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <User className="h-5 w-5 text-neutral-400" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[15px] font-medium text-neutral-900 truncate">
+                                            {member.name}
+                                        </p>
+                                        {member.role && (
+                                            <p className="text-[13px] text-neutral-400 truncate">
+                                                {member.role}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )}
+
+                {/* Leader Tab */}
+                {activeTab === 'leader' && (
+                    <div>
+                        {teamInfo.leader_id ? (
+                            <div className="flex items-center gap-4 py-2">
+                                <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-amber-200">
+                                    {teamInfo.leader_photo ? (
+                                        <img
+                                            src={teamInfo.leader_photo}
+                                            alt={teamInfo.leader_name || 'Líder'}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <Crown className="h-7 w-7 text-amber-500" />
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <Crown className="h-4 w-4 text-amber-500" />
+                                        <span className="text-[11px] font-semibold text-amber-600 uppercase tracking-wide">
+                                            Líder da Equipe
+                                        </span>
+                                    </div>
+                                    <p className="text-[18px] font-bold text-neutral-900 mt-0.5">
+                                        {teamInfo.leader_name || 'Sem nome'}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center py-6">
+                                <Crown className="h-8 w-8 text-neutral-200 mx-auto mb-2" />
+                                <p className="text-[14px] text-neutral-400">Nenhum líder definido</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Location Tab */}
+                {activeTab === 'location' && (
+                    <div>
+                        {teamInfo.current_location ? (
+                            <div className="flex items-start gap-3 py-2">
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                    <MapPin className="h-5 w-5 text-blue-500" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-wide">
+                                        Local de Atuação
+                                    </span>
+                                    <p className="text-[16px] font-medium text-neutral-900 mt-0.5">
+                                        {teamInfo.current_location}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center py-6">
+                                <MapPin className="h-8 w-8 text-neutral-200 mx-auto mb-2" />
+                                <p className="text-[14px] text-neutral-400">Nenhum local definido</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+// ============================================================================
 // TEAM EQUIPMENT SECTION - iOS List Style
 // ============================================================================
 
@@ -1648,7 +1798,7 @@ export default function AppPage() {
     const [showIssueModal, setShowIssueModal] = useState(false)
     const [selectedIssueEquipment, setSelectedIssueEquipment] = useState<TeamEquipmentMobile | null>(null)
     const [acceptingAll, setAcceptingAll] = useState(false)
-    const [teamInfo, setTeamInfo] = useState<{ id: string; name: string; status: string } | null>(null)
+    const [teamInfo, setTeamInfo] = useState<MyTeamInfo | null>(null)
 
     // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
     // Supabase sends recovery emails with #access_token=...&type=recovery
@@ -1855,6 +2005,9 @@ export default function AppPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Team Info Section - Members, Leader, Location */}
+                <TeamInfoSection teamInfo={teamInfo} />
 
                 {/* Quick Actions - iOS Settings Style */}
                 <div>
