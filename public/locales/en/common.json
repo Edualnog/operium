@@ -1859,7 +1859,20 @@
     "teams": {
         "title": "Operational Units",
         "description": "Manage teams and individual field operations.",
-        "loading": "Loading teams..."
+        "loading": "Loading teams...",
+        "new_team": "New Team",
+        "search_placeholder": "Search teams...",
+        "tabs": {
+            "active": "Active",
+            "on_break": "On Break",
+            "all": "All"
+        },
+        "empty": {
+            "title": "No teams found",
+            "start_hint": "Create your first operational team to get started.",
+            "search_hint": "No teams match your search. Try different keywords.",
+            "create_button": "Create New Team"
+        }
     },
     "reports": {
         "title": "Field Reports",
