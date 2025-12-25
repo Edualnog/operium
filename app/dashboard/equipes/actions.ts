@@ -73,8 +73,15 @@ export async function createTeam(formData: {
         throw new Error(`Falha ao criar equipe: ${error.message}`)
     }
 
+    // Fetch complete team data from view (includes leader_name, vehicle info, etc.)
+    const { data: completeTeam } = await supabase
+        .from("v_teams_summary")
+        .select("*")
+        .eq("id", data.id)
+        .single()
+
     revalidatePath("/dashboard/equipes")
-    return data
+    return completeTeam || data
 }
 
 export async function deleteTeam(teamId: string) {
@@ -132,8 +139,15 @@ export async function updateTeam(id: string, formData: {
         throw new Error(`Failed to update team: ${error.message}`)
     }
 
+    // Fetch complete team data from view (includes leader_name, vehicle info, etc.)
+    const { data: completeTeam } = await supabase
+        .from("v_teams_summary")
+        .select("*")
+        .eq("id", data.id)
+        .single()
+
     revalidatePath("/dashboard/equipes")
-    return data
+    return completeTeam || data
 }
 
 // --- MEMBERS ---
