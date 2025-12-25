@@ -1359,8 +1359,36 @@ function EquipmentIssueModal({
 // TEAM INFO SECTION - iOS Tabs Style
 // ============================================================================
 
-function TeamInfoSection({ teamInfo }: { teamInfo: MyTeamInfo | null }) {
+function TeamInfoSection({ teamInfo, loading }: { teamInfo: MyTeamInfo | null; loading?: boolean }) {
     const [activeTab, setActiveTab] = useState<'members' | 'leader' | 'location'>('members')
+
+    // Show skeleton while loading
+    if (loading) {
+        return (
+            <div className="bg-white rounded-2xl overflow-hidden animate-pulse">
+                <div className="flex border-b border-neutral-100">
+                    <div className="flex-1 py-3 flex justify-center">
+                        <div className="h-4 w-16 bg-neutral-200 rounded" />
+                    </div>
+                    <div className="flex-1 py-3 flex justify-center">
+                        <div className="h-4 w-12 bg-neutral-200 rounded" />
+                    </div>
+                    <div className="flex-1 py-3 flex justify-center">
+                        <div className="h-4 w-12 bg-neutral-200 rounded" />
+                    </div>
+                </div>
+                <div className="p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-neutral-200" />
+                        <div className="flex-1 space-y-2">
+                            <div className="h-4 w-32 bg-neutral-200 rounded" />
+                            <div className="h-3 w-20 bg-neutral-100 rounded" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     if (!teamInfo) return null
 
@@ -1799,6 +1827,7 @@ export default function AppPage() {
     const [selectedIssueEquipment, setSelectedIssueEquipment] = useState<TeamEquipmentMobile | null>(null)
     const [acceptingAll, setAcceptingAll] = useState(false)
     const [teamInfo, setTeamInfo] = useState<MyTeamInfo | null>(null)
+    const [loadingTeamInfo, setLoadingTeamInfo] = useState(true)
 
     // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
     // Supabase sends recovery emails with #access_token=...&type=recovery
@@ -1850,20 +1879,31 @@ export default function AppPage() {
         setOnboardingComplete(true)
     }
 
-    // Fetch pending equipment for acceptance and team info
+    // Fetch data progressively - each section appears as it loads
     const fetchEquipmentData = useCallback(async () => {
-        try {
-            const [pending, equipment, team] = await Promise.all([
-                getPendingEquipmentAcceptance(),
-                getMyTeamEquipment(),
-                getMyTeamInfo()
-            ])
-            setPendingEquipment(pending)
-            setTeamEquipment(equipment)
-            setTeamInfo(team)
-        } catch (e) {
-            console.error('Error fetching equipment data:', e)
-        }
+        // Set loading states
+        setLoadingTeamInfo(true)
+
+        // Fetch team info first (fastest, shows immediately)
+        getMyTeamInfo()
+            .then(team => {
+                setTeamInfo(team)
+                setLoadingTeamInfo(false)
+            })
+            .catch(e => {
+                console.error('Error fetching team info:', e)
+                setLoadingTeamInfo(false)
+            })
+
+        // Fetch equipment data (may take a bit longer)
+        getMyTeamEquipment()
+            .then(equipment => setTeamEquipment(equipment))
+            .catch(e => console.error('Error fetching team equipment:', e))
+
+        // Fetch pending equipment
+        getPendingEquipmentAcceptance()
+            .then(pending => setPendingEquipment(pending))
+            .catch(e => console.error('Error fetching pending equipment:', e))
     }, [])
 
     useEffect(() => {
@@ -2007,7 +2047,7 @@ export default function AppPage() {
                 </div>
 
                 {/* Team Info Section - Members, Leader, Location */}
-                <TeamInfoSection teamInfo={teamInfo} />
+                <TeamInfoSection teamInfo={teamInfo} loading={loadingTeamInfo} />
 
                 {/* Quick Actions - iOS Settings Style */}
                 <div>
