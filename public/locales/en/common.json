@@ -1689,7 +1689,8 @@
             "daily_report": "Daily Report",
             "daily_report_desc": "Summary of activities performed",
             "return_equipment": "Return Equipment",
-            "in_custody": "in custody"
+            "in_custody": "in custody",
+            "available_at_18": "Available at 6:00 PM"
         },
         "equipment": {
             "title": "Team Equipment"

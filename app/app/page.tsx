@@ -250,26 +250,38 @@ function ActionCard({
     title,
     subtitle,
     onClick,
+    disabled,
+    disabledMessage,
 }: {
     icon: any
     title: string
     subtitle: string
     onClick: () => void
+    disabled?: boolean
+    disabledMessage?: string
 }) {
     return (
         <button
-            onClick={onClick}
-            className="w-full flex items-center gap-3.5 px-4 py-3.5 bg-white
-                       active:bg-neutral-50 active:scale-[0.98] transition-all duration-150"
+            onClick={disabled ? undefined : onClick}
+            disabled={disabled}
+            className={`w-full flex items-center gap-3.5 px-4 py-3.5 bg-white transition-all duration-150 ${disabled
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'active:bg-neutral-50 active:scale-[0.98]'
+                }`}
         >
-            <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center flex-shrink-0">
-                <Icon className="h-5 w-5 text-neutral-600" strokeWidth={1.75} />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${disabled ? 'bg-neutral-50' : 'bg-neutral-100'
+                }`}>
+                <Icon className={`h-5 w-5 ${disabled ? 'text-neutral-400' : 'text-neutral-600'}`} strokeWidth={1.75} />
             </div>
             <div className="flex-1 text-left min-w-0">
-                <p className="text-[16px] font-semibold text-neutral-900 truncate">{title}</p>
-                <p className="text-[14px] text-neutral-500 truncate">{subtitle}</p>
+                <p className={`text-[16px] font-semibold truncate ${disabled ? 'text-neutral-400' : 'text-neutral-900'}`}>
+                    {title}
+                </p>
+                <p className={`text-[14px] truncate ${disabled ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                    {disabled && disabledMessage ? disabledMessage : subtitle}
+                </p>
             </div>
-            <ChevronRight className="h-5 w-5 text-neutral-300 flex-shrink-0" />
+            <ChevronRight className={`h-5 w-5 flex-shrink-0 ${disabled ? 'text-neutral-200' : 'text-neutral-300'}`} />
         </button>
     )
 }
@@ -1406,11 +1418,10 @@ function TeamInfoSection({ teamInfo, loading }: { teamInfo: MyTeamInfo | null; l
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex-1 py-3 text-[13px] font-semibold transition-colors relative ${
-                            activeTab === tab.id
+                        className={`flex-1 py-3 text-[13px] font-semibold transition-colors relative ${activeTab === tab.id
                                 ? 'text-neutral-900'
                                 : 'text-neutral-400'
-                        }`}
+                            }`}
                     >
                         <span>{tab.label}</span>
                         {tab.count !== undefined && tab.count > 0 && (
@@ -2072,6 +2083,8 @@ export default function AppPage() {
                             title={t('mobile_app.quick_actions.daily_report')}
                             subtitle={t('mobile_app.quick_actions.daily_report_desc')}
                             onClick={() => setShowReportModal(true)}
+                            disabled={new Date().getHours() < 18}
+                            disabledMessage={t('mobile_app.quick_actions.available_at_18')}
                         />
                         {teamEquipment.filter(e => e.status === 'accepted' || e.status === 'in_use').length > 0 && (
                             <ActionCard
