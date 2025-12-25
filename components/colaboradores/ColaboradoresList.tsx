@@ -158,11 +158,12 @@ interface PendingToolsByColaborador {
 }
 
 interface VehicleByColaborador {
-  team_id: string
-  team_name: string
+  team_id: string | null
+  team_name: string | null
   vehicle_id: string
   vehicle_plate: string
   vehicle_model: string | null
+  assignment_type: 'team' | 'direct'
 }
 
 interface VehiclesByColaborador {
@@ -937,7 +938,10 @@ function ColaboradoresList({
                     {vehiclesByColaborador[colaborador.id] && (
                       <div
                         className="h-8 px-2.5 rounded-lg flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs"
-                        title={`Veículo da equipe ${vehiclesByColaborador[colaborador.id].team_name}`}
+                        title={vehiclesByColaborador[colaborador.id].assignment_type === 'direct'
+                          ? `Veículo atribuído: ${vehiclesByColaborador[colaborador.id].vehicle_plate}${vehiclesByColaborador[colaborador.id].vehicle_model ? ` (${vehiclesByColaborador[colaborador.id].vehicle_model})` : ''}`
+                          : `Veículo da equipe ${vehiclesByColaborador[colaborador.id].team_name}`
+                        }
                       >
                         <Car className="h-3.5 w-3.5" />
                         <span className="hidden sm:inline">{vehiclesByColaborador[colaborador.id].vehicle_plate}</span>

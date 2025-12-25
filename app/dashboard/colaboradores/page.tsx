@@ -225,11 +225,45 @@ async function getPendingToolsByColaborador(userId: string) {
   return pendingByColaborador
 }
 
-// Get vehicles assigned to collaborators via their team
+// Get vehicles assigned to collaborators - both via team AND directly via current_driver_id
 async function getVehiclesByColaborador(userId: string) {
   const supabase = await createServerComponentClient()
 
-  // Get team members with team vehicle info
+  const vehiclesByColaborador: Record<string, {
+    team_id: string | null
+    team_name: string | null
+    vehicle_id: string
+    vehicle_plate: string
+    vehicle_model: string | null
+    assignment_type: 'team' | 'direct'
+  }> = {}
+
+  // 1. Get vehicles directly assigned to collaborators via current_driver_id
+  const { data: directVehicles } = await supabase
+    .from("vehicles")
+    .select(`
+      id,
+      plate,
+      model,
+      current_driver_id
+    `)
+    .eq("profile_id", userId)
+    .not("current_driver_id", "is", null)
+
+  directVehicles?.forEach((vehicle: any) => {
+    if (vehicle.current_driver_id) {
+      vehiclesByColaborador[vehicle.current_driver_id] = {
+        team_id: null,
+        team_name: null,
+        vehicle_id: vehicle.id,
+        vehicle_plate: vehicle.plate,
+        vehicle_model: vehicle.model,
+        assignment_type: 'direct'
+      }
+    }
+  })
+
+  // 2. Get vehicles assigned via team (for collaborators who don't have a direct assignment)
   const { data: teamMembers } = await supabase
     .from("team_members")
     .select(`
@@ -247,28 +281,20 @@ async function getVehiclesByColaborador(userId: string) {
     `)
     .is("left_at", null) // Only active members
 
-  if (!teamMembers) return {}
-
-  const vehiclesByColaborador: Record<string, {
-    team_id: string
-    team_name: string
-    vehicle_id: string
-    vehicle_plate: string
-    vehicle_model: string | null
-  }> = {}
-
-  teamMembers.forEach((member: any) => {
+  teamMembers?.forEach((member: any) => {
     const colaboradorId = member.colaborador_id
     const team = member.teams
     const vehicle = team?.vehicles
 
-    if (colaboradorId && vehicle?.id) {
+    // Only add if this collaborator doesn't already have a direct vehicle assignment
+    if (colaboradorId && vehicle?.id && !vehiclesByColaborador[colaboradorId]) {
       vehiclesByColaborador[colaboradorId] = {
         team_id: team.id,
         team_name: team.name,
         vehicle_id: vehicle.id,
         vehicle_plate: vehicle.plate,
-        vehicle_model: vehicle.model
+        vehicle_model: vehicle.model,
+        assignment_type: 'team'
       }
     }
   })
