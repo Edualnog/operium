@@ -145,21 +145,31 @@ export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
 
     if (!profile?.team_id) return null
 
-    // Get team with leader info
+    // Get team basic info
     const { data: team } = await supabase
         .from("teams")
-        .select(`
-            id,
-            name,
-            status,
-            current_location,
-            leader_id,
-            colaboradores!teams_leader_id_fkey(nome, foto_url)
-        `)
+        .select("id, name, status, current_location, leader_id")
         .eq("id", profile.team_id)
         .single()
 
     if (!team) return null
+
+    // Get leader info separately if leader exists
+    let leaderName: string | null = null
+    let leaderPhoto: string | null = null
+
+    if (team.leader_id) {
+        const { data: leader } = await supabase
+            .from("colaboradores")
+            .select("nome, foto_url")
+            .eq("id", team.leader_id)
+            .single()
+
+        if (leader) {
+            leaderName = leader.nome
+            leaderPhoto = leader.foto_url
+        }
+    }
 
     // Get team members
     const { data: members } = await supabase
@@ -167,14 +177,14 @@ export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
         .select(`
             id,
             role,
+            colaborador_id,
             colaboradores(id, nome, foto_url)
         `)
         .eq("team_id", profile.team_id)
         .is("left_at", null)
 
-    const leaderData = team.colaboradores as any
     const membersList: TeamMemberInfo[] = (members || []).map((m: any) => ({
-        id: m.colaboradores?.id || m.id,
+        id: m.colaboradores?.id || m.colaborador_id || m.id,
         name: m.colaboradores?.nome || 'Sem nome',
         role: m.role,
         photo: m.colaboradores?.foto_url || null
@@ -186,8 +196,8 @@ export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
         status: team.status,
         current_location: team.current_location,
         leader_id: team.leader_id,
-        leader_name: leaderData?.nome || null,
-        leader_photo: leaderData?.foto_url || null,
+        leader_name: leaderName,
+        leader_photo: leaderPhoto,
         members: membersList
     }
 }
