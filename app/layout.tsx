@@ -94,7 +94,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-[#F7F7F5] dark:bg-zinc-900`}>
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-T7QX1XRLMJ"
