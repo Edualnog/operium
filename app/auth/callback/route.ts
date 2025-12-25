@@ -9,25 +9,25 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const token_hash = searchParams.get('token_hash')
     const type = searchParams.get('type')
-    let next = searchParams.get('next') ?? '/dashboard'
+    let next = '/dashboard' // Default to dashboard
 
-    // CRITICAL: Distinguish between different auth flows
-    // - signup/email: User confirming email after creating account → dashboard DIRECTLY
-    // - invite: Admin creating user without password → criar-senha
-    // - recovery: User resetting forgotten password → update-password
+    // AGGRESSIVE REDIRECT LOGIC:
+    // Only two cases go to password pages:
+    // 1. type=recovery → user forgot password
+    // 2. type=invite → admin created user without password
+    // EVERYTHING ELSE → straight to dashboard (including signup, email, magiclink, or unknown)
 
-    if (type === 'signup' || type === 'email' || type === 'magiclink') {
-        // Email confirmation or magic link → go STRAIGHT to dashboard
-        // User already created password during signup, no need to set it again
-        next = '/dashboard'
+    if (type === 'recovery') {
+        // Password reset → update password page
+        next = '/auth/update-password'
     } else if (type === 'invite') {
         // Admin invited user → needs to create password
         next = '/criar-senha'
-    } else if (type === 'recovery') {
-        // Password reset → update password page
-        next = '/auth/update-password'
+    } else {
+        // EVERYTHING ELSE (signup, email, magiclink, unknown) → dashboard
+        // This includes email confirmation after signup
+        next = searchParams.get('next') ?? '/dashboard'
     }
-    // Default: use 'next' param or '/dashboard'
 
     const cookieStore = cookies()
     const supabase = createServerClient(
