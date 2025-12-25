@@ -337,7 +337,7 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
 
   return (
     <main
-      className="transition-all duration-300 bg-[#F7F7F5] min-h-screen flex flex-col dark:bg-zinc-950"
+      className="transition-all duration-300 bg-[#F7F7F5] min-h-screen flex flex-col dark:bg-zinc-900"
       style={{
         marginLeft: isMobile ? "0" : `clamp(0px, ${width}px, 100%)`,
       }}
@@ -352,12 +352,12 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
       </header>
 
       {/* Main content with bg-[#F7F7F5] passing through */}
-      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto w-full dark:bg-zinc-950 md:dark:bg-transparent">
+      <div className="flex-1 px-3 py-4 sm:p-4 md:p-5 lg:p-6 xl:p-7 2xl:p-8 max-w-[1920px] mx-auto w-full">
         {children}
       </div>
 
       {/* Footer - more compact on mobile */}
-      <footer className="border-t border-zinc-200 bg-white py-3 md:py-4 mt-auto dark:bg-zinc-950 dark:border-zinc-800">
+      <footer className="border-t border-zinc-200 bg-white py-3 md:py-4 mt-auto dark:bg-zinc-800 dark:border-zinc-700">
         <div className="max-w-[1920px] mx-auto px-3 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 text-sm text-zinc-600 dark:text-zinc-400">
             {/* Copyright - smaller on mobile */}

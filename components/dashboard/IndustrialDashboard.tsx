@@ -799,25 +799,25 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-700">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_movements')}</p>
+                      <p className="text-xs text-zinc-500 mb-1 dark:text-zinc-400">{t('dashboard.charts.movements.total_movements')}</p>
                       <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.total, 0)}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_in')}</p>
+                      <p className="text-xs  text-zinc-500 mb-1 dark:text-zinc-400">{t('dashboard.charts.movements.total_in')}</p>
                       <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.entradas, 0)}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.total_out')}</p>
+                      <p className="text-xs text-zinc-500 mb-1 dark:text-zinc-400">{t('dashboard.charts.movements.total_out')}</p>
                       <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {movimentacoesMensais.reduce((acc, m) => acc + m.saidas, 0)}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-zinc-500 mb-1">{t('dashboard.charts.movements.monthly_avg')}</p>
+                      <p className="text-xs text-zinc-500 mb-1 dark:text-zinc-400">{t('dashboard.charts.movements.monthly_avg')}</p>
                       <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
                         {Math.round(movimentacoesMensais.reduce((acc, m) => acc + m.total, 0) / 12)}
                       </p>
