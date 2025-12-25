@@ -53,12 +53,9 @@ export default async function DashboardLayout({
     console.error('Erro ao buscar profile:', error)
   }
 
-  // Verificar se o usuário precisa definir senha (fluxo de invite)
-  // Se password_set for null, assumimos que é false por segurança (ou true se for migração correta, mas safe fail)
-  // Mas na migração setamos true para todos existentes. Novos invites terão false.
-  if (profile?.password_set === false) {
-    redirect("/criar-senha")
-  }
+  // NOTE: Removed password_set check redirect to /criar-senha (page deleted)
+  // Users now set password during signup, no separate password creation flow needed
+
 
   // Verificar se onboarding foi completado (apenas company_name e industry_segment são obrigatórios)
   const hasCompletedOnboarding = profile?.company_name && profile?.industry_segment

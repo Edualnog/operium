@@ -45,26 +45,9 @@ function LoginForm() {
       console.warn("Verifique se NEXT_PUBLIC_TURNSTILE_SITE_KEY está configurada no Vercel.")
     }
 
-    // CRITICAL: Detect recovery/invite flow from URL hash
-    // Supabase sends recovery emails with #access_token=...&type=recovery
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash
-      if (hash.includes('type=recovery')) {
-        // Clear hash to prevent re-triggering
-        window.history.replaceState(null, '', window.location.pathname)
-        // Redirect to password update page
-        router.push('/auth/update-password')
-        return
-      }
-      if (hash.includes('type=invite')) {
-        // Clear hash to prevent re-triggering
-        window.history.replaceState(null, '', window.location.pathname)
-        // Redirect to password creation page
-        router.push('/criar-senha')
-        return
-      }
-    }
-  }, [turnstileSiteKey, router])
+    // NOTE: All auth recovery/invite flows now handled by /auth/callback
+    // No need to detect hash fragments here
+  }, [turnstileSiteKey])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

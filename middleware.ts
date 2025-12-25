@@ -132,13 +132,13 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
   const isDashboardRoute = pathname.startsWith('/dashboard')
-  const isSetupRoute = pathname.startsWith('/criar-senha')
+  // NOTE: Removed isSetupRoute check for /criar-senha (page deleted)
   const isAuthRoute = pathname === '/login' || pathname === '/signup'
 
   // 5. Route Guards
 
-  // Guard: Dashboard & Setup -> Redirect to Login if no user
-  if ((isDashboardRoute || isSetupRoute) && !user) {
+  // Guard: Dashboard -> Redirect to Login if no user
+  if (isDashboardRoute && !user) {
     const redirectUrl = new URL('/login', request.url)
     // Pass the original URL as redirect param so user can return after login
     redirectUrl.searchParams.set('redirect', pathname)
