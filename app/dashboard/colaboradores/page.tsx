@@ -137,45 +137,89 @@ async function getMovimentacoesStats(userId: string) {
 async function getPendingToolsByColaborador(userId: string) {
   const supabase = await createServerComponentClient()
 
+  // Fetch all movements (retirada/devolucao) with tool info
   const { data } = await supabase
     .from("movimentacoes")
     .select(`
       id,
       colaborador_id,
-      item_id,
-      quantity,
-      saida_at,
-      items:item_id (
+      ferramenta_id,
+      tipo,
+      quantidade,
+      data,
+      ferramentas (
         id,
-        name,
-        category
+        nome,
+        tipo_item
       )
     `)
     .eq("profile_id", userId)
-    .eq("tipo_movimentacao", "saida")
-    .is("retorno_at", null)
+    .in("tipo", ["retirada", "devolucao"])
+    .not("colaborador_id", "is", null)
 
   if (!data) return {}
 
-  const pendingByColaborador: Record<string, any[]> = {}
+  // Calculate balance per collaborator per tool
+  const balanceMap: Record<string, Record<string, {
+    ferramenta_id: string
+    ferramenta_nome: string
+    saldo: number
+    ultima_retirada_id: string
+    ultima_retirada_data: string
+  }>> = {}
 
   data.forEach((mov) => {
-    if (!mov.colaborador_id) return
+    const colaboradorId = mov.colaborador_id
+    const ferramentaId = mov.ferramenta_id
+    const ferramenta = mov.ferramentas as any
 
-    const item = mov.items as any
-    if (item?.category !== 'FERRAMENTA') return
+    if (!colaboradorId || !ferramentaId) return
 
-    if (!pendingByColaborador[mov.colaborador_id]) {
-      pendingByColaborador[mov.colaborador_id] = []
+    // Only count tools (ferramentas), not EPIs
+    if (ferramenta?.tipo_item === 'epi') return
+
+    if (!balanceMap[colaboradorId]) {
+      balanceMap[colaboradorId] = {}
     }
 
-    pendingByColaborador[mov.colaborador_id].push({
-      movimentacao_id: mov.id,
-      item_id: item.id,
-      item_name: item.name,
-      quantity: mov.quantity || 1,
-      saida_at: mov.saida_at
-    })
+    if (!balanceMap[colaboradorId][ferramentaId]) {
+      balanceMap[colaboradorId][ferramentaId] = {
+        ferramenta_id: ferramentaId,
+        ferramenta_nome: ferramenta?.nome || 'Desconhecido',
+        saldo: 0,
+        ultima_retirada_id: '',
+        ultima_retirada_data: ''
+      }
+    }
+
+    if (mov.tipo === 'retirada') {
+      balanceMap[colaboradorId][ferramentaId].saldo += (mov.quantidade || 1)
+      // Track last withdrawal for reference
+      if (!balanceMap[colaboradorId][ferramentaId].ultima_retirada_data ||
+        mov.data > balanceMap[colaboradorId][ferramentaId].ultima_retirada_data) {
+        balanceMap[colaboradorId][ferramentaId].ultima_retirada_id = mov.id
+        balanceMap[colaboradorId][ferramentaId].ultima_retirada_data = mov.data
+      }
+    } else if (mov.tipo === 'devolucao') {
+      balanceMap[colaboradorId][ferramentaId].saldo -= (mov.quantidade || 1)
+    }
+  })
+
+  // Convert to expected format, only including items with positive balance
+  const pendingByColaborador: Record<string, any[]> = {}
+
+  Object.entries(balanceMap).forEach(([colaboradorId, tools]) => {
+    const pendingTools = Object.values(tools).filter(t => t.saldo > 0)
+
+    if (pendingTools.length > 0) {
+      pendingByColaborador[colaboradorId] = pendingTools.map(t => ({
+        movimentacao_id: t.ultima_retirada_id,
+        item_id: t.ferramenta_id,
+        item_name: t.ferramenta_nome,
+        quantity: t.saldo,
+        saida_at: t.ultima_retirada_data
+      }))
+    }
   })
 
   return pendingByColaborador
