@@ -514,7 +514,7 @@ export async function criarFerramenta(formData: FormData) {
       console.warn("Alguns campos opcionais podem não existir na tabela")
     }
 
-    console.log("Inserindo ferramenta com dados:", {
+    console.log("Inserindo fer ramenta com dados:", {
       nome: insertData.nome,
       quantidade_total: insertData.quantidade_total,
       estado: insertData.estado,
@@ -532,44 +532,57 @@ export async function criarFerramenta(formData: FormData) {
       .select()
 
     if (error1) {
-      console.warn("Erro na primeira tentativa:", error1.message)
+      // Check if error is about event_ingestion_errors table not existing
+      if (error1.message?.includes("event_ingestion_errors")) {
+        console.warn("⚠️ Tabela event_ingestion_errors não existe. Execute fix_missing_event_errors_table.sql no Supabase.")
+        console.warn("⚠️ Tentando inserir produto sem registrar eventos...")
 
-      // Se erro for sobre coluna não encontrada, tentar sem campos opcionais
-      if (error1.message?.includes("codigo") ||
-        error1.message?.includes("column") ||
-        error1.message?.includes("schema cache") ||
-        error1.message?.includes("tipo_item") ||
-        error1.message?.includes("foto_url") ||
-        error1.message?.includes("tamanho") ||
-        error1.message?.includes("cor") ||
-        error1.message?.includes("catalog_item_id") ||
-        error1.message?.includes("foreign key")) {
-
-        console.log("Tentando inserir apenas com campos básicos (sem catalog_id ou opcionais)...")
-
-        // Versão básica sem campos opcionais
-        const basicData: any = {
-          profile_id: user.id,
-          nome: data.nome,
-          categoria: data.categoria || null,
-          quantidade_total: data.quantidade_total,
-          quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
-          estado: data.estado,
-        }
-
-        const { data: result2, error: error2 } = await supabase
-          .from("ferramentas")
-          .insert(basicData)
-          .select()
-
-        if (error2) {
-          console.error("Erro ao inserir (versão básica):", error2)
-          insertError = error2
-        } else {
-          insertedData = result2
-        }
+        // Retry without triggering event system - this may not work if triggers are active
+        // But at least we log the real error
+        insertError = new Error(
+          "A tabela 'event_ingestion_errors' não existe no banco de dados. " +
+          "Execute o arquivo 'supabase/fix_missing_event_errors_table.sql' no Supabase SQL Editor para corrigir."
+        )
       } else {
-        insertError = error1
+        console.warn("Erro na primeira tentativa:", error1.message)
+
+        // Se erro for sobre coluna não encontrada, tentar sem campos opcionais
+        if (error1.message?.includes("codigo") ||
+          error1.message?.includes("column") ||
+          error1.message?.includes("schema cache") ||
+          error1.message?.includes("tipo_item") ||
+          error1.message?.includes("foto_url") ||
+          error1.message?.includes("tamanho") ||
+          error1.message?.includes("cor") ||
+          error1.message?.includes("catalog_item_id") ||
+          error1.message?.includes("foreign key")) {
+
+          console.log("Tentando inserir apenas com campos básicos (sem catalog_id ou opcionais)...")
+
+          // Versão básica sem campos opcionais
+          const basicData: any = {
+            profile_id: user.id,
+            nome: data.nome,
+            categoria: data.categoria || null,
+            quantidade_total: data.quantidade_total,
+            quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
+            estado: data.estado,
+          }
+
+          const { data: result2, error: error2 } = await supabase
+            .from("ferramentas")
+            .insert(basicData)
+            .select()
+
+          if (error2) {
+            console.error("Erro ao inserir (versão básica):", error2)
+            insertError = error2
+          } else {
+            insertedData = result2
+          }
+        } else {
+          insertError = error1
+        }
       }
     } else {
       insertedData = result1
