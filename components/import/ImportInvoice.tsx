@@ -35,7 +35,7 @@ interface ImportInvoiceProps {
 }
 
 export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps) {
-    const { t } = useTranslation()
+    const { t } = useTranslation('common')
     const [step, setStep] = useState<"upload" | "camera" | "processing" | "review">("upload")
     const [file, setFile] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -107,7 +107,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
             }
         } catch (err) {
             console.error(err)
-            setError("Não foi possível ler a nota fiscal. Tente novamente com uma imagem mais clara.")
+            setError(t('import_invoice.error_reading'))
             setStep("upload")
         }
     }
@@ -151,7 +151,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
             onClose()
         } catch (err) {
             console.error(err)
-            setError("Erro ao salvar itens.")
+            setError(t('import_invoice.error_saving'))
         }
     }
 
@@ -181,7 +181,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
             setStep("camera")
         } catch (err) {
             console.error("Erro ao acessar câmera:", err)
-            setError("Não foi possível acessar a câmera. Verifique as permissões.")
+            setError(t('import_invoice.error_camera'))
         }
     }
 
@@ -268,10 +268,10 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                     <div>
                         <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <Camera className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 dark:text-zinc-400" />
-                            Importar Nota Fiscal (IA)
+                            {t('import_invoice.title')}
                         </h2>
                         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-                            Tire uma foto da nota e deixe a IA extrair os itens.
+                            {t('import_invoice.subtitle')}
                         </p>
                     </div>
                     <button
@@ -313,10 +313,10 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                         </div>
                                         <div>
                                             <p className="text-base md:text-lg font-medium text-slate-900 dark:text-white">
-                                                Fazer Upload
+                                                {t('import_invoice.upload')}
                                             </p>
                                             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-                                                Arraste ou clique para selecionar
+                                                {t('import_invoice.upload_hint')}
                                             </p>
                                         </div>
                                     </div>
@@ -330,10 +330,10 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                         </div>
                                         <div>
                                             <p className="text-base md:text-lg font-medium text-slate-900 dark:text-white">
-                                                Usar Câmera
+                                                {t('import_invoice.use_camera_title')}
                                             </p>
                                             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-                                                Tirar foto agora
+                                                {t('import_invoice.use_camera_hint')}
                                             </p>
                                         </div>
                                     </div>
@@ -369,14 +369,14 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                 <div className="flex gap-4">
                                     <Button variant="outline" onClick={toggleCamera} title="Inverter Câmera">
                                         <Repeat className="w-4 h-4 mr-2" />
-                                        Inverter
+                                        {t('import_invoice.flip_camera')}
                                     </Button>
                                     <Button variant="outline" onClick={stopCamera}>
-                                        Cancelar
+                                        {t('import_invoice.cancel')}
                                     </Button>
                                     <Button onClick={capturePhoto} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                                         <Camera className="w-4 h-4 mr-2" />
-                                        Capturar Foto
+                                        {t('import_invoice.capture')}
                                     </Button>
                                 </div>
                             </motion.div>
@@ -392,10 +392,10 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                             >
                                 <Loader2 className="w-12 h-12 text-zinc-500 animate-spin mb-4" />
                                 <p className="text-lg font-medium text-slate-900 dark:text-white">
-                                    Lendo Nota Fiscal...
+                                    {t('import_invoice.processing')}
                                 </p>
                                 <p className="text-slate-500 dark:text-slate-400">
-                                    A IA está identificando os produtos, códigos e categorias.
+                                    {t('import_invoice.processing_hint')}
                                 </p>
                             </motion.div>
                         )}
@@ -421,10 +421,10 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                     )}
                                     <div className="flex-1 space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <h3 className="font-semibold">Itens Identificados</h3>
+                                            <h3 className="font-semibold">{t('import_invoice.identified_items')}</h3>
                                             <Button size="sm" variant="outline" onClick={addItem}>
                                                 <Plus className="w-4 h-4 mr-2" />
-                                                Adicionar Item
+                                                {t('import_invoice.add_item')}
                                             </Button>
                                         </div>
 
@@ -432,12 +432,12 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                             <table className="w-full text-sm min-w-[600px]">
                                                 <thead className="bg-slate-50 dark:bg-slate-700">
                                                     <tr>
-                                                        <th className="px-4 py-2 text-left">Produto</th>
-                                                        <th className="px-4 py-2 text-left w-24">Código</th>
-                                                        <th className="px-4 py-2 text-left w-32">Categoria</th>
-                                                        <th className="px-4 py-2 text-left w-20">Unid.</th>
-                                                        <th className="px-4 py-2 text-left w-20">Qtd</th>
-                                                        <th className="px-4 py-2 text-left w-24">Valor (R$)</th>
+                                                        <th className="px-4 py-2 text-left">{t('import_invoice.product')}</th>
+                                                        <th className="px-4 py-2 text-left w-24">{t('import_invoice.code')}</th>
+                                                        <th className="px-4 py-2 text-left w-32">{t('import_invoice.category')}</th>
+                                                        <th className="px-4 py-2 text-left w-20">{t('import_invoice.unit')}</th>
+                                                        <th className="px-4 py-2 text-left w-20">{t('import_invoice.qty')}</th>
+                                                        <th className="px-4 py-2 text-left w-24">{t('import_invoice.value')}</th>
                                                         <th className="px-4 py-2 w-10"></th>
                                                     </tr>
                                                 </thead>
@@ -449,7 +449,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                                                     value={item.nome}
                                                                     onChange={(e) => updateItem(i, "nome", e.target.value)}
                                                                     className="h-8"
-                                                                    placeholder="Nome do produto"
+                                                                    placeholder={t('import_invoice.product_name_placeholder')}
                                                                 />
                                                             </td>
                                                             <td className="p-2">
@@ -457,7 +457,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                                                     value={item.codigo || ""}
                                                                     onChange={(e) => updateItem(i, "codigo", e.target.value)}
                                                                     className="h-8"
-                                                                    placeholder="Código"
+                                                                    placeholder={t('import_invoice.code_placeholder')}
                                                                 />
                                                             </td>
                                                             <td className="p-2">
@@ -465,7 +465,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                                                     value={item.categoria || ""}
                                                                     onChange={(e) => updateItem(i, "categoria", e.target.value)}
                                                                     className="h-8"
-                                                                    placeholder="Categoria"
+                                                                    placeholder={t('import_invoice.category_placeholder')}
                                                                 />
                                                             </td>
                                                             <td className="p-2">
@@ -473,7 +473,7 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                                                                     value={item.unidade || ""}
                                                                     onChange={(e) => updateItem(i, "unidade", e.target.value)}
                                                                     className="h-8"
-                                                                    placeholder="UN"
+                                                                    placeholder={t('import_invoice.unit_placeholder')}
                                                                 />
                                                             </td>
                                                             <td className="p-2">
@@ -519,12 +519,12 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                         if (isCameraOpen) stopCamera()
                         onClose()
                     }}>
-                        Cancelar
+                        {t('import_invoice.cancel')}
                     </Button>
                     {step === "review" && (
                         <Button onClick={handleConfirm} className="bg-[#37352f] hover:bg-zinc-800 text-white">
                             <Check className="w-4 h-4 mr-2" />
-                            Confirmar Importação
+                            {t('import_invoice.confirm')}
                         </Button>
                     )}
                 </div>
