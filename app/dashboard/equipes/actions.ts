@@ -50,7 +50,8 @@ export async function createTeam(formData: {
         .from("teams")
         .insert({
             profile_id: user.id,
-            org_id: profile?.org_id || null, // Include org_id for multi-tenant isolation
+            // org_id is handled by database trigger 'trg_teams_auto_org_id'
+            // We omit it here to avoid errors if the column is missing in older schema versions
             name: formData.name,
             description: formData.description,
             leader_id: formData.leader_id || null,
