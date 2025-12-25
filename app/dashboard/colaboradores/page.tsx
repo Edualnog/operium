@@ -225,6 +225,57 @@ async function getPendingToolsByColaborador(userId: string) {
   return pendingByColaborador
 }
 
+// Get vehicles assigned to collaborators via their team
+async function getVehiclesByColaborador(userId: string) {
+  const supabase = await createServerComponentClient()
+
+  // Get team members with team vehicle info
+  const { data: teamMembers } = await supabase
+    .from("team_members")
+    .select(`
+      colaborador_id,
+      teams (
+        id,
+        name,
+        vehicle_id,
+        vehicles (
+          id,
+          plate,
+          model
+        )
+      )
+    `)
+    .is("left_at", null) // Only active members
+
+  if (!teamMembers) return {}
+
+  const vehiclesByColaborador: Record<string, {
+    team_id: string
+    team_name: string
+    vehicle_id: string
+    vehicle_plate: string
+    vehicle_model: string | null
+  }> = {}
+
+  teamMembers.forEach((member: any) => {
+    const colaboradorId = member.colaborador_id
+    const team = member.teams
+    const vehicle = team?.vehicles
+
+    if (colaboradorId && vehicle?.id) {
+      vehiclesByColaborador[colaboradorId] = {
+        team_id: team.id,
+        team_name: team.name,
+        vehicle_id: vehicle.id,
+        vehicle_plate: vehicle.plate,
+        vehicle_model: vehicle.model
+      }
+    }
+  })
+
+  return vehiclesByColaborador
+}
+
 export default async function ColaboradoresPage() {
   const { user } = await getSupabaseUser()
 
@@ -232,10 +283,11 @@ export default async function ColaboradoresPage() {
     redirect("/login")
   }
 
-  const [colaboradores, movimentacoesStats, pendingTools] = await Promise.all([
+  const [colaboradores, movimentacoesStats, pendingTools, vehiclesByColaborador] = await Promise.all([
     getColaboradores(user.id),
     getMovimentacoesStats(user.id),
     getPendingToolsByColaborador(user.id),
+    getVehiclesByColaborador(user.id),
   ])
 
   return (
@@ -249,8 +301,10 @@ export default async function ColaboradoresPage() {
           colaboradores={colaboradores}
           movimentacoesStats={movimentacoesStats}
           pendingTools={pendingTools}
+          vehiclesByColaborador={vehiclesByColaborador}
         />
       </Suspense>
     </div>
   )
 }
+

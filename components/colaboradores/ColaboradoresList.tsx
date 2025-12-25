@@ -45,7 +45,8 @@ import {
   Briefcase,
   Clock,
   UserX,
-  Wrench
+  Wrench,
+  Car
 } from "lucide-react"
 import SmartImport from "@/components/import/SmartImport"
 import { useRouter } from "next/navigation"
@@ -156,16 +157,30 @@ interface PendingToolsByColaborador {
   [colaboradorId: string]: PendingTool[]
 }
 
+interface VehicleByColaborador {
+  team_id: string
+  team_name: string
+  vehicle_id: string
+  vehicle_plate: string
+  vehicle_model: string | null
+}
+
+interface VehiclesByColaborador {
+  [colaboradorId: string]: VehicleByColaborador
+}
+
 const ITEMS_PER_PAGE = 35
 
 function ColaboradoresList({
   colaboradores: initialColaboradores,
   movimentacoesStats = {},
   pendingTools = {},
+  vehiclesByColaborador = {},
 }: {
   colaboradores: Colaborador[]
   movimentacoesStats?: MovimentacoesStats
   pendingTools?: PendingToolsByColaborador
+  vehiclesByColaborador?: VehiclesByColaborador
 }) {
   const [colaboradores, setColaboradores] = useState(initialColaboradores)
   const [open, setOpen] = useState(false)
@@ -918,6 +933,17 @@ function ColaboradoresList({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
+                    {/* Vehicle Badge */}
+                    {vehiclesByColaborador[colaborador.id] && (
+                      <div
+                        className="h-8 px-2.5 rounded-lg flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs"
+                        title={`Veículo da equipe ${vehiclesByColaborador[colaborador.id].team_name}`}
+                      >
+                        <Car className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">{vehiclesByColaborador[colaborador.id].vehicle_plate}</span>
+                        <span className="sm:hidden">{vehiclesByColaborador[colaborador.id].vehicle_plate.slice(-3)}</span>
+                      </div>
+                    )}
                     {/* Pending Tools Badge */}
                     {pendingTools[colaborador.id] && pendingTools[colaborador.id].length > 0 && (
                       <button
@@ -927,10 +953,10 @@ function ColaboradoresList({
                         }}
                         className={cn(
                           "h-8 px-2.5 rounded-lg flex items-center gap-1.5 transition-all hover:scale-105",
-                          "border text-xs font-semibold",
+                          "border text-xs font-medium",
                           pendingTools[colaborador.id].length >= 3
-                            ? "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
-                            : "bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100"
+                            ? "bg-zinc-100 border-zinc-300 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-300"
+                            : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-400"
                         )}
                         title={t('colaboradores.pending_tools_plural', { count: pendingTools[colaborador.id].length })}
                       >
