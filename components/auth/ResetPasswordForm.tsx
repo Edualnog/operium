@@ -128,9 +128,9 @@ export default function ResetPasswordForm() {
       // Senha atualizada com sucesso
       setSuccess(true)
 
-      // Redirecionar para login após 2 segundos
+      // Redirecionar para dashboard após 2 segundos
       setTimeout(() => {
-        router.push("/login?success=password_reset&message=" + encodeURIComponent("Senha alterada com sucesso! Faça login com sua nova senha."))
+        router.push("/dashboard")
       }, 2000)
 
     } catch (err: any) {
@@ -214,7 +214,7 @@ export default function ResetPasswordForm() {
             Senha Alterada!
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Sua senha foi alterada com sucesso. Redirecionando para o login...
+            Sua senha foi alterada com sucesso. Redirecionando para o dashboard...
           </p>
         </div>
       </motion.div>
