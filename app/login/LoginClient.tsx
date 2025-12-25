@@ -102,9 +102,9 @@ function LoginForm() {
     setLoading(true)
 
     try {
-      // Use /auth/intercept to properly handle recovery hash fragments
+      // Use /auth/callback to handle recovery flow
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/intercept`,
+        redirectTo: `${window.location.origin}/auth/callback`,
         captchaToken,
       })
 
