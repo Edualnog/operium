@@ -9,23 +9,18 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const token_hash = searchParams.get('token_hash')
     const type = searchParams.get('type')
-    let next = '/dashboard' // Default to dashboard
+    let next = '/dashboard' // Default to dashboard ALWAYS
 
-    // AGGRESSIVE REDIRECT LOGIC:
-    // Only two cases go to password pages:
-    // 1. type=recovery → user forgot password
-    // 2. type=invite → admin created user without password
-    // EVERYTHING ELSE → straight to dashboard (including signup, email, magiclink, or unknown)
+    // SIMPLIFIED LOGIC - criar-senha was deleted:
+    // - type=recovery → user needs to update password
+    // - EVERYTHING ELSE → dashboard (signup, email, invite, magiclink, unknown)
 
     if (type === 'recovery') {
         // Password reset → update password page
         next = '/auth/update-password'
-    } else if (type === 'invite') {
-        // Admin invited user → needs to create password
-        next = '/criar-senha'
     } else {
-        // EVERYTHING ELSE (signup, email, magiclink, unknown) → dashboard
-        // This includes email confirmation after signup
+        // EVERYTHING ELSE → dashboard directly
+        // This includes: signup, email, magiclink, invite, or unknown
         next = searchParams.get('next') ?? '/dashboard'
     }
 
