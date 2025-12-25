@@ -1744,8 +1744,7 @@
     "blackbox": {
         "tab_observability": "Observabilidade",
         "tab_export": "Exportar Dados"
-    }
-,
+    },
     "field_dashboard": {
         "title": "Painel Operacional",
         "subtitle": "Registre atividades operacionais",
@@ -1763,8 +1762,7 @@
             "title": "Suas Atividades Recentes",
             "empty": "Nenhuma atividade registrada ainda"
         }
-    }
-,
+    },
     "mobile_app": {
         "header": {
             "title": "Equipe de Campo"
@@ -1797,16 +1795,14 @@
             "daily_report": "Hora do relatório diário!",
             "action": "Fazer"
         }
-    }
-,
+    },
     "event_types": {
         "expense_registered": "Despesa registrada",
         "status_updated": "Status atualizado",
         "item_received": "Item recebido",
         "item_sent": "Item enviado",
         "activity": "Atividade"
-    }
-,
+    },
     "modals": {
         "expense": {
             "title": "Nova Despesa",
@@ -1908,8 +1904,7 @@
             "continue": "Continuar",
             "error": "Erro ao salvar"
         }
-    }
-,
+    },
     "report_reminder": {
         "call_to_action": "Hora do relatório diário!",
         "already_filled": "Relatório de hoje completo!",
@@ -1922,8 +1917,7 @@
         "do_now": "Fazer Agora",
         "view": "Ver",
         "daily_report": "Relatório diário"
-    }
-,
+    },
     "colaboradores": {
         "pending_tools": "{{count}} ferramenta pendente",
         "pending_tools_plural": "{{count}} ferramentas pendentes",
@@ -1935,5 +1929,22 @@
         "tools_in_possession": "Ferramentas em posse",
         "return_success": "Ferramentas devolvidas com sucesso!",
         "return_error": "Erro ao devolver ferramentas"
+    },
+    "legal": {
+        "modal": {
+            "title": "Atualização de Termos e Privacidade",
+            "description": "Para continuar usando o Operium, precisamos que você leia e aceite nossos documentos alinhados à LGPD.",
+            "pending_documents": "Documentos Pendentes",
+            "confirmation": "Confirmação",
+            "terms": "Termos de Uso",
+            "privacy": "Privacidade",
+            "data_analytics": "Data & Analytics",
+            "agree_terms": "Li e concordo com os <1>Termos de Uso</1>",
+            "agree_privacy": "Li e concordo com a <1>Política de Privacidade</1>",
+            "agree_data": "Li e concordo com a <1>Política de Dados</1>",
+            "footer_note": "Ao continuar, você confirma que leu todos os documentos.",
+            "confirm_button": "Confirmar e Continuar",
+            "processing": "Processando..."
+        }
     }
 }

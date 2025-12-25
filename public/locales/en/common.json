@@ -1649,8 +1649,7 @@
     "blackbox": {
         "tab_observability": "Observability",
         "tab_export": "Export Data"
-    }
-,
+    },
     "field_dashboard": {
         "title": "Field Operations Panel",
         "subtitle": "Record operational activities",
@@ -1668,8 +1667,7 @@
             "title": "Your Recent Activities",
             "empty": "No activities recorded yet"
         }
-    }
-,
+    },
     "mobile_app": {
         "header": {
             "title": "Field Team"
@@ -1702,16 +1700,14 @@
             "daily_report": "Time for daily report!",
             "action": "Do it"
         }
-    }
-,
+    },
     "event_types": {
         "expense_registered": "Expense registered",
         "status_updated": "Status updated",
         "item_received": "Item received",
         "item_sent": "Item sent",
         "activity": "Activity"
-    }
-,
+    },
     "modals": {
         "expense": {
             "title": "New Expense",
@@ -1813,8 +1809,7 @@
             "continue": "Continue",
             "error": "Error saving"
         }
-    }
-,
+    },
     "report_reminder": {
         "call_to_action": "Time for daily report!",
         "already_filled": "Today's report complete!",
@@ -1827,8 +1822,7 @@
         "do_now": "Do Now",
         "view": "View",
         "daily_report": "Daily report"
-    }
-,
+    },
     "colaboradores": {
         "pending_tools": "{{count}} pending tool",
         "pending_tools_plural": "{{count}} pending tools",
@@ -1840,5 +1834,22 @@
         "tools_in_possession": "Tools in possession",
         "return_success": "Tools returned successfully!",
         "return_error": "Error returning tools"
+    },
+    "legal": {
+        "modal": {
+            "title": "Terms and Privacy Update",
+            "description": "To continue using Operium, we need you to read and accept our documents aligned with GDPR.",
+            "pending_documents": "Pending Documents",
+            "confirmation": "Confirmation",
+            "terms": "Terms of Use",
+            "privacy": "Privacy",
+            "data_analytics": "Data & Analytics",
+            "agree_terms": "I have read and agree to the <1>Terms of Use</1>",
+            "agree_privacy": "I have read and agree to the <1>Privacy Policy</1>",
+            "agree_data": "I have read and agree to the <1>Data Policy</1>",
+            "footer_note": "By continuing, you confirm that you have read all documents.",
+            "confirm_button": "Confirm and Continue",
+            "processing": "Processing..."
+        }
     }
 }

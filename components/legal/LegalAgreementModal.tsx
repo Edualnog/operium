@@ -7,13 +7,15 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { acceptLegalDocuments, checkLegalStatus, LegalStatus } from "@/lib/actions-legal"
+import { acceptLegalDocuments, checkLegalStatus } from "@/lib/actions-legal"
 import { LEGAL_CONTENT } from "@/lib/legal-constants"
 import ReactMarkdown from "react-markdown"
 import { AlertCircle, FileText, Lock, Shield } from "lucide-react"
 import { toast } from "sonner"
+import { useTranslation, Trans } from "react-i18next"
 
 export function LegalAgreementModal() {
+    const { t } = useTranslation('common')
     const [isOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
@@ -66,17 +68,17 @@ export function LegalAgreementModal() {
                 <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-zinc-100 bg-white">
                     <DialogTitle className="text-lg sm:text-xl font-serif font-medium flex items-center gap-2 text-zinc-900">
                         <Shield className="w-5 h-5 text-zinc-900" strokeWidth={1.5} />
-                        Atualização de Termos e Privacidade
+                        {t('legal.modal.title')}
                     </DialogTitle>
                     <DialogDescription className="text-zinc-500 mt-1.5 text-xs sm:text-sm font-light leading-relaxed">
-                        Para continuar usando o Operium, precisamos que você leia e aceite nossos documentos alinhados à LGPD.
+                        {t('legal.modal.description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex-1 overflow-hidden flex flex-col md:flex-row bg-white">
                     <div className="w-full md:w-56 p-3 sm:p-4 border-r border-zinc-100 bg-zinc-50/50 space-y-4">
                         <div>
-                            <h3 className="font-medium text-[10px] uppercase tracking-wider text-zinc-400 mb-2 px-1.5">Documentos Pendentes</h3>
+                            <h3 className="font-medium text-[10px] uppercase tracking-wider text-zinc-400 mb-2 px-1.5">{t('legal.modal.pending_documents')}</h3>
 
                             <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
                                 <TabsList className="flex flex-col h-auto bg-transparent gap-0.5 p-0">
@@ -84,26 +86,26 @@ export function LegalAgreementModal() {
                                         value="terms"
                                         className="w-full justify-start gap-1.5 px-2 py-1.5 text-zinc-600 data-[state=active]:bg-zinc-200/50 data-[state=active]:text-zinc-900 hover:bg-zinc-100 transition-colors rounded-md font-medium text-xs"
                                     >
-                                        <FileText className="w-3.5 h-3.5" /> Termos de Uso
+                                        <FileText className="w-3.5 h-3.5" /> {t('legal.modal.terms')}
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="privacy"
                                         className="w-full justify-start gap-1.5 px-2 py-1.5 text-zinc-600 data-[state=active]:bg-zinc-200/50 data-[state=active]:text-zinc-900 hover:bg-zinc-100 transition-colors rounded-md font-medium text-xs"
                                     >
-                                        <Lock className="w-3.5 h-3.5" /> Privacidade
+                                        <Lock className="w-3.5 h-3.5" /> {t('legal.modal.privacy')}
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="data"
                                         className="w-full justify-start gap-1.5 px-2 py-1.5 text-zinc-600 data-[state=active]:bg-zinc-200/50 data-[state=active]:text-zinc-900 hover:bg-zinc-100 transition-colors rounded-md font-medium text-xs"
                                     >
-                                        <AlertCircle className="w-3.5 h-3.5" /> Data & Analytics
+                                        <AlertCircle className="w-3.5 h-3.5" /> {t('legal.modal.data_analytics')}
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>
                         </div>
 
                         <div className="space-y-2.5 pt-3 border-t border-zinc-100">
-                            <h3 className="font-medium text-[10px] uppercase tracking-wider text-zinc-400 mb-2 px-1.5">Confirmação</h3>
+                            <h3 className="font-medium text-[10px] uppercase tracking-wider text-zinc-400 mb-2 px-1.5">{t('legal.modal.confirmation')}</h3>
 
                             <div className="flex items-start space-x-2 px-1.5">
                                 <Checkbox
@@ -113,7 +115,7 @@ export function LegalAgreementModal() {
                                     className="data-[state=checked]:bg-zinc-900 data-[state=checked]:border-zinc-900 border-zinc-300 mt-0.5 shadow-none h-3.5 w-3.5"
                                 />
                                 <Label htmlFor="check-terms" className="text-[11px] sm:text-xs text-zinc-600 font-normal leading-tight cursor-pointer select-none">
-                                    Li e concordo com os <span className="font-medium text-zinc-900">Termos de Uso</span>
+                                    <Trans i18nKey="legal.modal.agree_terms" t={t} components={{ 1: <span className="font-medium text-zinc-900" /> }} />
                                 </Label>
                             </div>
 
@@ -125,7 +127,7 @@ export function LegalAgreementModal() {
                                     className="data-[state=checked]:bg-zinc-900 data-[state=checked]:border-zinc-900 border-zinc-300 mt-0.5 shadow-none h-3.5 w-3.5"
                                 />
                                 <Label htmlFor="check-privacy" className="text-[11px] sm:text-xs text-zinc-600 font-normal leading-tight cursor-pointer select-none">
-                                    Li e concordo com a <span className="font-medium text-zinc-900">Política de Privacidade</span>
+                                    <Trans i18nKey="legal.modal.agree_privacy" t={t} components={{ 1: <span className="font-medium text-zinc-900" /> }} />
                                 </Label>
                             </div>
 
@@ -137,7 +139,7 @@ export function LegalAgreementModal() {
                                     className="data-[state=checked]:bg-zinc-900 data-[state=checked]:border-zinc-900 border-zinc-300 mt-0.5 shadow-none h-3.5 w-3.5"
                                 />
                                 <Label htmlFor="check-data" className="text-[11px] sm:text-xs text-zinc-600 font-normal leading-tight cursor-pointer select-none">
-                                    Li e concordo com a <span className="font-medium text-zinc-900">Política de Dados</span>
+                                    <Trans i18nKey="legal.modal.agree_data" t={t} components={{ 1: <span className="font-medium text-zinc-900" /> }} />
                                 </Label>
                             </div>
                         </div>
@@ -166,7 +168,7 @@ export function LegalAgreementModal() {
 
                 <DialogFooter className="p-3 sm:p-4 bg-white border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-2">
                     <div className="text-[10px] sm:text-xs text-zinc-400 font-light text-center sm:text-left">
-                        Ao continuar, você confirma que leu todos os documentos.
+                        {t('legal.modal.footer_note')}
                     </div>
                     <Button
                         onClick={handleAccept}
@@ -174,7 +176,7 @@ export function LegalAgreementModal() {
                         className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white font-medium px-6 sm:px-8 shadow-sm transition-all text-xs sm:text-sm"
                         size="default"
                     >
-                        {submitting ? "Processando..." : "Confirmar e Continuar"}
+                        {submitting ? t('legal.modal.processing') : t('legal.modal.confirm_button')}
                     </Button>
                 </DialogFooter>
             </DialogContent>
