@@ -10,8 +10,12 @@ export async function GET(request: Request) {
     const token_hash = searchParams.get('token_hash')
     const type = searchParams.get('type')
 
+    // DEBUG: Log to see what Supabase is sending
+    console.log('🔍 Auth callback - type:', type, 'code:', code ? 'present' : 'none', 'token_hash:', token_hash ? 'present' : 'none')
+
     // ULTRA-SIMPLIFIED: Only recovery goes to password reset, everything else goes to dashboard
     const next = (type === 'recovery') ? '/auth/reset-password' : '/dashboard'
+    console.log('➡️ Redirecting to:', next)
 
     const cookieStore = cookies()
     const supabase = createServerClient(
