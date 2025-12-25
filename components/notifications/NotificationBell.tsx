@@ -93,12 +93,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "relative p-2.5 sm:p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center",
-          "hover:bg-zinc-100 active:bg-zinc-200",
-          isOpen && "bg-zinc-100"
+          "hover:bg-zinc-100 active:bg-zinc-200 dark:hover:bg-zinc-800 dark:active:bg-zinc-700",
+          isOpen && "bg-zinc-100 dark:bg-zinc-800"
         )}
         aria-label={`${t('notifications.title')}${unreadCount > 0 ? ` (${unreadCount} ${t('notifications.unread')})` : ""}`}
       >
-        <Bell className="h-5 w-5 text-zinc-600" />
+        <Bell className="h-5 w-5 text-zinc-600 dark:text-zinc-300" />
 
         {/* Badge de contagem */}
         {unreadCount > 0 && (
@@ -118,7 +118,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           className={cn(
             "absolute right-0 top-full mt-2 z-50",
             "w-[340px] sm:w-[380px] max-w-[calc(100vw-1rem)] sm:max-w-[calc(100vw-2rem)]",
-            "bg-white rounded-xl shadow-2xl border border-zinc-200",
+            "bg-white rounded-xl shadow-2xl border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-700",
             "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2",
             "duration-200",
             // Mobile: posiciona melhor
@@ -126,10 +126,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           )}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-100">
+          <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-700" />
-              <h3 className="font-semibold text-zinc-900 text-sm sm:text-base">{t('notifications.title')}</h3>
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-700 dark:text-zinc-300" />
+              <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm sm:text-base">{t('notifications.title')}</h3>
               {unreadCount > 0 && (
                 <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5">
                   {unreadCount}
@@ -170,16 +170,16 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
-                <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center mb-3">
+                <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-3">
                   <Check className="h-6 w-6 text-zinc-500" />
                 </div>
-                <p className="text-sm font-medium text-zinc-900">{t('notifications.all_done')}</p>
-                <p className="text-xs text-zinc-500 text-center mt-1">
+                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{t('notifications.all_done')}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center mt-1">
                   {t('notifications.no_alerts')} 👍
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-zinc-100">
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
                 {notifications.map((notification) => {
                   const Icon = tipoIcons[notification.tipo] || Bell
                   const colorClass = tipoColors[notification.tipo] || tipoColors.sistema
@@ -191,10 +191,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                       onClick={() => handleNotificationClick(notification)}
                       className={cn(
                         "relative px-3 sm:px-4 py-2.5 sm:py-3 cursor-pointer transition-colors",
-                        "hover:bg-zinc-50 active:bg-zinc-100",
+                        "hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-800/50 dark:active:bg-zinc-800",
                         "border-l-4",
                         prioridadeClass,
-                        !notification.lida && "bg-zinc-50/80"
+                        !notification.lida && "bg-zinc-50/80 dark:bg-zinc-800/30"
                       )}
                     >
                       <div className="flex gap-2 sm:gap-3">
@@ -207,7 +207,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-1 sm:gap-2">
                             <p className={cn(
-                              "text-xs sm:text-sm font-medium text-zinc-900 line-clamp-1",
+                              "text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-100 line-clamp-1",
                               !notification.lida && "font-semibold"
                             )}>
                               {notification.titulo}
@@ -217,13 +217,13 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                                 e.stopPropagation()
                                 dismissNotification(notification.id)
                               }}
-                              className="flex-shrink-0 p-1.5 rounded hover:bg-zinc-200 active:bg-zinc-300 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
+                              className="flex-shrink-0 p-1.5 rounded hover:bg-zinc-200 active:bg-zinc-300 dark:hover:bg-zinc-700 dark:active:bg-zinc-600 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
                               title={t('notifications.dismiss')}
                             >
                               <X className="h-3.5 w-3.5 text-zinc-400" />
                             </button>
                           </div>
-                          <p className="text-[10px] sm:text-xs text-zinc-600 mt-0.5 line-clamp-2">
+                          <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 mt-0.5 line-clamp-2">
                             {notification.mensagem}
                           </p>
                           <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 mt-1.5">
@@ -261,8 +261,8 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="px-4 py-2 border-t border-zinc-100 bg-zinc-50/50">
-              <p className="text-[10px] text-zinc-500 text-center">
+            <div className="px-4 py-2 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/50">
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
                 {t('notifications.auto_update')}
               </p>
             </div>
