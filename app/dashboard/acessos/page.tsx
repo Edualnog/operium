@@ -16,12 +16,14 @@ import {
 } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 // Tipos de acesso clarificados:
 // - Sistema: ADMIN, WAREHOUSE (dashboard/desktop)
 // - Mobile: FIELD (app de campo)
 
 export default function AcessosPage() {
+    const { t } = useTranslation('common')
     const {
         loading,
         error,
@@ -37,11 +39,11 @@ export default function AcessosPage() {
         try {
             setCreatingAdmin(true)
             await createAdminProfile()
-            toast.success("Sistema de acessos ativado!")
+            toast.success(t('access.activated'))
             window.location.reload()
         } catch (err: any) {
             console.error(err)
-            toast.error(err.message || "Erro ao ativar")
+            toast.error(err.message || t('access.error_activating'))
         } finally {
             setCreatingAdmin(false)
         }
@@ -59,7 +61,7 @@ export default function AcessosPage() {
         return (
             <div className="p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center min-h-[400px] text-center">
                 <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Erro ao carregar</h2>
+                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{t('access.error_loading')}</h2>
                 <p className="text-zinc-500 mt-2">{error}</p>
             </div>
         )
@@ -76,10 +78,10 @@ export default function AcessosPage() {
                                 <Sparkles className="h-8 w-8 text-zinc-600 dark:text-zinc-400" />
                             </div>
                             <CardTitle className="text-2xl text-zinc-900 dark:text-zinc-100">
-                                Controle de Acessos
+                                {t('access.title')}
                             </CardTitle>
                             <CardDescription className="text-zinc-500 mt-2 text-base">
-                                Gerencie quem tem acesso ao sistema e defina permissões por papel
+                                {t('access.description')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6 pt-4">
@@ -88,15 +90,15 @@ export default function AcessosPage() {
                                 <div className="flex items-start gap-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                                     <Shield className="h-5 w-5 text-zinc-500 mt-0.5" />
                                     <div>
-                                        <p className="font-medium text-zinc-900 dark:text-zinc-100 text-sm">Controle por Papel</p>
-                                        <p className="text-zinc-500 text-xs mt-0.5">Campo ou Administrador</p>
+                                        <p className="font-medium text-zinc-900 dark:text-zinc-100 text-sm">{t('access.role_control')}</p>
+                                        <p className="text-zinc-500 text-xs mt-0.5">{t('access.role_description')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                                     <UserPlus className="h-5 w-5 text-zinc-500 mt-0.5" />
                                     <div>
-                                        <p className="font-medium text-zinc-900 dark:text-zinc-100 text-sm">Adicione Colaboradores</p>
-                                        <p className="text-zinc-500 text-xs mt-0.5">Convide por email com permissões específicas</p>
+                                        <p className="font-medium text-zinc-900 dark:text-zinc-100 text-sm">{t('access.add_collaborators')}</p>
+                                        <p className="text-zinc-500 text-xs mt-0.5">{t('access.invite_description')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -112,7 +114,7 @@ export default function AcessosPage() {
                                 ) : (
                                     <ArrowRight className="mr-2 h-4 w-4" />
                                 )}
-                                Ativar Controle de Acessos
+                                {t('access.activate_button')}
                             </Button>
                         </CardContent>
                     </Card>
