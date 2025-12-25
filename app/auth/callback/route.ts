@@ -62,14 +62,20 @@ export async function GET(request: Request) {
     // Handle token_hash flow (from invite/recovery email links)
     if (token_hash && type) {
         try {
+            // Supabase accepts: email, signup, invite, recovery, magiclink
             const { error } = await supabase.auth.verifyOtp({
                 token_hash,
-                type: type as 'invite' | 'recovery' | 'email'
+                type: type as any // Accept any type Supabase sends
             })
-            if (error) throw error
+            if (error) {
+                console.error('verifyOtp error:', error)
+                throw error
+            }
+            console.log('Email verified successfully, redirecting to:', next)
             return NextResponse.redirect(`${origin}${next}`)
         } catch (error) {
             console.error('Auth callback error (token_hash):', error)
+            console.error('Params:', { token_hash: token_hash.substring(0, 10) + '...', type, next })
             return NextResponse.redirect(`${origin}/login?error=auth-callback-error`)
         }
     }
