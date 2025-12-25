@@ -230,7 +230,7 @@ function SidebarContent({
           ))}
         </div>
       </div>
-      <div className="pt-4 md:pt-4 border-t border-border flex-shrink-0">
+      <div className="pt-4 md:pt-4 border-t border-zinc-200 dark:border-zinc-700 flex-shrink-0">
         {/* Mobile: Stack buttons vertically */}
         <div className="flex flex-col md:flex-row gap-2 md:gap-1.5 w-full">
           <Link
