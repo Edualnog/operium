@@ -136,69 +136,42 @@ export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error("Não autenticado")
 
-    const { data: profile } = await supabase
-        .from("operium_profiles")
-        .select("team_id")
-        .eq("user_id", user.id)
-        .eq("active", true)
-        .single()
+    // Use SECURITY DEFINER function to bypass RLS and get full team info
+    const { data, error } = await supabase.rpc('get_my_team_info')
 
-    if (!profile?.team_id) return null
-
-    // Get team basic info
-    const { data: team } = await supabase
-        .from("teams")
-        .select("id, name, status, current_location, leader_id")
-        .eq("id", profile.team_id)
-        .single()
-
-    if (!team) return null
-
-    // Get leader info separately if leader exists
-    let leaderName: string | null = null
-    let leaderPhoto: string | null = null
-
-    if (team.leader_id) {
-        const { data: leader } = await supabase
-            .from("colaboradores")
-            .select("nome, foto_url")
-            .eq("id", team.leader_id)
-            .single()
-
-        if (leader) {
-            leaderName = leader.nome
-            leaderPhoto = leader.foto_url
-        }
+    if (error) {
+        console.error("[getMyTeamInfo] RPC error:", error)
+        return null
     }
 
-    // Get team members
-    const { data: members } = await supabase
-        .from("team_members")
-        .select(`
-            id,
-            role,
-            colaborador_id,
-            colaboradores(id, nome, foto_url)
-        `)
-        .eq("team_id", profile.team_id)
-        .is("left_at", null)
+    if (!data) return null
 
-    const membersList: TeamMemberInfo[] = (members || []).map((m: any) => ({
-        id: m.colaboradores?.id || m.colaborador_id || m.id,
-        name: m.colaboradores?.nome || 'Sem nome',
-        role: m.role,
-        photo: m.colaboradores?.foto_url || null
-    }))
+    // Parse the JSON result
+    const teamData = data as {
+        id: string
+        name: string
+        status: string
+        current_location: string | null
+        leader_id: string | null
+        leader_name: string | null
+        leader_photo: string | null
+        members: Array<{
+            id: string
+            name: string
+            role: string | null
+            photo: string | null
+        }>
+    }
 
     return {
-        id: team.id,
-        name: team.name,
-        status: team.status,
-        current_location: team.current_location,
-        leader_id: team.leader_id,
-        leader_name: leaderName,
-        leader_photo: leaderPhoto,
-        members: membersList
+        id: teamData.id,
+        name: teamData.name,
+        status: teamData.status,
+        current_location: teamData.current_location,
+        leader_id: teamData.leader_id,
+        leader_name: teamData.leader_name,
+        leader_photo: teamData.leader_photo,
+        members: teamData.members || []
     }
 }
 
