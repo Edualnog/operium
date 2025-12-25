@@ -37,6 +37,7 @@ export async function createTeam(formData: {
     leader_id?: string
     vehicle_id?: string
     status?: TeamStatus
+    current_location?: string
 }) {
     const supabase = createServerActionClient({ cookies })
 
@@ -64,7 +65,8 @@ export async function createTeam(formData: {
             description: formData.description,
             leader_id: formData.leader_id || null,
             vehicle_id: formData.vehicle_id || null,
-            status: formData.status || 'active'
+            status: formData.status || 'active',
+            current_location: formData.current_location || null
         })
         .select()
         .single()
@@ -120,6 +122,7 @@ export async function updateTeam(id: string, formData: {
     leader_id?: string
     vehicle_id?: string
     status?: TeamStatus
+    current_location?: string
 }) {
     const supabase = createServerActionClient({ cookies })
 
@@ -127,6 +130,7 @@ export async function updateTeam(id: string, formData: {
     const updates: any = { ...formData }
     if (updates.leader_id === "") updates.leader_id = null
     if (updates.vehicle_id === "") updates.vehicle_id = null
+    if (updates.current_location === "") updates.current_location = null
 
     const { data, error } = await supabase
         .from("teams")

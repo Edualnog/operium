@@ -28,6 +28,7 @@ interface FormData {
     leader_id: string
     vehicle_id: string
     status: TeamStatus
+    current_location: string
 }
 
 export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, onTeamCreated }: CreateEditTeamModalProps) {
@@ -50,7 +51,8 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
             description: "",
             leader_id: "",
             vehicle_id: "",
-            status: "active"
+            status: "active",
+            current_location: ""
         }
     })
 
@@ -133,7 +135,8 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                     description: teamToEdit.description || "",
                     leader_id: teamToEdit.leader_id || "",
                     vehicle_id: teamToEdit.vehicle_id || "",
-                    status: teamToEdit.status
+                    status: teamToEdit.status,
+                    current_location: teamToEdit.current_location || ""
                 })
             } else {
                 reset({
@@ -141,7 +144,8 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                     description: "",
                     leader_id: "",
                     vehicle_id: "",
-                    status: "active"
+                    status: "active",
+                    current_location: ""
                 })
             }
         }
@@ -196,6 +200,16 @@ export default function CreateEditTeamModal({ open, onOpenChange, teamToEdit, on
                             placeholder={safeT('teams.form.description_placeholder', 'Função ou área de atuação')}
                             className="resize-none bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-600 focus-visible:ring-offset-0 placeholder:text-zinc-400 min-h-[80px]"
                             {...register("description")}
+                        />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="current_location" className="text-xs uppercase tracking-wider text-zinc-500 font-semibold mb-1">{safeT('teams.form.location', 'Local de Atuação')}</Label>
+                        <Input
+                            id="current_location"
+                            placeholder={safeT('teams.form.location_placeholder', 'Ex: Obra Centro, Rua das Flores, 123')}
+                            className="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-600 focus-visible:ring-offset-0 placeholder:text-zinc-400"
+                            {...register("current_location")}
                         />
                     </div>
 
