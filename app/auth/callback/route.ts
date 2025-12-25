@@ -9,20 +9,9 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const token_hash = searchParams.get('token_hash')
     const type = searchParams.get('type')
-    let next = '/dashboard' // Default to dashboard ALWAYS
 
-    // SIMPLIFIED LOGIC - criar-senha was deleted:
-    // - type=recovery → user needs to update password
-    // - EVERYTHING ELSE → dashboard (signup, email, invite, magiclink, unknown)
-
-    if (type === 'recovery') {
-        // Password reset → update password page
-        next = '/auth/update-password'
-    } else {
-        // EVERYTHING ELSE → dashboard directly
-        // This includes: signup, email, magiclink, invite, or unknown
-        next = searchParams.get('next') ?? '/dashboard'
-    }
+    // ULTRA-SIMPLIFIED: Only recovery goes to password reset, everything else goes to dashboard
+    const next = (type === 'recovery') ? '/auth/reset-password' : '/dashboard'
 
     const cookieStore = cookies()
     const supabase = createServerClient(
@@ -55,27 +44,24 @@ export async function GET(request: Request) {
         }
     }
 
-    // Handle token_hash flow (from invite/recovery email links)
+    // Handle token_hash flow (email confirmation, recovery, etc)
     if (token_hash && type) {
         try {
-            // Supabase accepts: email, signup, invite, recovery, magiclink
             const { error } = await supabase.auth.verifyOtp({
                 token_hash,
-                type: type as any // Accept any type Supabase sends
+                type: type as any
             })
-            if (error) {
-                console.error('verifyOtp error:', error)
-                throw error
-            }
-            console.log('Email verified successfully, redirecting to:', next)
+            if (error) throw error
+
+            console.log(`✅ Auth successful - type: ${type}, redirecting to: ${next}`)
             return NextResponse.redirect(`${origin}${next}`)
         } catch (error) {
-            console.error('Auth callback error (token_hash):', error)
-            console.error('Params:', { token_hash: token_hash.substring(0, 10) + '...', type, next })
+            console.error('❌ Auth callback error:', error)
             return NextResponse.redirect(`${origin}/login?error=auth-callback-error`)
         }
     }
 
     // No valid auth params found
+    console.log('⚠️ No auth params, redirecting to login')
     return NextResponse.redirect(`${origin}/login`)
 }
