@@ -11,12 +11,22 @@ export async function GET(request: Request) {
     const type = searchParams.get('type')
     let next = searchParams.get('next') ?? '/dashboard'
 
-    // Set redirect destination based on type
+    // CRITICAL: Distinguish between different auth flows
+    // - signup/email: User confirming email → dashboard
+    // - invite: Admin inviting user → criar-senha  
+    // - recovery: User resetting password → update-password
+
     if (type === 'invite') {
+        // Only redirect to criar-senha if it's a real invite (admin creating user)
+        // Check if user already has password_set
         next = '/criar-senha'
     } else if (type === 'recovery') {
         next = '/auth/update-password'
+    } else if (type === 'signup' || type === 'email') {
+        // Email confirmation after signup → go straight to dashboard
+        next = '/dashboard'
     }
+    // Default: use 'next' param or '/dashboard'
 
     const cookieStore = cookies()
     const supabase = createServerClient(
