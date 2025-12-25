@@ -93,6 +93,7 @@ export default function TeamMembersManager({ teamId }: TeamMembersManagerProps) 
             await addTeamMember(teamId, selectedColab, "Membro") // Default role
             setSelectedColab("")
             setIsPopoverOpen(false)
+            await fetchMembers() // Refresh list immediately
             toast.success(t('teams.members.toast.added'))
         } catch (error: any) {
             toast.error(error.message || t('teams.members.toast.error_add'))

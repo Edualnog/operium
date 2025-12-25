@@ -34,7 +34,9 @@ import {
     requestEquipmentReturn,
     reportFieldIssue,
     getMyTeamEquipment,
-    TeamEquipmentMobile
+    getAvailableTeams,
+    TeamEquipmentMobile,
+    AvailableTeam
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
@@ -1479,7 +1481,7 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
     const supabase = createClientComponentClient()
     const [hasTeam, setHasTeam] = useState<boolean | null>(null)
     const [selectedTeam, setSelectedTeam] = useState('')
-    const [teams, setTeams] = useState<{ id: string; name: string }[]>([])
+    const [teams, setTeams] = useState<AvailableTeam[]>([])
     const [loading, setLoading] = useState(false)
     const [loadingTeams, setLoadingTeams] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -1493,34 +1495,10 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
     const fetchTeams = async () => {
         setLoadingTeams(true)
         try {
-            // First check if user has org_id (for debugging)
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data: profile } = await supabase
-                    .from('operium_profiles')
-                    .select('org_id, team_id')
-                    .eq('user_id', user.id)
-                    .eq('active', true)
-                    .single()
-                console.log('[fetchTeams] User profile:', { org_id: profile?.org_id, team_id: profile?.team_id })
-            }
-
-            // RLS policy filters by org_id automatically using get_user_org_id()
-            // Just fetch all teams - RLS will show only teams from user's org
-            const { data, error } = await supabase
-                .from('teams')
-                .select('id, name, org_id, profile_id')
-                .is('deleted_at', null)
-                .order('name')
-
-            if (error) {
-                console.error('[fetchTeams] Error:', error)
-                setTeams([])
-                return
-            }
-
-            console.log('[fetchTeams] Teams returned by RLS:', data?.length || 0, data)
-            setTeams(data || [])
+            // Use server action to fetch teams - bypasses client-side RLS issues
+            const availableTeams = await getAvailableTeams()
+            console.log('[fetchTeams] Server action returned teams:', availableTeams.length)
+            setTeams(availableTeams)
         } catch (err) {
             console.error('[fetchTeams] Exception:', err)
             setTeams([])

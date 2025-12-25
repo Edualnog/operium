@@ -4,6 +4,43 @@ import { cookies } from "next/headers"
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 
+// =============================================================================
+// GET AVAILABLE TEAMS FOR FIELD APP ONBOARDING
+// =============================================================================
+
+export interface AvailableTeam {
+    id: string
+    name: string
+}
+
+/**
+ * Get all teams available for the user to join during field app onboarding.
+ * Uses a SECURITY DEFINER function to bypass RLS and fetch all teams
+ * in the user's organization.
+ */
+export async function getAvailableTeams(): Promise<AvailableTeam[]> {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+        console.error("[getAvailableTeams] User not authenticated")
+        return []
+    }
+
+    // Use the SECURITY DEFINER function to get teams
+    // This bypasses RLS and returns all teams for the user's org
+    const { data: teams, error } = await supabase
+        .rpc('get_teams_for_user_org')
+
+    if (error) {
+        console.error("[getAvailableTeams] RPC error:", error)
+        return []
+    }
+
+    console.log("[getAvailableTeams] Found teams:", teams?.length || 0)
+    return (teams || []) as AvailableTeam[]
+}
+
 // Type for equipment in custody
 export type EquipmentStatus = 'pending_acceptance' | 'accepted' | 'in_use' | 'pending_return' | 'returned' | 'returned_with_issue'
 
