@@ -599,11 +599,25 @@ export async function criarFerramenta(formData: FormData) {
     // Revalidar todas as páginas relacionadas
     revalidateAllPages()
   } catch (error: any) {
-    console.error("Erro em criarFerramenta:", error)
+    // Log detalhado do erro
+    console.error("❌ ERRO COMPLETO em criarFerramenta:", {
+      name: error?.name,
+      message: error?.message,
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint,
+      stack: error?.stack?.substring(0, 500)
+    })
+
     if (error instanceof z.ZodError) {
-      throw new Error(`Erro de validação: ${error.errors.map(e => e.message).join(", ")}`)
+      const validationErrors = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(", ")
+      console.error("❌ Validation errors:", validationErrors)
+      throw new Error(`Erro de validação: ${validationErrors}`)
     }
-    throw error
+
+    // Retornar mensagem detalhada do erro
+    const errorMessage = error?.message || error?.toString() || "Erro desconhecido"
+    throw new Error(`Falha ao criar produto: ${errorMessage}`)
   }
 }
 
