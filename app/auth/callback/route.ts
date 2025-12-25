@@ -12,19 +12,20 @@ export async function GET(request: Request) {
     let next = searchParams.get('next') ?? '/dashboard'
 
     // CRITICAL: Distinguish between different auth flows
-    // - signup/email: User confirming email → dashboard
-    // - invite: Admin inviting user → criar-senha  
-    // - recovery: User resetting password → update-password
+    // - signup/email: User confirming email after creating account → dashboard DIRECTLY
+    // - invite: Admin creating user without password → criar-senha
+    // - recovery: User resetting forgotten password → update-password
 
-    if (type === 'invite') {
-        // Only redirect to criar-senha if it's a real invite (admin creating user)
-        // Check if user already has password_set
+    if (type === 'signup' || type === 'email' || type === 'magiclink') {
+        // Email confirmation or magic link → go STRAIGHT to dashboard
+        // User already created password during signup, no need to set it again
+        next = '/dashboard'
+    } else if (type === 'invite') {
+        // Admin invited user → needs to create password
         next = '/criar-senha'
     } else if (type === 'recovery') {
+        // Password reset → update password page
         next = '/auth/update-password'
-    } else if (type === 'signup' || type === 'email') {
-        // Email confirmation after signup → go straight to dashboard
-        next = '/dashboard'
     }
     // Default: use 'next' param or '/dashboard'
 
