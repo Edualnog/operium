@@ -13,6 +13,7 @@ interface TeamCost {
     date?: string
     notes?: string
     created_at: string
+    registeredBy?: string
     vehicle?: {
         plate: string
         model: string
@@ -58,6 +59,7 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
                         reference_month,
                         notes,
                         created_at,
+                        registered_by_name,
                         vehicles:vehicle_id (
                             plate,
                             model
@@ -72,7 +74,8 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
                 const formattedCosts = (data || []).map(c => ({
                     ...c,
                     date: c.reference_month,
-                    vehicle: c.vehicles as any
+                    vehicle: c.vehicles as any,
+                    registeredBy: c.registered_by_name
                 }))
 
                 setCosts(formattedCosts)
@@ -134,12 +137,20 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
                                     <Icon className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-zinc-900 dark:text-zinc-100">
-                                        {COST_TYPE_LABELS[cost.cost_type] || cost.cost_type}
-                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="font-medium text-zinc-900 dark:text-zinc-100">
+                                            {COST_TYPE_LABELS[cost.cost_type] || cost.cost_type}
+                                        </p>
+                                        {cost.registeredBy && (
+                                            <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                                                {cost.registeredBy}
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">
                                         {cost.vehicle?.plate && `${cost.vehicle.plate} • `}
                                         {format(new Date(cost.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                                        {cost.notes && ` • ${cost.notes}`}
                                     </p>
                                 </div>
                                 <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
