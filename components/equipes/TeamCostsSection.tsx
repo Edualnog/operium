@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { createClientComponentClient } from "@/lib/supabase-client"
-import { Loader2, DollarSign, Fuel, Wrench, Car, Receipt, Filter, X, Calendar, User, ChevronDown } from "lucide-react"
+import { Loader2, DollarSign, Fuel, Wrench, Car, Receipt, Filter, X, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -43,6 +43,8 @@ const PERIOD_OPTIONS = [
     { value: "last_3_months", label: "Últimos 3 meses" },
 ]
 
+const ITEMS_PER_PAGE = 10
+
 export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
     const supabase = createClientComponentClient()
     const [costs, setCosts] = useState<TeamCost[]>([])
@@ -53,6 +55,9 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
     const [typeFilter, setTypeFilter] = useState("all")
     const [collaboratorFilter, setCollaboratorFilter] = useState("all")
     const [showFilters, setShowFilters] = useState(false)
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1)
 
     useEffect(() => {
         const fetchCosts = async () => {
@@ -73,7 +78,7 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
                     `)
                     .eq("team_id", teamId)
                     .order("created_at", { ascending: false })
-                    .limit(100)
+                    .limit(500)
 
                 if (error) throw error
 
@@ -98,21 +103,27 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
         if (teamId) fetchCosts()
     }, [teamId, supabase])
 
-    // Get unique collaborators for filter
+    // Get unique collaborators for filter (fixed TypeScript)
     const collaborators = useMemo(() => {
-        const unique = [...new Set(costs.map(c => c.registeredBy).filter(Boolean))]
-        return unique
+        const set = new Set<string>()
+        costs.forEach(c => {
+            if (c.registeredBy && c.registeredBy !== "—") {
+                set.add(c.registeredBy)
+            }
+        })
+        return Array.from(set)
     }, [costs])
 
-    // Get unique types for filter
+    // Get unique types for filter (fixed TypeScript)
     const types = useMemo(() => {
-        const unique = [...new Set(costs.map(c => c.cost_type))]
-        return unique
+        const set = new Set<string>()
+        costs.forEach(c => set.add(c.cost_type))
+        return Array.from(set)
     }, [costs])
 
     // Apply filters
     const filteredCosts = useMemo(() => {
-        let filtered = [...costs]
+        let filtered = costs.slice()
 
         // Period filter
         if (periodFilter !== "all") {
@@ -158,6 +169,18 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
     const total = useMemo(() => {
         return filteredCosts.reduce((sum, c) => sum + (c.amount || 0), 0)
     }, [filteredCosts])
+
+    // Pagination
+    const totalPages = Math.ceil(filteredCosts.length / ITEMS_PER_PAGE)
+    const paginatedCosts = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE
+        return filteredCosts.slice(start, start + ITEMS_PER_PAGE)
+    }, [filteredCosts, currentPage])
+
+    // Reset page when filters change
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [periodFilter, typeFilter, collaboratorFilter])
 
     const activeFiltersCount = [periodFilter, typeFilter, collaboratorFilter].filter(f => f !== "all").length
 
@@ -299,7 +322,7 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
 
                     {/* Table Body */}
                     <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                        {filteredCosts.map((cost) => {
+                        {paginatedCosts.map((cost) => {
                             const Icon = COST_TYPE_ICONS[cost.cost_type] || Receipt
                             return (
                                 <div
@@ -319,7 +342,7 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
                                         <div className="w-6 h-6 rounded bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
                                             <Icon className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-400" />
                                         </div>
-                                        <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                                        <span className="text-sm text-zinc-700 dark:text-zinc-300 truncate">
                                             {COST_TYPE_LABELS[cost.cost_type] || cost.cost_type}
                                         </span>
                                     </div>
@@ -348,14 +371,39 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
                         })}
                     </div>
 
-                    {/* Table Footer */}
-                    <div className="grid grid-cols-12 gap-2 px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-100 dark:border-zinc-800">
-                        <div className="col-span-10 text-sm text-zinc-500">
-                            {filteredCosts.length} registro{filteredCosts.length !== 1 ? 's' : ''}
+                    {/* Table Footer with Pagination */}
+                    <div className="flex items-center justify-between px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-100 dark:border-zinc-800">
+                        <div className="text-sm text-zinc-500">
+                            {filteredCosts.length} registro{filteredCosts.length !== 1 ? 's' : ''} •
+                            <span className="font-bold text-zinc-900 dark:text-zinc-100 ml-1">
+                                R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
                         </div>
-                        <div className="col-span-2 text-right text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                            R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </div>
+
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </button>
+
+                                <span className="text-sm text-zinc-600 dark:text-zinc-400 min-w-[80px] text-center">
+                                    {currentPage} de {totalPages}
+                                </span>
+
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
