@@ -3,7 +3,7 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { trackEvent } from "./events"
+import { telemetry } from "./telemetry"
 
 type ConsertoStatus = "aguardando" | "em_andamento" | "concluido"
 
@@ -860,11 +860,18 @@ export async function deletarFerramenta(id: string) {
 
   if (error) throw error
 
-  // 🚀 EVENTO SILENCIOSO (Dual Write)
-  await trackEvent(supabase, 'ASSET_RETIREMENT', id, {
-    retirement_type: 'SCRAPPED',
-    notes: 'Deleted via UI'
-  }, { actor_id: user.id })
+  // 🚀 TELEMETRIA → Cloudflare Workers
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'asset',
+    entity_id: id,
+    event_name: 'ASSET_RETIRED',
+    props: {
+      retirement_type: 'SCRAPPED',
+      notes: 'Deleted via UI'
+    }
+  })
 
   revalidateAllPages()
 }
@@ -1014,11 +1021,20 @@ export async function registrarRetirada(
 
     revalidateAllPages()
 
-    // 🚀 EVENTO SILENCIOSO (Dual Write)
-    await trackEvent(supabase, 'ASSET_CHECKOUT', ferramentaId, {
-      recipient_id: colaboradorId,
-      notes: observacoes
-    }, { actor_id: user.id })
+    // 🚀 TELEMETRIA → Cloudflare Workers
+    telemetry.emit({
+      profile_id: user.id,
+      actor_id: user.id,
+      entity_type: 'movement',
+      entity_id: ferramentaId,
+      event_name: 'MOVEMENT_CHECKOUT',
+      props: {
+        recipient_id: colaboradorId,
+        quantidade,
+        notes: observacoes
+      },
+      context: { flow: 'retirada_ferramenta' }
+    })
   } catch (error: any) {
     console.error("❌ Erro completo ao registrar retirada:", error)
     throw error
@@ -1138,11 +1154,20 @@ export async function registrarDevolucao(
 
   revalidateAllPages()
 
-  // 🚀 EVENTO SILENCIOSO (Dual Write)
-  await trackEvent(supabase, 'ASSET_CHECKIN', ferramentaId, {
-    condition_grade: 5, // Default for now
-    notes: observacoes
-  }, { actor_id: user.id })
+  // 🚀 TELEMETRIA → Cloudflare Workers
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'movement',
+    entity_id: ferramentaId,
+    event_name: 'MOVEMENT_CHECKIN',
+    props: {
+      condition_grade: 5,
+      quantidade,
+      notes: observacoes
+    },
+    context: { flow: 'devolucao_ferramenta' }
+  })
 }
 
 export async function registrarEnvioConserto(
@@ -1232,17 +1257,21 @@ export async function registrarEnvioConserto(
     throw new Error(`Erro ao criar conserto: ${consertoError.message}`)
   }
 
-  // 🚀 EVENTO SILENCIOSO (Dual Write) - não bloqueia se falhar
-  try {
-    await trackEvent(supabase, 'ASSET_MAINTENANCE', ferramentaId, {
+  // 🚀 TELEMETRIA → Cloudflare Workers (fire-and-forget)
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'maintenance',
+    entity_id: ferramentaId,
+    event_name: 'MAINTENANCE_STARTED',
+    props: {
       maintenance_type: 'CORRECTIVE',
       reason_code: 'BROKEN_REPORT',
       notes: descricaoComQuantidade,
       quantity_affected: quantidade
-    }, { actor_id: user.id })
-  } catch (eventError) {
-    console.warn("Evento não registrado (não crítico):", eventError)
-  }
+    },
+    context: { flow: 'envio_conserto' }
+  })
 
   if (!consertoCriado) throw new Error("Erro ao criar conserto")
 

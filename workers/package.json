@@ -1,0 +1,21 @@
+{
+  "name": "operium-telemetry-workers",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:ingest": "wrangler dev --config wrangler.toml",
+    "dev:consumer": "wrangler dev --config wrangler.consumer.toml",
+    "deploy": "wrangler deploy --config wrangler.toml && wrangler deploy --config wrangler.consumer.toml",
+    "deploy:ingest": "wrangler deploy --config wrangler.toml",
+    "deploy:consumer": "wrangler deploy --config wrangler.consumer.toml",
+    "tail": "wrangler tail",
+    "tail:ingest": "wrangler tail operium-telemetry-ingest",
+    "tail:consumer": "wrangler tail operium-telemetry-consumer"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.91.0"
+  }
+}

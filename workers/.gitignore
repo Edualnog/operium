@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Wrangler
+.wrangler/
+.mf/
+dist/
+wrangler.toml.bak
+
+# Environment
+.env
+.env.*
+.dev.vars
+.env.cloudflare
+
+# Downloaded event files
+*.ndjson
+download-*.ndjson
+events-*.ndjson
+
+# Logs
+*.log
+.wrangler/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,42 @@
+# =============================================================================
+# Operium Telemetry Consumer Worker
+# =============================================================================
+# Consome eventos do Queue e escreve no R2 como NDJSON
+# Particionamento: date=YYYY-MM-DD/hour=HH/org=<org_id>/events-<uuid>.ndjson
+# =============================================================================
+
+name = "operium-telemetry-consumer"
+main = "src/consumer/index.ts"
+compatibility_date = "2024-12-26"
+
+# Queue consumer - processa eventos em batch
+[[queues.consumers]]
+queue = "telemetry-events"
+max_batch_size = 20
+max_batch_timeout = 5
+
+# R2 bucket para armazenamento
+[[r2_buckets]]
+binding = "TELEMETRY_BUCKET"
+bucket_name = "operium-telemetry-raw"
+
+# Variáveis de ambiente
+[vars]
+ENVIRONMENT = "production"
+WORKER_VERSION = "1.0.0"
+
+# Ambiente de staging
+[env.staging]
+name = "operium-telemetry-consumer-staging"
+[[env.staging.r2_buckets]]
+binding = "TELEMETRY_BUCKET"
+bucket_name = "operium-telemetry-raw-staging"
+vars = { ENVIRONMENT = "staging" }
+
+# Ambiente de desenvolvimento
+[env.dev]
+name = "operium-telemetry-consumer-dev"
+[[env.dev.r2_buckets]]
+binding = "TELEMETRY_BUCKET"
+bucket_name = "operium-telemetry-raw-dev"
+vars = { ENVIRONMENT = "development" }
