@@ -12,7 +12,8 @@ import {
   ExternalLink,
   Factory,
   Users,
-  Lock
+  Lock,
+  AlertTriangle
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -24,6 +25,7 @@ import { enUS } from "date-fns/locale/en-US"
 import { useTranslation } from "react-i18next"
 
 import { checkTrialStatus } from "@/lib/utils"
+import { DeleteAccountModal } from "./DeleteAccountModal"
 
 // ... imports
 
@@ -312,7 +314,41 @@ export default function ContaClient({ user, profile }: ContaClientProps) {
             {t("dashboard.conta.security.send_reset_email")}
           </Button>
         </div>
-      </motion.div >
+      </motion.div>
+
+      {/* Zona de Perigo */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="rounded-xl border border-red-200 bg-red-50/50 p-6 dark:bg-red-900/10 dark:border-red-800"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30">
+            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-red-700 dark:text-red-400">
+              {t("dashboard.conta.danger_zone.title", "Zona de Perigo")}
+            </h3>
+            <p className="text-sm text-red-600/80 dark:text-red-400/80">
+              {t("dashboard.conta.danger_zone.subtitle", "Ações irreversíveis")}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg bg-white border border-red-200 dark:bg-zinc-900 dark:border-red-800">
+          <div>
+            <p className="font-medium text-red-700 dark:text-red-400">
+              {t("dashboard.conta.danger_zone.delete_account", "Deletar conta")}
+            </p>
+            <p className="text-sm text-red-600/70 dark:text-red-400/70">
+              {t("dashboard.conta.danger_zone.delete_account_note", "Remove permanentemente sua conta. Dados históricos são preservados.")}
+            </p>
+          </div>
+          <DeleteAccountModal />
+        </div>
+      </motion.div>
     </div >
   )
 }
