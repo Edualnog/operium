@@ -83,21 +83,27 @@ export function TelemetryDashboard() {
     const [date, setDate] = useState(new Date().toISOString().split("T")[0])
     const [r2Configured, setR2Configured] = useState(false)
     const [message, setMessage] = useState("")
+    const [debug, setDebug] = useState<any>(null)
+    const [showAll, setShowAll] = useState(false)
 
-    const fetchEvents = async () => {
+    const fetchEvents = async (all = false) => {
         setLoading(true)
         setError(null)
         try {
-            const response = await fetch(`/api/admin/telemetry?date=${date}`)
-            const data: TelemetryResponse = await response.json()
+            const url = all
+                ? `/api/admin/telemetry?date=${date}&all=true`
+                : `/api/admin/telemetry?date=${date}`
+            const response = await fetch(url)
+            const data = await response.json()
 
             if (!response.ok) {
-                throw new Error(data.message || "Erro ao buscar eventos")
+                throw new Error(data.error || data.message || "Erro ao buscar eventos")
             }
 
-            setEvents(data.events)
+            setEvents(data.events || [])
             setR2Configured(data.r2_configured)
             setMessage(data.message)
+            setDebug(data.debug)
         } catch (err: any) {
             setError(err.message)
         } finally {
@@ -106,8 +112,8 @@ export function TelemetryDashboard() {
     }
 
     useEffect(() => {
-        fetchEvents()
-    }, [date])
+        fetchEvents(showAll)
+    }, [date, showAll])
 
     // Stats calculations
     const eventsByType = events.reduce((acc, event) => {
@@ -143,9 +149,16 @@ export function TelemetryDashboard() {
                         className="w-40"
                     />
                     <Button
+                        variant={showAll ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setShowAll(!showAll)}
+                    >
+                        {showAll ? "Filtrar por Data" : "Ver Todos"}
+                    </Button>
+                    <Button
                         variant="outline"
                         size="icon"
-                        onClick={fetchEvents}
+                        onClick={() => fetchEvents(showAll)}
                         disabled={loading}
                     >
                         <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -156,8 +169,8 @@ export function TelemetryDashboard() {
             {/* Status Alert */}
             {message && (
                 <div className={`p-4 rounded-lg border ${r2Configured
-                        ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
-                        : "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
+                    ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
+                    : "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
                     }`}>
                     <div className="flex items-center gap-2">
                         {r2Configured ? (
@@ -219,6 +232,7 @@ export function TelemetryDashboard() {
                     <TabsTrigger value="events">Eventos</TabsTrigger>
                     <TabsTrigger value="byType">Por Tipo</TabsTrigger>
                     <TabsTrigger value="byIndustry">Por Setor</TabsTrigger>
+                    <TabsTrigger value="debug">Debug</TabsTrigger>
                 </TabsList>
 
                 {/* Events List */}
@@ -356,6 +370,73 @@ export function TelemetryDashboard() {
                                         </div>
                                     ))}
                             </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* Debug Tab */}
+                <TabsContent value="debug">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <AlertCircle className="h-5 w-5" />
+                                Debug Info
+                            </CardTitle>
+                            <CardDescription>
+                                Informações técnicas para diagnóstico
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {debug ? (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span className="text-zinc-500">Bucket:</span>
+                                            <span className="ml-2 font-mono">{debug.bucket}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-zinc-500">Total no Bucket:</span>
+                                            <span className="ml-2 font-bold">{debug.total_objects_in_bucket}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-zinc-500">Objetos Encontrados:</span>
+                                            <span className="ml-2 font-bold">{debug.matching_objects}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-zinc-500">Padrão de Data:</span>
+                                            <span className="ml-2 font-mono">{debug.date_pattern}</span>
+                                        </div>
+                                    </div>
+
+                                    {debug.all_object_keys && debug.all_object_keys.length > 0 && (
+                                        <div>
+                                            <h4 className="font-medium mb-2">Objetos no Bucket:</h4>
+                                            <div className="bg-zinc-100 dark:bg-zinc-800 p-3 rounded font-mono text-xs max-h-60 overflow-auto">
+                                                {debug.all_object_keys.map((key: string, i: number) => (
+                                                    <div key={i} className="py-1 border-b border-zinc-200 dark:border-zinc-700 last:border-0">
+                                                        {key}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {debug.files_fetched && debug.files_fetched.length > 0 && (
+                                        <div>
+                                            <h4 className="font-medium mb-2">Arquivos Processados:</h4>
+                                            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded font-mono text-xs">
+                                                {debug.files_fetched.map((key: string, i: number) => (
+                                                    <div key={i} className="py-1">✅ {key}</div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-zinc-500">
+                                    Clique em Atualizar para ver informações de debug
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>

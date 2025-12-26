@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams
         const date = searchParams.get("date") || new Date().toISOString().split("T")[0]
         const limit = parseInt(searchParams.get("limit") || "200")
+        const showAll = searchParams.get("all") === "true" // Debug: show all objects
 
         const r2Client = getR2Client()
 
@@ -66,33 +67,40 @@ export async function GET(request: NextRequest) {
                 r2_configured: false,
                 events: [],
                 message: "R2 não configurado. Configure CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY.",
-                total: 0
+                total: 0,
+                debug: {
+                    account_id: R2_ACCOUNT_ID ? "set" : "missing",
+                    access_key: R2_ACCESS_KEY_ID ? "set" : "missing",
+                    secret_key: R2_SECRET_ACCESS_KEY ? "set" : "missing",
+                }
             })
         }
 
-        // List objects for the given date
-        // Pattern: orgs/{org_id}/date={YYYY-MM-DD}/hour={HH}/...
+        // List ALL objects in the bucket (no prefix filter initially)
         const listCommand = new ListObjectsV2Command({
             Bucket: R2_BUCKET_NAME,
-            Prefix: `orgs/`,
-            MaxKeys: 100,
+            MaxKeys: 1000,
         })
 
         const listResult = await r2Client.send(listCommand)
-        const objects = listResult.Contents || []
+        const allObjects = listResult.Contents || []
 
-        // Filter objects by date
+        console.log(`[Telemetry API] Total objects in bucket: ${allObjects.length}`)
+        console.log(`[Telemetry API] Object keys:`, allObjects.map(o => o.Key).slice(0, 10))
+
+        // Filter objects by date if not showing all
         const datePattern = `date=${date}`
-        const matchingObjects = objects.filter(obj =>
-            obj.Key?.includes(datePattern)
-        )
+        const matchingObjects = showAll
+            ? allObjects
+            : allObjects.filter(obj => obj.Key?.includes(datePattern))
 
-        console.log(`[Telemetry API] Found ${matchingObjects.length} objects for date ${date}`)
+        console.log(`[Telemetry API] Matching objects for ${date}: ${matchingObjects.length}`)
 
         // Fetch and parse events from matching objects
         const allEvents: any[] = []
+        const fetchedFiles: string[] = []
 
-        for (const obj of matchingObjects.slice(0, 10)) { // Limit to 10 files
+        for (const obj of matchingObjects.slice(0, 20)) { // Limit to 20 files
             if (!obj.Key) continue
 
             try {
@@ -107,9 +115,10 @@ export async function GET(request: NextRequest) {
                 if (content) {
                     const events = parseNDJSON(content)
                     allEvents.push(...events)
+                    fetchedFiles.push(obj.Key)
                 }
-            } catch (err) {
-                console.error(`Error fetching ${obj.Key}:`, err)
+            } catch (err: any) {
+                console.error(`Error fetching ${obj.Key}:`, err.message)
             }
         }
 
@@ -123,9 +132,16 @@ export async function GET(request: NextRequest) {
             date,
             r2_configured: true,
             events: sortedEvents,
-            message: `${sortedEvents.length} eventos encontrados para ${date}`,
+            message: `${sortedEvents.length} eventos encontrados`,
             total: sortedEvents.length,
-            files_scanned: matchingObjects.length
+            debug: {
+                bucket: R2_BUCKET_NAME,
+                total_objects_in_bucket: allObjects.length,
+                all_object_keys: allObjects.map(o => o.Key).slice(0, 20),
+                matching_objects: matchingObjects.length,
+                files_fetched: fetchedFiles,
+                date_pattern: datePattern,
+            }
         })
     } catch (error: any) {
         console.error("Telemetry API error:", error)
@@ -134,9 +150,14 @@ export async function GET(request: NextRequest) {
                 error: error.message || "Internal error",
                 success: false,
                 events: [],
-                r2_configured: true
+                r2_configured: true,
+                debug: {
+                    error_details: error.message,
+                    error_name: error.name,
+                }
             },
             { status: 500 }
         )
     }
 }
+
