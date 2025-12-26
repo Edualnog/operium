@@ -98,6 +98,14 @@ function ConsertosList({
   const [loading, setLoading] = useState(false)
   const [retornoDialog, setRetornoDialog] = useState<Conserto | null>(null)
 
+  // Contagem por status para exibir nas abas
+  const statusCounts = useMemo(() => ({
+    todos: consertos.length,
+    aguardando: consertos.filter(c => c.status === "aguardando").length,
+    em_andamento: consertos.filter(c => c.status === "em_andamento").length,
+    concluido: consertos.filter(c => c.status === "concluido").length,
+  }), [consertos])
+
   // ... (keep other state)
   const router = useRouter()
   const [openNew, setOpenNew] = useState(false)
@@ -599,10 +607,22 @@ function ConsertosList({
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setSearch(""); }} className="w-full space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <TabsList className="bg-transparent p-0">
-            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="todos">{t("dashboard.consertos.status.all")}</TabsTrigger>
-            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="aguardando">{t("dashboard.consertos.status.waiting")}</TabsTrigger>
-            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="em_andamento">{t("dashboard.consertos.status.in_progress")}</TabsTrigger>
-            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="concluido">{t("dashboard.consertos.status.completed")}</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="todos">
+              {t("dashboard.consertos.status.all")}
+              <span className="ml-1.5 text-xs text-muted-foreground">({statusCounts.todos})</span>
+            </TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="aguardando">
+              {t("dashboard.consertos.status.waiting")}
+              {statusCounts.aguardando > 0 && <span className="ml-1.5 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{statusCounts.aguardando}</span>}
+            </TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="em_andamento">
+              {t("dashboard.consertos.status.in_progress")}
+              {statusCounts.em_andamento > 0 && <span className="ml-1.5 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">{statusCounts.em_andamento}</span>}
+            </TabsTrigger>
+            <TabsTrigger className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] rounded-none border-b-2 border-transparent px-4 pb-2" value="concluido">
+              {t("dashboard.consertos.status.completed")}
+              <span className="ml-1.5 text-xs text-muted-foreground">({statusCounts.concluido})</span>
+            </TabsTrigger>
           </TabsList>
 
           <div className="flex items-center gap-2">

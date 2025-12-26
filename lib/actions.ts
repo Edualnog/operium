@@ -1175,13 +1175,15 @@ export async function registrarEnvioConserto(
     throw new Error("Quantidade insuficiente disponível")
   }
 
-  // Atualizar ferramenta
+  // Guardar estado original para rollback se necessário
+  const estadoOriginal = ferramenta.estado
+  const quantidadeOriginal = ferramenta.quantidade_disponivel
+
   // Calcular nova quantidade disponível
   const novaQuantidadeDisponivel = ferramenta.quantidade_disponivel - quantidade
 
   // Atualizar ferramenta
   // Só alteramos o estado do produto para "em_conserto" se NÃO houver mais itens disponíveis.
-  // Caso contrário, mantemos o estado atual (provavelmente "ok"), pois ainda existem unidades operacionais.
   const updateData: any = {
     quantidade_disponivel: novaQuantidadeDisponivel,
   }
@@ -1216,15 +1218,31 @@ export async function registrarEnvioConserto(
     .select()
     .single()
 
-  if (consertoError) throw consertoError
+  // Se falhou ao criar conserto, reverter a atualização da ferramenta
+  if (consertoError) {
+    console.error("Erro ao criar conserto, revertendo ferramenta:", consertoError)
+    await supabase
+      .from("ferramentas")
+      .update({
+        quantidade_disponivel: quantidadeOriginal,
+        estado: estadoOriginal
+      })
+      .eq("id", ferramentaId)
+      .eq("profile_id", user.id)
+    throw new Error(`Erro ao criar conserto: ${consertoError.message}`)
+  }
 
-  // 🚀 EVENTO SILENCIOSO (Dual Write)
-  await trackEvent(supabase, 'ASSET_MAINTENANCE', ferramentaId, {
-    maintenance_type: 'CORRECTIVE',
-    reason_code: 'BROKEN_REPORT',
-    notes: descricaoComQuantidade,
-    quantity_affected: quantidade
-  }, { actor_id: user.id })
+  // 🚀 EVENTO SILENCIOSO (Dual Write) - não bloqueia se falhar
+  try {
+    await trackEvent(supabase, 'ASSET_MAINTENANCE', ferramentaId, {
+      maintenance_type: 'CORRECTIVE',
+      reason_code: 'BROKEN_REPORT',
+      notes: descricaoComQuantidade,
+      quantity_affected: quantidade
+    }, { actor_id: user.id })
+  } catch (eventError) {
+    console.warn("Evento não registrado (não crítico):", eventError)
+  }
 
   if (!consertoCriado) throw new Error("Erro ao criar conserto")
 
@@ -1237,7 +1255,10 @@ export async function registrarEnvioConserto(
     observacoes: descricao ? `${descricao} (conserto ${consertoCriado.id})` : `Conserto ${consertoCriado.id}`,
   })
 
-  if (movError) throw movError
+  // Se falhou ao registrar movimentação, apenas logamos (conserto já foi criado)
+  if (movError) {
+    console.warn("Movimentação não registrada (conserto criado):", movError)
+  }
 
   revalidateAllPages()
 }
