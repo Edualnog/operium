@@ -79,6 +79,19 @@ function SignupForm() {
       }
 
       if (data.user) {
+        // IMPORTANTE: Supabase Auth não retorna erro quando email já existe
+        // Em vez disso, retorna user sem session e com identities vazio
+        // Isso é por segurança (para não revelar quais emails estão cadastrados)
+        const hasIdentities = data.user.identities && data.user.identities.length > 0
+
+        if (!hasIdentities) {
+          // Email já está cadastrado
+          setError('Este email já possui uma conta cadastrada. Faça login ou utilize outro email.')
+          setCaptchaToken(null)
+          captchaRef.current?.reset()
+          return
+        }
+
         if (data.session) {
           await supabase.from("profiles").upsert({
             id: data.user.id,
