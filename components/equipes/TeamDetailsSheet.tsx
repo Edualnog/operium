@@ -12,6 +12,7 @@ import { Team } from "@/app/dashboard/equipes/types"
 import TeamMembersManager from "./TeamMembersManager"
 import TeamEquipmentManager from "./TeamEquipmentManager"
 import TeamVehicleSection from "./TeamVehicleSection"
+import TeamCostsSection from "./TeamCostsSection"
 import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -19,7 +20,7 @@ interface TeamDetailsSheetProps {
     team: Team | null
     open: boolean
     onOpenChange: (open: boolean) => void
-    defaultTab?: "members" | "equipment" | "vehicle"
+    defaultTab?: "members" | "equipment" | "vehicle" | "costs"
 }
 
 export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab = "members" }: TeamDetailsSheetProps) {
@@ -45,8 +46,8 @@ export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab 
                     </SheetDescription>
                 </SheetHeader>
 
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "members" | "equipment" | "vehicle")} className="flex-1 flex flex-col overflow-hidden">
-                    <TabsList className="grid w-full grid-cols-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-none border-b border-zinc-100 dark:border-zinc-800 h-11 p-0">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col overflow-hidden">
+                    <TabsList className="grid w-full grid-cols-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-none border-b border-zinc-100 dark:border-zinc-800 h-11 p-0">
                         <TabsTrigger
                             value="members"
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#37352f] dark:data-[state=active]:border-zinc-100 rounded-none h-full text-zinc-600 dark:text-zinc-400 data-[state=active]:text-[#37352f] dark:data-[state=active]:text-zinc-100"
@@ -65,6 +66,12 @@ export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab 
                         >
                             {t('teams.details.tabs.vehicle')}
                         </TabsTrigger>
+                        <TabsTrigger
+                            value="costs"
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-400 rounded-none h-full text-zinc-600 dark:text-zinc-400 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400"
+                        >
+                            Custos
+                        </TabsTrigger>
                     </TabsList>
 
                     <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -82,10 +89,12 @@ export default function TeamDetailsSheet({ team, open, onOpenChange, defaultTab 
                                 vehiclePlate={team.vehicle_plate}
                             />
                         </TabsContent>
+                        <TabsContent value="costs" className="h-full mt-0">
+                            <TeamCostsSection teamId={team.id} />
+                        </TabsContent>
                     </div>
                 </Tabs>
             </SheetContent>
         </Sheet>
     )
 }
-

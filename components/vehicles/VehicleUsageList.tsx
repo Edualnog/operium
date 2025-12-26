@@ -21,7 +21,7 @@ export function VehicleUsageList({ vehicleId }: { vehicleId: string }) {
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">{t('vehicles.tabs.usage')}</h3>
+                <h3 className="text-lg font-medium">{t('vehicles.details.tabs.usage')}</h3>
             </div>
 
             <div className="rounded-md border">
