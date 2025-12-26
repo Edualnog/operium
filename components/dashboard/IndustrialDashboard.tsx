@@ -429,15 +429,15 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     fetchMovimentacoesMensais()
   }, [userId])
 
-  // Calcular status das ferramentas
+  // Calcular status das ferramentas usando dados já carregados do useKPIs
   useEffect(() => {
     async function calcularStatus() {
-      if (!userId) return
+      if (!userId || !data) return
 
       try {
         const supabase = createClientComponentClient()
 
-        // Buscar todas as ferramentas
+        // Buscar ferramentas apenas (sem queries em loop)
         const { data: ferramentas, error: ferrError } = await supabase
           .from("ferramentas")
           .select("id, quantidade_disponivel, quantidade_total, estado")
@@ -449,90 +449,19 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           return
         }
 
-        // Buscar consertos ativos (não concluídos) para calcular unidades em conserto
-        const { data: consertosAtivos } = await supabase
-          .from("consertos")
-          .select("id, ferramenta_id, data_envio")
-          .eq("profile_id", userId)
-          .neq("status", "concluido")
-
-        // Calcular unidades em conserto por ferramenta (descontando as que já retornaram)
+        // Usar dados de ferramentas estragadas já calculados pelo useKPIs
+        // Isso evita queries duplicadas e mantém consistência
         const unidadesEmConserto: Record<string, number> = {}
 
-        if (consertosAtivos && consertosAtivos.length > 0) {
-          for (const conserto of consertosAtivos) {
-            const dataEnvioRef = conserto.data_envio || new Date().toISOString()
-
-            // 1) Tenta pegar a movimentação de envio vinculada pelo ID na observação
-            const { data: movEnvioPorObs } = await supabase
-              .from("movimentacoes")
-              .select("quantidade, data")
-              .eq("profile_id", userId)
-              .eq("ferramenta_id", conserto.ferramenta_id)
-              .eq("tipo", "conserto")
-              .ilike("observacoes", `%${conserto.id}%`)
-              .order("data", { ascending: true })
-              .limit(1)
-
-            let movEnvio = movEnvioPorObs?.[0]
-
-            // 2) Fallback: primeiro envio registrado depois da data do conserto
-            if (!movEnvio) {
-              const { data: movEnvioFallback } = await supabase
-                .from("movimentacoes")
-                .select("quantidade, data")
-                .eq("profile_id", userId)
-                .eq("ferramenta_id", conserto.ferramenta_id)
-                .eq("tipo", "conserto")
-                .gte("data", dataEnvioRef)
-                .order("data", { ascending: true })
-                .limit(1)
-              movEnvio = movEnvioFallback?.[0]
+        if (Array.isArray(data.ferramentasEstragadas)) {
+          data.ferramentasEstragadas.forEach((f: any) => {
+            if (f.estado === "em_conserto" && f.quantidade_unidades > 0) {
+              unidadesEmConserto[f.id] = f.quantidade_unidades
             }
-
-            const quantidadeEnviada = movEnvio?.quantidade || 1
-
-            // 3) Retornos vinculados a este conserto (observação com ID)
-            const { data: movRetornos } = await supabase
-              .from("movimentacoes")
-              .select("quantidade")
-              .eq("profile_id", userId)
-              .eq("ferramenta_id", conserto.ferramenta_id)
-              .eq("tipo", "entrada")
-              .ilike("observacoes", `%${conserto.id}%`)
-
-            let quantidadeJaRetornada = (movRetornos || []).reduce(
-              (acc: number, m: any) => acc + (m.quantidade || 0),
-              0
-            )
-
-            // Fallback para dados antigos sem observação: considerar entradas após a data do conserto
-            if (quantidadeJaRetornada === 0) {
-              const { data: movRetornosFallback } = await supabase
-                .from("movimentacoes")
-                .select("quantidade")
-                .eq("profile_id", userId)
-                .eq("ferramenta_id", conserto.ferramenta_id)
-                .eq("tipo", "entrada")
-                .gte("data", dataEnvioRef)
-
-              quantidadeJaRetornada = (movRetornosFallback || []).reduce(
-                (acc: number, m: any) => acc + (m.quantidade || 0),
-                0
-              )
-            }
-
-            const quantidadeAindaEmConserto = quantidadeEnviada - quantidadeJaRetornada
-
-            if (quantidadeAindaEmConserto > 0) {
-              unidadesEmConserto[conserto.ferramenta_id] =
-                (unidadesEmConserto[conserto.ferramenta_id] || 0) + quantidadeAindaEmConserto
-            }
-          }
+          })
         }
 
         // Contar status por UNIDADE (não por item)
-        // Cada unidade deve ser contada apenas uma vez
         let totalDisponiveis = 0
         let totalEmUso = 0
         let totalManutencao = 0
@@ -546,27 +475,20 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           // VALIDAÇÃO: quantidade_disponivel não pode ser maior que quantidade_total
           const qtdDisponivel = Math.min(qtdDisponivelRaw, qtdTotal)
 
-          // Log de warning se houver inconsistência
-          if (qtdDisponivelRaw > qtdTotal) {
-            console.warn(`⚠️ Ferramenta ${f.id}: quantidade_disponivel (${qtdDisponivelRaw}) > quantidade_total (${qtdTotal})`)
-          }
-
           totalUnidades += qtdTotal
 
           // Unidades danificadas (estado = "danificada") - toda a quantidade vai para manutenção
           if (f.estado === "danificada") {
             totalManutencao += qtdTotal
-            // Não contar como disponível nem em uso
           } else {
             // Unidades em conserto
             totalManutencao += qtdEmConserto
 
             // O restante: quantidade_total - quantidade_disponivel - qtdEmConserto = em uso
-            // quantidade_disponivel já descontou as que estão em conserto
             const qtdRealEmUso = qtdTotal - qtdDisponivel - qtdEmConserto
 
             totalDisponiveis += qtdDisponivel
-            totalEmUso += Math.max(0, qtdRealEmUso) // Não pode ser negativo
+            totalEmUso += Math.max(0, qtdRealEmUso)
           }
         })
 
@@ -881,10 +803,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('dashboard.stats.movements_month')}</p>
                   <p className="text-xl font-bold text-[#37352f] dark:text-zinc-50">
                     {(() => {
-                      // Pegar o mês atual
-                      const hoje = new Date()
-                      const mesAtual = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][hoje.getMonth()]
-                      const mesAtualData = movimentacoesMensais.find(m => m.mes === mesAtual)
+                      // O último item do array sempre é o mês atual
+                      const mesAtualData = movimentacoesMensais.length > 0
+                        ? movimentacoesMensais[movimentacoesMensais.length - 1]
+                        : null
                       return mesAtualData?.total || 0
                     })()}
                   </p>
