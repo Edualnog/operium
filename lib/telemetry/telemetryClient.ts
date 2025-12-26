@@ -73,6 +73,56 @@ function shouldSample(sampleRate: number): boolean {
 }
 
 // ============================================================================
+// ORGANIZATION CONTEXT CACHE
+// ============================================================================
+
+/**
+ * Cache em memória para dados de organização
+ * Evita buscar no banco a cada evento
+ */
+interface OrgContext {
+  industry_segment?: string;
+  company_size?: string;
+  cached_at: number;
+}
+
+// Cache simples com TTL de 5 minutos
+const orgContextCache = new Map<string, OrgContext>();
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Obtém contexto da organização do cache
+ */
+function getOrgContext(profileId: string): OrgContext | null {
+  const cached = orgContextCache.get(profileId);
+  if (!cached) return null;
+
+  // Verificar TTL
+  if (Date.now() - cached.cached_at > CACHE_TTL_MS) {
+    orgContextCache.delete(profileId);
+    return null;
+  }
+
+  return cached;
+}
+
+/**
+ * Atualiza cache de contexto da organização
+ * Chamado quando temos os dados do perfil disponíveis
+ */
+export function updateOrgContext(
+  profileId: string,
+  industry_segment?: string,
+  company_size?: string
+): void {
+  orgContextCache.set(profileId, {
+    industry_segment,
+    company_size,
+    cached_at: Date.now(),
+  });
+}
+
+// ============================================================================
 // EVENT BUILDING
 // ============================================================================
 
@@ -95,8 +145,20 @@ function generateUUID(): string {
 
 /**
  * Constrói evento completo a partir do input
+ * Automaticamente enriquece com dados da organização se disponíveis no cache
  */
 function buildEvent(input: TelemetryEventInput): TelemetryEventV1 {
+  // Tentar obter contexto da organização do cache
+  const orgContext = getOrgContext(input.profile_id);
+
+  // Enriquecer props com dados da organização
+  const enrichedProps = {
+    ...input.props,
+    // Adicionar dados da organização se disponíveis
+    ...(orgContext?.industry_segment && { org_industry: orgContext.industry_segment }),
+    ...(orgContext?.company_size && { org_size: orgContext.company_size }),
+  };
+
   return {
     event_id: generateUUID(),
     ts: new Date().toISOString(),
@@ -115,7 +177,7 @@ function buildEvent(input: TelemetryEventInput): TelemetryEventV1 {
       ip_hash: input.context?.ip_hash,
       ua_hash: input.context?.ua_hash,
     },
-    props: input.props || {},
+    props: enrichedProps,
     privacy: {
       contains_pii: input.privacy?.contains_pii ?? false,
       data_category: input.privacy?.data_category || 'operational',
@@ -264,7 +326,7 @@ export function emitBatch(inputs: TelemetryEventInput[]): void {
     if (events.length === 0) return;
 
     // Fire and forget
-    sendToCloudflare(events, config).catch(() => {});
+    sendToCloudflare(events, config).catch(() => { });
   } catch {
     // Silenciosamente ignorar erros
   }

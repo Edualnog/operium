@@ -3,7 +3,7 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { telemetry } from "./telemetry"
+import { telemetry, updateOrgContext } from "./telemetry"
 
 type ConsertoStatus = "aguardando" | "em_andamento" | "concluido"
 
@@ -15,6 +15,34 @@ function revalidateAllPages() {
   revalidatePath("/dashboard/estoque")
   revalidatePath("/dashboard/movimentacoes")
   revalidatePath("/dashboard/consertos")
+}
+
+// Cache local para evitar múltiplas queries ao banco por request
+const orgContextFetched = new Set<string>()
+
+/**
+ * Garante que o cache de contexto da organização está populado
+ * Chamado no início das server actions para enriquecer eventos de telemetria
+ */
+async function ensureOrgContext(supabase: any, userId: string): Promise<void> {
+  // Se já buscamos nesta request, não buscar novamente
+  if (orgContextFetched.has(userId)) return
+
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("industry_segment, company_size")
+      .eq("id", userId)
+      .single()
+
+    if (profile?.industry_segment || profile?.company_size) {
+      updateOrgContext(userId, profile.industry_segment, profile.company_size)
+    }
+
+    orgContextFetched.add(userId)
+  } catch {
+    // Silenciosamente ignorar erros - telemetria não deve bloquear
+  }
 }
 
 // Schemas de validação
@@ -118,6 +146,9 @@ export async function criarColaborador(formData: FormData) {
   } = await supabase.auth.getUser()
 
   if (!user) throw new Error("Não autenticado")
+
+  // Enriquecer telemetria com dados da organização
+  await ensureOrgContext(supabase, user.id)
 
   const dataAdmissao = formData.get("data_admissao")
   const data = colaboradorSchema.parse({
@@ -1030,6 +1061,9 @@ export async function registrarEntrada(
 
   if (!user) throw new Error("Não autenticado")
 
+  // Enriquecer telemetria com dados da organização
+  await ensureOrgContext(supabase, user.id)
+
   // Buscar ferramenta atual - otimizado: apenas campos necessários
   const { data: ferramenta, error: ferError } = await supabase
     .from("ferramentas")
@@ -1226,6 +1260,9 @@ export async function registrarDevolucao(
   }
 
   console.log("👤 [registrarDevolucao] Usuário autenticado:", user.id)
+
+  // Enriquecer telemetria com dados da organização
+  await ensureOrgContext(supabase, user.id)
 
   // Buscar ferramenta atual - otimizado: apenas campos necessários
   const { data: ferramenta, error: ferError } = await supabase

@@ -26,6 +26,7 @@ export {
   emitRawEvent,
   emitRawEventAsync,
   emitBatch,
+  updateOrgContext,
 } from './telemetryClient';
 
 // Types

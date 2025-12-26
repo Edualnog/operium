@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createServerComponentClient } from "@/lib/supabase-server"
+import { telemetry, updateOrgContext } from "@/lib/telemetry"
 
 const VALID_INDUSTRY_SEGMENTS = [
     "MANUFACTURING",
@@ -120,6 +121,29 @@ export async function POST(request: Request) {
                 { status: 500 }
             )
         }
+
+        // 🚀 TELEMETRIA: Registrar conclusão do onboarding com dados da organização
+        telemetry.emit({
+            profile_id: user.id,
+            actor_id: user.id,
+            entity_type: 'generic',
+            entity_id: user.id,
+            event_name: 'ORGANIZATION_ONBOARDED',
+            props: {
+                company_name: trimmedCompanyName,
+                industry_segment: industry_segment,
+                company_size: company_size,
+            },
+            context: {
+                flow: 'onboarding',
+                screen: 'onboarding_setup',
+            },
+        })
+
+        // Atualizar cache de contexto da organização para enriquecer eventos futuros
+        updateOrgContext(user.id, industry_segment, company_size)
+
+        console.log(`✅ Onboarding completado: ${trimmedCompanyName} (${industry_segment}, ${company_size})`)
 
         return NextResponse.json({ success: true })
     } catch (error) {
