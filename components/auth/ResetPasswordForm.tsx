@@ -61,10 +61,10 @@ export default function ResetPasswordForm() {
           throw new Error("Link de recuperação inválido ou já utilizado. Solicite um novo link.")
         }
 
-        // 3. Se houver token/token_hash (modo OTP), verificar
-        if (token || tokenHash) {
+        // 3. Se houver token_hash (modo OTP com hash), verificar
+        if (tokenHash) {
           const { error } = await supabase.auth.verifyOtp({
-            token_hash: tokenHash || token || "",
+            token_hash: tokenHash,
             type: typeParam as any,
           })
 
@@ -73,6 +73,18 @@ export default function ResetPasswordForm() {
           }
 
           setStatus("ready")
+          return
+        }
+
+        // 4. Se houver token numérico simples (OTP direto), precisamos do email
+        // Este é um fallback - idealmente o Supabase deveria redirecionar para /auth/callback
+        if (token) {
+          // Token numérico não pode ser verificado sem o email do usuário
+          // Redirecionar para /auth/callback com os parâmetros
+          const callbackUrl = new URL(`${window.location.origin}/auth/callback`)
+          callbackUrl.searchParams.set('token_hash', token)
+          callbackUrl.searchParams.set('type', typeParam)
+          window.location.href = callbackUrl.toString()
           return
         }
 
