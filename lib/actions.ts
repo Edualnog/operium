@@ -163,6 +163,27 @@ export async function criarColaborador(formData: FormData) {
     // Don't throw - the collaborator was created, profile is secondary
   }
 
+  // Telemetria: Rastrear criação de colaborador
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'collaborator',
+    entity_id: newColaborador.id,
+    event_name: 'COLLABORATOR_CREATED',
+    props: {
+      nome: colaboradorData.nome,
+      role_function,
+      seniority_bucket,
+      data_admissao: colaboradorData.data_admissao,
+      has_email: !!colaboradorData.email,
+      has_photo: !!colaboradorData.foto_url,
+    },
+    context: {
+      flow: 'cadastro_colaborador',
+      screen: 'dashboard/colaboradores',
+    },
+  })
+
   revalidateAllPages()
 }
 
@@ -218,6 +239,26 @@ export async function atualizarColaborador(id: string, formData: FormData) {
     // Don't throw - the collaborator was updated, profile is secondary
   }
 
+  // Telemetria: Rastrear atualização de colaborador
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'collaborator',
+    entity_id: id,
+    event_name: 'COLLABORATOR_UPDATED',
+    props: {
+      nome: colaboradorData.nome,
+      role_function,
+      seniority_bucket,
+      has_email: !!colaboradorData.email,
+      has_photo: !!colaboradorData.foto_url,
+    },
+    context: {
+      flow: 'edicao_colaborador',
+      screen: 'dashboard/colaboradores',
+    },
+  })
+
   revalidateAllPages()
 }
 
@@ -236,6 +277,23 @@ export async function deletarColaborador(id: string) {
     .eq("profile_id", user.id)
 
   if (error) throw error
+
+  // Telemetria: Rastrear exclusão de colaborador
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'collaborator',
+    entity_id: id,
+    event_name: 'COLLABORATOR_DELETED',
+    props: {
+      deletion_type: 'MANUAL',
+    },
+    context: {
+      flow: 'exclusao_colaborador',
+      screen: 'dashboard/colaboradores',
+    },
+  })
+
   revalidateAllPages()
 }
 
@@ -279,6 +337,23 @@ export async function promoverColaborador(id: string, newRole: string, notes?: s
     .eq("collaborator_id", id)
 
   if (profileError) throw profileError
+
+  // Telemetria: Rastrear promoção de colaborador
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'collaborator',
+    entity_id: id,
+    event_name: 'COLLABORATOR_PROMOTED',
+    props: {
+      new_role: newRole,
+      has_notes: !!notes,
+    },
+    context: {
+      flow: 'promocao_colaborador',
+      screen: 'dashboard/colaboradores',
+    },
+  })
 
   revalidateAllPages()
 }
@@ -416,6 +491,28 @@ export async function demitirColaborador(id: string, motivo: string): Promise<De
   if (error) throw error
 
   result.success = true
+
+  // Telemetria: Rastrear demissão de colaborador (evento crítico de RH)
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'collaborator',
+    entity_id: id,
+    event_name: 'COLLABORATOR_DISMISSED',
+    props: {
+      motivo,
+      ferramentas_pendentes_count: result.ferramentasPendentes.length,
+      equipes_afetadas_count: result.equipesAfetadas.length,
+      liderancas_removidas_count: result.liderancasRemovidas.length,
+      had_pending_equipment: result.ferramentasPendentes.length > 0,
+      was_team_leader: result.liderancasRemovidas.length > 0,
+    },
+    context: {
+      flow: 'demissao_colaborador',
+      screen: 'dashboard/colaboradores',
+    },
+  })
+
   revalidateAllPages()
 
   return result
@@ -676,6 +773,27 @@ export async function criarFerramenta(formData: FormData) {
 
     console.log("✅ Ferramenta inserida com sucesso! ID:", insertedData[0].id)
 
+    // Telemetria: Rastrear criação de produto/ferramenta
+    telemetry.emit({
+      profile_id: user.id,
+      actor_id: user.id,
+      entity_type: 'asset',
+      entity_id: insertedData[0].id,
+      event_name: 'ASSET_CREATED',
+      props: {
+        nome: insertedData[0].nome,
+        categoria: insertedData[0].categoria,
+        tipo_item: insertedData[0].tipo_item || 'ferramenta',
+        estado: insertedData[0].estado,
+        quantidade_total: insertedData[0].quantidade_total,
+        codigo: insertedData[0].codigo,
+      },
+      context: {
+        flow: 'cadastro_produto',
+        screen: 'dashboard/ferramentas',
+      },
+    })
+
     // Revalidar todas as páginas relacionadas
     revalidateAllPages()
   } catch (error: any) {
@@ -834,6 +952,28 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
     }
 
     console.log("✅ Ferramenta atualizada com sucesso! ID:", id)
+
+    // Telemetria: Rastrear atualização de produto/ferramenta
+    telemetry.emit({
+      profile_id: user.id,
+      actor_id: user.id,
+      entity_type: 'asset',
+      entity_id: id,
+      event_name: 'ASSET_UPDATED',
+      props: {
+        nome: updateData.nome,
+        categoria: updateData.categoria,
+        tipo_item: updateData.tipo_item || 'ferramenta',
+        estado: updateData.estado,
+        quantidade_total: updateData.quantidade_total,
+        codigo: updateData.codigo,
+      },
+      context: {
+        flow: 'edicao_produto',
+        screen: 'dashboard/ferramentas',
+      },
+    })
+
     revalidateAllPages()
   } catch (error: any) {
     console.error("Erro em atualizarFerramenta:", error)
@@ -941,6 +1081,26 @@ export async function registrarEntrada(
   }
 
   console.log("✅ Movimentação registrada:", movResult)
+
+  // Telemetria: Rastrear entrada de estoque
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'movement',
+    entity_id: movResult[0]?.id,
+    event_name: 'MOVEMENT_STOCK_IN',
+    props: {
+      ferramenta_id: ferramentaId,
+      quantidade,
+      quantidade_total_nova: novaQuantidadeTotal,
+      quantidade_disponivel_nova: novaQuantidadeDisponivel,
+      observacoes,
+    },
+    context: {
+      flow: 'entrada_estoque',
+      screen: 'dashboard/ferramentas',
+    },
+  })
 
   revalidateAllPages()
 }
@@ -1327,6 +1487,24 @@ export async function atualizarStatusConserto(
 
   if (error) throw error
 
+  // Telemetria: Rastrear mudança de status de conserto
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'maintenance',
+    entity_id: consertoId,
+    event_name: 'MAINTENANCE_STATUS_UPDATED',
+    props: {
+      new_status: status,
+      is_completed: status === 'concluido',
+      is_in_progress: status === 'em_andamento',
+    },
+    context: {
+      flow: 'atualizacao_conserto',
+      screen: 'dashboard/consertos',
+    },
+  })
+
   revalidateAllPages()
 }
 
@@ -1445,6 +1623,26 @@ export async function registrarRetornoConserto(
   })
 
   if (movEntradaError) throw movEntradaError
+
+  // Telemetria: Rastrear retorno de conserto (evento de custo/financeiro)
+  telemetry.emit({
+    profile_id: user.id,
+    actor_id: user.id,
+    entity_type: 'maintenance',
+    entity_id: consertoId,
+    event_name: 'MAINTENANCE_RETURNED',
+    props: {
+      custo,
+      quantidade_retornada: quantidade,
+      quantidade_total_retornada: quantidadeTotalRetornada,
+      is_complete_return: todasRetornaram,
+      new_estado: todasRetornaram ? 'ok' : 'em_conserto',
+    },
+    context: {
+      flow: 'retorno_conserto',
+      screen: 'dashboard/consertos',
+    },
+  })
 
   revalidateAllPages()
 }

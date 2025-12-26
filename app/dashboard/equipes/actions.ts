@@ -4,6 +4,7 @@ import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { Team, TeamStatus, TeamMember, TeamEquipment } from "./types"
+import { telemetry } from "@/lib/telemetry"
 
 // --- TEAMS ---
 
@@ -82,6 +83,26 @@ export async function createTeam(formData: {
         .eq("id", data.id)
         .single()
 
+    // Telemetria: Rastrear criação de equipe
+    telemetry.emit({
+        profile_id: user.id,
+        actor_id: user.id,
+        entity_type: 'team',
+        entity_id: data.id,
+        event_name: 'TEAM_CREATED',
+        props: {
+            name: formData.name,
+            has_leader: !!formData.leader_id,
+            has_vehicle: !!formData.vehicle_id,
+            status: formData.status || 'active',
+            has_location: !!formData.current_location,
+        },
+        context: {
+            flow: 'criacao_equipe',
+            screen: 'dashboard/equipes',
+        },
+    })
+
     revalidatePath("/dashboard/equipes")
     return completeTeam || data
 }
@@ -110,6 +131,26 @@ export async function deleteTeam(teamId: string) {
     if (error) {
         console.error("Error deleting team:", error)
         throw new Error(`Falha ao excluir equipe: ${error.message}`)
+    }
+
+    // Telemetria: Rastrear exclusão de equipe
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+        telemetry.emit({
+            profile_id: user.id,
+            actor_id: user.id,
+            entity_type: 'team',
+            entity_id: teamId,
+            event_name: 'TEAM_DELETED',
+            props: {
+                deletion_type: 'SOFT_DELETE',
+                had_active_equipment: !!activeEquipment && activeEquipment.length > 0,
+            },
+            context: {
+                flow: 'exclusao_equipe',
+                screen: 'dashboard/equipes',
+            },
+        })
     }
 
     revalidatePath("/dashboard/equipes")
@@ -149,6 +190,29 @@ export async function updateTeam(id: string, formData: {
         .select("*")
         .eq("id", data.id)
         .single()
+
+    // Telemetria: Rastrear atualização de equipe
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+        telemetry.emit({
+            profile_id: user.id,
+            actor_id: user.id,
+            entity_type: 'team',
+            entity_id: id,
+            event_name: 'TEAM_UPDATED',
+            props: {
+                has_name_change: !!formData.name,
+                has_leader_change: formData.leader_id !== undefined,
+                has_vehicle_change: formData.vehicle_id !== undefined,
+                has_status_change: !!formData.status,
+                has_location_change: formData.current_location !== undefined,
+            },
+            context: {
+                flow: 'edicao_equipe',
+                screen: 'dashboard/equipes',
+            },
+        })
+    }
 
     revalidatePath("/dashboard/equipes")
     return completeTeam || data
@@ -203,6 +267,28 @@ export async function addTeamMember(teamId: string, colaboradorId: string, role?
         throw new Error(`Failed to add member: ${error.message}`)
     }
 
+    // Telemetria: Rastrear adição de membro à equipe
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+        telemetry.emit({
+            profile_id: user.id,
+            actor_id: user.id,
+            entity_type: 'team_member',
+            entity_id: data.id,
+            event_name: 'TEAM_MEMBER_ADDED',
+            props: {
+                team_id: teamId,
+                colaborador_id: colaboradorId,
+                has_role: !!role,
+                role,
+            },
+            context: {
+                flow: 'adicao_membro_equipe',
+                screen: 'dashboard/equipes',
+            },
+        })
+    }
+
     revalidatePath("/dashboard/equipes")
     return data
 }
@@ -219,6 +305,27 @@ export async function removeTeamMember(memberId: string) {
 
     if (error) {
         throw new Error(`Failed to remove member: ${error.message}`)
+    }
+
+    // Telemetria: Rastrear remoção de membro da equipe
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+        telemetry.emit({
+            profile_id: user.id,
+            actor_id: user.id,
+            entity_type: 'team_member',
+            entity_id: memberId,
+            event_name: 'TEAM_MEMBER_REMOVED',
+            props: {
+                team_id: data.team_id,
+                colaborador_id: data.colaborador_id,
+                removal_type: 'SOFT_DELETE',
+            },
+            context: {
+                flow: 'remocao_membro_equipe',
+                screen: 'dashboard/equipes',
+            },
+        })
     }
 
     revalidatePath("/dashboard/equipes")
@@ -393,6 +500,31 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
     // ------------------------------------------
 
     console.log("[assignEquipment] SUCCESS", data)
+
+    // Telemetria: Rastrear atribuição de equipamento à equipe
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+        telemetry.emit({
+            profile_id: user.id,
+            actor_id: user.id,
+            entity_type: 'team_equipment',
+            entity_id: data.id,
+            event_name: 'TEAM_EQUIPMENT_ASSIGNED',
+            props: {
+                team_id: teamId,
+                ferramenta_id: ferramentaId,
+                ferramenta_nome: ferramenta.nome,
+                quantity,
+                team_name: team.name,
+                status: 'pending_acceptance',
+            },
+            context: {
+                flow: 'atribuicao_equipamento_equipe',
+                screen: 'dashboard/equipes',
+            },
+        })
+    }
+
     revalidatePath("/dashboard/equipes")
     revalidatePath("/dashboard/estoque")  // Sync stock page
     return data
@@ -456,6 +588,29 @@ export async function returnEquipment(assignmentId: string) {
         console.error("[returnEquipment] WARN: Failed to sync movimentacoes", movError)
     }
     // ------------------------------------------
+
+    // Telemetria: Rastrear devolução de equipamento
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+        telemetry.emit({
+            profile_id: user.id,
+            actor_id: user.id,
+            entity_type: 'team_equipment',
+            entity_id: assignmentId,
+            event_name: 'TEAM_EQUIPMENT_RETURNED',
+            props: {
+                team_name: (existing.teams as any)?.name,
+                ferramenta_nome: (existing.ferramentas as any)?.nome,
+                ferramenta_id: existing.ferramenta_id,
+                quantity: (existing as any).quantity || 1,
+                return_type: 'NORMAL',
+            },
+            context: {
+                flow: 'devolucao_equipamento_equipe',
+                screen: 'dashboard/equipes',
+            },
+        })
+    }
 
     revalidatePath("/dashboard/equipes")
     revalidatePath("/dashboard/estoque")  // Sync stock page

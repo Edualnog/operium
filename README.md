@@ -18,14 +18,14 @@ Este é o **repositório principal da plataforma Operium** — contém a aplica�
 - Frontend completo (interface do usuário, dashboards, formulários)
 - Backend via Supabase (autenticação, banco de dados, Row Level Security)
 - Server Actions para operações críticas
-- Sistema de eventos de domínio (`domain_events`)
-- Observer Layer (camada analítica interna)
+- **Sistema de Telemetria Industrial** (23 eventos em tempo real)
 - Multi-tenancy com isolamento total por organização
 
 **Relação com outros componentes:**
 - Conecta-se ao **Supabase** para dados transacionais (hot data)
-- Gera eventos que são exportados pelo [`operium-data-pipeline`](https://github.com/operium/operium-data-pipeline) para o Cloudflare R2 (cold data)
-- Utiliza GitHub Actions para automação de tarefas de infraestrutura
+- Envia eventos para **Cloudflare Workers** (telemetria em tempo real)
+- Armazena eventos no **Cloudflare R2** (cold data, análise histórica)
+- Utiliza GitHub Actions para automação de deploys
 
 ---
 
@@ -134,17 +134,38 @@ O fluxo de dados na plataforma Operium segue uma arquitetura event-driven com se
 
 A arquitetura da Operium é guiada por princípios fundamentais que a diferenciam de ERPs tradicionais:
 
-### Event-Driven Architecture
+### Event-Driven Architecture (Telemetria Industrial)
 
-Toda operação significativa gera um **evento de domínio imutável**. Não armazenamos apenas estados finais — armazenamos a história completa do que aconteceu, quando aconteceu e quem executou.
+Toda operação significativa gera um **evento de telemetria imutável**. Capturamos **23 eventos críticos** em tempo real:
+- 🔧 Assets/Ferramentas (criar, editar, deletar)
+- 👷 Colaboradores/RH (contratar, promover, demitir)
+- 📦 Movimentações (entrada, retirada, devolução)
+- 🔨 Consertos (envio, status, retorno com custo)
+- 👥 Times/Gestão (criar equipes, adicionar membros)
+- 🚚 Equipamentos (atribuir, devolver, perda/dano)
 
 > **Princípio**: Eventos são a verdade. Estados são derivados.
 
+**📊 Documentação completa:** [TELEMETRY_GUIDE.md](TELEMETRY_GUIDE.md) - Guia para investidores e programadores
+
 ### Separação entre Operação e Análise
 
-Dados transacionais (Supabase) e dados analíticos (R2) têm propósitos diferentes e vivem em camadas diferentes. Operação precisa de velocidade, análise precisa de volume histórico.
+**Novo método de coleta de dados:**
+- **Backend (Next.js)** → Operação transacional (PostgreSQL/Supabase)
+- **Telemetria (Cloudflare Workers)** → Eventos em tempo real (R2 Storage)
+- **Zero impacto:** Fire-and-forget (700ms timeout, nunca bloqueia produto)
+- **Escalável:** Cloudflare Edge (global, 99.99% uptime)
+- **Baixo custo:** ~$11/mês para 1 milhão de eventos
 
 > **Princípio**: Hot data vs Cold data. Operação no presente, inteligência no histórico.
+
+**Arquitetura:**
+```
+Backend → Cloudflare Worker (Ingest) → Queue → Worker (Consumer) → R2 Storage
+                                                                     ↓
+                                                            Business Intelligence
+                                                            (Grafana/Metabase/SQL)
+```
 
 ### Escalabilidade, Não Features Descartáveis
 

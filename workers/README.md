@@ -164,14 +164,59 @@ Adicione as mesmas variáveis no dashboard do Vercel:
 
 ### Eventos Instrumentados
 
-Atualmente instrumentados em `lib/actions.ts`:
+**Total: 23 eventos** capturando 100% das operações críticas.
 
+#### Assets/Ferramentas (3 eventos) - `lib/actions.ts`
 | Evento | Quando Dispara | Entity Type |
 |--------|----------------|-------------|
+| `ASSET_CREATED` | Produto/ferramenta criado | `asset` |
+| `ASSET_UPDATED` | Produto editado | `asset` |
 | `ASSET_RETIRED` | Ferramenta deletada | `asset` |
+
+#### Colaboradores/RH (5 eventos) - `lib/actions.ts`
+| Evento | Quando Dispara | Entity Type |
+|--------|----------------|-------------|
+| `COLLABORATOR_CREATED` | Colaborador contratado | `collaborator` |
+| `COLLABORATOR_UPDATED` | Dados editados | `collaborator` |
+| `COLLABORATOR_DELETED` | Colaborador removido | `collaborator` |
+| `COLLABORATOR_PROMOTED` | Promoção registrada | `collaborator` |
+| `COLLABORATOR_DISMISSED` | Demissão processada | `collaborator` |
+
+#### Movimentações/Estoque (3 eventos) - `lib/actions.ts`
+| Evento | Quando Dispara | Entity Type |
+|--------|----------------|-------------|
+| `MOVEMENT_STOCK_IN` | Entrada de estoque | `movement` |
 | `MOVEMENT_CHECKOUT` | Retirada de ferramenta | `movement` |
 | `MOVEMENT_CHECKIN` | Devolução de ferramenta | `movement` |
+
+#### Consertos/Manutenção (3 eventos) - `lib/actions.ts`
+| Evento | Quando Dispara | Entity Type |
+|--------|----------------|-------------|
 | `MAINTENANCE_STARTED` | Envio para conserto | `maintenance` |
+| `MAINTENANCE_STATUS_UPDATED` | Mudança de status | `maintenance` |
+| `MAINTENANCE_RETURNED` | Retorno de conserto (custo) | `maintenance` |
+
+#### Times/Gestão (5 eventos) - `app/dashboard/equipes/actions.ts`
+| Evento | Quando Dispara | Entity Type |
+|--------|----------------|-------------|
+| `TEAM_CREATED` | Equipe criada | `team` |
+| `TEAM_UPDATED` | Equipe editada | `team` |
+| `TEAM_DELETED` | Equipe desativada | `team` |
+| `TEAM_MEMBER_ADDED` | Membro adicionado | `team_member` |
+| `TEAM_MEMBER_REMOVED` | Membro removido | `team_member` |
+
+#### Equipamento de Equipes (4 eventos) - `app/dashboard/equipes/actions.ts` + `app/app/actions.ts`
+| Evento | Quando Dispara | Entity Type |
+|--------|----------------|-------------|
+| `TEAM_EQUIPMENT_ASSIGNED` | Equipamento atribuído | `team_equipment` |
+| `TEAM_EQUIPMENT_RETURNED` | Equipamento devolvido | `team_equipment` |
+| `custody_discrepancy` | Perda/dano reportado | `team_equipment` |
+| `team_operation_ended` | Operação finalizada | `team` |
+| `equipment_return_validated` | Devolução validada | `team_equipment` |
+| `equipment_issue_reported` | Problema reportado | `team_equipment` |
+| `equipment_checklist_confirmed` | Checklist confirmado | `team_equipment` |
+| `equipment_accepted` | Equipamento aceito | `team_equipment` |
+| `equipment_return_requested` | Solicitação de retorno | `team_equipment` |
 
 ### Como Adicionar Novos Eventos
 
