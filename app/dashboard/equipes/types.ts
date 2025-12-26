@@ -32,6 +32,7 @@ export interface Team {
     member_count?: number
     equipment_count?: number
     equipment_quantity?: number
+    total_costs?: number
 }
 
 export interface TeamMember {

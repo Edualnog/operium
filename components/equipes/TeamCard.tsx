@@ -4,7 +4,7 @@ import { Team } from "@/app/dashboard/equipes/types"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Truck, Users, Wrench, MoreHorizontal, MapPin, FileText, AlertTriangle, Radio, HardHat } from "lucide-react"
+import { Truck, Users, Wrench, MoreHorizontal, MapPin, FileText, AlertTriangle, Radio, HardHat, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -160,7 +160,7 @@ export default function TeamCard({ team, onDeleted, onUpdated }: TeamCardProps) 
                     </div>
 
                     {/* Métricas - estilo Notion neutro */}
-                    <div className="grid grid-cols-2 gap-3 py-2">
+                    <div className="grid grid-cols-3 gap-3 py-2">
                         <div className="space-y-0.5">
                             <div className="flex items-center gap-1.5">
                                 <Users className="h-3.5 w-3.5 text-zinc-400" />
@@ -174,6 +174,15 @@ export default function TeamCard({ team, onDeleted, onUpdated }: TeamCardProps) 
                                 <span className="text-[10px] text-zinc-400 uppercase tracking-wide">Equipamentos</span>
                             </div>
                             <span className="text-lg font-medium text-zinc-700 dark:text-zinc-300">{team.equipment_quantity || 0}</span>
+                        </div>
+                        <div className="space-y-0.5">
+                            <div className="flex items-center gap-1.5">
+                                <DollarSign className="h-3.5 w-3.5 text-zinc-400" />
+                                <span className="text-[10px] text-zinc-400 uppercase tracking-wide">Custos</span>
+                            </div>
+                            <span className="text-lg font-medium text-zinc-700 dark:text-zinc-300">
+                                {(team.total_costs || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                            </span>
                         </div>
                     </div>
 
