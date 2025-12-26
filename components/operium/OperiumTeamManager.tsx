@@ -201,6 +201,7 @@ export function OperiumTeamManager() {
                             handleTeamChange={handleTeamChange}
                             teams={teams}
                             onDeactivate={setConfirmDeactivate}
+                            hideTeamColumn={true}
                         />
                     )}
                 </CardContent>
@@ -297,7 +298,8 @@ function TeamTable({
     handleRoleChange,
     handleTeamChange,
     teams,
-    onDeactivate
+    onDeactivate,
+    hideTeamColumn = false
 }: {
     members: OperiumProfile[]
     userId: string | undefined
@@ -305,6 +307,7 @@ function TeamTable({
     handleTeamChange: (member: OperiumProfile, teamId: string | null) => void
     teams: TeamOption[]
     onDeactivate: (member: OperiumProfile) => void
+    hideTeamColumn?: boolean
 }) {
     return (
         <div className="space-y-4">
@@ -315,7 +318,7 @@ function TeamTable({
                         <TableRow className="border-zinc-200 dark:border-zinc-800">
                             <TableHead className="font-medium text-zinc-500">Colaborador</TableHead>
                             <TableHead className="font-medium text-zinc-500">Papel</TableHead>
-                            <TableHead className="font-medium text-zinc-500">Equipe</TableHead>
+                            {!hideTeamColumn && <TableHead className="font-medium text-zinc-500">Equipe</TableHead>}
                             <TableHead className="font-medium text-zinc-500">Tipo de Acesso</TableHead>
                             <TableHead className="font-medium text-zinc-500">Desde</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
@@ -342,16 +345,18 @@ function TeamTable({
                                 <TableCell>
                                     <OperiumRoleBadge role={member.role} size="sm" />
                                 </TableCell>
-                                <TableCell>
-                                    {member.team_id ? (
-                                        <span className="text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
-                                            <Users className="h-3.5 w-3.5" />
-                                            {teams.find(t => t.id === member.team_id)?.name || '—'}
-                                        </span>
-                                    ) : (
-                                        <span className="text-xs text-zinc-400">Sem equipe</span>
-                                    )}
-                                </TableCell>
+                                {!hideTeamColumn && (
+                                    <TableCell>
+                                        {member.team_id ? (
+                                            <span className="text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
+                                                <Users className="h-3.5 w-3.5" />
+                                                {teams.find(t => t.id === member.team_id)?.name || '—'}
+                                            </span>
+                                        ) : (
+                                            <span className="text-xs text-zinc-400">Sem equipe</span>
+                                        )}
+                                    </TableCell>
+                                )}
                                 <TableCell>
                                     <AccessTypeTag role={member.role} size="sm" />
                                 </TableCell>
@@ -400,7 +405,7 @@ function TeamTable({
                         <div className="flex items-center gap-2 flex-wrap">
                             <OperiumRoleBadge role={member.role} size="sm" />
                             <AccessTypeTag role={member.role} size="sm" />
-                            {member.team_id && (
+                            {!hideTeamColumn && member.team_id && (
                                 <span className="text-xs text-zinc-500 flex items-center gap-1">
                                     <Users className="h-3 w-3" />
                                     {teams.find(t => t.id === member.team_id)?.name || '—'}
