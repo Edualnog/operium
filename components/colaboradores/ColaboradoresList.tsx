@@ -95,6 +95,7 @@ import { useToast } from "@/components/ui/toast-context"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 import { QuickReturnModal } from "./QuickReturnModal"
+import { VehicleReturnModal } from "./VehicleReturnModal"
 
 interface RoleHistoryEntry {
   role_function: string
@@ -210,6 +211,13 @@ function ColaboradoresList({
   // Estado para Modal de Devolução Rápida
   const [quickReturnModalOpen, setQuickReturnModalOpen] = useState(false)
   const [quickReturnTarget, setQuickReturnTarget] = useState<Colaborador | null>(null)
+
+  // Estado para Modal de Devolução de Veículo
+  const [vehicleReturnModalOpen, setVehicleReturnModalOpen] = useState(false)
+  const [vehicleReturnTarget, setVehicleReturnTarget] = useState<{
+    colaborador: Colaborador
+    vehicle: VehicleByColaborador
+  } | null>(null)
 
 
 
@@ -934,19 +942,30 @@ function ColaboradoresList({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                    {/* Vehicle Badge */}
+                    {/* Vehicle Badge - Clickable to return */}
                     {vehiclesByColaborador[colaborador.id] && (
-                      <div
-                        className="h-8 px-2.5 rounded-lg flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs"
+                      <button
+                        onClick={() => {
+                          setVehicleReturnTarget({
+                            colaborador,
+                            vehicle: vehiclesByColaborador[colaborador.id]
+                          })
+                          setVehicleReturnModalOpen(true)
+                        }}
+                        className={cn(
+                          "h-8 px-2.5 rounded-lg flex items-center gap-1.5 transition-all hover:scale-105",
+                          "border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs",
+                          "hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
+                        )}
                         title={vehiclesByColaborador[colaborador.id].assignment_type === 'direct'
-                          ? `Veículo atribuído: ${vehiclesByColaborador[colaborador.id].vehicle_plate}${vehiclesByColaborador[colaborador.id].vehicle_model ? ` (${vehiclesByColaborador[colaborador.id].vehicle_model})` : ''}`
-                          : `Veículo da equipe ${vehiclesByColaborador[colaborador.id].team_name}`
+                          ? `Clique para devolver: ${vehiclesByColaborador[colaborador.id].vehicle_plate}`
+                          : `Veículo da equipe ${vehiclesByColaborador[colaborador.id].team_name} (gerenciar via equipe)`
                         }
                       >
                         <Car className="h-3.5 w-3.5" />
                         <span className="hidden sm:inline">{vehiclesByColaborador[colaborador.id].vehicle_plate}</span>
                         <span className="sm:hidden">{vehiclesByColaborador[colaborador.id].vehicle_plate.slice(-3)}</span>
-                      </div>
+                      </button>
                     )}
                     {/* Pending Tools Badge */}
                     {pendingTools[colaborador.id] && pendingTools[colaborador.id].length > 0 && (
@@ -1585,6 +1604,24 @@ function ColaboradoresList({
           toast.success(t('colaboradores.return_success'))
         }}
       />
+
+      {/* Vehicle Return Modal */}
+      {vehicleReturnTarget && (
+        <VehicleReturnModal
+          open={vehicleReturnModalOpen}
+          onOpenChange={(open) => {
+            setVehicleReturnModalOpen(open)
+            if (!open) setVehicleReturnTarget(null)
+          }}
+          vehicleId={vehicleReturnTarget.vehicle.vehicle_id}
+          vehiclePlate={vehicleReturnTarget.vehicle.vehicle_plate}
+          vehicleModel={vehicleReturnTarget.vehicle.vehicle_model}
+          colaboradorId={vehicleReturnTarget.colaborador.id}
+          colaboradorNome={vehicleReturnTarget.colaborador.nome}
+          assignmentType={vehicleReturnTarget.vehicle.assignment_type}
+          teamName={vehicleReturnTarget.vehicle.team_name}
+        />
+      )}
     </div>
   )
 }
