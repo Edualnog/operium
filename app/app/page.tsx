@@ -879,11 +879,56 @@ function DailyReportModal({
         }
     }
 
+    // Check if it's before allowed time (18h) and no existing report
+    const REPORT_HOUR = 18
+    const currentHour = new Date().getHours()
+    const isBeforeAllowedTime = currentHour < REPORT_HOUR && !existingReport
+
+    // Calculate time until report is available
+    const now = new Date()
+    const nextReportTime = new Date(now)
+    nextReportTime.setHours(REPORT_HOUR, 0, 0, 0)
+    const timeDiff = nextReportTime.getTime() - now.getTime()
+    const hoursUntil = Math.floor(timeDiff / (1000 * 60 * 60))
+    const minutesUntil = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))
+
     return (
         <NativeModal open={open} onClose={onClose} title={t('modals.daily_report.title')}>
             {checking ? (
                 <div className="flex items-center justify-center py-12">
                     <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+                </div>
+            ) : isBeforeAllowedTime ? (
+                // Block before 18h
+                <div className="py-8 space-y-6">
+                    <div className="flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
+                            <Clock className="h-8 w-8 text-neutral-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-neutral-900">
+                            Relatório ainda não disponível
+                        </h3>
+                        <p className="text-sm text-neutral-500 mt-2 max-w-[280px]">
+                            O relatório diário fica disponível a partir das 18:00
+                        </p>
+                    </div>
+
+                    <div className="bg-neutral-100 rounded-2xl p-4 text-center">
+                        <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">
+                            Libera em
+                        </p>
+                        <p className="text-2xl font-bold text-neutral-900">
+                            {hoursUntil}h {minutesUntil}min
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={onClose}
+                        className="w-full h-12 bg-neutral-200 text-neutral-700 text-base font-medium rounded-xl
+                                   active:scale-[0.98] transition-all"
+                    >
+                        Entendi
+                    </button>
                 </div>
             ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
