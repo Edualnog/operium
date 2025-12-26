@@ -1208,12 +1208,24 @@ export async function registrarDevolucao(
   observacoes?: string,
   dataMovimentacao?: string
 ) {
+  console.log("🔄 [registrarDevolucao] Iniciando:", {
+    ferramentaId,
+    colaboradorId,
+    quantidade,
+    observacoes
+  })
+
   const supabase = await createServerComponentClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) throw new Error("Não autenticado")
+  if (!user) {
+    console.error("❌ [registrarDevolucao] Usuário não autenticado")
+    throw new Error("Não autenticado")
+  }
+
+  console.log("👤 [registrarDevolucao] Usuário autenticado:", user.id)
 
   // Buscar ferramenta atual - otimizado: apenas campos necessários
   const { data: ferramenta, error: ferError } = await supabase
@@ -1223,7 +1235,21 @@ export async function registrarDevolucao(
     .eq("profile_id", user.id)
     .single()
 
-  if (ferError || !ferramenta) throw new Error("Ferramenta não encontrada")
+  console.log("🔍 [registrarDevolucao] Busca ferramenta:", {
+    ferramenta,
+    ferError: ferError?.message,
+    ferramentaId,
+    profileId: user.id
+  })
+
+  if (ferError || !ferramenta) {
+    console.error("❌ [registrarDevolucao] Ferramenta não encontrada:", {
+      error: ferError?.message,
+      ferramentaId,
+      profileId: user.id
+    })
+    throw new Error(`Ferramenta não encontrada (ID: ${ferramentaId})`)
+  }
 
   // 🔄 SYNC: Verificar se existe team_equipment para este colaborador/ferramenta
   // Se existir, o trigger cuidará do estoque. Se não, atualizamos manualmente.
@@ -1272,19 +1298,34 @@ export async function registrarDevolucao(
   if (!teamEquipmentHandled) {
     const novaQuantidadeDisponivel = ferramenta.quantidade_disponivel + quantidade
 
+    console.log("📊 [registrarDevolucao] Cálculo de estoque:", {
+      quantidade_disponivel_atual: ferramenta.quantidade_disponivel,
+      quantidade_devolvida: quantidade,
+      nova_quantidade: novaQuantidadeDisponivel,
+      quantidade_total: ferramenta.quantidade_total
+    })
+
+    // Limitar a nova quantidade ao máximo total (não lançar erro, apenas ajustar)
+    const quantidadeFinal = Math.min(novaQuantidadeDisponivel, ferramenta.quantidade_total)
+
     if (novaQuantidadeDisponivel > ferramenta.quantidade_total) {
-      throw new Error("Quantidade de devolução excede o total")
+      console.warn("⚠️ [registrarDevolucao] Quantidade calculada excede total, ajustando para:", quantidadeFinal)
     }
 
     const { error: updateError } = await supabase
       .from("ferramentas")
       .update({
-        quantidade_disponivel: novaQuantidadeDisponivel,
+        quantidade_disponivel: quantidadeFinal,
       })
       .eq("id", ferramentaId)
       .eq("profile_id", user.id)
 
-    if (updateError) throw updateError
+    if (updateError) {
+      console.error("❌ [registrarDevolucao] Erro ao atualizar estoque:", updateError)
+      throw updateError
+    }
+
+    console.log("✅ [registrarDevolucao] Estoque atualizado:", quantidadeFinal)
   }
 
   // Registrar movimentação

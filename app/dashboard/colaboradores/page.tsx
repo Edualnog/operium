@@ -137,8 +137,30 @@ async function getMovimentacoesStats(userId: string) {
 async function getPendingToolsByColaborador(userId: string) {
   const supabase = await createServerComponentClient()
 
-  // Fetch all movements (retirada/devolucao) with tool info
-  const { data } = await supabase
+  // 1. Buscar todas as ferramentas com seu estado de estoque atual
+  const { data: ferramentas } = await supabase
+    .from("ferramentas")
+    .select("id, nome, tipo_item, quantidade_total, quantidade_disponivel")
+    .eq("profile_id", userId)
+    .eq("tipo_item", "ferramenta") // Apenas ferramentas, não EPIs
+
+  if (!ferramentas) return {}
+
+  // Criar mapa de quanto está fora de cada ferramenta
+  const estoqueForaMap: Record<string, { nome: string, fora: number }> = {}
+  ferramentas.forEach(f => {
+    const fora = f.quantidade_total - f.quantidade_disponivel
+    if (fora > 0) {
+      estoqueForaMap[f.id] = { nome: f.nome, fora }
+    }
+  })
+
+  // Se não há ferramentas fora do estoque, retornar vazio
+  if (Object.keys(estoqueForaMap).length === 0) return {}
+
+  // 2. Buscar movimentações de retirada para atribuir a colaboradores
+  // Ordenar por data DESC para priorizar retiradas mais recentes
+  const { data: movimentacoes } = await supabase
     .from("movimentacoes")
     .select(`
       id,
@@ -146,79 +168,79 @@ async function getPendingToolsByColaborador(userId: string) {
       ferramenta_id,
       tipo,
       quantidade,
-      data,
-      ferramentas (
-        id,
-        nome,
-        tipo_item
-      )
+      data
     `)
     .eq("profile_id", userId)
-    .in("tipo", ["retirada", "devolucao"])
+    .eq("tipo", "retirada")
     .not("colaborador_id", "is", null)
+    .in("ferramenta_id", Object.keys(estoqueForaMap))
+    .order("data", { ascending: false })
 
-  if (!data) return {}
+  if (!movimentacoes) return {}
 
-  // Calculate balance per collaborator per tool
-  const balanceMap: Record<string, Record<string, {
-    ferramenta_id: string
-    ferramenta_nome: string
-    saldo: number
-    ultima_retirada_id: string
-    ultima_retirada_data: string
-  }>> = {}
-
-  data.forEach((mov) => {
-    const colaboradorId = mov.colaborador_id
-    const ferramentaId = mov.ferramenta_id
-    const ferramenta = mov.ferramentas as any
-
-    if (!colaboradorId || !ferramentaId) return
-
-    // Only count tools (ferramentas), not EPIs
-    if (ferramenta?.tipo_item === 'epi') return
-
-    if (!balanceMap[colaboradorId]) {
-      balanceMap[colaboradorId] = {}
-    }
-
-    if (!balanceMap[colaboradorId][ferramentaId]) {
-      balanceMap[colaboradorId][ferramentaId] = {
-        ferramenta_id: ferramentaId,
-        ferramenta_nome: ferramenta?.nome || 'Desconhecido',
-        saldo: 0,
-        ultima_retirada_id: '',
-        ultima_retirada_data: ''
-      }
-    }
-
-    if (mov.tipo === 'retirada') {
-      balanceMap[colaboradorId][ferramentaId].saldo += (mov.quantidade || 1)
-      // Track last withdrawal for reference
-      if (!balanceMap[colaboradorId][ferramentaId].ultima_retirada_data ||
-        mov.data > balanceMap[colaboradorId][ferramentaId].ultima_retirada_data) {
-        balanceMap[colaboradorId][ferramentaId].ultima_retirada_id = mov.id
-        balanceMap[colaboradorId][ferramentaId].ultima_retirada_data = mov.data
-      }
-    } else if (mov.tipo === 'devolucao') {
-      balanceMap[colaboradorId][ferramentaId].saldo -= (mov.quantidade || 1)
-    }
-  })
-
-  // Convert to expected format, only including items with positive balance
+  // 3. Distribuir as ferramentas fora do estoque aos colaboradores
+  // Usando as retiradas mais recentes como base
   const pendingByColaborador: Record<string, any[]> = {}
+  const quantidadeAtribuida: Record<string, number> = {} // Track quanto já foi atribuído por ferramenta
 
-  Object.entries(balanceMap).forEach(([colaboradorId, tools]) => {
-    const pendingTools = Object.values(tools).filter(t => t.saldo > 0)
+  for (const mov of movimentacoes) {
+    const ferramentaId = mov.ferramenta_id
+    const colaboradorId = mov.colaborador_id
 
-    if (pendingTools.length > 0) {
-      pendingByColaborador[colaboradorId] = pendingTools.map(t => ({
-        movimentacao_id: t.ultima_retirada_id,
-        item_id: t.ferramenta_id,
-        item_name: t.ferramenta_nome,
-        quantity: t.saldo,
-        saida_at: t.ultima_retirada_data
-      }))
+    if (!ferramentaId || !colaboradorId) continue
+
+    const ferramentaInfo = estoqueForaMap[ferramentaId]
+    if (!ferramentaInfo) continue
+
+    // Quanto ainda precisa ser atribuído dessa ferramenta
+    const jaAtribuido = quantidadeAtribuida[ferramentaId] || 0
+    const restante = ferramentaInfo.fora - jaAtribuido
+
+    if (restante <= 0) continue // Já atribuímos tudo dessa ferramenta
+
+    // Quanto atribuir dessa movimentação (min entre quantidade da mov e restante)
+    const quantidadeMovimentacao = mov.quantidade || 1
+    const quantidadeAtribuir = Math.min(quantidadeMovimentacao, restante)
+
+    // Inicializar array do colaborador se não existe
+    if (!pendingByColaborador[colaboradorId]) {
+      pendingByColaborador[colaboradorId] = []
+    }
+
+    // Verificar se já existe essa ferramenta para esse colaborador
+    const existente = pendingByColaborador[colaboradorId].find(
+      (p: any) => p.item_id === ferramentaId
+    )
+
+    if (existente) {
+      // Somar à quantidade existente (até o limite do que está fora)
+      const novaQuantidade = Math.min(
+        existente.quantity + quantidadeAtribuir,
+        ferramentaInfo.fora - (quantidadeAtribuida[ferramentaId] || 0) + existente.quantity
+      )
+      existente.quantity = novaQuantidade
+    } else {
+      // Adicionar nova entrada
+      pendingByColaborador[colaboradorId].push({
+        movimentacao_id: mov.id,
+        item_id: ferramentaId,
+        item_name: ferramentaInfo.nome,
+        quantity: quantidadeAtribuir,
+        saida_at: mov.data
+      })
+    }
+
+    // Atualizar quanto foi atribuído
+    quantidadeAtribuida[ferramentaId] = jaAtribuido + quantidadeAtribuir
+  }
+
+  // Filtrar colaboradores sem ferramentas pendentes
+  Object.keys(pendingByColaborador).forEach(colabId => {
+    pendingByColaborador[colabId] = pendingByColaborador[colabId].filter(
+      (p: any) => p.quantity > 0
+    )
+    if (pendingByColaborador[colabId].length === 0) {
+      delete pendingByColaborador[colabId]
     }
   })
 

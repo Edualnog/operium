@@ -30,6 +30,26 @@ interface Env {
  */
 export default {
   /**
+   * Health check endpoint (HTTP)
+   * O consumer é um Queue Worker, mas Cloudflare tenta fazer fetch() para health checks
+   */
+  async fetch(request: Request, env: Env): Promise<Response> {
+    return new Response(JSON.stringify({
+      status: 'ok',
+      worker: 'operium-telemetry-consumer',
+      version: env.WORKER_VERSION || '1.0.0',
+      environment: env.ENVIRONMENT || 'production',
+      timestamp: new Date().toISOString(),
+      note: 'This is a Queue Consumer Worker. Events are processed via queue() handler, not fetch().'
+    }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  },
+
+  /**
    * Processa batch de mensagens do Queue
    */
   async queue(batch: MessageBatch<EnrichedEvent>, env: Env): Promise<void> {

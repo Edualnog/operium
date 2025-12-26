@@ -21,6 +21,8 @@ export type EntityType =
   | 'repair'
   | 'cost'
   | 'team'
+  | 'team_member'
+  | 'team_equipment'
   | 'generic';
 
 /**

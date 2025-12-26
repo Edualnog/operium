@@ -74,13 +74,26 @@ export function QuickReturnModal({
                 selectedIds.has(tool.movimentacao_id)
             )
 
+            console.log('🔄 Iniciando devolução de ferramentas:', {
+                colaboradorId,
+                selectedTools: selectedTools.map(t => ({
+                    item_id: t.item_id,
+                    item_name: t.item_name,
+                    quantity: t.quantity
+                }))
+            })
+
             for (const tool of selectedTools) {
+                console.log(`📦 Devolvendo: ${tool.item_name} (ID: ${tool.item_id}, Qtd: ${tool.quantity})`)
+
                 await registrarDevolucao(
                     tool.item_id,
                     colaboradorId,
                     tool.quantity,
                     'Devolução via quick return'
                 )
+
+                console.log(`✅ Devolução registrada: ${tool.item_name}`)
             }
 
             toast.success(t('colaboradores.return_success'))
@@ -88,8 +101,24 @@ export function QuickReturnModal({
             onSuccess()
             onClose()
         } catch (error: any) {
-            console.error('Error returning tools:', error)
-            toast.error(t('colaboradores.return_error'))
+            console.error('❌ Error returning tools:', error)
+            console.error('Error details:', {
+                message: error?.message,
+                stack: error?.stack,
+                name: error?.name
+            })
+
+            // Mostrar mensagem de erro mais específica
+            const errorMessage = error?.message || 'Erro desconhecido'
+            if (errorMessage.includes('Ferramenta não encontrada')) {
+                toast.error('Ferramenta não encontrada. Pode ter sido excluída ou você não tem permissão.')
+            } else if (errorMessage.includes('Quantidade de devolução excede')) {
+                toast.error('A quantidade de devolução excede o total disponível.')
+            } else if (errorMessage.includes('Não autenticado')) {
+                toast.error('Sessão expirada. Por favor, faça login novamente.')
+            } else {
+                toast.error(`Erro ao devolver: ${errorMessage}`)
+            }
         } finally {
             setLoading(false)
         }
@@ -138,8 +167,8 @@ export function QuickReturnModal({
                                         key={tool.movimentacao_id}
                                         onClick={() => toggleSelection(tool.movimentacao_id)}
                                         className={`w-full flex items-start gap-3 p-3 rounded-lg border transition-all text-left ${selectedIds.has(tool.movimentacao_id)
-                                                ? 'border-zinc-400 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800'
-                                                : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600'
+                                            ? 'border-zinc-400 bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800'
+                                            : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600'
                                             }`}
                                     >
                                         <Checkbox
