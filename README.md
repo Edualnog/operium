@@ -136,7 +136,7 @@ A arquitetura da Operium é guiada por princípios fundamentais que a diferencia
 
 ### Event-Driven Architecture (Telemetria Industrial)
 
-Toda operação significativa gera um **evento de telemetria imutável**. Capturamos **23 eventos críticos** em tempo real:
+Toda operação significativa gera um **evento de telemetria imutável**. Cobertura completa dos eventos operacionais críticos definidos no domínio:
 - 🔧 Assets/Ferramentas (criar, editar, deletar)
 - 👷 Colaboradores/RH (contratar, promover, demitir)
 - 📦 Movimentações (entrada, retirada, devolução)
@@ -144,16 +144,17 @@ Toda operação significativa gera um **evento de telemetria imutável**. Captur
 - 👥 Times/Gestão (criar equipes, adicionar membros)
 - 🚚 Equipamentos (atribuir, devolver, perda/dano)
 
-> **Princípio**: Eventos são a verdade. Estados são derivados.
+> **Princípio**: Eventos são a verdade. Estados são derivados. A telemetria não controla o produto — ela observa.
 
 **📊 Documentação completa:** [TELEMETRY_GUIDE.md](TELEMETRY_GUIDE.md) - Guia para investidores e programadores
 
 ### Separação entre Operação e Análise
 
-**Novo método de coleta de dados:**
+**Método de coleta de dados:**
 - **Backend (Next.js)** → Operação transacional (PostgreSQL/Supabase)
 - **Telemetria (Cloudflare Workers)** → Eventos em tempo real (R2 Storage)
-- **Zero impacto:** Fire-and-forget (700ms timeout, nunca bloqueia produto)
+- **Zero impacto:** Fire-and-forget - o produto não aguarda, não depende e não reage à telemetria
+- **Tolerância a falhas:** Timeout de 700ms é limite de observação, não requisito funcional
 - **Escalável:** Cloudflare Edge (global, 99.99% uptime)
 - **Baixo custo:** ~$11/mês para 1 milhão de eventos
 

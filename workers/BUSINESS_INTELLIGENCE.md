@@ -2,17 +2,17 @@
 
 ## 🎯 Visão Geral Executiva
 
-A telemetria do Operium captura **100% das operações críticas** da indústria em tempo real, transformando dados operacionais em insights estratégicos para investidores e gestores.
+A telemetria do Operium captura **todos os eventos operacionais críticos definidos no domínio** da indústria em tempo real, transformando dados operacionais em insights estratégicos para investidores e gestores.
 
 **Proposta de Valor:**
 - 📈 **Dados para investidores**: Métricas operacionais reais, não projeções
-- 🔍 **Transparência total**: Rastreabilidade completa de ativos, pessoas e processos
+- 🔍 **Transparência completa**: Rastreabilidade de ativos, pessoas e processos
 - 💰 **Otimização de custos**: Identificar desperdícios, gargalos e oportunidades
 - 📊 **Benchmarking industrial**: Comparar performance entre operações/unidades
 
 ---
 
-## 📋 Eventos Instrumentados (23 Eventos)
+## 📋 Eventos Instrumentados (20+ Categorias Operacionais)
 
 ### 🔧 **Assets/Ferramentas** (3 eventos)
 | Evento | Quando Dispara | Valor de Negócio |

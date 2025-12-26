@@ -4,12 +4,12 @@
 
 ## 🎯 Visão Geral
 
-O Operium implementa **telemetria industrial de ponta** que captura **100% das operações críticas** em tempo real, transformando dados operacionais em insights estratégicos.
+O Operium implementa **telemetria industrial de ponta** que captura **todos os eventos operacionais críticos definidos no domínio**, transformando dados operacionais em insights estratégicos com tolerância estatística a falhas de ingestão.
 
 **Sistema comparável a:**
-- 📱 Facebook Analytics (eventos de usuário)
-- 📊 Google Analytics (comportamento em tempo real)
-- 💳 Stripe (auditoria financeira completa)
+- 📱 Meta Telemetry (event streaming em produção)
+- 📊 Amplitude/Mixpanel (product analytics)
+- 💳 Stripe Event Logs (auditoria financeira completa)
 
 **Diferencial:** Aplicado à **indústria pesada**, não software.
 
@@ -26,10 +26,10 @@ O Operium implementa **telemetria industrial de ponta** que captura **100% das o
 - ❌ Decisões baseadas em "achismo"
 
 **Nossa solução:**
-- ✅ **23 eventos críticos** capturados automaticamente
-- ✅ **Rastreabilidade total** de ferramentas, pessoas e processos
+- ✅ **20+ eventos operacionais** capturados automaticamente
+- ✅ **Rastreabilidade completa** de ferramentas, pessoas e processos
 - ✅ **Custos auditáveis** em tempo real
-- ✅ **Dados para due diligence** sem precedentes
+- ✅ **Dados para due diligence** sem precedentes na indústria
 
 ### Método de Coleta de Dados
 
@@ -95,9 +95,10 @@ O Operium implementa **telemetria industrial de ponta** que captura **100% das o
 ### Garantias Técnicas
 
 1. **Zero Impacto no Produto**
-   - Telemetria nunca bloqueia operações
-   - Timeout de 700ms (se falhar, não afeta usuário)
-   - Fire-and-forget (assíncrono)
+   - Telemetria nunca bloqueia operações do usuário
+   - Timeout de 700ms é um limite de observação, não requisito funcional
+   - Fire-and-forget: o produto não aguarda, não depende e não reage à telemetria
+   - Assíncrono com silent failure (falhas de ingestão não afetam operação)
 
 2. **Alta Disponibilidade**
    - Edge computing global (Cloudflare)
@@ -114,7 +115,7 @@ O Operium implementa **telemetria industrial de ponta** que captura **100% das o
    - Apenas UUIDs e metadados operacionais
    - LGPD/GDPR compliant
 
-### Eventos Capturados (23 total)
+### Eventos Capturados (20+ categorias operacionais)
 
 #### 🔧 Assets/Ferramentas (3)
 - `ASSET_CREATED` - Nova ferramenta no inventário

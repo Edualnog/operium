@@ -164,7 +164,7 @@ Adicione as mesmas variáveis no dashboard do Vercel:
 
 ### Eventos Instrumentados
 
-**Total: 23 eventos** capturando 100% das operações críticas.
+**20+ eventos operacionais** com cobertura completa dos eventos críticos definidos no domínio.
 
 #### Assets/Ferramentas (3 eventos) - `lib/actions.ts`
 | Evento | Quando Dispara | Entity Type |
