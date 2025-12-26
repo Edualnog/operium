@@ -3,23 +3,17 @@
 import { useState, useEffect } from "react"
 import {
     Activity,
-    Calendar,
     RefreshCw,
-    Filter,
-    BarChart3,
-    Users,
-    Package,
-    Truck,
-    Wrench,
-    AlertCircle,
-    CheckCircle2,
-    Clock
+    ChevronLeft,
+    ChevronRight,
+    Database,
+    Terminal,
+    Table,
+    AlertCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 
 interface TelemetryEvent {
     event_id: string
@@ -28,71 +22,30 @@ interface TelemetryEvent {
     entity_type: string
     profile_id?: string
     actor_id?: string
+    entity_id?: string
     props?: Record<string, any>
-    context?: {
-        flow?: string
-        screen?: string
-    }
 }
 
-interface TelemetryResponse {
-    success: boolean
-    date: string
-    r2_configured: boolean
-    events: TelemetryEvent[]
-    message: string
-    total: number
-}
-
-const EVENT_ICONS: Record<string, React.ReactNode> = {
-    COLLABORATOR_CREATED: <Users className="h-4 w-4 text-green-500" />,
-    COLLABORATOR_UPDATED: <Users className="h-4 w-4 text-blue-500" />,
-    COLLABORATOR_DELETED: <Users className="h-4 w-4 text-red-500" />,
-    COLLABORATOR_DISMISSED: <Users className="h-4 w-4 text-orange-500" />,
-    MOVEMENT_CHECKOUT: <Package className="h-4 w-4 text-yellow-500" />,
-    MOVEMENT_CHECKIN: <Package className="h-4 w-4 text-green-500" />,
-    MOVEMENT_STOCK_IN: <Package className="h-4 w-4 text-blue-500" />,
-    ASSET_CREATED: <Wrench className="h-4 w-4 text-green-500" />,
-    ASSET_UPDATED: <Wrench className="h-4 w-4 text-blue-500" />,
-    TEAM_CREATED: <Users className="h-4 w-4 text-purple-500" />,
-    MAINTENANCE_STARTED: <Wrench className="h-4 w-4 text-orange-500" />,
-    ORGANIZATION_ONBOARDED: <CheckCircle2 className="h-4 w-4 text-green-500" />,
-}
-
-const INDUSTRY_LABELS: Record<string, string> = {
-    MANUFACTURING: "Indústria",
-    CONSTRUCTION: "Construção Civil",
-    LOGISTICS: "Logística",
-    MAINTENANCE_SERVICES: "Manutenção",
-    AGRO: "Agronegócio",
-    OTHER: "Outros"
-}
-
-const SIZE_LABELS: Record<string, string> = {
-    SOLO: "Autônomo",
-    SMALL: "Pequena",
-    MEDIUM: "Média",
-    LARGE: "Grande",
-    ENTERPRISE: "Enterprise"
-}
+const ROWS_PER_PAGE = 20
 
 export function TelemetryDashboard() {
     const [events, setEvents] = useState<TelemetryEvent[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [date, setDate] = useState(new Date().toISOString().split("T")[0])
-    const [r2Configured, setR2Configured] = useState(false)
     const [message, setMessage] = useState("")
     const [debug, setDebug] = useState<any>(null)
     const [showAll, setShowAll] = useState(false)
+    const [page, setPage] = useState(1)
+    const [activeTab, setActiveTab] = useState<'events' | 'stats' | 'debug'>('events')
 
     const fetchEvents = async (all = false) => {
         setLoading(true)
         setError(null)
         try {
             const url = all
-                ? `/api/admin/telemetry?date=${date}&all=true`
-                : `/api/admin/telemetry?date=${date}`
+                ? `/api/admin/telemetry?date=${date}&all=true&limit=500`
+                : `/api/admin/telemetry?date=${date}&limit=500`
             const response = await fetch(url)
             const data = await response.json()
 
@@ -101,9 +54,9 @@ export function TelemetryDashboard() {
             }
 
             setEvents(data.events || [])
-            setR2Configured(data.r2_configured)
             setMessage(data.message)
             setDebug(data.debug)
+            setPage(1) // Reset to page 1 on new fetch
         } catch (err: any) {
             setError(err.message)
         } finally {
@@ -115,332 +68,293 @@ export function TelemetryDashboard() {
         fetchEvents(showAll)
     }, [date, showAll])
 
-    // Stats calculations
+    // Pagination
+    const totalPages = Math.ceil(events.length / ROWS_PER_PAGE)
+    const paginatedEvents = events.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE)
+
+    // Stats
     const eventsByType = events.reduce((acc, event) => {
         acc[event.event_name] = (acc[event.event_name] || 0) + 1
         return acc
     }, {} as Record<string, number>)
 
-    const eventsByIndustry = events.reduce((acc, event) => {
-        const industry = event.props?.org_industry || "unknown"
-        acc[industry] = (acc[industry] || 0) + 1
+    const eventsByEntityType = events.reduce((acc, event) => {
+        acc[event.entity_type] = (acc[event.entity_type] || 0) + 1
         return acc
     }, {} as Record<string, number>)
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                        <Activity className="h-6 w-6 text-purple-500" />
-                        Telemetry Dashboard
-                    </h1>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                        Visualize eventos de telemetria do Cloudflare R2
-                    </p>
-                </div>
-
+        <div className="font-mono text-sm">
+            {/* Header - Terminal Style */}
+            <div className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-t-lg px-4 py-2 flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                    <Input
-                        type="date"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="w-40"
-                    />
-                    <Button
-                        variant={showAll ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setShowAll(!showAll)}
-                    >
-                        {showAll ? "Filtrar por Data" : "Ver Todos"}
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => fetchEvents(showAll)}
-                        disabled={loading}
-                    >
-                        <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-                    </Button>
+                    <Database className="h-4 w-4 text-zinc-600" />
+                    <span className="font-bold text-zinc-700 dark:text-zinc-300">operium_telemetry</span>
                 </div>
+                <span className="text-zinc-400">|</span>
+                <span className="text-zinc-500">{events.length} rows</span>
+                <span className="text-zinc-400">|</span>
+                <span className="text-green-600">{loading ? "QUERYING..." : "READY"}</span>
             </div>
 
-            {/* Status Alert */}
-            {message && (
-                <div className={`p-4 rounded-lg border ${r2Configured
-                    ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
-                    : "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
-                    }`}>
-                    <div className="flex items-center gap-2">
-                        {r2Configured ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        ) : (
-                            <AlertCircle className="h-4 w-4 text-amber-600" />
-                        )}
-                        <span className={`text-sm ${r2Configured ? "text-green-700 dark:text-green-300" : "text-amber-700 dark:text-amber-300"
-                            }`}>
-                            {message}
-                        </span>
-                    </div>
-                </div>
-            )}
-
-            {error && (
-                <div className="p-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800">
-                    <span className="text-sm text-red-700 dark:text-red-300">{error}</span>
-                </div>
-            )}
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>Total de Eventos</CardDescription>
-                        <CardTitle className="text-3xl">{events.length}</CardTitle>
-                    </CardHeader>
-                </Card>
-
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>Tipos de Evento</CardDescription>
-                        <CardTitle className="text-3xl">{Object.keys(eventsByType).length}</CardTitle>
-                    </CardHeader>
-                </Card>
-
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>Setores Ativos</CardDescription>
-                        <CardTitle className="text-3xl">{Object.keys(eventsByIndustry).filter(k => k !== "unknown").length}</CardTitle>
-                    </CardHeader>
-                </Card>
-
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>Data Selecionada</CardDescription>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            {new Date(date).toLocaleDateString("pt-BR")}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
+            {/* Query Bar */}
+            <div className="bg-white dark:bg-zinc-950 border-x border-zinc-300 dark:border-zinc-700 px-4 py-3 flex items-center gap-3 flex-wrap">
+                <span className="text-purple-600 font-bold">SELECT</span>
+                <span className="text-zinc-600">* FROM</span>
+                <span className="text-blue-600 font-bold">telemetry_events</span>
+                <span className="text-zinc-600">WHERE</span>
+                <span className="text-orange-600">date =</span>
+                <Input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-36 h-7 font-mono text-xs bg-zinc-50 dark:bg-zinc-900 border-zinc-300"
+                />
+                <Button
+                    variant={showAll ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowAll(!showAll)}
+                    className="h-7 text-xs"
+                >
+                    {showAll ? "-- ALL DATES" : "-- FILTER DATE"}
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchEvents(showAll)}
+                    disabled={loading}
+                    className="h-7 text-xs"
+                >
+                    <RefreshCw className={`h-3 w-3 mr-1 ${loading ? "animate-spin" : ""}`} />
+                    RUN
+                </Button>
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="events" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="events">Eventos</TabsTrigger>
-                    <TabsTrigger value="byType">Por Tipo</TabsTrigger>
-                    <TabsTrigger value="byIndustry">Por Setor</TabsTrigger>
-                    <TabsTrigger value="debug">Debug</TabsTrigger>
-                </TabsList>
+            <div className="bg-zinc-50 dark:bg-zinc-900 border-x border-zinc-300 dark:border-zinc-700 px-4 py-2 flex gap-1">
+                <button
+                    onClick={() => setActiveTab('events')}
+                    className={`px-3 py-1 rounded text-xs transition-colors ${activeTab === 'events'
+                        ? 'bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 shadow-sm'
+                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        }`}
+                >
+                    <Table className="h-3 w-3 inline mr-1" />
+                    Results
+                </button>
+                <button
+                    onClick={() => setActiveTab('stats')}
+                    className={`px-3 py-1 rounded text-xs transition-colors ${activeTab === 'stats'
+                        ? 'bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 shadow-sm'
+                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        }`}
+                >
+                    <Activity className="h-3 w-3 inline mr-1" />
+                    Stats
+                </button>
+                <button
+                    onClick={() => setActiveTab('debug')}
+                    className={`px-3 py-1 rounded text-xs transition-colors ${activeTab === 'debug'
+                        ? 'bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 shadow-sm'
+                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        }`}
+                >
+                    <Terminal className="h-3 w-3 inline mr-1" />
+                    Debug
+                </button>
+            </div>
 
-                {/* Events List */}
-                <TabsContent value="events" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Clock className="h-5 w-5" />
-                                Eventos Recentes
-                            </CardTitle>
-                            <CardDescription>
-                                Lista de eventos ordenados por timestamp
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {loading ? (
-                                <div className="text-center py-8 text-zinc-500">
-                                    Carregando eventos...
-                                </div>
-                            ) : events.length === 0 ? (
-                                <div className="text-center py-8 text-zinc-500">
-                                    Nenhum evento encontrado para esta data
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {events.map((event) => (
-                                        <div
+            {/* Error */}
+            {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 border-x border-zinc-300 dark:border-zinc-700 px-4 py-2 text-red-600 text-xs">
+                    <AlertCircle className="h-3 w-3 inline mr-1" />
+                    ERROR: {error}
+                </div>
+            )}
+
+            {/* Content */}
+            <div className="bg-white dark:bg-zinc-950 border-x border-zinc-300 dark:border-zinc-700 overflow-x-auto">
+                {activeTab === 'events' && (
+                    <>
+                        {/* Table Header */}
+                        <table className="w-full text-xs">
+                            <thead className="bg-zinc-100 dark:bg-zinc-900 border-y border-zinc-200 dark:border-zinc-700">
+                                <tr>
+                                    <th className="text-left px-3 py-2 text-zinc-500 font-medium w-8">#</th>
+                                    <th className="text-left px-3 py-2 text-zinc-500 font-medium">timestamp</th>
+                                    <th className="text-left px-3 py-2 text-zinc-500 font-medium">event_name</th>
+                                    <th className="text-left px-3 py-2 text-zinc-500 font-medium">entity_type</th>
+                                    <th className="text-left px-3 py-2 text-zinc-500 font-medium">entity_id</th>
+                                    <th className="text-left px-3 py-2 text-zinc-500 font-medium">props</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={6} className="text-center py-8 text-zinc-400">
+                                            Executing query...
+                                        </td>
+                                    </tr>
+                                ) : paginatedEvents.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="text-center py-8 text-zinc-400">
+                                            0 rows returned
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    paginatedEvents.map((event, idx) => (
+                                        <tr
                                             key={event.event_id}
-                                            className="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                                            className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900"
                                         >
-                                            <div className="mt-1">
-                                                {EVENT_ICONS[event.event_name] || <Activity className="h-4 w-4 text-zinc-400" />}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                                                        {event.event_name}
-                                                    </span>
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {event.entity_type}
-                                                    </Badge>
-                                                    {event.props?.org_industry && (
-                                                        <Badge variant="secondary" className="text-xs">
-                                                            {INDUSTRY_LABELS[event.props.org_industry] || event.props.org_industry}
-                                                        </Badge>
-                                                    )}
-                                                    {event.props?.org_size && (
-                                                        <Badge variant="secondary" className="text-xs">
-                                                            {SIZE_LABELS[event.props.org_size] || event.props.org_size}
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                                <div className="text-xs text-zinc-500 mt-1">
-                                                    {new Date(event.ts).toLocaleString("pt-BR")}
-                                                </div>
-                                                {event.props && Object.keys(event.props).filter(k => !k.startsWith("org_")).length > 0 && (
-                                                    <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 p-2 rounded font-mono">
-                                                        {JSON.stringify(
-                                                            Object.fromEntries(
-                                                                Object.entries(event.props).filter(([k]) => !k.startsWith("org_"))
-                                                            ),
-                                                            null,
-                                                            2
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
+                                            <td className="px-3 py-2 text-zinc-400">
+                                                {(page - 1) * ROWS_PER_PAGE + idx + 1}
+                                            </td>
+                                            <td className="px-3 py-2 text-zinc-500 whitespace-nowrap">
+                                                {new Date(event.ts).toLocaleString("pt-BR")}
+                                            </td>
+                                            <td className="px-3 py-2">
+                                                <span className="text-green-600 font-medium">{event.event_name}</span>
+                                            </td>
+                                            <td className="px-3 py-2">
+                                                <Badge variant="outline" className="text-xs font-mono">
+                                                    {event.entity_type}
+                                                </Badge>
+                                            </td>
+                                            <td className="px-3 py-2 text-zinc-400 font-mono text-xs">
+                                                {event.entity_id ? event.entity_id.substring(0, 8) + "..." : "NULL"}
+                                            </td>
+                                            <td className="px-3 py-2 max-w-xs">
+                                                <code className="text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1 rounded">
+                                                    {event.props ? JSON.stringify(event.props).substring(0, 50) + (JSON.stringify(event.props).length > 50 ? "..." : "") : "{}"}
+                                                </code>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </>
+                )}
+
+                {activeTab === 'stats' && (
+                    <div className="p-4 space-y-6">
+                        {/* Events by Type */}
+                        <div>
+                            <h3 className="text-xs text-zinc-500 mb-2 uppercase tracking-wide">
+                                SELECT event_name, COUNT(*) FROM telemetry_events GROUP BY event_name
+                            </h3>
+                            <table className="w-full text-xs border border-zinc-200 dark:border-zinc-700">
+                                <thead className="bg-zinc-100 dark:bg-zinc-900">
+                                    <tr>
+                                        <th className="text-left px-3 py-2 border-b border-zinc-200 dark:border-zinc-700">event_name</th>
+                                        <th className="text-right px-3 py-2 border-b border-zinc-200 dark:border-zinc-700">count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(eventsByType).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
+                                        <tr key={type} className="border-b border-zinc-100 dark:border-zinc-800">
+                                            <td className="px-3 py-2 text-green-600">{type}</td>
+                                            <td className="px-3 py-2 text-right text-blue-600 font-bold">{count}</td>
+                                        </tr>
                                     ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Events by Entity Type */}
+                        <div>
+                            <h3 className="text-xs text-zinc-500 mb-2 uppercase tracking-wide">
+                                SELECT entity_type, COUNT(*) FROM telemetry_events GROUP BY entity_type
+                            </h3>
+                            <table className="w-full text-xs border border-zinc-200 dark:border-zinc-700">
+                                <thead className="bg-zinc-100 dark:bg-zinc-900">
+                                    <tr>
+                                        <th className="text-left px-3 py-2 border-b border-zinc-200 dark:border-zinc-700">entity_type</th>
+                                        <th className="text-right px-3 py-2 border-b border-zinc-200 dark:border-zinc-700">count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(eventsByEntityType).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
+                                        <tr key={type} className="border-b border-zinc-100 dark:border-zinc-800">
+                                            <td className="px-3 py-2 text-purple-600">{type}</td>
+                                            <td className="px-3 py-2 text-right text-blue-600 font-bold">{count}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'debug' && (
+                    <div className="p-4 space-y-4 text-xs">
+                        <h3 className="text-zinc-500 uppercase tracking-wide">-- SYSTEM VARIABLES</h3>
+                        {debug ? (
+                            <div className="bg-zinc-50 dark:bg-zinc-900 p-3 rounded border border-zinc-200 dark:border-zinc-700 font-mono">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <span className="text-zinc-500">@bucket:</span>
+                                    <span className="text-blue-600">&apos;{debug.bucket}&apos;</span>
+                                    <span className="text-zinc-500">@total_objects:</span>
+                                    <span className="text-green-600">{debug.total_objects_in_bucket}</span>
+                                    <span className="text-zinc-500">@matching_objects:</span>
+                                    <span className="text-green-600">{debug.matching_objects}</span>
+                                    <span className="text-zinc-500">@date_pattern:</span>
+                                    <span className="text-orange-600">&apos;{debug.date_pattern}&apos;</span>
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
 
-                {/* By Type */}
-                <TabsContent value="byType">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <BarChart3 className="h-5 w-5" />
-                                Eventos por Tipo
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                {Object.entries(eventsByType)
-                                    .sort((a, b) => b[1] - a[1])
-                                    .map(([type, count]) => (
-                                        <div key={type} className="flex items-center justify-between p-2 rounded hover:bg-zinc-50 dark:hover:bg-zinc-900">
-                                            <div className="flex items-center gap-2">
-                                                {EVENT_ICONS[type] || <Activity className="h-4 w-4 text-zinc-400" />}
-                                                <span className="text-sm font-medium">{type}</span>
-                                            </div>
-                                            <Badge>{count}</Badge>
-                                        </div>
-                                    ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                {/* By Industry */}
-                <TabsContent value="byIndustry">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <BarChart3 className="h-5 w-5" />
-                                Eventos por Setor
-                            </CardTitle>
-                            <CardDescription>
-                                Distribuição de eventos por setor de atuação
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                {Object.entries(eventsByIndustry)
-                                    .sort((a, b) => b[1] - a[1])
-                                    .map(([industry, count]) => (
-                                        <div key={industry} className="flex items-center justify-between p-3 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                                            <span className="font-medium">
-                                                {INDUSTRY_LABELS[industry] || industry}
-                                            </span>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-32 bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
-                                                    <div
-                                                        className="bg-purple-500 h-2 rounded-full"
-                                                        style={{
-                                                            width: `${(count / events.length) * 100}%`
-                                                        }}
-                                                    />
+                                {debug.all_object_keys && debug.all_object_keys.length > 0 && (
+                                    <div className="mt-4">
+                                        <span className="text-zinc-500">-- OBJECT KEYS ({debug.all_object_keys.length})</span>
+                                        <div className="mt-2 max-h-40 overflow-auto bg-white dark:bg-zinc-950 p-2 rounded border border-zinc-200 dark:border-zinc-700">
+                                            {debug.all_object_keys.map((key: string, i: number) => (
+                                                <div key={i} className="text-zinc-600 py-0.5 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
+                                                    {key}
                                                 </div>
-                                                <Badge variant="secondary">{count}</Badge>
-                                            </div>
-                                        </div>
-                                    ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                {/* Debug Tab */}
-                <TabsContent value="debug">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <AlertCircle className="h-5 w-5" />
-                                Debug Info
-                            </CardTitle>
-                            <CardDescription>
-                                Informações técnicas para diagnóstico
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {debug ? (
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                            <span className="text-zinc-500">Bucket:</span>
-                                            <span className="ml-2 font-mono">{debug.bucket}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-zinc-500">Total no Bucket:</span>
-                                            <span className="ml-2 font-bold">{debug.total_objects_in_bucket}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-zinc-500">Objetos Encontrados:</span>
-                                            <span className="ml-2 font-bold">{debug.matching_objects}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-zinc-500">Padrão de Data:</span>
-                                            <span className="ml-2 font-mono">{debug.date_pattern}</span>
+                                            ))}
                                         </div>
                                     </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="text-zinc-400">No debug info available. Run query first.</div>
+                        )}
+                    </div>
+                )}
+            </div>
 
-                                    {debug.all_object_keys && debug.all_object_keys.length > 0 && (
-                                        <div>
-                                            <h4 className="font-medium mb-2">Objetos no Bucket:</h4>
-                                            <div className="bg-zinc-100 dark:bg-zinc-800 p-3 rounded font-mono text-xs max-h-60 overflow-auto">
-                                                {debug.all_object_keys.map((key: string, i: number) => (
-                                                    <div key={i} className="py-1 border-b border-zinc-200 dark:border-zinc-700 last:border-0">
-                                                        {key}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
+            {/* Footer - Pagination */}
+            <div className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-b-lg px-4 py-2 flex items-center justify-between">
+                <span className="text-xs text-zinc-500">
+                    {message}
+                </span>
 
-                                    {debug.files_fetched && debug.files_fetched.length > 0 && (
-                                        <div>
-                                            <h4 className="font-medium mb-2">Arquivos Processados:</h4>
-                                            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded font-mono text-xs">
-                                                {debug.files_fetched.map((key: string, i: number) => (
-                                                    <div key={i} className="py-1">✅ {key}</div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="text-center py-8 text-zinc-500">
-                                    Clique em Atualizar para ver informações de debug
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                {totalPages > 1 && activeTab === 'events' && (
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="h-6 w-6 p-0"
+                        >
+                            <ChevronLeft className="h-3 w-3" />
+                        </Button>
+                        <span className="text-xs text-zinc-600">
+                            Page {page} of {totalPages}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className="h-6 w-6 p-0"
+                        >
+                            <ChevronRight className="h-3 w-3" />
+                        </Button>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
