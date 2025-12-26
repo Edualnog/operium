@@ -103,7 +103,30 @@ function SignupForm() {
       }
     } catch (err: any) {
       console.error("Signup error:", err)
-      setError(err.message || t('auth.errors.generic_signup'))
+
+      // Traduzir mensagens de erro comuns do Supabase
+      let errorMessage = err.message || t('auth.errors.generic_signup')
+
+      // Detectar email já cadastrado
+      if (
+        errorMessage.toLowerCase().includes('already registered') ||
+        errorMessage.toLowerCase().includes('user already registered') ||
+        errorMessage.toLowerCase().includes('email already') ||
+        errorMessage.toLowerCase().includes('already exists') ||
+        err.code === 'user_already_exists'
+      ) {
+        errorMessage = 'Este email já possui uma conta cadastrada. Faça login ou utilize outro email.'
+      }
+
+      // Detectar senha fraca
+      if (
+        errorMessage.toLowerCase().includes('password') &&
+        errorMessage.toLowerCase().includes('weak')
+      ) {
+        errorMessage = 'Senha muito fraca. Use pelo menos 6 caracteres.'
+      }
+
+      setError(errorMessage)
       setCaptchaToken(null)
       captchaRef.current?.reset()
     } finally {
