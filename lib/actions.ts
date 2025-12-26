@@ -3,7 +3,14 @@
 import { createServerComponentClient } from "@/lib/supabase-server"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { telemetry, updateOrgContext } from "./telemetry"
+import {
+  telemetry,
+  updateOrgContext,
+  getTemporalContext,
+  getCollaboratorContext,
+  getToolContext,
+  getHoldingTime
+} from "./telemetry"
 
 type ConsertoStatus = "aguardando" | "em_andamento" | "concluido"
 
@@ -1215,7 +1222,12 @@ export async function registrarRetirada(
 
     revalidateAllPages()
 
-    // 🚀 TELEMETRIA → Cloudflare Workers
+    // 🚀 TELEMETRIA COMPORTAMENTAL → Cloudflare Workers
+    // Coletar contextos enriquecidos para análise preditiva
+    const temporalCtx = getTemporalContext()
+    const colabCtx = await getCollaboratorContext(colaboradorId, user.id)
+    const toolCtx = await getToolContext(ferramentaId, user.id)
+
     telemetry.emit({
       profile_id: user.id,
       actor_id: user.id,
@@ -1223,9 +1235,31 @@ export async function registrarRetirada(
       entity_id: ferramentaId,
       event_name: 'MOVEMENT_CHECKOUT',
       props: {
+        // Dados básicos
         recipient_id: colaboradorId,
         quantidade,
-        notes: observacoes
+        notes: observacoes,
+
+        // Contexto temporal
+        hora_dia: temporalCtx.hora_dia,
+        dia_semana: temporalCtx.dia_semana,
+        semana_mes: temporalCtx.semana_mes,
+        is_fim_semana: temporalCtx.is_fim_semana,
+        is_horario_comercial: temporalCtx.is_horario_comercial,
+
+        // Contexto do colaborador
+        colab_role_function: colabCtx?.role_function,
+        colab_seniority: colabCtx?.seniority_bucket,
+        colab_dias_empresa: colabCtx?.dias_empresa,
+        colab_faixa_experiencia: colabCtx?.faixa_experiencia,
+        colab_total_retiradas: colabCtx?.total_retiradas,
+        colab_taxa_devolucao: colabCtx?.taxa_devolucao,
+
+        // Contexto da ferramenta
+        ferramenta_categoria: toolCtx?.categoria,
+        ferramenta_tipo: toolCtx?.tipo_item,
+        ferramenta_valor: toolCtx?.valor_unitario,
+        ferramenta_idade_dias: toolCtx?.idade_dias,
       },
       context: { flow: 'retirada_ferramenta' }
     })
@@ -1392,7 +1426,32 @@ export async function registrarDevolucao(
 
   revalidateAllPages()
 
-  // 🚀 TELEMETRIA → Cloudflare Workers
+  // 🚀 TELEMETRIA COMPORTAMENTAL → Cloudflare Workers
+  const temporalCtx = getTemporalContext()
+  const colabCtx = await getCollaboratorContext(colaboradorId, user.id)
+  const toolCtx = await getToolContext(ferramentaId, user.id)
+
+  // Tentar calcular tempo de posse buscando última retirada
+  let tempoPosse = { horas: 0, dias: 0 }
+  try {
+    const { data: ultimaRetirada } = await supabase
+      .from("movimentacoes")
+      .select("data, created_at")
+      .eq("ferramenta_id", ferramentaId)
+      .eq("colaborador_id", colaboradorId)
+      .eq("tipo", "retirada")
+      .eq("profile_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single()
+
+    if (ultimaRetirada) {
+      tempoPosse = getHoldingTime(ultimaRetirada.data || ultimaRetirada.created_at)
+    }
+  } catch {
+    // Ignorar erro de cálculo de tempo
+  }
+
   telemetry.emit({
     profile_id: user.id,
     actor_id: user.id,
@@ -1400,9 +1459,31 @@ export async function registrarDevolucao(
     entity_id: ferramentaId,
     event_name: 'MOVEMENT_CHECKIN',
     props: {
+      // Dados básicos
       condition_grade: 5,
       quantidade,
-      notes: observacoes
+      notes: observacoes,
+
+      // Contexto temporal
+      hora_dia: temporalCtx.hora_dia,
+      dia_semana: temporalCtx.dia_semana,
+      is_fim_semana: temporalCtx.is_fim_semana,
+      is_horario_comercial: temporalCtx.is_horario_comercial,
+
+      // Tempo de posse
+      tempo_posse_horas: tempoPosse.horas,
+      tempo_posse_dias: tempoPosse.dias,
+      devolveu_mesmo_turno: tempoPosse.horas <= 12,
+
+      // Contexto do colaborador
+      colab_role_function: colabCtx?.role_function,
+      colab_dias_empresa: colabCtx?.dias_empresa,
+      colab_faixa_experiencia: colabCtx?.faixa_experiencia,
+      colab_taxa_devolucao: colabCtx?.taxa_devolucao,
+
+      // Contexto da ferramenta
+      ferramenta_categoria: toolCtx?.categoria,
+      ferramenta_valor: toolCtx?.valor_unitario,
     },
     context: { flow: 'devolucao_ferramenta' }
   })

@@ -40,3 +40,16 @@ export type {
   DataCategory,
   IngestResponse,
 } from './types';
+
+// Context Helpers para dados comportamentais
+export {
+  getTemporalContext,
+  getCollaboratorContext,
+  getToolContext,
+  getHoldingTime,
+} from './contextHelpers';
+
+export type {
+  CollaboratorContext,
+  ToolContext,
+} from './contextHelpers';
