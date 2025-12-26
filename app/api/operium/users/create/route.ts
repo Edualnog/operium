@@ -2,8 +2,19 @@ import { createClient } from '@supabase/supabase-js'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { checkRateLimit, getClientIP, getRateLimitHeaders } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
+
+// Schema de validação para criação de usuário
+const CreateUserSchema = z.object({
+    email: z.string().email('Email inválido'),
+    password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
+    name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
+    role: z.enum(['ADMIN', 'FIELD', 'WAREHOUSE']).optional().default('FIELD'),
+    org_id: z.string().uuid('ID da organização inválido'),
+})
 
 /**
  * API: Criar usuário com senha definida pelo admin
@@ -17,6 +28,17 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: Request) {
     try {
+        // 1. Rate Limiting
+        const clientIP = getClientIP(request)
+        const rateLimit = checkRateLimit(clientIP, 'sensitive')
+
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                { error: 'Muitas requisições. Tente novamente em alguns segundos.' },
+                { status: 429, headers: getRateLimitHeaders(rateLimit) }
+            )
+        }
+
         const cookieStore = cookies()
 
         // Cliente autenticado para verificar se é admin
@@ -56,17 +78,18 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Apenas administradores podem criar usuários' }, { status: 403 })
         }
 
-        // Parsear body
+        // 2. Validação com Zod
         const body = await request.json()
-        const { email, password, name, role, org_id } = body
+        const validation = CreateUserSchema.safeParse(body)
 
-        if (!email || !password || !name) {
-            return NextResponse.json({ error: 'Email, senha e nome são obrigatórios' }, { status: 400 })
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: validation.error.errors[0].message },
+                { status: 400 }
+            )
         }
 
-        if (password.length < 6) {
-            return NextResponse.json({ error: 'Senha deve ter no mínimo 6 caracteres' }, { status: 400 })
-        }
+        const { email, password, name, role, org_id } = validation.data
 
         // Verificar se org_id corresponde ao admin
         if (org_id !== adminProfile.org_id) {
@@ -219,7 +242,16 @@ export async function POST(request: Request) {
             throw new Error('Erro ao criar perfil do colaborador')
         }
 
-        console.log('[CREATE_USER] Success:', { userId: newUser.user.id, email, role })
+        console.log('[CREATE_USER] Success:', { userId: newUser.user.id, role })
+
+        // Audit log: registrar criação de usuário
+        try {
+            const { auditLog } = await import('@/lib/audit-log')
+            await auditLog.userCreated(adminUser.id, newUser.user.id, org_id, request)
+        } catch (auditErr) {
+            // Não falhar por causa do audit log
+            console.warn('[AUDIT] Failed:', auditErr)
+        }
 
         return NextResponse.json({
             success: true,
