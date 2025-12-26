@@ -201,7 +201,12 @@ export async function criarColaborador(formData: FormData) {
     // Don't throw - the collaborator was created, profile is secondary
   }
 
-  // Telemetria: Rastrear criação de colaborador
+  // Telemetria comportamental: Rastrear criação de colaborador
+  const temporalCtx = getTemporalContext()
+  const diasEmpresa = colaboradorData.data_admissao
+    ? Math.floor((new Date().getTime() - new Date(colaboradorData.data_admissao).getTime()) / (1000 * 60 * 60 * 24))
+    : 0
+
   telemetry.emit({
     profile_id: user.id,
     actor_id: user.id,
@@ -215,6 +220,14 @@ export async function criarColaborador(formData: FormData) {
       data_admissao: colaboradorData.data_admissao,
       has_email: !!colaboradorData.email,
       has_photo: !!colaboradorData.foto_url,
+
+      // Contexto temporal do cadastro
+      hora_cadastro: temporalCtx.hora_dia,
+      dia_semana_cadastro: temporalCtx.dia_semana,
+      mes_cadastro: temporalCtx.mes,
+
+      // Se retroativo, calcular dias já trabalhados
+      dias_empresa_inicial: diasEmpresa,
     },
     context: {
       flow: 'cadastro_colaborador',
