@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { createClientComponentClient } from "@/lib/supabase-client"
-import { Loader2, DollarSign, Fuel, Wrench, Car, Receipt, Filter, X, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react"
+import { Loader2, DollarSign, Fuel, Wrench, Car, Receipt, Filter, X, Calendar, User, ChevronLeft, ChevronRight, Download } from "lucide-react"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -184,6 +184,36 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
 
     const activeFiltersCount = [periodFilter, typeFilter, collaboratorFilter].filter(f => f !== "all").length
 
+    // Export to CSV function
+    const exportToCSV = () => {
+        const headers = ["Data", "Hora", "Tipo", "Veículo", "Registrado por", "Valor"]
+        const rows = filteredCosts.map(cost => [
+            format(new Date(cost.created_at), "dd/MM/yyyy", { locale: ptBR }),
+            format(new Date(cost.created_at), "HH:mm"),
+            COST_TYPE_LABELS[cost.cost_type] || cost.cost_type,
+            cost.vehiclePlate || "",
+            cost.registeredBy || "",
+            cost.amount.toFixed(2).replace(".", ",")
+        ])
+
+        // Add total row
+        rows.push(["", "", "", "", "TOTAL", total.toFixed(2).replace(".", ",")])
+
+        const csvContent = [
+            headers.join(";"),
+            ...rows.map(row => row.join(";"))
+        ].join("\n")
+
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.setAttribute("href", url)
+        link.setAttribute("download", `custos_equipe_${format(new Date(), "yyyy-MM-dd")}.csv`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
+
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
@@ -223,6 +253,16 @@ export default function TeamCostsSection({ teamId }: TeamCostsSectionProps) {
                             {activeFiltersCount}
                         </span>
                     )}
+                </button>
+
+                {/* Export Button */}
+                <button
+                    onClick={exportToCSV}
+                    disabled={filteredCosts.length === 0}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <Download className="h-4 w-4" />
+                    <span className="text-sm font-medium">Exportar CSV</span>
                 </button>
             </div>
 
