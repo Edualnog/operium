@@ -95,26 +95,25 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body className={`${inter.className} bg-[#F7F7F5] dark:bg-zinc-900`}>
-        {/* Google Analytics */}
+        {/* Google Analytics - lazyOnload para não bloquear renderização */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-T7QX1XRLMJ"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
             gtag('config', 'G-T7QX1XRLMJ');
           `}
         </Script>
 
-        {/* Cloudflare Web Analytics */}
+        {/* Cloudflare Web Analytics - lazyOnload para não bloquear renderização */}
         <Script
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token": "8643a05aafb74f4594fa79fac639ded8"}'
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
 
         <QueryProvider>

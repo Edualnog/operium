@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
-import { motion } from "framer-motion"
+import dynamic from "next/dynamic"
 import {
   ArrowRight,
   Check,
@@ -12,10 +11,7 @@ import {
   Menu,
   X,
   Loader2,
-  PlayCircle,
-  Star,
   TrendingUp,
-  LayoutDashboard,
   Box,
   Users,
   AlertTriangle,
@@ -23,7 +19,6 @@ import {
   Smartphone,
   CreditCard,
   BarChart3,
-  Crown,
   Sparkles,
   Camera,
   Search,
@@ -31,12 +26,21 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { AnimatedTooltip } from "@/components/ui/animated-tooltip"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { LogoCloud } from "@/components/ui/logo-cloud"
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection"
-import { HeroAnimation } from "@/components/landing/HeroAnimation"
+
+// Dynamic imports - reduz bundle inicial em ~50KB (framer-motion)
+const HeroAnimation = dynamic(
+  () => import("@/components/landing/HeroAnimation").then(mod => ({ default: mod.HeroAnimation })),
+  { ssr: false, loading: () => <div className="w-full aspect-video bg-slate-100 rounded-xl animate-pulse" /> }
+)
+
+const AnimatedTooltip = dynamic(
+  () => import("@/components/ui/animated-tooltip").then(mod => ({ default: mod.AnimatedTooltip })),
+  { ssr: false, loading: () => <div className="h-12 w-48 bg-slate-100 rounded-full animate-pulse" /> }
+)
 
 
 // Ícones SVG elegantes para redes sociais
@@ -253,12 +257,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           </button>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - CSS animation para melhor performance */}
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-100 p-4 shadow-xl z-50 h-[calc(100vh-4rem)] overflow-y-auto"
+          <div
+            className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-100 p-4 shadow-xl z-50 h-[calc(100vh-4rem)] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200"
           >
             <div className="flex flex-col gap-6">
               <a href="#problemas" onClick={() => setMobileMenuOpen(false)} className="text-slate-700 text-base font-medium py-2 border-b border-slate-50">{t('landing.nav.problems')}</a>
@@ -276,7 +278,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 {t('landing.nav.start_free')}
               </button>
             </div>
-          </motion.div>
+          </div>
         )}
       </header>
 
@@ -285,11 +287,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
         <section className="pt-20 sm:pt-32 pb-8 sm:pb-20 bg-[#FFFEFC] overflow-hidden">
           <div className="flex flex-col text-center max-w-5xl mx-auto px-3 sm:px-6 lg:px-8">
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+            {/* Hero content com CSS animation */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               {/* Free Forever + Mobile App Chips - Above title */}
               <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-6">
                 <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold shadow-sm">
@@ -363,17 +362,12 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <AnimatedTooltip items={partners} />
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            {/* Mockup Container - Simplified */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative rounded-lg sm:rounded-xl border border-slate-200 shadow-xl sm:shadow-2xl bg-white p-1 sm:p-4 mt-4 sm:mt-8 -mx-2 sm:mx-0"
-            >
+            {/* Mockup Container - CSS animation com delay */}
+            <div className="relative rounded-lg sm:rounded-xl border border-slate-200 shadow-xl sm:shadow-2xl bg-white p-1 sm:p-4 mt-4 sm:mt-8 -mx-2 sm:mx-0 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
               <HeroAnimation />
-            </motion.div>
+            </div>
 
           </div>
         </section>
@@ -502,13 +496,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 items-center">
               {/* Phone Mockup - Left side */}
-              <motion.div
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="relative flex justify-center lg:justify-start order-2 lg:order-1"
-              >
+              <div className="relative flex justify-center lg:justify-start order-2 lg:order-1">
                 {/* Phone Frame */}
                 <div className="relative">
                   {/* Phone outer shell */}
@@ -600,16 +588,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   <div className="absolute -z-10 top-10 -left-4 w-24 sm:w-32 h-24 sm:h-32 bg-slate-200 rounded-full blur-3xl opacity-50" />
                   <div className="absolute -z-10 bottom-10 -right-4 w-20 sm:w-28 h-20 sm:h-28 bg-slate-200 rounded-full blur-3xl opacity-50" />
                 </div>
-              </motion.div>
+              </div>
 
               {/* Content - Right side */}
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="order-1 lg:order-2"
-              >
+              <div className="order-1 lg:order-2">
                 <div className="inline-flex items-center gap-2 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-[10px] sm:text-xs font-bold mb-3 sm:mb-6 uppercase tracking-wide">
                   <Smartphone className="h-3 w-3 sm:h-3 sm:w-3" />
                   {t('landing.field_app.badge')}
@@ -639,7 +621,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -661,13 +643,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
             </div>
 
             {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="grid grid-cols-3 gap-2 sm:gap-8 mb-6 sm:mb-16"
-            >
+            <div className="grid grid-cols-3 gap-2 sm:gap-8 mb-6 sm:mb-16">
               {[
                 { value: t('landing.loss_prevention.stat1_value'), label: t('landing.loss_prevention.stat1_label'), color: "text-[#37352f]" },
                 { value: t('landing.loss_prevention.stat2_value'), label: t('landing.loss_prevention.stat2_label'), color: "text-[#37352f]" },
@@ -682,7 +658,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </div>
 
             {/* Features */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8">
@@ -691,12 +667,8 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                 { icon: Clock, title: t('landing.loss_prevention.feature2_title'), desc: t('landing.loss_prevention.feature2_desc') },
                 { icon: BarChart3, title: t('landing.loss_prevention.feature3_title'), desc: t('landing.loss_prevention.feature3_desc') },
               ].map((feature, idx) => (
-                <motion.div
+                <div
                   key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
                   className="bg-white p-5 sm:p-6 rounded-xl sm:rounded-xl border border-slate-200 hover:shadow-md transition-all group"
                 >
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-lg sm:rounded-xl flex items-center justify-center text-slate-700 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
@@ -704,7 +676,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   </div>
                   <h3 className="text-lg sm:text-lg font-bold text-[#37352f] mb-2 sm:mb-2">{feature.title}</h3>
                   <p className="text-[#37352f]/60 text-sm sm:text-sm leading-relaxed">{feature.desc}</p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
