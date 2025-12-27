@@ -622,3 +622,181 @@ export async function reportFieldIssue(
     revalidatePath("/app")
     return { success: true }
 }
+
+// =============================================================================
+// TEAM MANAGEMENT ACTIONS (JOIN/LEAVE)
+// =============================================================================
+
+/**
+ * Leave current team - collaborator can unlink from their team
+ */
+export async function leaveTeam() {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Não autenticado")
+
+    // Get current profile
+    const { data: profile, error: profileError } = await supabase
+        .from("operium_profiles")
+        .select("team_id, org_id, name")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single()
+
+    if (profileError || !profile) {
+        throw new Error("Perfil não encontrado")
+    }
+
+    if (!profile.team_id) {
+        throw new Error("Você não está vinculado a nenhuma equipe")
+    }
+
+    const previousTeamId = profile.team_id
+
+    // Get team name for event
+    const { data: team } = await supabase
+        .from("teams")
+        .select("name")
+        .eq("id", previousTeamId)
+        .single()
+
+    // Update profile to remove team
+    const { error: updateError } = await supabase
+        .from("operium_profiles")
+        .update({ team_id: null })
+        .eq("user_id", user.id)
+
+    if (updateError) {
+        console.error("Error leaving team:", updateError)
+        throw new Error("Erro ao sair da equipe")
+    }
+
+    // Log event for real-time tracking on dashboard
+    if (profile.org_id) {
+        await supabase.from("operium_events").insert({
+            org_id: profile.org_id,
+            actor_user_id: user.id,
+            event_type: 'collaborator_left_team',
+            entity_type: 'team',
+            entity_id: previousTeamId,
+            payload: {
+                team_name: team?.name,
+                collaborator_name: profile.name,
+                left_at: new Date().toISOString()
+            }
+        })
+    }
+
+    revalidatePath("/app")
+    return { success: true, previousTeamName: team?.name }
+}
+
+/**
+ * Join a team - collaborator can link to a new team
+ */
+export async function joinTeam(teamId: string) {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Não autenticado")
+
+    // Get current profile
+    const { data: profile, error: profileError } = await supabase
+        .from("operium_profiles")
+        .select("team_id, org_id, name")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single()
+
+    if (profileError || !profile) {
+        throw new Error("Perfil não encontrado")
+    }
+
+    // Verify the team exists and belongs to same org
+    const { data: teams } = await supabase.rpc('get_teams_for_user_org')
+
+    const targetTeam = teams?.find((t: any) => t.id === teamId)
+    if (!targetTeam) {
+        throw new Error("Equipe não encontrada ou não pertence à sua organização")
+    }
+
+    const previousTeamId = profile.team_id
+
+    // Update profile with new team
+    const { error: updateError } = await supabase
+        .from("operium_profiles")
+        .update({ team_id: teamId })
+        .eq("user_id", user.id)
+
+    if (updateError) {
+        console.error("Error joining team:", updateError)
+        throw new Error("Erro ao entrar na equipe")
+    }
+
+    // Get previous team name if any
+    let previousTeamName = null
+    if (previousTeamId) {
+        const { data: prevTeam } = await supabase
+            .from("teams")
+            .select("name")
+            .eq("id", previousTeamId)
+            .single()
+        previousTeamName = prevTeam?.name
+    }
+
+    // Log event for real-time tracking on dashboard
+    if (profile.org_id) {
+        await supabase.from("operium_events").insert({
+            org_id: profile.org_id,
+            actor_user_id: user.id,
+            event_type: 'collaborator_joined_team',
+            entity_type: 'team',
+            entity_id: teamId,
+            payload: {
+                team_name: targetTeam.name,
+                previous_team_id: previousTeamId,
+                previous_team_name: previousTeamName,
+                collaborator_name: profile.name,
+                joined_at: new Date().toISOString()
+            }
+        })
+    }
+
+    revalidatePath("/app")
+    return { success: true, teamName: targetTeam.name }
+}
+
+/**
+ * Get current team status for the collaborator
+ */
+export async function getMyTeamStatus() {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { hasTeam: false, teamId: null, teamName: null }
+
+    const { data: profile } = await supabase
+        .from("operium_profiles")
+        .select("team_id")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single()
+
+    if (!profile?.team_id) {
+        return { hasTeam: false, teamId: null, teamName: null }
+    }
+
+    // Get team name
+    const { data: team } = await supabase
+        .from("teams")
+        .select("name")
+        .eq("id", profile.team_id)
+        .single()
+
+    return {
+        hasTeam: true,
+        teamId: profile.team_id,
+        teamName: team?.name || "Equipe sem nome"
+    }
+}

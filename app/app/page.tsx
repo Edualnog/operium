@@ -45,6 +45,7 @@ import {
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
+import { TeamManagerMobile } from '@/components/operium/TeamManagerMobile'
 import { useTranslation } from 'react-i18next'
 
 // ============================================================================
@@ -2156,6 +2157,20 @@ export default function AppPage() {
                             <span className="text-[14px] font-medium text-neutral-700">{teamInfo.name}</span>
                         </div>
                     )}
+                </div>
+
+                {/* Team Management Section */}
+                <div>
+                    <h3 className="text-[13px] font-semibold text-neutral-500 uppercase tracking-wide px-4 mb-2">
+                        Gerenciar Equipe
+                    </h3>
+                    <div className="bg-white rounded-2xl p-4">
+                        <TeamManagerMobile
+                            currentTeamId={teamInfo?.id || null}
+                            currentTeamName={teamInfo?.name || null}
+                            onTeamChange={fetchEquipmentData}
+                        />
+                    </div>
                 </div>
 
                 {/* Team Info Section - Members, Leader, Location */}
