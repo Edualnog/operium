@@ -15,8 +15,8 @@ DECLARE
 BEGIN
   -- Buscar colaborador_id via actor_user_id
   SELECT po.colaborador_id INTO v_colaborador_id
-  FROM public.profiles_operium po
-  WHERE po.profile_id = NEW.actor_user_id;
+  FROM public.operium_profiles po
+  WHERE po.user_id = NEW.actor_user_id;
 
   -- Atualizar streak se encontrou colaborador
   IF v_colaborador_id IS NOT NULL THEN

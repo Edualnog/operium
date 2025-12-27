@@ -1058,9 +1058,9 @@ export async function updateMyStreak(): Promise<StreakUpdateResult | null> {
 
     // Get colaborador_id
     const { data: profile } = await supabase
-        .from('profiles_operium')
+        .from('operium_profiles')
         .select('colaborador_id')
-        .eq('profile_id', user.id)
+        .eq('user_id', user.id)
         .single()
 
     if (!profile?.colaborador_id) return null
