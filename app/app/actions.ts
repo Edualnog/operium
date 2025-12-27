@@ -959,17 +959,25 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
     const supabase = await createServerComponentClient()
 
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return []
+    if (!user) {
+        console.log("[getFullRanking] No user")
+        return []
+    }
 
     // Get user's org_id and collaborator_id
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
         .from("operium_profiles")
         .select("org_id, collaborator_id")
         .eq("user_id", user.id)
         .eq("active", true)
         .single()
 
-    if (!profile?.org_id) return []
+    console.log("[getFullRanking] Profile:", { org_id: profile?.org_id, collaborator_id: profile?.collaborator_id, error: profileError })
+
+    if (!profile?.org_id) {
+        console.log("[getFullRanking] No org_id in profile")
+        return []
+    }
 
     // Get all collaborators in the organization with their scores
     const { data: colaboradores, error } = await supabase
@@ -977,6 +985,13 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
         .select("id, nome, foto_url, almox_score, user_id")
         .eq("profile_id", profile.org_id)
         .is("demitido_at", null) // Exclude dismissed collaborators
+
+    console.log("[getFullRanking] Query result:", {
+        org_id: profile.org_id,
+        count: colaboradores?.length || 0,
+        error: error?.message,
+        colaboradores: colaboradores?.map(c => ({ id: c.id, nome: c.nome }))
+    })
 
     if (error || !colaboradores) {
         console.error("[getFullRanking] Error:", error)
