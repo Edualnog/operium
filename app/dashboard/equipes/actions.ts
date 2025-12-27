@@ -242,12 +242,9 @@ export async function getTeamMembers(teamId: string): Promise<TeamMember[]> {
         console.error("Error fetching team_members:", dashboardError)
     }
 
-    // 2. Get members from operium_profiles (joined via app) - direct query now that RLS is simplified
+    // 2. Get members from operium_profiles (joined via app) using RPC function
     const { data: appMembers, error: appError } = await supabase
-        .from("operium_profiles")
-        .select("user_id, name, photo_url, role, created_at, collaborator_id")
-        .eq("team_id", teamId)
-        .eq("active", true)
+        .rpc("get_team_members_for_admin", { p_team_id: teamId })
 
     if (appError) {
         console.error("Error fetching operium_profiles members:", appError)
