@@ -1109,7 +1109,7 @@ export interface NewBadge {
 }
 
 export async function getMyBadges(): Promise<Badge[]> {
-    const supabase = await createClient()
+    const supabase = await createServerComponentClient()
 
     const { data, error } = await supabase.rpc('get_my_badges')
 
@@ -1122,7 +1122,7 @@ export async function getMyBadges(): Promise<Badge[]> {
 }
 
 export async function checkAndAwardBadges(): Promise<NewBadge[]> {
-    const supabase = await createClient()
+    const supabase = await createServerComponentClient()
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return []
