@@ -187,7 +187,21 @@ export async function criarColaborador(formData: FormData) {
   }
 
   // Extract operational profile fields
-  const { role_function, seniority_bucket, ...colaboradorData } = data
+  const { role_function, seniority_bucket, ...colaboradorData} = data
+
+  // Validate email uniqueness if provided
+  if (colaboradorData.email) {
+    const { data: existingWithEmail, error: emailCheckError } = await supabase
+      .from("colaboradores")
+      .select("id, nome, email")
+      .eq("profile_id", user.id)
+      .eq("email", colaboradorData.email)
+      .maybeSingle()
+
+    if (existingWithEmail && !emailCheckError) {
+      throw new Error(`Este e-mail já está em uso por outro colaborador: ${existingWithEmail.nome}`)
+    }
+  }
 
   // Insert collaborator
   const { data: newColaborador, error } = await supabase

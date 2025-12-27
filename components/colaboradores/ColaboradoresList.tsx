@@ -210,6 +210,12 @@ function ColaboradoresList({
   // Estado para dados preenchidos por voz
   const [voiceData, setVoiceData] = useState<any>(null)
 
+  // Estados para validação de e-mail
+  const [emailDigitado, setEmailDigitado] = useState("")
+  const [emailEmUso, setEmailEmUso] = useState(false)
+  const [verificandoEmail, setVerificandoEmail] = useState(false)
+  const [emailDuplicadoInfo, setEmailDuplicadoInfo] = useState<string>("")
+
   // Estado para Modal de Devolução Rápida
   const [quickReturnModalOpen, setQuickReturnModalOpen] = useState(false)
   const [quickReturnTarget, setQuickReturnTarget] = useState<Colaborador | null>(null)
@@ -559,6 +565,12 @@ function ColaboradoresList({
       return // Não permite submit sem confirmação
     }
 
+    // Verificar se e-mail está em uso
+    if (emailEmUso) {
+      toast.error("Este e-mail já está em uso. Por favor, use outro e-mail.")
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -688,8 +700,52 @@ function ColaboradoresList({
       setNomeDigitado("")
       setColaboradoresSimilares([])
       setConfirmarDuplicata(false)
+      setEmailDigitado("")
+      setEmailEmUso(false)
+      setEmailDuplicadoInfo("")
     }
   }
+
+  // Função para verificar se e-mail já está em uso
+  useEffect(() => {
+    const verificarEmail = async () => {
+      if (!emailDigitado || emailDigitado.length < 5 || editing) {
+        setEmailEmUso(false)
+        setEmailDuplicadoInfo("")
+        return
+      }
+
+      setVerificandoEmail(true)
+      try {
+        const supabase = createClientComponentClient()
+        const { data: user } = await supabase.auth.getUser()
+        if (!user?.user) return
+
+        // Verificar em colaboradores
+        const { data: existingColab } = await supabase
+          .from("colaboradores")
+          .select("id, nome, email")
+          .eq("profile_id", user.user.id)
+          .eq("email", emailDigitado)
+          .maybeSingle()
+
+        if (existingColab) {
+          setEmailEmUso(true)
+          setEmailDuplicadoInfo(`Já usado por: ${existingColab.nome}`)
+        } else {
+          setEmailEmUso(false)
+          setEmailDuplicadoInfo("")
+        }
+      } catch (error) {
+        console.error("Erro ao verificar e-mail:", error)
+      } finally {
+        setVerificandoEmail(false)
+      }
+    }
+
+    const timeoutId = setTimeout(verificarEmail, 500) // Debounce de 500ms
+    return () => clearTimeout(timeoutId)
+  }, [emailDigitado, editing])
 
   const handleAbrirFicha = async (colaborador: Colaborador) => {
     setColaboradorSelecionado(colaborador)
@@ -1253,10 +1309,24 @@ function ColaboradoresList({
                           name="email"
                           type="email"
                           defaultValue={editing?.email || voiceData?.email || ""}
-                          className="pl-9 bg-white dark:bg-zinc-900"
+                          className={`pl-9 bg-white dark:bg-zinc-900 ${emailEmUso ? 'border-red-500 focus:border-red-500' : ''}`}
                           placeholder="email@empresa.com"
+                          onChange={(e) => setEmailDigitado(e.target.value)}
                         />
+                        {verificandoEmail && (
+                          <span className="absolute right-2.5 top-2.5 text-xs text-zinc-400">
+                            Verificando...
+                          </span>
+                        )}
                       </div>
+                      {emailEmUso && emailDuplicadoInfo && (
+                        <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {emailDuplicadoInfo}
+                        </p>
+                      )}
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="telefone">{t("dashboard.colaboradores.form.phone")}</Label>
