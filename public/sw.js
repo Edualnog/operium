@@ -310,6 +310,81 @@ self.addEventListener("message", (event) => {
   }
 })
 
-console.log("📱 Operium Service Worker v3 carregado - Field App Ready")
+// ========================================
+// PUSH NOTIFICATIONS
+// ========================================
 
+// Receber notificação push
+self.addEventListener("push", (event) => {
+  console.log("🔔 Push received:", event)
 
+  if (!event.data) {
+    console.log("⚠️ Push event without data")
+    return
+  }
+
+  try {
+    const data = event.data.json()
+    const options = {
+      body: data.body || "Nova notificação",
+      icon: data.icon || "/icons/icon-192.png",
+      badge: data.badge || "/icons/icon-72.png",
+      tag: data.tag || "operium-notification",
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || "/app",
+        ...data.data
+      },
+      actions: [
+        { action: "open", title: "Abrir" },
+        { action: "dismiss", title: "Dispensar" }
+      ]
+    }
+
+    event.waitUntil(
+      self.registration.showNotification(data.title || "Operium", options)
+    )
+  } catch (err) {
+    console.error("❌ Error processing push:", err)
+  }
+})
+
+// Clique na notificação
+self.addEventListener("notificationclick", (event) => {
+  console.log("👆 Notification clicked:", event)
+
+  event.notification.close()
+
+  if (event.action === "dismiss") {
+    return
+  }
+
+  // Abrir o app na URL especificada
+  const urlToOpen = event.notification.data?.url || "/app"
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // Se já tem uma janela aberta, focar nela
+      for (const client of clientList) {
+        if (client.url.includes("/app") && "focus" in client) {
+          return client.focus().then((focusedClient) => {
+            if (focusedClient) {
+              focusedClient.navigate(urlToOpen)
+            }
+          })
+        }
+      }
+      // Se não tem janela aberta, abrir uma nova
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen)
+      }
+    })
+  )
+})
+
+// Fechar notificação (swipe ou timeout)
+self.addEventListener("notificationclose", (event) => {
+  console.log("🔕 Notification closed:", event)
+})
+
+console.log("📱 Operium Service Worker v3 carregado - Field App Ready + Push Notifications")

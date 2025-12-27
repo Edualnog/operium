@@ -48,6 +48,7 @@ import {
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
 import { TeamManagerMobile } from '@/components/operium/TeamManagerMobile'
+import { PushNotificationPrompt } from '@/components/operium/PushNotificationPrompt'
 import { useTranslation } from 'react-i18next'
 
 // ============================================================================
@@ -1024,11 +1025,10 @@ function DailyReportModal({
                         <button
                             type="button"
                             onClick={() => setReportType('INDIVIDUAL')}
-                            className={`flex-1 py-3 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
-                                reportType === 'INDIVIDUAL'
-                                    ? 'bg-neutral-900 text-white'
-                                    : 'bg-neutral-100 text-neutral-600'
-                            }`}
+                            className={`flex-1 py-3 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${reportType === 'INDIVIDUAL'
+                                ? 'bg-neutral-900 text-white'
+                                : 'bg-neutral-100 text-neutral-600'
+                                }`}
                         >
                             <User className="h-4 w-4" />
                             {t('modals.daily_report.individual')}
@@ -1038,11 +1038,10 @@ function DailyReportModal({
                             type="button"
                             onClick={() => isTeamLeader && setReportType('TEAM')}
                             disabled={!isTeamLeader}
-                            className={`flex-1 py-3 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
-                                reportType === 'TEAM'
-                                    ? 'bg-neutral-900 text-white'
-                                    : 'bg-neutral-100 text-neutral-600'
-                            } ${!isTeamLeader ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`flex-1 py-3 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${reportType === 'TEAM'
+                                ? 'bg-neutral-900 text-white'
+                                : 'bg-neutral-100 text-neutral-600'
+                                } ${!isTeamLeader ? 'opacity-50 cursor-not-allowed' : ''}`}
                             title={!isTeamLeader ? t('modals.daily_report.only_leader') : ''}
                         >
                             <Crown className="h-4 w-4" />
@@ -2454,6 +2453,9 @@ export default function AppPage() {
                 equipment={selectedIssueEquipment}
                 onSuccess={handleEquipmentSuccess}
             />
+
+            {/* Push Notification Permission Prompt */}
+            <PushNotificationPrompt />
         </div>
     )
 }
