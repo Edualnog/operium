@@ -145,6 +145,48 @@ export async function searchCatalogItems(query: string) {
   }))
 }
 
+// Verificar disponibilidade de email GLOBALMENTE
+export async function verificarEmailDisponivel(email: string): Promise<{ disponivel: boolean; motivo?: string }> {
+  if (!email || email.length < 5) {
+    return { disponivel: true }
+  }
+
+  const supabase = await createServerComponentClient()
+
+  // Check in colaboradores table (any profile_id - GLOBAL)
+  const { data: existingColab } = await supabase
+    .from("colaboradores")
+    .select("id, nome")
+    .eq("email", email)
+    .maybeSingle()
+
+  if (existingColab) {
+    return { disponivel: false, motivo: "E-mail já cadastrado no sistema" }
+  }
+
+  // Check in auth.users table using admin client
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (supabaseUrl && serviceRoleKey) {
+    const { createClient } = await import("@supabase/supabase-js")
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+
+    const { data: authData } = await supabaseAdmin.auth.admin.listUsers()
+    const emailExistsInAuth = authData?.users?.find((user: any) =>
+      user.email?.toLowerCase() === email.toLowerCase()
+    )
+
+    if (emailExistsInAuth) {
+      return { disponivel: false, motivo: "E-mail já possui uma conta no sistema" }
+    }
+  }
+
+  return { disponivel: true }
+}
+
 // Colaboradores
 export async function criarColaborador(formData: FormData) {
   const supabase = await createServerComponentClient()

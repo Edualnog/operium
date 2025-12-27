@@ -18,6 +18,7 @@ import {
   deletarColaborador,
   promoverColaborador,
   demitirColaborador,
+  verificarEmailDisponivel,
 } from "@/lib/actions"
 import {
   Plus,
@@ -706,7 +707,7 @@ function ColaboradoresList({
     }
   }
 
-  // Função para verificar se e-mail já está em uso
+  // Função para verificar se e-mail já está em uso (GLOBAL - inclui auth.users)
   useEffect(() => {
     const verificarEmail = async () => {
       if (!emailDigitado || emailDigitado.length < 5 || editing) {
@@ -717,18 +718,12 @@ function ColaboradoresList({
 
       setVerificandoEmail(true)
       try {
-        const supabase = createClientComponentClient()
+        // Usar server action que verifica GLOBALMENTE (colaboradores + auth.users)
+        const resultado = await verificarEmailDisponivel(emailDigitado)
 
-        // Verificar em colaboradores (GLOBAL - qualquer conta)
-        const { data: existingColab } = await supabase
-          .from("colaboradores")
-          .select("id, nome, email")
-          .eq("email", emailDigitado)
-          .maybeSingle()
-
-        if (existingColab) {
+        if (!resultado.disponivel) {
           setEmailEmUso(true)
-          setEmailDuplicadoInfo("E-mail já cadastrado no sistema")
+          setEmailDuplicadoInfo(resultado.motivo || "E-mail já cadastrado no sistema")
         } else {
           setEmailEmUso(false)
           setEmailDuplicadoInfo("")
