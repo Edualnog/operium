@@ -26,7 +26,11 @@ RETURNS TABLE(
   new_streak INTEGER,
   is_new_record BOOLEAN,
   streak_message TEXT
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
 DECLARE
   v_last_date DATE;
   v_current_streak INTEGER;
@@ -42,7 +46,7 @@ BEGIN
     COALESCE(current_streak, 0),
     COALESCE(max_streak, 0)
   INTO v_last_date, v_current_streak, v_max_streak
-  FROM colaboradores
+  FROM public.colaboradores
   WHERE id = p_colaborador_id;
 
   -- Calcular novo streak
@@ -71,7 +75,7 @@ BEGIN
   END IF;
 
   -- Atualizar colaborador
-  UPDATE colaboradores
+  UPDATE public.colaboradores
   SET
     current_streak = v_new_streak,
     max_streak = v_max_streak,
@@ -82,7 +86,7 @@ BEGIN
   -- Retornar resultado
   RETURN QUERY SELECT v_new_streak, v_is_record, v_message;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- 4. Função para buscar info de streak do colaborador atual
 CREATE OR REPLACE FUNCTION get_my_streak()
@@ -92,7 +96,11 @@ RETURNS TABLE(
   last_activity_date DATE,
   days_until_lost INTEGER,
   streak_status TEXT
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
 DECLARE
   v_colaborador_id UUID;
   v_last_date DATE;
@@ -104,7 +112,7 @@ DECLARE
 BEGIN
   -- Buscar colaborador_id do usuário atual
   SELECT po.colaborador_id INTO v_colaborador_id
-  FROM profiles_operium po
+  FROM public.profiles_operium po
   WHERE po.profile_id = auth.uid();
 
   IF v_colaborador_id IS NULL THEN
@@ -117,7 +125,7 @@ BEGIN
     COALESCE(c.current_streak, 0),
     COALESCE(c.max_streak, 0)
   INTO v_last_date, v_current, v_max
-  FROM colaboradores c
+  FROM public.colaboradores c
   WHERE c.id = v_colaborador_id;
 
   -- Calcular dias até perder streak
@@ -138,11 +146,15 @@ BEGIN
 
   RETURN QUERY SELECT v_current, v_max, v_last_date, v_days_left, v_status;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- 5. Trigger para atualizar streak automaticamente em ações
 CREATE OR REPLACE FUNCTION trigger_update_streak_on_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
 DECLARE
   v_colaborador_id UUID;
 BEGIN
@@ -152,47 +164,47 @@ BEGIN
   ELSIF TG_TABLE_NAME = 'team_equipment' THEN
     -- Para team_equipment, buscar via assigned_to
     SELECT po.colaborador_id INTO v_colaborador_id
-    FROM profiles_operium po
+    FROM public.profiles_operium po
     WHERE po.profile_id = NEW.assigned_to;
   ELSIF TG_TABLE_NAME = 'field_reports' THEN
     -- Para relatórios, buscar via user_id
     SELECT po.colaborador_id INTO v_colaborador_id
-    FROM profiles_operium po
+    FROM public.profiles_operium po
     WHERE po.profile_id = NEW.user_id;
   END IF;
 
   -- Atualizar streak se encontrou colaborador
   IF v_colaborador_id IS NOT NULL THEN
-    PERFORM update_colaborador_streak(v_colaborador_id);
+    PERFORM public.update_colaborador_streak(v_colaborador_id);
   END IF;
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- 6. Aplicar trigger nas tabelas de atividade
-DROP TRIGGER IF EXISTS trg_streak_movimentacoes ON movimentacoes;
+DROP TRIGGER IF EXISTS trg_streak_movimentacoes ON public.movimentacoes;
 CREATE TRIGGER trg_streak_movimentacoes
-  AFTER INSERT ON movimentacoes
+  AFTER INSERT ON public.movimentacoes
   FOR EACH ROW
-  EXECUTE FUNCTION trigger_update_streak_on_activity();
+  EXECUTE FUNCTION public.trigger_update_streak_on_activity();
 
-DROP TRIGGER IF EXISTS trg_streak_team_equipment ON team_equipment;
+DROP TRIGGER IF EXISTS trg_streak_team_equipment ON public.team_equipment;
 CREATE TRIGGER trg_streak_team_equipment
-  AFTER INSERT OR UPDATE OF status ON team_equipment
+  AFTER INSERT OR UPDATE OF status ON public.team_equipment
   FOR EACH ROW
-  EXECUTE FUNCTION trigger_update_streak_on_activity();
+  EXECUTE FUNCTION public.trigger_update_streak_on_activity();
 
-DROP TRIGGER IF EXISTS trg_streak_field_reports ON field_reports;
+DROP TRIGGER IF EXISTS trg_streak_field_reports ON public.field_reports;
 CREATE TRIGGER trg_streak_field_reports
-  AFTER INSERT ON field_reports
+  AFTER INSERT ON public.field_reports
   FOR EACH ROW
-  EXECUTE FUNCTION trigger_update_streak_on_activity();
+  EXECUTE FUNCTION public.trigger_update_streak_on_activity();
 
 -- 7. Índice para performance
 CREATE INDEX IF NOT EXISTS idx_colaboradores_streak
-ON colaboradores(current_streak DESC, max_streak DESC);
+ON public.colaboradores(current_streak DESC, max_streak DESC);
 
 -- 8. Grant permissões
-GRANT EXECUTE ON FUNCTION update_colaborador_streak(UUID) TO authenticated;
-GRANT EXECUTE ON FUNCTION get_my_streak() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_colaborador_streak(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_my_streak() TO authenticated;
