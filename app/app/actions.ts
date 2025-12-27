@@ -874,16 +874,39 @@ export async function getMyScore(): Promise<MyScoreInfo | null> {
         .eq("active", true)
         .single()
 
-    if (!profile?.collaborator_id) return null
+    if (!profile?.org_id) return null
 
-    // Get collaborator's score
-    const { data: myColaborador } = await supabase
-        .from("colaboradores")
-        .select("almox_score")
-        .eq("id", profile.collaborator_id)
-        .single()
+    // Try to find collaborator - first by collaborator_id, then by user_id
+    let myColaborador: { id: string; almox_score: number | null } | null = null
 
-    if (!myColaborador) return null
+    if (profile.collaborator_id) {
+        // Direct link via collaborator_id
+        const { data } = await supabase
+            .from("colaboradores")
+            .select("id, almox_score")
+            .eq("id", profile.collaborator_id)
+            .single()
+        myColaborador = data
+    }
+
+    if (!myColaborador) {
+        // Fallback: find by user_id
+        const { data } = await supabase
+            .from("colaboradores")
+            .select("id, almox_score")
+            .eq("user_id", user.id)
+            .maybeSingle()
+        myColaborador = data
+    }
+
+    if (!myColaborador) {
+        // Still not found - return default score for new users
+        return {
+            score: 500,
+            percentile: null,
+            trend: 'stable'
+        }
+    }
 
     const myScore = myColaborador.almox_score || 500
 
@@ -951,7 +974,7 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
     // Get all collaborators in the organization with their scores
     const { data: colaboradores, error } = await supabase
         .from("colaboradores")
-        .select("id, nome, foto_url, almox_score")
+        .select("id, nome, foto_url, almox_score, user_id")
         .eq("profile_id", profile.org_id)
         .is("demitido_at", null) // Exclude dismissed collaborators
 
@@ -968,7 +991,8 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
             photo_url: c.foto_url,
             score: c.almox_score || 500,
             position: 0,
-            is_current_user: c.id === profile.collaborator_id
+            // Match by collaborator_id OR user_id
+            is_current_user: c.id === profile.collaborator_id || c.user_id === user.id
         }))
         .sort((a, b) => b.score - a.score)
 
