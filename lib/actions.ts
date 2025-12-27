@@ -351,7 +351,7 @@ export async function criarColaborador(formData: FormData) {
 
             // Send welcome email with app download link
             try {
-              const appDownloadUrl = 'https://cmgmobhnrjawfdafhqko.supabase.co/storage/v1/object/public/documentos/Operium.apk'
+              const appDownloadUrl = 'https://operium.com.br/baixar-app'
               const loginUrl = 'https://operium.com.br/app'
 
               // Try to send email via Supabase Edge Function (if configured)
