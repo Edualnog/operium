@@ -216,11 +216,11 @@ export async function criarColaborador(formData: FormData) {
 
       // List users and check if email exists
       const { data: authData } = await supabaseAdmin.auth.admin.listUsers()
-      const emailExists = authData?.users?.some(u =>
-        u.email?.toLowerCase() === emailToCheck.toLowerCase()
+      const emailExistsInAuth = authData?.users?.find((user: any) =>
+        user.email?.toLowerCase() === emailToCheck.toLowerCase()
       )
 
-      if (emailExists) {
+      if (emailExistsInAuth) {
         throw new Error("Este e-mail já possui uma conta no sistema")
       }
     }
