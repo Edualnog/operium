@@ -2242,6 +2242,16 @@ export default function AppPage() {
                                     {t('mobile_app.header.no_team')}
                                 </p>
                             )}
+                            {/* Veículo atribuído */}
+                            {teamInfo?.vehicle_plate && (
+                                <div className="flex items-center gap-1.5 mt-1">
+                                    <Car className="h-3.5 w-3.5 text-neutral-400" />
+                                    <p className="text-[13px] text-neutral-400">
+                                        {teamInfo.vehicle_plate}
+                                        {teamInfo.vehicle_model && ` • ${teamInfo.vehicle_model}`}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         <div className="flex items-center gap-2">
                             <FieldLanguageSwitcher />
