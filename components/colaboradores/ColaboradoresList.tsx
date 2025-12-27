@@ -1743,7 +1743,7 @@ function ColaboradoresList({
 }
 
 function ScrollableFormContent({ children }: { children: React.ReactNode }) {
-  return <div className="max-h-[60vh] overflow-y-auto pr-2">{children}</div>
+  return <div className="overflow-y-auto pr-2" style={{ maxHeight: 'calc(90vh - 200px)' }}>{children}</div>
 }
 
 export default memo(ColaboradoresList)
