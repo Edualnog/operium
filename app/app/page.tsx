@@ -44,13 +44,17 @@ import {
     getMyScore,
     getMyStreak,
     updateMyStreak,
+    getMyBadges,
+    checkAndAwardBadges,
     TeamEquipmentMobile,
     AvailableTeam,
     MyTeamInfo,
     MyVehicleInfo,
     MyScoreInfo,
     StreakInfo,
-    StreakUpdateResult
+    StreakUpdateResult,
+    Badge,
+    NewBadge
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
@@ -58,6 +62,7 @@ import { TeamManagerMobile } from '@/components/operium/TeamManagerMobile'
 import { PushNotificationPrompt } from '@/components/operium/PushNotificationPrompt'
 import { CollaboratorRanking } from '@/components/operium/CollaboratorRanking'
 import { StreakBadge, StreakMessage } from '@/components/operium/StreakBadge'
+import { BadgeDisplay, NewBadgeToast } from '@/components/operium/BadgeDisplay'
 import { useCelebration } from '@/lib/hooks/useCelebration'
 import { useTranslation } from 'react-i18next'
 
@@ -2035,6 +2040,8 @@ export default function AppPage() {
     const [myScore, setMyScore] = useState<MyScoreInfo | null>(null)
     const [myStreak, setMyStreak] = useState<StreakInfo | null>(null)
     const [streakToast, setStreakToast] = useState<StreakUpdateResult | null>(null)
+    const [myBadges, setMyBadges] = useState<Badge[]>([])
+    const [newBadge, setNewBadge] = useState<Badge | null>(null)
 
     // Celebration hook for dopamine hits
     const { celebrate } = useCelebration()
@@ -2101,13 +2108,14 @@ export default function AppPage() {
         }
     }, [supabase])
 
-    // Check report status and fetch score/streak on load and when onboarding completes
+    // Check report status and fetch score/streak/badges on load and when onboarding completes
     useEffect(() => {
         if (onboardingComplete) {
             checkTodayReport()
-            // Fetch collaborator score and streak
+            // Fetch collaborator score, streak and badges
             getMyScore().then(score => setMyScore(score)).catch(() => { })
             getMyStreak().then(streak => setMyStreak(streak)).catch(() => { })
+            getMyBadges().then(badges => setMyBadges(badges)).catch(() => { })
         }
     }, [onboardingComplete, checkTodayReport])
 
@@ -2137,11 +2145,36 @@ export default function AppPage() {
                 // Fallback celebration without streak
                 celebrate({ type })
             }
+
+            // Check for new badges
+            const newBadges = await checkAndAwardBadges()
+            if (newBadges && newBadges.length > 0) {
+                // Refresh badges list
+                getMyBadges().then(badges => setMyBadges(badges)).catch(() => { })
+                // Show first new badge earned
+                const earnedBadge = myBadges.find(b => b.badge_id === newBadges[0].badge_id)
+                if (earnedBadge) {
+                    setNewBadge({ ...earnedBadge, is_earned: true, earned_at: new Date().toISOString() })
+                } else {
+                    // Create badge object from new badge data
+                    setNewBadge({
+                        badge_id: newBadges[0].badge_id,
+                        nome: newBadges[0].badge_nome,
+                        descricao: '',
+                        icone: newBadges[0].badge_icone,
+                        categoria: '',
+                        raridade: 'comum',
+                        xp_bonus: newBadges[0].xp_ganho,
+                        earned_at: new Date().toISOString(),
+                        is_earned: true
+                    })
+                }
+            }
         } catch {
             // Still celebrate even if streak update fails
             celebrate({ type })
         }
-    }, [celebrate])
+    }, [celebrate, myBadges])
 
     const handleSuccess = () => {
         celebrateAction('action_complete')
@@ -2375,6 +2408,17 @@ export default function AppPage() {
                         currentPercentile={myScore.percentile}
                     />
                 )}
+
+                {/* Badges/Conquistas - Compact view */}
+                {myBadges.length > 0 && (
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm border border-zinc-200 dark:border-zinc-800">
+                        <BadgeDisplay
+                            badges={myBadges}
+                            compact
+                            showLocked={false}
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Equipment Acceptance Banner */}
@@ -2546,6 +2590,14 @@ export default function AppPage() {
 
             {/* Push Notification Permission Prompt */}
             <PushNotificationPrompt />
+
+            {/* New Badge Toast */}
+            {newBadge && (
+                <NewBadgeToast
+                    badge={newBadge}
+                    onClose={() => setNewBadge(null)}
+                />
+            )}
         </div>
     )
 }

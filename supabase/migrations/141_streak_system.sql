@@ -111,7 +111,7 @@ DECLARE
   v_status TEXT;
 BEGIN
   -- Buscar colaborador_id do usuário atual
-  SELECT po.colaborador_id INTO v_colaborador_id
+  SELECT po.collaborator_id INTO v_colaborador_id
   FROM public.operium_profiles po
   WHERE po.user_id = auth.uid();
 
@@ -163,12 +163,12 @@ BEGIN
     v_colaborador_id := NEW.colaborador_id;
   ELSIF TG_TABLE_NAME = 'team_equipment' THEN
     -- Para team_equipment, buscar via assigned_to
-    SELECT po.colaborador_id INTO v_colaborador_id
+    SELECT po.collaborator_id INTO v_colaborador_id
     FROM public.operium_profiles po
     WHERE po.user_id = NEW.assigned_to;
   ELSIF TG_TABLE_NAME = 'field_reports' THEN
     -- Para relatórios, buscar via user_id
-    SELECT po.colaborador_id INTO v_colaborador_id
+    SELECT po.collaborator_id INTO v_colaborador_id
     FROM public.operium_profiles po
     WHERE po.user_id = NEW.user_id;
   END IF;

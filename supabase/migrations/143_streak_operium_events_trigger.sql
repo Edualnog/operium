@@ -14,7 +14,7 @@ DECLARE
   v_colaborador_id UUID;
 BEGIN
   -- Buscar colaborador_id via actor_user_id
-  SELECT po.colaborador_id INTO v_colaborador_id
+  SELECT po.collaborator_id INTO v_colaborador_id
   FROM public.operium_profiles po
   WHERE po.user_id = NEW.actor_user_id;
 

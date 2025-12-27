@@ -1056,17 +1056,17 @@ export async function updateMyStreak(): Promise<StreakUpdateResult | null> {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
 
-    // Get colaborador_id
+    // Get collaborator_id
     const { data: profile } = await supabase
         .from('operium_profiles')
-        .select('colaborador_id')
+        .select('collaborator_id')
         .eq('user_id', user.id)
         .single()
 
-    if (!profile?.colaborador_id) return null
+    if (!profile?.collaborator_id) return null
 
     const { data, error } = await supabase.rpc('update_colaborador_streak', {
-        p_colaborador_id: profile.colaborador_id
+        p_colaborador_id: profile.collaborator_id
     })
 
     if (error) {
@@ -1082,4 +1082,68 @@ export async function updateMyStreak(): Promise<StreakUpdateResult | null> {
         isNewRecord: result.is_new_record,
         message: result.streak_message as StreakUpdateResult['message']
     }
+}
+
+// ============================================================================
+// BADGES/CONQUISTAS
+// ============================================================================
+
+export interface Badge {
+    badge_id: string
+    nome: string
+    descricao: string
+    icone: string
+    categoria: string
+    raridade: string
+    xp_bonus: number
+    earned_at: string | null
+    is_earned: boolean
+}
+
+export interface NewBadge {
+    badge_id: string
+    badge_nome: string
+    badge_icone: string
+    xp_ganho: number
+    is_new: boolean
+}
+
+export async function getMyBadges(): Promise<Badge[]> {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase.rpc('get_my_badges')
+
+    if (error) {
+        console.error("[getMyBadges] Error:", error)
+        return []
+    }
+
+    return data || []
+}
+
+export async function checkAndAwardBadges(): Promise<NewBadge[]> {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    // Get collaborator_id
+    const { data: profile } = await supabase
+        .from('operium_profiles')
+        .select('collaborator_id')
+        .eq('user_id', user.id)
+        .single()
+
+    if (!profile?.collaborator_id) return []
+
+    const { data, error } = await supabase.rpc('check_and_award_badges', {
+        p_colaborador_id: profile.collaborator_id
+    })
+
+    if (error) {
+        console.error("[checkAndAwardBadges] Error:", error)
+        return []
+    }
+
+    return data || []
 }
