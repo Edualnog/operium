@@ -49,6 +49,8 @@ import TermoResponsabilidadeModal from "@/components/signature/TermoResponsabili
 import MovimentacaoDetailModal from "./MovimentacaoDetailModal"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
+import { useCelebration } from "@/lib/hooks/useCelebration"
+import { GamificationToast, type GamificationData } from "./GamificationToast"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -95,6 +97,8 @@ export default function MovimentacoesList({
   const supabase = createClientComponentClient()
   const { t } = useTranslation()
   const { toast } = useToast()
+  const { celebrate } = useCelebration()
+  const [gamificationData, setGamificationData] = useState<GamificationData | null>(null)
 
   // Scanner State
   const [isScanning, setIsScanning] = useState(false)
@@ -423,6 +427,23 @@ export default function MovimentacoesList({
       if (!res.ok) throw new Error(json.error || t("dashboard.movimentacoes.form.error"))
 
       toast.success(t("dashboard.movimentacoes.form.success"))
+
+      // Mostrar gamificação se disponível
+      if (json.gamification) {
+        setGamificationData(json.gamification)
+
+        // Decidir tipo de celebração baseado no streak
+        const streak = json.gamification.current_streak
+        if (streak >= 7) {
+          celebrate({ type: 'streak_milestone', streakCount: streak })
+        } else if (streak > 1) {
+          celebrate({ type: 'streak_continued', streakCount: streak })
+        } else if (json.gamification.tipo_acao === 'devolucao') {
+          celebrate({ type: 'return_completed' })
+        } else {
+          celebrate({ type: 'action_complete' })
+        }
+      }
 
       // Verificar se deve abrir modal de assinatura
       const deveAssinar = solicitarAssinatura && (form.tipo === "retirada" || form.tipo === "devolucao")
@@ -1339,6 +1360,14 @@ export default function MovimentacoesList({
           />
         )
       }
+
+      {/* Gamification Toast */}
+      {gamificationData && (
+        <GamificationToast
+          data={gamificationData}
+          onClose={() => setGamificationData(null)}
+        />
+      )}
 
     </div >
   )

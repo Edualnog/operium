@@ -219,7 +219,32 @@ export async function POST(request: Request) {
     // Revalidar a página de movimentações explicitamente
     revalidatePath("/dashboard/movimentacoes")
 
-    return NextResponse.json({ ok: true })
+    // Buscar dados de gamificação do colaborador (se aplicável)
+    let gamification = null
+    if (colaborador_id && (tipo === "retirada" || tipo === "devolucao")) {
+      try {
+        // Buscar dados do colaborador com gamificação
+        const { data: colabData } = await supabase
+          .from("colaboradores")
+          .select("id, nome, current_streak, max_streak, almox_score")
+          .eq("id", colaborador_id)
+          .single()
+
+        if (colabData) {
+          gamification = {
+            colaborador_nome: colabData.nome,
+            current_streak: colabData.current_streak || 0,
+            max_streak: colabData.max_streak || 0,
+            almox_score: colabData.almox_score || 500,
+            tipo_acao: tipo,
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao buscar gamificação:", err)
+      }
+    }
+
+    return NextResponse.json({ ok: true, gamification })
   } catch (error: any) {
     console.error("Erro ao registrar movimentação:", error)
     return NextResponse.json({ error: error.message || "Erro interno" }, { status: 500 })
