@@ -845,3 +845,72 @@ export async function getMyTeamStatus() {
         teamName: team?.name || "Equipe sem nome"
     }
 }
+
+// =============================================================================
+// GET COLLABORATOR SCORE FOR FIELD APP
+// =============================================================================
+
+export interface MyScoreInfo {
+    score: number
+    percentile: number | null // Top X% of organization (lower is better)
+    trend: 'up' | 'down' | 'stable'
+}
+
+/**
+ * Get the current user's collaborator score (responsibility rating)
+ * Returns score value and ranking percentile within organization
+ */
+export async function getMyScore(): Promise<MyScoreInfo | null> {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    // Get user's operium profile to find org_id and collaborator_id
+    const { data: profile } = await supabase
+        .from("operium_profiles")
+        .select("org_id, collaborator_id")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single()
+
+    if (!profile?.collaborator_id) return null
+
+    // Get collaborator's score
+    const { data: myColaborador } = await supabase
+        .from("colaboradores")
+        .select("almox_score")
+        .eq("id", profile.collaborator_id)
+        .single()
+
+    if (!myColaborador) return null
+
+    const myScore = myColaborador.almox_score || 500
+
+    // Get all collaborators' scores in the same org to calculate percentile
+    let percentile: number | null = null
+    if (profile.org_id) {
+        const { data: allColaboradores } = await supabase
+            .from("colaboradores")
+            .select("almox_score")
+            .eq("profile_id", profile.org_id)
+            .not("almox_score", "is", null)
+
+        if (allColaboradores && allColaboradores.length > 1) {
+            // Sort scores descending (higher is better)
+            const sortedScores = allColaboradores
+                .map(c => c.almox_score || 500)
+                .sort((a, b) => b - a)
+
+            // Find position (0-indexed)
+            const position = sortedScores.findIndex(s => s <= myScore)
+            percentile = Math.round((position / sortedScores.length) * 100)
+        }
+    }
+
+    return {
+        score: myScore,
+        percentile,
+        trend: 'stable' // TODO: calculate trend based on historical data
+    }
+}

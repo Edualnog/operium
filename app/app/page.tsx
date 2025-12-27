@@ -29,7 +29,8 @@ import {
     CheckCircle2,
     ArrowDownToLine,
     MapPin,
-    Crown
+    Crown,
+    Star
 } from 'lucide-react'
 import {
     getPendingEquipmentAcceptance,
@@ -40,10 +41,12 @@ import {
     getMyTeamInfo,
     getMyIndividualVehicle,
     getAvailableTeams,
+    getMyScore,
     TeamEquipmentMobile,
     AvailableTeam,
     MyTeamInfo,
-    MyVehicleInfo
+    MyVehicleInfo,
+    MyScoreInfo
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
@@ -2022,6 +2025,7 @@ export default function AppPage() {
     const [individualVehicle, setIndividualVehicle] = useState<MyVehicleInfo | null>(null)
     const [loadingTeamInfo, setLoadingTeamInfo] = useState(true)
     const [hasReportToday, setHasReportToday] = useState(false)
+    const [myScore, setMyScore] = useState<MyScoreInfo | null>(null)
 
     // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
     // Supabase sends recovery emails with #access_token=...&type=recovery
@@ -2085,10 +2089,12 @@ export default function AppPage() {
         }
     }, [supabase])
 
-    // Check report status on load and when onboarding completes
+    // Check report status and fetch score on load and when onboarding completes
     useEffect(() => {
         if (onboardingComplete) {
             checkTodayReport()
+            // Fetch collaborator score
+            getMyScore().then(score => setMyScore(score)).catch(() => { })
         }
     }, [onboardingComplete, checkTodayReport])
 
@@ -2267,6 +2273,22 @@ export default function AppPage() {
                                             : `${individualVehicle?.plate}${individualVehicle?.model ? ` • ${individualVehicle.model}` : ''}`
                                         }
                                     </p>
+                                </div>
+                            )}
+                            {/* Score do Colaborador */}
+                            {myScore && (
+                                <div className="flex items-center gap-1.5 mt-2">
+                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 rounded-full">
+                                        <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                                        <span className="text-[12px] font-semibold text-amber-700">
+                                            {myScore.score}
+                                        </span>
+                                    </div>
+                                    {myScore.percentile !== null && myScore.percentile <= 25 && (
+                                        <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                                            Top {myScore.percentile}%
+                                        </span>
+                                    )}
                                 </div>
                             )}
                         </div>
