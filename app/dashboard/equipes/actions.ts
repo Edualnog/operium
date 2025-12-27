@@ -340,6 +340,49 @@ export async function addTeamMember(teamId: string, colaboradorId: string, role?
 export async function removeTeamMember(memberId: string) {
     const supabase = createServerActionClient({ cookies })
 
+    // Check if this is an app member (ID starts with "app_")
+    if (memberId.startsWith("app_")) {
+        // Extract user_id from "app_{user_id}"
+        const userId = memberId.replace("app_", "")
+
+        // Remove team_id from operium_profiles to unlink from team
+        const { data, error } = await supabase
+            .from("operium_profiles")
+            .update({ team_id: null })
+            .eq("user_id", userId)
+            .select()
+            .single()
+
+        if (error) {
+            throw new Error(`Failed to remove app member: ${error.message}`)
+        }
+
+        // Telemetria: Rastrear remoção de membro do app
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+            telemetry.emit({
+                profile_id: user.id,
+                actor_id: user.id,
+                entity_type: 'team_member',
+                entity_id: memberId,
+                event_name: 'TEAM_MEMBER_REMOVED',
+                props: {
+                    colaborador_id: data.collaborator_id,
+                    removal_type: 'APP_MEMBER_UNLINK',
+                    source: 'app'
+                },
+                context: {
+                    flow: 'remocao_membro_equipe',
+                    screen: 'dashboard/equipes',
+                },
+            })
+        }
+
+        revalidatePath("/dashboard/equipes")
+        return data
+    }
+
+    // Otherwise, it's a dashboard member from team_members table
     const { data, error } = await supabase
         .from("team_members")
         .update({ left_at: new Date().toISOString() })
@@ -364,6 +407,7 @@ export async function removeTeamMember(memberId: string) {
                 team_id: data.team_id,
                 colaborador_id: data.colaborador_id,
                 removal_type: 'SOFT_DELETE',
+                source: 'dashboard'
             },
             context: {
                 flow: 'remocao_membro_equipe',
