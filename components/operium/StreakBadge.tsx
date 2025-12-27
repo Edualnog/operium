@@ -119,29 +119,48 @@ export function StreakBadge({
 
       {/* Texto */}
       <div className="flex-1">
-        <div className={cn("flex items-center gap-2", style.textColor)}>
-          <span className="text-lg font-bold">{currentStreak}</span>
-          <span className="text-sm opacity-80">
-            {currentStreak === 1 ? 'dia' : 'dias'} seguidos
-          </span>
-          {isRecord && currentStreak > 1 && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-400/20 text-yellow-300 font-medium">
-              RECORDE!
-            </span>
-          )}
-        </div>
+        {currentStreak === 0 ? (
+          <>
+            <div className={cn("flex items-center gap-2", style.textColor)}>
+              <span className="text-sm font-medium">Comece seu streak!</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs mt-0.5 opacity-70">
+              <Zap className="h-3 w-3" />
+              <span>Faça uma ação para iniciar</span>
+            </div>
+            {maxStreak > 0 && (
+              <div className="text-xs mt-0.5 opacity-60">
+                Recorde anterior: {maxStreak} dias
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className={cn("flex items-center gap-2", style.textColor)}>
+              <span className="text-lg font-bold">{currentStreak}</span>
+              <span className="text-sm opacity-80">
+                {currentStreak === 1 ? 'dia' : 'dias'} seguidos
+              </span>
+              {isRecord && currentStreak > 1 && (
+                <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-400/20 text-yellow-300 font-medium">
+                  RECORDE!
+                </span>
+              )}
+            </div>
 
-        {status === 'needs_action' && (
-          <div className="flex items-center gap-1 text-xs mt-0.5 opacity-90">
-            <Zap className="h-3 w-3" />
-            <span>Faça uma ação hoje para manter!</span>
-          </div>
-        )}
+            {status === 'needs_action' && (
+              <div className="flex items-center gap-1 text-xs mt-0.5 opacity-90">
+                <Zap className="h-3 w-3" />
+                <span>Faça uma ação hoje para manter!</span>
+              </div>
+            )}
 
-        {status === 'streak_lost' && currentStreak === 0 && maxStreak > 0 && (
-          <div className="text-xs mt-0.5 opacity-70">
-            Recorde: {maxStreak} dias
-          </div>
+            {status === 'streak_lost' && maxStreak > 0 && (
+              <div className="text-xs mt-0.5 opacity-70">
+                Recorde: {maxStreak} dias
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

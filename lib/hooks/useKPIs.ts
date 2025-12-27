@@ -59,7 +59,7 @@ export function useKPIs(userId: string) {
             .eq("profile_id", userId)
             .eq("tipo", "retirada")
             .gte("data", trintaDiasAtras.toISOString()),
-          supabase.from("colaboradores").select("id, nome, almox_score, level").eq("profile_id", userId),
+          supabase.from("colaboradores").select("id, nome, almox_score, level, current_streak, max_streak").eq("profile_id", userId),
           supabase
             .from("movimentacoes")
             .select("ferramenta_id, quantidade, data, ferramentas(tipo_item, nome, categoria)")
@@ -308,6 +308,8 @@ export function useKPIs(userId: string) {
             score: scorePercentual, // Mantém score percentual para compatibilidade
             almox_score: almoxScore, // Novo: score gamificado
             level: level, // Novo: nível do colaborador
+            current_streak: colab.current_streak || 0, // Streak atual
+            max_streak: colab.max_streak || 0, // Recorde de streak
             total_retiradas: totalRetiradas,
             devolucoes_no_prazo: totalDevolucoes,
           }

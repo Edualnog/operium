@@ -2345,8 +2345,8 @@ export default function AppPage() {
 
             {/* Streak & Score Section */}
             <div className="px-4 pt-3 space-y-3">
-                {/* Streak Badge */}
-                {myStreak && myStreak.currentStreak > 0 && (
+                {/* Streak Badge - sempre mostra */}
+                {myStreak && (
                     <StreakBadge
                         currentStreak={myStreak.currentStreak}
                         maxStreak={myStreak.maxStreak}

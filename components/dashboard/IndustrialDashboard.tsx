@@ -32,6 +32,7 @@ import {
   Activity,
   ChevronDown,
   ChevronUp,
+  Flame,
 } from "lucide-react"
 import { OnboardingChecklist } from "./OnboardingChecklist"
 import { AIInsightsCard } from "./AIInsightsCard"
@@ -1160,7 +1161,18 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 const renderItem = (item: any, index: number) => {
                   const { trophy, colorClass } = getLevelInfo(item.level || 'MEMBER', index)
                   const almoxScore = (item as any).almox_score || 500
+                  const currentStreak = (item as any).current_streak || 0
                   const position = index + 1
+
+                  // Determinar cor do streak
+                  const getStreakColor = (streak: number) => {
+                    if (streak >= 30) return 'text-purple-500'
+                    if (streak >= 14) return 'text-red-500'
+                    if (streak >= 7) return 'text-orange-500'
+                    if (streak >= 3) return 'text-amber-500'
+                    if (streak > 0) return 'text-amber-400'
+                    return 'text-zinc-300'
+                  }
 
                   return (
                     <div
@@ -1185,11 +1197,18 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                           <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
                             {item.nome}
                           </h4>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {/* Badge de level */}
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}>
                               {item.level || 'MEMBER'}
                             </span>
+                            {/* Streak Badge */}
+                            {currentStreak > 0 && (
+                              <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-orange-50 dark:bg-orange-900/20 ${getStreakColor(currentStreak)}`}>
+                                <Flame className="h-3 w-3" />
+                                {currentStreak}
+                              </span>
+                            )}
                             {/* Devoluções */}
                             <span className="text-[10px] text-zinc-400">
                               {item.devolucoes_no_prazo || 0}/{item.total_retiradas || 0} devoluções
