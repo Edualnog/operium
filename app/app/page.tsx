@@ -2111,18 +2111,6 @@ export default function AppPage() {
         }
     }, [onboardingComplete, checkTodayReport])
 
-    const handleSuccess = () => refreshEvents()
-
-    // Handle report success - update state immediately without refresh
-    const handleReportSuccess = () => {
-        setHasReportToday(true) // Immediately mark as filled
-        refreshEvents()
-    }
-
-    const handleOnboardingComplete = () => {
-        setOnboardingComplete(true)
-    }
-
     // Helper to celebrate action and update streak
     const celebrateAction = useCallback(async (type: 'equipment_accepted' | 'return_completed' | 'action_complete') => {
         try {
@@ -2154,6 +2142,22 @@ export default function AppPage() {
             celebrate({ type })
         }
     }, [celebrate])
+
+    const handleSuccess = () => {
+        celebrateAction('action_complete')
+        refreshEvents()
+    }
+
+    // Handle report success - update state immediately without refresh
+    const handleReportSuccess = () => {
+        setHasReportToday(true) // Immediately mark as filled
+        celebrateAction('action_complete')
+        refreshEvents()
+    }
+
+    const handleOnboardingComplete = () => {
+        setOnboardingComplete(true)
+    }
 
     // Fetch data progressively - each section appears as it loads
     const fetchEquipmentData = useCallback(async () => {
