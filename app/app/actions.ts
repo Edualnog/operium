@@ -952,68 +952,40 @@ export interface RankingCollaborator {
 
 /**
  * Get full ranking of all collaborators in the organization
- * Returns sorted list with positions
+ * Uses SECURITY DEFINER function for proper organization isolation
  */
 export async function getFullRanking(): Promise<RankingCollaborator[]> {
     const supabase = await createServerComponentClient()
 
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-        console.log("[getFullRanking] No user")
-        return []
-    }
+    if (!user) return []
 
-    // Get user's org_id and collaborator_id
-    const { data: profile, error: profileError } = await supabase
+    // Get user's collaborator_id to identify current user in list
+    const { data: profile } = await supabase
         .from("operium_profiles")
-        .select("org_id, collaborator_id")
+        .select("collaborator_id")
         .eq("user_id", user.id)
         .eq("active", true)
         .single()
 
-    console.log("[getFullRanking] Profile:", { org_id: profile?.org_id, collaborator_id: profile?.collaborator_id, error: profileError })
-
-    if (!profile?.org_id) {
-        console.log("[getFullRanking] No org_id in profile")
-        return []
-    }
-
-    // Get all collaborators in the organization with their scores
-    const { data: colaboradores, error } = await supabase
-        .from("colaboradores")
-        .select("id, nome, foto_url, almox_score")
-        .eq("profile_id", profile.org_id)
-    // Temporarily removed demitido_at filter for debugging
-
-    console.log("[getFullRanking] Query result:", {
-        org_id: profile.org_id,
-        count: colaboradores?.length || 0,
-        error: error?.message,
-        colaboradores: colaboradores?.map(c => ({ id: c.id, nome: c.nome }))
-    })
+    // Use SECURITY DEFINER function for organization-scoped ranking
+    const { data: colaboradores, error } = await supabase.rpc('get_my_org_ranking')
 
     if (error || !colaboradores) {
-        console.error("[getFullRanking] Error:", error)
+        console.error("[getFullRanking] RPC Error:", error)
         return []
     }
 
-    // Sort by score (descending) and assign positions
-    const sorted = colaboradores
-        .map(c => ({
+    // Map and assign positions
+    const sorted = (colaboradores as Array<{ id: string, nome: string, foto_url: string | null, almox_score: number }>)
+        .map((c, index) => ({
             id: c.id,
             name: c.nome || "Sem nome",
             photo_url: c.foto_url,
             score: c.almox_score || 500,
-            position: 0,
-            // Match by collaborator_id only (user_id column doesn't exist)
-            is_current_user: c.id === profile.collaborator_id
+            position: index + 1,
+            is_current_user: c.id === profile?.collaborator_id
         }))
-        .sort((a, b) => b.score - a.score)
-
-    // Assign positions
-    sorted.forEach((item, index) => {
-        item.position = index + 1
-    })
 
     return sorted
 }
