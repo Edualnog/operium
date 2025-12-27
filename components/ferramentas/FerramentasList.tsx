@@ -71,6 +71,8 @@ import Image from "next/image"
 import { type FilterState } from "./FerramentasFilters"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
+import { useCelebration } from "@/lib/hooks/useCelebration"
+import { RegistrationCelebration, type RegistrationCelebrationData } from "@/components/ui/RegistrationCelebration"
 import {
   Table,
   TableBody,
@@ -191,6 +193,8 @@ function FerramentasList({
   // Voice command handler removed
   const supabase = createClientComponentClient()
   const { toast } = useToast()
+  const { celebrate } = useCelebration()
+  const [celebrationData, setCelebrationData] = useState<RegistrationCelebrationData | null>(null)
   const [userId, setUserId] = useState<string>("")
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -554,6 +558,26 @@ function FerramentasList({
         await atualizarFerramenta(editing.id, formData)
       } else {
         await criarFerramenta(formData)
+
+        // Celebrar cadastro de novo produto
+        const newCount = ferramentas.length + 1
+        const MILESTONES = [5, 10, 25, 50, 100, 250, 500, 1000]
+        const isMilestone = MILESTONES.includes(newCount)
+
+        setCelebrationData({
+          type: "ferramenta",
+          itemName: nome,
+          totalCount: newCount
+        })
+
+        // Confetti baseado no milestone
+        if (isMilestone) {
+          celebrate({ type: 'level_up' })
+        } else if (newCount <= 3) {
+          celebrate({ type: 'action_complete' })
+        } else {
+          celebrate({ type: 'action_complete' })
+        }
       }
 
       // Fechar modal e limpar estados
@@ -1905,6 +1929,14 @@ function FerramentasList({
       )}
 
       {/* QR Scanner is now rendered standalone above, not in a Dialog */}
+
+      {/* Registration Celebration */}
+      {celebrationData && (
+        <RegistrationCelebration
+          data={celebrationData}
+          onClose={() => setCelebrationData(null)}
+        />
+      )}
 
     </div >
   )

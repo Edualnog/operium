@@ -94,6 +94,8 @@ import {
 import { useSidebar } from "@/components/ui/sidebar"
 import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
+import { useCelebration } from "@/lib/hooks/useCelebration"
+import { RegistrationCelebration, type RegistrationCelebrationData } from "@/components/ui/RegistrationCelebration"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -235,6 +237,8 @@ function ColaboradoresList({
   const { open: sidebarOpen } = useSidebar()
   const { t } = useTranslation()
   const { toast } = useToast()
+  const { celebrate } = useCelebration()
+  const [celebrationData, setCelebrationData] = useState<RegistrationCelebrationData | null>(null)
 
   // Atualizar estado quando prop mudar
   useEffect(() => {
@@ -582,10 +586,32 @@ function ColaboradoresList({
         formData.set("foto_url", photoUrl)
       }
 
+      const nomeColaborador = formData.get("nome") as string
+
       if (editing) {
         await atualizarColaborador(editing.id, formData)
       } else {
         await criarColaborador(formData)
+
+        // Celebrar cadastro de novo colaborador
+        const newCount = colaboradores.length + 1
+        const MILESTONES = [5, 10, 25, 50, 100, 250, 500, 1000]
+        const isMilestone = MILESTONES.includes(newCount)
+
+        setCelebrationData({
+          type: "colaborador",
+          itemName: nomeColaborador,
+          totalCount: newCount
+        })
+
+        // Confetti baseado no milestone
+        if (isMilestone) {
+          celebrate({ type: 'level_up' })
+        } else if (newCount <= 3) {
+          celebrate({ type: 'action_complete' })
+        } else {
+          celebrate({ type: 'action_complete' })
+        }
       }
 
       setOpen(false)
@@ -1736,6 +1762,14 @@ function ColaboradoresList({
           colaboradorNome={vehicleReturnTarget.colaborador.nome}
           assignmentType={vehicleReturnTarget.vehicle.assignment_type}
           teamName={vehicleReturnTarget.vehicle.team_name}
+        />
+      )}
+
+      {/* Registration Celebration */}
+      {celebrationData && (
+        <RegistrationCelebration
+          data={celebrationData}
+          onClose={() => setCelebrationData(null)}
         />
       )}
     </div>
