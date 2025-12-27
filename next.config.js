@@ -32,14 +32,17 @@ const nextConfig = {
   swcMinify: true,
 
   // Fix para erro de stack overflow no micromatch durante build traces
+  experimental: {
+    outputFileTracingRoot: process.cwd(),
+  },
   outputFileTracingExcludes: {
     '*': [
-      'node_modules/@swc/core-linux-x64-gnu',
-      'node_modules/@swc/core-linux-x64-musl',
-      'node_modules/@esbuild/linux-x64',
-      'node_modules/sharp',
-      'node_modules/@img/**',
-      'workers/**',
+      './node_modules/@swc/**',
+      './node_modules/@esbuild/**',
+      './node_modules/sharp/**',
+      './node_modules/@img/**',
+      './workers/**',
+      './public/icons/**',
     ],
   },
 
