@@ -16,6 +16,8 @@ import {
   Briefcase,
   UserPlus,
   FileText,
+  Volume2,
+  VolumeX,
 } from "lucide-react"
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -24,6 +26,7 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
+import { useSoundEffects } from "@/lib/hooks/useSoundEffects"
 
 export default function AppSidebar() {
   const pathname = usePathname()
@@ -31,6 +34,7 @@ export default function AppSidebar() {
   const supabase = createClientComponentClient()
   const { open, animate } = useSidebar()
   const { t } = useTranslation('common')
+  const { isEnabled: soundEnabled, toggleSound, playSound } = useSoundEffects()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -137,8 +141,31 @@ export default function AppSidebar() {
         </div>
         <div className="pt-4 border-t border-border flex-shrink-0">
           <div className="flex gap-1.5 w-full items-center">
-            <div className={cn("flex-shrink-0", !open && "hidden")}>
+            <div className={cn("flex-shrink-0 flex items-center gap-1", !open && "hidden")}>
               <LanguageSwitcher />
+              <button
+                type="button"
+                onClick={() => {
+                  toggleSound()
+                  if (!soundEnabled) {
+                    // Tocar um som de preview ao ativar
+                    setTimeout(() => playSound('click'), 100)
+                  }
+                }}
+                className={cn(
+                  "p-2 rounded-md transition-colors",
+                  soundEnabled
+                    ? "text-primary hover:bg-primary/10"
+                    : "text-muted-foreground hover:bg-accent"
+                )}
+                title={soundEnabled ? "Desativar sons" : "Ativar sons"}
+              >
+                {soundEnabled ? (
+                  <Volume2 className="h-4 w-4" />
+                ) : (
+                  <VolumeX className="h-4 w-4" />
+                )}
+              </button>
             </div>
             <Link
               id="sidebar-conta"

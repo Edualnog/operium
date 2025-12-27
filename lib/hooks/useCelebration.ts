@@ -2,6 +2,7 @@
 
 import confetti from 'canvas-confetti'
 import { useCallback } from 'react'
+import { useSoundEffects } from './useSoundEffects'
 
 type CelebrationType =
   | 'action_complete'      // Ação básica completada
@@ -19,6 +20,7 @@ interface CelebrationOptions {
 }
 
 export function useCelebration() {
+  const { playSound } = useSoundEffects()
 
   // Confetti básico para ações normais
   const fireBasic = useCallback(() => {
@@ -136,6 +138,31 @@ export function useCelebration() {
       }
     }
 
+    // Tocar som apropriado
+    switch (type) {
+      case 'action_complete':
+      case 'equipment_accepted':
+      case 'return_completed':
+        playSound('success')
+        break
+
+      case 'streak_continued':
+        playSound('streak')
+        break
+
+      case 'streak_milestone':
+      case 'new_record':
+        playSound('achievement')
+        break
+
+      case 'level_up':
+        playSound('levelUp')
+        break
+
+      default:
+        playSound('success')
+    }
+
     // Disparar confetti apropriado
     switch (type) {
       case 'action_complete':
@@ -165,7 +192,7 @@ export function useCelebration() {
       default:
         fireBasic()
     }
-  }, [fireBasic, fireStreak, fireEpic, fireStars])
+  }, [fireBasic, fireStreak, fireEpic, fireStars, playSound])
 
   return { celebrate }
 }
