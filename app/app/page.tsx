@@ -38,10 +38,12 @@ import {
     reportFieldIssue,
     getMyTeamEquipment,
     getMyTeamInfo,
+    getMyIndividualVehicle,
     getAvailableTeams,
     TeamEquipmentMobile,
     AvailableTeam,
-    MyTeamInfo
+    MyTeamInfo,
+    MyVehicleInfo
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
@@ -2018,6 +2020,7 @@ export default function AppPage() {
     const [selectedIssueEquipment, setSelectedIssueEquipment] = useState<TeamEquipmentMobile | null>(null)
     const [acceptingAll, setAcceptingAll] = useState(false)
     const [teamInfo, setTeamInfo] = useState<MyTeamInfo | null>(null)
+    const [individualVehicle, setIndividualVehicle] = useState<MyVehicleInfo | null>(null)
     const [loadingTeamInfo, setLoadingTeamInfo] = useState(true)
     const [hasReportToday, setHasReportToday] = useState(false)
 
@@ -2112,10 +2115,23 @@ export default function AppPage() {
             .then(team => {
                 setTeamInfo(team)
                 setLoadingTeamInfo(false)
+
+                // If no team or team has no vehicle, fetch individual vehicle
+                if (!team || !team.vehicle_id) {
+                    getMyIndividualVehicle()
+                        .then(vehicle => setIndividualVehicle(vehicle))
+                        .catch(e => console.error('Error fetching individual vehicle:', e))
+                } else {
+                    setIndividualVehicle(null) // Clear individual vehicle if team has one
+                }
             })
             .catch(e => {
                 console.error('Error fetching team info:', e)
                 setLoadingTeamInfo(false)
+                // Try to fetch individual vehicle on error
+                getMyIndividualVehicle()
+                    .then(vehicle => setIndividualVehicle(vehicle))
+                    .catch(e2 => console.error('Error fetching individual vehicle:', e2))
             })
 
         // Fetch equipment data (may take a bit longer)
@@ -2242,13 +2258,15 @@ export default function AppPage() {
                                     {t('mobile_app.header.no_team')}
                                 </p>
                             )}
-                            {/* Veículo atribuído */}
-                            {teamInfo?.vehicle_plate && (
+                            {/* Veículo atribuído - hierarquia: equipe > individual */}
+                            {(teamInfo?.vehicle_plate || individualVehicle) && (
                                 <div className="flex items-center gap-1.5 mt-1">
                                     <Car className="h-3.5 w-3.5 text-neutral-400" />
                                     <p className="text-[13px] text-neutral-400">
-                                        {teamInfo.vehicle_plate}
-                                        {teamInfo.vehicle_model && ` • ${teamInfo.vehicle_model}`}
+                                        {teamInfo?.vehicle_plate
+                                            ? `${teamInfo.vehicle_plate}${teamInfo.vehicle_model ? ` • ${teamInfo.vehicle_model}` : ''}`
+                                            : `${individualVehicle?.plate}${individualVehicle?.model ? ` • ${individualVehicle.model}` : ''}`
+                                        }
                                     </p>
                                 </div>
                             )}

@@ -184,6 +184,51 @@ export async function getMyTeamInfo(): Promise<MyTeamInfo | null> {
     }
 }
 
+// =============================================================================
+// GET INDIVIDUAL VEHICLE FOR COLLABORATOR (without team)
+// =============================================================================
+
+export interface MyVehicleInfo {
+    id: string
+    plate: string
+    model: string | null
+}
+
+/**
+ * Get the vehicle assigned directly to the current user (via current_driver_id).
+ * Used for collaborators without a team who have a vehicle assigned individually.
+ */
+export async function getMyIndividualVehicle(): Promise<MyVehicleInfo | null> {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    // Get user's colaborador record
+    const { data: colaborador } = await supabase
+        .from("colaboradores")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+    if (!colaborador) return null
+
+    // Get vehicle assigned to this colaborador
+    const { data: vehicle, error } = await supabase
+        .from("vehicles")
+        .select("id, plate, model")
+        .eq("current_driver_id", colaborador.id)
+        .maybeSingle()
+
+    if (error || !vehicle) return null
+
+    return {
+        id: vehicle.id,
+        plate: vehicle.plate,
+        model: vehicle.model
+    }
+}
+
 // Report equipment issue from mobile
 export type IssueType = 'damage' | 'malfunction' | 'loss'
 
