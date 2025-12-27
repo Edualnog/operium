@@ -191,11 +191,13 @@ export async function criarColaborador(formData: FormData) {
 
   // Validate email uniqueness GLOBALLY (not just in user's account)
   if (colaboradorData.email) {
+    const emailToCheck = colaboradorData.email // Store email for type safety
+
     // Check in colaboradores table (any profile_id)
     const { data: existingWithEmail, error: emailCheckError } = await supabase
       .from("colaboradores")
       .select("id, nome, email")
-      .eq("email", colaboradorData.email)
+      .eq("email", emailToCheck)
       .maybeSingle()
 
     if (existingWithEmail && !emailCheckError) {
@@ -215,7 +217,7 @@ export async function criarColaborador(formData: FormData) {
       // List users and check if email exists
       const { data: authData } = await supabaseAdmin.auth.admin.listUsers()
       const emailExists = authData?.users?.some(u =>
-        u.email?.toLowerCase() === colaboradorData.email.toLowerCase()
+        u.email?.toLowerCase() === emailToCheck.toLowerCase()
       )
 
       if (emailExists) {
