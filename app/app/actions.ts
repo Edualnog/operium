@@ -989,3 +989,97 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
 
     return sorted
 }
+
+// =============================================================================
+// STREAK SYSTEM - Gamification
+// =============================================================================
+
+export interface StreakInfo {
+    currentStreak: number
+    maxStreak: number
+    lastActivityDate: string | null
+    status: 'active_today' | 'needs_action' | 'streak_lost' | 'no_streak'
+}
+
+/**
+ * Get the current user's streak information
+ */
+export async function getMyStreak(): Promise<StreakInfo | null> {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data, error } = await supabase.rpc('get_my_streak')
+
+    if (error) {
+        console.error("[getMyStreak] Error:", error)
+        // Fallback: return default values if function doesn't exist yet
+        return {
+            currentStreak: 0,
+            maxStreak: 0,
+            lastActivityDate: null,
+            status: 'no_streak'
+        }
+    }
+
+    const streakData = data?.[0]
+    if (!streakData) {
+        return {
+            currentStreak: 0,
+            maxStreak: 0,
+            lastActivityDate: null,
+            status: 'no_streak'
+        }
+    }
+
+    return {
+        currentStreak: streakData.current_streak || 0,
+        maxStreak: streakData.max_streak || 0,
+        lastActivityDate: streakData.last_activity_date,
+        status: streakData.streak_status as StreakInfo['status']
+    }
+}
+
+export interface StreakUpdateResult {
+    newStreak: number
+    isNewRecord: boolean
+    message: 'first_activity' | 'same_day' | 'streak_continued' | 'streak_reset'
+}
+
+/**
+ * Manually update streak for a colaborador (called after successful actions)
+ */
+export async function updateMyStreak(): Promise<StreakUpdateResult | null> {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    // Get colaborador_id
+    const { data: profile } = await supabase
+        .from('profiles_operium')
+        .select('colaborador_id')
+        .eq('profile_id', user.id)
+        .single()
+
+    if (!profile?.colaborador_id) return null
+
+    const { data, error } = await supabase.rpc('update_colaborador_streak', {
+        p_colaborador_id: profile.colaborador_id
+    })
+
+    if (error) {
+        console.error("[updateMyStreak] Error:", error)
+        return null
+    }
+
+    const result = data?.[0]
+    if (!result) return null
+
+    return {
+        newStreak: result.new_streak,
+        isNewRecord: result.is_new_record,
+        message: result.streak_message as StreakUpdateResult['message']
+    }
+}

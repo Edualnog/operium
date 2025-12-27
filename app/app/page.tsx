@@ -42,17 +42,23 @@ import {
     getMyIndividualVehicle,
     getAvailableTeams,
     getMyScore,
+    getMyStreak,
+    updateMyStreak,
     TeamEquipmentMobile,
     AvailableTeam,
     MyTeamInfo,
     MyVehicleInfo,
-    MyScoreInfo
+    MyScoreInfo,
+    StreakInfo,
+    StreakUpdateResult
 } from './actions'
 import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
 import { TeamManagerMobile } from '@/components/operium/TeamManagerMobile'
 import { PushNotificationPrompt } from '@/components/operium/PushNotificationPrompt'
 import { CollaboratorRanking } from '@/components/operium/CollaboratorRanking'
+import { StreakBadge, StreakMessage } from '@/components/operium/StreakBadge'
+import { useCelebration } from '@/lib/hooks/useCelebration'
 import { useTranslation } from 'react-i18next'
 
 // ============================================================================
@@ -2027,6 +2033,11 @@ export default function AppPage() {
     const [loadingTeamInfo, setLoadingTeamInfo] = useState(true)
     const [hasReportToday, setHasReportToday] = useState(false)
     const [myScore, setMyScore] = useState<MyScoreInfo | null>(null)
+    const [myStreak, setMyStreak] = useState<StreakInfo | null>(null)
+    const [streakToast, setStreakToast] = useState<StreakUpdateResult | null>(null)
+
+    // Celebration hook for dopamine hits
+    const { celebrate } = useCelebration()
 
     // CRITICAL: Detect recovery flow from URL hash and redirect to password creation
     // Supabase sends recovery emails with #access_token=...&type=recovery
@@ -2090,12 +2101,13 @@ export default function AppPage() {
         }
     }, [supabase])
 
-    // Check report status and fetch score on load and when onboarding completes
+    // Check report status and fetch score/streak on load and when onboarding completes
     useEffect(() => {
         if (onboardingComplete) {
             checkTodayReport()
-            // Fetch collaborator score
+            // Fetch collaborator score and streak
             getMyScore().then(score => setMyScore(score)).catch(() => { })
+            getMyStreak().then(streak => setMyStreak(streak)).catch(() => { })
         }
     }, [onboardingComplete, checkTodayReport])
 
@@ -2110,6 +2122,38 @@ export default function AppPage() {
     const handleOnboardingComplete = () => {
         setOnboardingComplete(true)
     }
+
+    // Helper to celebrate action and update streak
+    const celebrateAction = useCallback(async (type: 'equipment_accepted' | 'return_completed' | 'action_complete') => {
+        try {
+            const result = await updateMyStreak()
+            if (result) {
+                setStreakToast(result)
+                // Refresh streak info
+                getMyStreak().then(streak => setMyStreak(streak)).catch(() => { })
+
+                // Determine celebration type based on streak result
+                if (result.isNewRecord && result.newStreak > 1) {
+                    celebrate({ type: 'new_record', streakCount: result.newStreak })
+                } else if ([7, 14, 30].includes(result.newStreak)) {
+                    celebrate({ type: 'streak_milestone', streakCount: result.newStreak })
+                } else if (result.message === 'streak_continued') {
+                    celebrate({ type: 'streak_continued', streakCount: result.newStreak })
+                } else {
+                    celebrate({ type })
+                }
+
+                // Clear streak toast after 3 seconds
+                setTimeout(() => setStreakToast(null), 3000)
+            } else {
+                // Fallback celebration without streak
+                celebrate({ type })
+            }
+        } catch {
+            // Still celebrate even if streak update fails
+            celebrate({ type })
+        }
+    }, [celebrate])
 
     // Fetch data progressively - each section appears as it loads
     const fetchEquipmentData = useCallback(async () => {
@@ -2186,6 +2230,7 @@ export default function AppPage() {
         try {
             await Promise.all(pendingEquipment.map(item => acceptEquipment(item.id)))
             toast.success('Equipamentos aceitos!')
+            celebrateAction('equipment_accepted')
             fetchEquipmentData()
         } catch (e) {
             console.error('Error accepting all equipment:', e)
@@ -2200,6 +2245,7 @@ export default function AppPage() {
         try {
             await acceptEquipment(id)
             toast.success('Equipamento aceito!')
+            celebrateAction('equipment_accepted')
             // No fetch needed here as it's called by the child component's onRefresh
         } catch (e) {
             console.error('Error accepting equipment:', e)
@@ -2215,18 +2261,21 @@ export default function AppPage() {
 
     const handleIssueReported = () => {
         toast.success('Problema reportado com sucesso')
+        celebrateAction('action_complete')
         setShowIssueModal(false)
         fetchEquipmentData()
     }
 
     const handleReturnRequested = () => {
         toast.success('Solicitação de devolução enviada')
+        celebrateAction('return_completed')
         setShowReturnModal(false)
         fetchEquipmentData()
     }
 
     const handleEquipmentSuccess = async () => {
         await fetchEquipmentData()
+        celebrateAction('action_complete')
         refreshEvents()
     }
 
@@ -2294,15 +2343,35 @@ export default function AppPage() {
             {/* Smart Daily Report Reminder - Adapts based on time and completion status */}
             <SmartReportReminder onOpenReport={() => setShowReportModal(true)} isTeamLeader={!!(teamInfo && userId && teamInfo.leader_id === userId)} />
 
-            {/* Collaborator Ranking - Expandable */}
-            {myScore && (
-                <div className="px-4 pt-3">
+            {/* Streak & Score Section */}
+            <div className="px-4 pt-3 space-y-3">
+                {/* Streak Badge */}
+                {myStreak && myStreak.currentStreak > 0 && (
+                    <StreakBadge
+                        currentStreak={myStreak.currentStreak}
+                        maxStreak={myStreak.maxStreak}
+                        status={myStreak.status}
+                    />
+                )}
+
+                {/* Streak Toast - shows after action */}
+                {streakToast && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-300">
+                        <StreakMessage
+                            streak={streakToast.newStreak}
+                            isNewRecord={streakToast.isNewRecord}
+                        />
+                    </div>
+                )}
+
+                {/* Collaborator Ranking - Expandable */}
+                {myScore && (
                     <CollaboratorRanking
                         currentScore={myScore.score}
                         currentPercentile={myScore.percentile}
                     />
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Equipment Acceptance Banner */}
             <EquipmentAcceptanceBanner
