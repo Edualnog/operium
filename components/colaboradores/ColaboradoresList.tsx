@@ -718,20 +718,17 @@ function ColaboradoresList({
       setVerificandoEmail(true)
       try {
         const supabase = createClientComponentClient()
-        const { data: user } = await supabase.auth.getUser()
-        if (!user?.user) return
 
-        // Verificar em colaboradores
+        // Verificar em colaboradores (GLOBAL - qualquer conta)
         const { data: existingColab } = await supabase
           .from("colaboradores")
           .select("id, nome, email")
-          .eq("profile_id", user.user.id)
           .eq("email", emailDigitado)
           .maybeSingle()
 
         if (existingColab) {
           setEmailEmUso(true)
-          setEmailDuplicadoInfo(`Já usado por: ${existingColab.nome}`)
+          setEmailDuplicadoInfo("E-mail já cadastrado no sistema")
         } else {
           setEmailEmUso(false)
           setEmailDuplicadoInfo("")

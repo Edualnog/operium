@@ -189,17 +189,38 @@ export async function criarColaborador(formData: FormData) {
   // Extract operational profile fields
   const { role_function, seniority_bucket, ...colaboradorData} = data
 
-  // Validate email uniqueness if provided
+  // Validate email uniqueness GLOBALLY (not just in user's account)
   if (colaboradorData.email) {
+    // Check in colaboradores table (any profile_id)
     const { data: existingWithEmail, error: emailCheckError } = await supabase
       .from("colaboradores")
       .select("id, nome, email")
-      .eq("profile_id", user.id)
       .eq("email", colaboradorData.email)
       .maybeSingle()
 
     if (existingWithEmail && !emailCheckError) {
-      throw new Error(`Este e-mail já está em uso por outro colaborador: ${existingWithEmail.nome}`)
+      throw new Error("Este e-mail já está cadastrado no sistema")
+    }
+
+    // Check in auth.users table using admin client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (supabaseUrl && serviceRoleKey) {
+      const { createClient } = await import("@supabase/supabase-js")
+      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
+      })
+
+      // List users and check if email exists
+      const { data: authData } = await supabaseAdmin.auth.admin.listUsers()
+      const emailExists = authData?.users?.some(u =>
+        u.email?.toLowerCase() === colaboradorData.email.toLowerCase()
+      )
+
+      if (emailExists) {
+        throw new Error("Este e-mail já possui uma conta no sistema")
+      }
     }
   }
 
