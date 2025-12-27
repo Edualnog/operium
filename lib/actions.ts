@@ -257,7 +257,7 @@ export async function criarColaborador(formData: FormData) {
               user_id: authData.user.id,
               org_id: user.id, // The admin's profile_id is the org_id for field users
               name: data.nome,
-              role: role_function || 'colaborador',
+              role: 'FIELD', // Field collaborator role - allows app access
               photo_url: colaboradorData.foto_url,
               active: true,
               onboarding_complete: false, // User will need to select team on first login
