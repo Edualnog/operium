@@ -73,6 +73,7 @@ import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
 import { useCelebration } from "@/lib/hooks/useCelebration"
 import { RegistrationCelebration, type RegistrationCelebrationData } from "@/components/ui/RegistrationCelebration"
+import { GamificationProgress } from "@/components/ui/GamificationProgress"
 import {
   Table,
   TableBody,
@@ -1008,20 +1009,30 @@ function FerramentasList({
 
   return (
     <div className="space-y-4">
-      {/* Action buttons - aligned to the right */}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => setSmartImportOpen(true)} className="h-10 gap-2">
-          <Upload className="h-4 w-4" />
-          <span className="hidden sm:inline">{t("dashboard.ferramentas.import_products")}</span>
-        </Button>
+      {/* Action buttons and progress - aligned */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        {/* Gamification Progress */}
+        <GamificationProgress
+          type="ferramenta"
+          currentCount={ferramentas.length}
+          className="flex-1 max-w-md"
+        />
 
-        <Button onClick={() => {
-          setEditing(null)
-          setOpen(true)
-        }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium h-10">
-          <Plus className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">{t("dashboard.ferramentas.new_button")}</span>
-        </Button>
+        {/* Action buttons */}
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={() => setSmartImportOpen(true)} className="h-10 gap-2">
+            <Upload className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("dashboard.ferramentas.import_products")}</span>
+          </Button>
+
+          <Button onClick={() => {
+            setEditing(null)
+            setOpen(true)
+          }} className="bg-[#37352f] hover:bg-zinc-800 text-white font-medium h-10">
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">{t("dashboard.ferramentas.new_button")}</span>
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full space-y-4">

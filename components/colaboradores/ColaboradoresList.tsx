@@ -96,6 +96,7 @@ import { useTranslation } from "react-i18next"
 import { useToast } from "@/components/ui/toast-context"
 import { useCelebration } from "@/lib/hooks/useCelebration"
 import { RegistrationCelebration, type RegistrationCelebrationData } from "@/components/ui/RegistrationCelebration"
+import { GamificationProgress } from "@/components/ui/GamificationProgress"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -838,7 +839,12 @@ function ColaboradoresList({
 
   return (
     <div className="space-y-4">
-
+      {/* Gamification Progress */}
+      <GamificationProgress
+        type="colaborador"
+        currentCount={colaboradores.length}
+        className="max-w-md"
+      />
 
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">

@@ -32,7 +32,7 @@ export function RegistrationCelebration({ data, onClose }: RegistrationCelebrati
     const closeTimer = setTimeout(() => {
       setIsClosing(true)
       setTimeout(onClose, 300)
-    }, isMilestone ? 5000 : 3000)
+    }, isMilestone ? 8000 : 5000)
 
     return () => {
       clearTimeout(showTimer)
