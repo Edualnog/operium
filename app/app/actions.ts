@@ -890,13 +890,12 @@ export async function getMyScore(): Promise<MyScoreInfo | null> {
     }
 
     if (!myColaborador) {
-        // Fallback: find by user_id
-        const { data } = await supabase
-            .from("colaboradores")
-            .select("id, almox_score")
-            .eq("user_id", user.id)
-            .maybeSingle()
-        myColaborador = data
+        // No colaborador found - return default score for users without colaborador link
+        return {
+            score: 500,
+            percentile: null,
+            trend: 'stable'
+        }
     }
 
     if (!myColaborador) {
@@ -982,7 +981,7 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
     // Get all collaborators in the organization with their scores
     const { data: colaboradores, error } = await supabase
         .from("colaboradores")
-        .select("id, nome, foto_url, almox_score, user_id")
+        .select("id, nome, foto_url, almox_score")
         .eq("profile_id", profile.org_id)
     // Temporarily removed demitido_at filter for debugging
 
@@ -1006,8 +1005,8 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
             photo_url: c.foto_url,
             score: c.almox_score || 500,
             position: 0,
-            // Match by collaborator_id OR user_id
-            is_current_user: c.id === profile.collaborator_id || c.user_id === user.id
+            // Match by collaborator_id only (user_id column doesn't exist)
+            is_current_user: c.id === profile.collaborator_id
         }))
         .sort((a, b) => b.score - a.score)
 
