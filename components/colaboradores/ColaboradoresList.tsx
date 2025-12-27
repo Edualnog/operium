@@ -46,7 +46,9 @@ import {
   Clock,
   UserX,
   Wrench,
-  Car
+  Car,
+  Smartphone,
+  Lock
 } from "lucide-react"
 import SmartImport from "@/components/import/SmartImport"
 import { useRouter } from "next/navigation"
@@ -1365,6 +1367,58 @@ function ColaboradoresList({
                     </div>
                   </div>
                 </div>
+
+                {/* 4. ACESSO AO APP (apenas para novo colaborador) */}
+                {!editing && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 space-y-4">
+                    <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                      <Smartphone className="h-4 w-4 text-blue-500" />
+                      Acesso ao App de Campo
+                    </h3>
+                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                      Crie um acesso para o colaborador usar o app mobile e registrar atividades em tempo real.
+                    </p>
+
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        id="criar_acesso_app"
+                        name="criar_acesso_app"
+                        defaultChecked={false}
+                        onCheckedChange={(checked) => {
+                          const senhaField = document.getElementById('senha_app') as HTMLInputElement
+                          if (senhaField) {
+                            senhaField.disabled = !checked
+                            senhaField.required = !!checked
+                          }
+                        }}
+                      />
+                      <Label htmlFor="criar_acesso_app" className="text-sm font-medium text-blue-800 dark:text-blue-200 cursor-pointer">
+                        Criar acesso ao app para este colaborador
+                      </Label>
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label htmlFor="senha_app" className="text-blue-800 dark:text-blue-200">
+                        Senha de acesso
+                      </Label>
+                      <div className="relative">
+                        <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-blue-400" />
+                        <Input
+                          id="senha_app"
+                          name="senha_app"
+                          type="password"
+                          placeholder="Mínimo 6 caracteres"
+                          className="pl-9 bg-white dark:bg-zinc-900"
+                          minLength={6}
+                          disabled
+                        />
+                      </div>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        O colaborador usará o email acima para fazer login no app.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
               </div>
             </ScrollableFormContent>

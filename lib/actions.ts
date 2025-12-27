@@ -172,6 +172,20 @@ export async function criarColaborador(formData: FormData) {
     seniority_bucket: formData.get("seniority_bucket"),
   })
 
+  // Check if should create app access
+  const criarAcessoApp = formData.get("criar_acesso_app") === "on"
+  const senhaApp = formData.get("senha_app") as string | null
+
+  // Validate app access requirements
+  if (criarAcessoApp) {
+    if (!data.email) {
+      throw new Error("Email é obrigatório para criar acesso ao app")
+    }
+    if (!senhaApp || senhaApp.length < 6) {
+      throw new Error("Senha deve ter no mínimo 6 caracteres")
+    }
+  }
+
   // Extract operational profile fields
   const { role_function, seniority_bucket, ...colaboradorData } = data
 
@@ -201,6 +215,69 @@ export async function criarColaborador(formData: FormData) {
     // Don't throw - the collaborator was created, profile is secondary
   }
 
+  // ========================================================================
+  // CREATE APP ACCESS (if requested)
+  // ========================================================================
+  let appUserId: string | null = null
+  if (criarAcessoApp && data.email && senhaApp) {
+    try {
+      // Need to use admin client to create users
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+      if (!supabaseUrl || !serviceRoleKey) {
+        console.error("Missing SUPABASE_SERVICE_ROLE_KEY for app access creation")
+      } else {
+        const { createClient } = await import("@supabase/supabase-js")
+        const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+          auth: { autoRefreshToken: false, persistSession: false }
+        })
+
+        // Create auth user
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+          email: data.email,
+          password: senhaApp,
+          email_confirm: true, // Skip email verification
+          user_metadata: {
+            name: data.nome,
+            role: 'field_collaborator',
+            created_by: user.id
+          }
+        })
+
+        if (authError) {
+          console.error("Error creating auth user:", authError)
+        } else if (authData.user) {
+          appUserId = authData.user.id
+
+          // Create operium_profiles entry (field app profile)
+          const { error: opProfileError } = await supabaseAdmin
+            .from("operium_profiles")
+            .insert({
+              user_id: authData.user.id,
+              org_id: user.id, // The admin's profile_id is the org_id for field users
+              name: data.nome,
+              role: role_function || 'colaborador',
+              photo_url: colaboradorData.foto_url,
+              active: true,
+              onboarding_complete: false, // User will need to select team on first login
+              team_id: null,
+              collaborator_id: newColaborador.id // Link to collaborator record
+            })
+
+          if (opProfileError) {
+            console.error("Error creating operium_profiles:", opProfileError)
+          } else {
+            console.log(`[criarColaborador] App access created for ${data.email}`)
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error creating app access:", err)
+      // Don't throw - the collaborator was created, app access is optional
+    }
+  }
+
   // Telemetria comportamental: Rastrear criação de colaborador
   const temporalCtx = getTemporalContext()
   const diasEmpresa = colaboradorData.data_admissao
@@ -220,6 +297,7 @@ export async function criarColaborador(formData: FormData) {
       data_admissao: colaboradorData.data_admissao,
       has_email: !!colaboradorData.email,
       has_photo: !!colaboradorData.foto_url,
+      has_app_access: !!appUserId,
 
       // Contexto temporal do cadastro
       hora_cadastro: temporalCtx.hora_dia,
