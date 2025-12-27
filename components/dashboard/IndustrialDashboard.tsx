@@ -30,6 +30,8 @@ import {
   ArrowDown,
   BarChart3,
   Activity,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react"
 import { OnboardingChecklist } from "./OnboardingChecklist"
 import { AIInsightsCard } from "./AIInsightsCard"
@@ -115,6 +117,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
     }
   }, [searchParams, router])
   const [rankingView, setRankingView] = useState<"melhores" | "piores">("melhores")
+  const [rankingExpanded, setRankingExpanded] = useState(false)
   const [periodoConsumo, setPeriodoConsumo] = useState<7 | 14 | 30 | 60 | 120>(30)
   const [consumoPorPeriodo, setConsumoPorPeriodo] = useState<any[]>([])
   const [loadingConsumo, setLoadingConsumo] = useState(false)
@@ -1124,9 +1127,12 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             <CardContent className="pt-4">
               {(() => {
                 // Já ordenado por almox_score no useKPIs
-                const displayItems = safeArray(data.rankingResponsabilidade).slice(0, 3)
+                const allItems = safeArray(data.rankingResponsabilidade)
+                const top3Items = allItems.slice(0, 3)
+                const remainingItems = allItems.slice(3)
+                const hasMoreItems = remainingItems.length > 0
 
-                if (displayItems.length === 0) {
+                if (top3Items.length === 0) {
                   return (
                     <p className="text-sm text-zinc-500 text-center py-8">
                       {t('dashboard.kpi.ranking.empty')}
@@ -1138,7 +1144,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                 const getLevelInfo = (level: string, index: number) => {
                   // Troféu baseado na posição (1º, 2º, 3º lugar)
                   const trophies = ['🥇', '🥈', '🥉']
-                  const trophy = trophies[index] || '🏅'
+                  const trophy = trophies[index] || null
 
                   // Cores baseadas no level do colaborador
                   const colors: Record<string, string> = {
@@ -1151,50 +1157,101 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   return { trophy, colorClass: colors[level] || colors['MEMBER'] }
                 }
 
-                return (
-                  <div className="space-y-3">
-                    {displayItems.map((item, index) => {
-                      const { trophy, colorClass } = getLevelInfo(item.level || 'MEMBER', index)
-                      const almoxScore = (item as any).almox_score || 500
+                const renderItem = (item: any, index: number) => {
+                  const { trophy, colorClass } = getLevelInfo(item.level || 'MEMBER', index)
+                  const almoxScore = (item as any).almox_score || 500
+                  const position = index + 1
 
-                      return (
-                        <div
-                          key={item.colaborador_id || item.nome}
-                          className="flex items-center justify-between gap-4 p-4 rounded-xl border border-zinc-100 hover:bg-zinc-50 transition-all dark:border-zinc-800 dark:hover:bg-zinc-800/50"
-                        >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            {/* Troféu grande */}
-                            <span className="text-2xl flex-shrink-0">{trophy}</span>
+                  return (
+                    <div
+                      key={item.colaborador_id || item.nome}
+                      className={`flex items-center justify-between gap-4 p-4 rounded-xl border transition-all ${
+                        index < 3
+                          ? 'border-zinc-100 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50'
+                          : 'border-zinc-50 bg-zinc-50/50 hover:bg-zinc-100/50 dark:border-zinc-800/50 dark:bg-zinc-800/30 dark:hover:bg-zinc-800/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {/* Posição / Troféu */}
+                        {trophy ? (
+                          <span className="text-2xl flex-shrink-0 w-8 text-center">{trophy}</span>
+                        ) : (
+                          <span className="text-sm font-bold text-zinc-400 flex-shrink-0 w-8 text-center">
+                            #{position}
+                          </span>
+                        )}
 
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
-                                {item.nome}
-                              </h4>
-                              <div className="flex items-center gap-2 mt-1">
-                                {/* Badge de level */}
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}>
-                                  {item.level || 'MEMBER'}
-                                </span>
-                                {/* Devoluções */}
-                                <span className="text-[10px] text-zinc-400">
-                                  {item.devolucoes_no_prazo || 0}/{item.total_retiradas || 0} devoluções
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Score numérico destacado */}
-                          <div className="text-right flex-shrink-0">
-                            <div className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-                              {almoxScore}
-                            </div>
-                            <div className="text-[10px] text-zinc-400 uppercase tracking-wider">
-                              pts
-                            </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-zinc-900 truncate dark:text-zinc-100">
+                            {item.nome}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            {/* Badge de level */}
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}>
+                              {item.level || 'MEMBER'}
+                            </span>
+                            {/* Devoluções */}
+                            <span className="text-[10px] text-zinc-400">
+                              {item.devolucoes_no_prazo || 0}/{item.total_retiradas || 0} devoluções
+                            </span>
                           </div>
                         </div>
-                      )
-                    })}
+                      </div>
+
+                      {/* Score numérico destacado */}
+                      <div className="text-right flex-shrink-0">
+                        <div className={`font-bold ${index < 3 ? 'text-lg text-zinc-900 dark:text-zinc-50' : 'text-base text-zinc-700 dark:text-zinc-300'}`}>
+                          {almoxScore}
+                        </div>
+                        <div className="text-[10px] text-zinc-400 uppercase tracking-wider">
+                          pts
+                        </div>
+                      </div>
+                    </div>
+                  )
+                }
+
+                return (
+                  <div className="space-y-3">
+                    {/* Top 3 - sempre visível */}
+                    {top3Items.map((item, index) => renderItem(item, index))}
+
+                    {/* Lista expandida - com animação */}
+                    {hasMoreItems && (
+                      <div
+                        className={`grid transition-all duration-300 ease-in-out ${
+                          rankingExpanded
+                            ? 'grid-rows-[1fr] opacity-100'
+                            : 'grid-rows-[0fr] opacity-0'
+                        }`}
+                      >
+                        <div className="overflow-hidden">
+                          <div className="space-y-3 pt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700 mt-2">
+                            {remainingItems.map((item, index) => renderItem(item, index + 3))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Botão expandir/recolher */}
+                    {hasMoreItems && (
+                      <button
+                        onClick={() => setRankingExpanded(!rankingExpanded)}
+                        className="w-full mt-2 py-2.5 px-4 rounded-lg border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-all flex items-center justify-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-300"
+                      >
+                        {rankingExpanded ? (
+                          <>
+                            <ChevronUp className="h-4 w-4" />
+                            Recolher ranking
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4" />
+                            Ver ranking completo ({allItems.length} colaboradores)
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 )
               })()}
