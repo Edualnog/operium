@@ -30,6 +30,19 @@ const nextConfig = {
   // Ativar Strict Mode ajuda a identificar efeitos colaterais em dev
   reactStrictMode: true,
   swcMinify: true,
+
+  // Fix para erro de stack overflow no micromatch durante build traces
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@swc/core-linux-x64-gnu',
+      'node_modules/@swc/core-linux-x64-musl',
+      'node_modules/@esbuild/linux-x64',
+      'node_modules/sharp',
+      'node_modules/@img/**',
+      'workers/**',
+    ],
+  },
+
   // Otimização de imagens
   images: {
     remotePatterns: [
