@@ -52,6 +52,7 @@ import { toast } from 'sonner'
 import { FieldLanguageSwitcher } from '@/components/operium/FieldLanguageSwitcher'
 import { TeamManagerMobile } from '@/components/operium/TeamManagerMobile'
 import { PushNotificationPrompt } from '@/components/operium/PushNotificationPrompt'
+import { CollaboratorRanking } from '@/components/operium/CollaboratorRanking'
 import { useTranslation } from 'react-i18next'
 
 // ============================================================================
@@ -2275,22 +2276,6 @@ export default function AppPage() {
                                     </p>
                                 </div>
                             )}
-                            {/* Score do Colaborador */}
-                            {myScore && (
-                                <div className="flex items-center gap-1.5 mt-2">
-                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 rounded-full">
-                                        <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                                        <span className="text-[12px] font-semibold text-amber-700">
-                                            {myScore.score}
-                                        </span>
-                                    </div>
-                                    {myScore.percentile !== null && myScore.percentile <= 25 && (
-                                        <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
-                                            Top {myScore.percentile}%
-                                        </span>
-                                    )}
-                                </div>
-                            )}
                         </div>
                         <div className="flex items-center gap-2">
                             <FieldLanguageSwitcher />
@@ -2308,6 +2293,16 @@ export default function AppPage() {
 
             {/* Smart Daily Report Reminder - Adapts based on time and completion status */}
             <SmartReportReminder onOpenReport={() => setShowReportModal(true)} isTeamLeader={!!(teamInfo && userId && teamInfo.leader_id === userId)} />
+
+            {/* Collaborator Ranking - Expandable */}
+            {myScore && (
+                <div className="px-4 pt-3">
+                    <CollaboratorRanking
+                        currentScore={myScore.score}
+                        currentPercentile={myScore.percentile}
+                    />
+                </div>
+            )}
 
             {/* Equipment Acceptance Banner */}
             <EquipmentAcceptanceBanner

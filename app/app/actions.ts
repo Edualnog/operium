@@ -914,3 +914,68 @@ export async function getMyScore(): Promise<MyScoreInfo | null> {
         trend: 'stable' // TODO: calculate trend based on historical data
     }
 }
+
+// =============================================================================
+// GET FULL RANKING FOR FIELD APP
+// =============================================================================
+
+export interface RankingCollaborator {
+    id: string
+    name: string
+    photo_url: string | null
+    score: number
+    position: number
+    is_current_user: boolean
+}
+
+/**
+ * Get full ranking of all collaborators in the organization
+ * Returns sorted list with positions
+ */
+export async function getFullRanking(): Promise<RankingCollaborator[]> {
+    const supabase = await createServerComponentClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    // Get user's org_id and collaborator_id
+    const { data: profile } = await supabase
+        .from("operium_profiles")
+        .select("org_id, collaborator_id")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .single()
+
+    if (!profile?.org_id) return []
+
+    // Get all collaborators in the organization with their scores
+    const { data: colaboradores, error } = await supabase
+        .from("colaboradores")
+        .select("id, nome, foto_url, almox_score")
+        .eq("profile_id", profile.org_id)
+        .is("demitido_at", null) // Exclude dismissed collaborators
+
+    if (error || !colaboradores) {
+        console.error("[getFullRanking] Error:", error)
+        return []
+    }
+
+    // Sort by score (descending) and assign positions
+    const sorted = colaboradores
+        .map(c => ({
+            id: c.id,
+            name: c.nome || "Sem nome",
+            photo_url: c.foto_url,
+            score: c.almox_score || 500,
+            position: 0,
+            is_current_user: c.id === profile.collaborator_id
+        }))
+        .sort((a, b) => b.score - a.score)
+
+    // Assign positions
+    sorted.forEach((item, index) => {
+        item.position = index + 1
+    })
+
+    return sorted
+}
