@@ -6,6 +6,12 @@
   "regions": [
     "gru1"
   ],
+  "rewrites": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/api/well-known/assetlinks"
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/observers",
