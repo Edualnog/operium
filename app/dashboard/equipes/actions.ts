@@ -242,22 +242,12 @@ export async function getTeamMembers(teamId: string): Promise<TeamMember[]> {
         console.error("Error fetching team_members:", dashboardError)
     }
 
-    // 2. Get members from operium_profiles (joined via app)
+    // 2. Get members from operium_profiles (joined via app) using RPC with SECURITY DEFINER
     const { data: appMembers, error: appError } = await supabase
-        .from("operium_profiles")
-        .select(`
-      user_id,
-      name,
-      photo_url,
-      role,
-      created_at,
-      collaborator_id
-    `)
-        .eq("team_id", teamId)
-        .eq("active", true)
+        .rpc('get_team_members_for_admin', { p_team_id: teamId })
 
     if (appError) {
-        console.error("Error fetching operium_profiles members:", appError)
+        console.error("Error fetching operium_profiles members via RPC:", appError)
     }
 
     // Combine both sources
@@ -275,7 +265,7 @@ export async function getTeamMembers(teamId: string): Promise<TeamMember[]> {
     }
 
     // Add app members (avoid duplicates by collaborator_id)
-    if (appMembers) {
+    if (appMembers && Array.isArray(appMembers)) {
         const existingCollaboratorIds = new Set(
             dashboardMembers?.map((m: any) => m.colaborador_id).filter(Boolean) || []
         )
