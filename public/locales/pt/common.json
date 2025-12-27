@@ -1868,7 +1868,8 @@
             "team_filled": "Equipe preenchido",
             "both_filled": "Ambos preenchidos",
             "pending_individual": "Individual pendente",
-            "pending_team": "Equipe pendente"
+            "pending_team": "Equipe pendente",
+            "only_leader": "Apenas o líder pode fazer relatório de equipe"
         },
         "equipment_return": {
             "title": "Devolver Equipamentos",

@@ -54,10 +54,10 @@ import { useTranslation } from 'react-i18next'
 
 function SmartReportReminder({
     onOpenReport,
-    hasTeam
+    isTeamLeader
 }: {
     onOpenReport: () => void
-    hasTeam: boolean
+    isTeamLeader: boolean
 }) {
     const { t } = useTranslation('common')
     const supabase = createClientComponentClient()
@@ -92,8 +92,8 @@ function SmartReportReminder({
         checkReports()
     }, [supabase])
 
-    // Calculate if all reports are filled (individual required, team optional if has team)
-    const allReportsFilled = hasIndividualReport && (!hasTeam || hasTeamReport)
+    // Calculate if all reports are filled (individual required, team required only for leaders)
+    const allReportsFilled = hasIndividualReport && (!isTeamLeader || hasTeamReport)
     const hasAnyReport = hasIndividualReport || hasTeamReport
 
     // Update time every minute
@@ -127,7 +127,7 @@ function SmartReportReminder({
         if (hasIndividualReport && hasTeamReport) {
             return t('modals.daily_report.both_filled')
         } else if (hasIndividualReport) {
-            return hasTeam
+            return isTeamLeader
                 ? `${t('modals.daily_report.individual_filled')} • ${t('modals.daily_report.pending_team')}`
                 : t('modals.daily_report.individual_filled')
         } else if (hasTeamReport) {
@@ -842,12 +842,12 @@ function DailyReportModal({
     open,
     onClose,
     onSuccess,
-    hasTeam
+    isTeamLeader
 }: {
     open: boolean
     onClose: () => void
     onSuccess: () => void
-    hasTeam: boolean
+    isTeamLeader: boolean
 }) {
     const supabase = createClientComponentClient()
     const { t } = useTranslation('common')
@@ -1034,15 +1034,16 @@ function DailyReportModal({
                         </button>
                         <button
                             type="button"
-                            onClick={() => hasTeam && setReportType('TEAM')}
-                            disabled={!hasTeam}
+                            onClick={() => isTeamLeader && setReportType('TEAM')}
+                            disabled={!isTeamLeader}
                             className={`flex-1 py-3 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
                                 reportType === 'TEAM'
                                     ? 'bg-neutral-900 text-white'
                                     : 'bg-neutral-100 text-neutral-600'
-                            } ${!hasTeam ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            } ${!isTeamLeader ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={!isTeamLeader ? t('modals.daily_report.only_leader') : ''}
                         >
-                            <Users className="h-4 w-4" />
+                            <Crown className="h-4 w-4" />
                             {t('modals.daily_report.team')}
                             {existingTeamReport && <Check className="h-4 w-4 text-green-400" />}
                         </button>
@@ -1998,7 +1999,7 @@ function TeamSelectionScreen({ onComplete }: { onComplete: () => void }) {
 export default function AppPage() {
     const router = useRouter()
     const supabase = createClientComponentClient()
-    const { loading: loadingProfile, profile: operiumProfile, userName } = useOperiumProfile()
+    const { loading: loadingProfile, profile: operiumProfile, userName, userId } = useOperiumProfile()
     const { events, loading: loadingEvents, refreshEvents } = useOperiumEvents({ limit: 20 })
     const { t } = useTranslation('common')
 
@@ -2257,7 +2258,7 @@ export default function AppPage() {
             </header>
 
             {/* Smart Daily Report Reminder - Adapts based on time and completion status */}
-            <SmartReportReminder onOpenReport={() => setShowReportModal(true)} hasTeam={!!teamInfo} />
+            <SmartReportReminder onOpenReport={() => setShowReportModal(true)} isTeamLeader={!!(teamInfo && userId && teamInfo.leader_id === userId)} />
 
             {/* Equipment Acceptance Banner */}
             <EquipmentAcceptanceBanner
@@ -2411,7 +2412,7 @@ export default function AppPage() {
                 open={showReportModal}
                 onClose={() => setShowReportModal(false)}
                 onSuccess={handleReportSuccess}
-                hasTeam={!!teamInfo}
+                isTeamLeader={!!(teamInfo && userId && teamInfo.leader_id === userId)}
             />
             <EquipmentReturnModal
                 open={showReturnModal}

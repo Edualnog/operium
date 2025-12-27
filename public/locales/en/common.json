@@ -1772,7 +1772,8 @@
             "team_filled": "Team filled",
             "both_filled": "Both filled",
             "pending_individual": "Individual pending",
-            "pending_team": "Team pending"
+            "pending_team": "Team pending",
+            "only_leader": "Only the team leader can submit team reports"
         },
         "equipment_return": {
             "title": "Return Equipment",
