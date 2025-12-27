@@ -1674,7 +1674,9 @@
     },
     "mobile_app": {
         "header": {
-            "title": "Field Team"
+            "title": "Field Team",
+            "no_team": "No team assigned",
+            "loading": "Loading..."
         },
         "greeting": {
             "hello": "Hello",
@@ -1760,7 +1762,17 @@
             "notes_placeholder": "Problems, pending items, suggestions...",
             "submit": "Submit Report",
             "update": "Update Report",
-            "error": "Error saving"
+            "error": "Error saving",
+            "individual": "My Report",
+            "team": "Team",
+            "individual_desc": "Your personal activities",
+            "team_desc": "Team activities",
+            "select_type": "Select report type",
+            "individual_filled": "Individual filled",
+            "team_filled": "Team filled",
+            "both_filled": "Both filled",
+            "pending_individual": "Individual pending",
+            "pending_team": "Team pending"
         },
         "equipment_return": {
             "title": "Return Equipment",
@@ -1879,7 +1891,13 @@
     "reports": {
         "title": "Field Reports",
         "description": "Track operational records submitted by field teams.",
-        "loading": "Loading reports..."
+        "loading": "Loading reports...",
+        "type_filter": "Type",
+        "type_all": "All",
+        "type_individual": "Individual",
+        "type_team": "Team",
+        "badge_individual": "Individual",
+        "badge_team": "Team"
     },
     "access": {
         "title": "Access Control",

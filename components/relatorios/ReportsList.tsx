@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { DailyReport, getDailyReports } from "@/app/dashboard/relatorios/actions"
-import { Calendar, Filter, Search, FileText, Download, ChevronLeft, ChevronRight } from "lucide-react"
+import { Calendar, Filter, Search, FileText, Download, ChevronLeft, ChevronRight, User, Users } from "lucide-react"
 
 const ITEMS_PER_PAGE = 10
 
@@ -17,6 +17,7 @@ export default function ReportsList({
     const [loading, setLoading] = useState(false)
     const [dateFilter, setDateFilter] = useState("")
     const [teamFilter, setTeamFilter] = useState("")
+    const [typeFilter, setTypeFilter] = useState<'ALL' | 'INDIVIDUAL' | 'TEAM'>('ALL')
     const [searchTerm, setSearchTerm] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
 
@@ -26,7 +27,8 @@ export default function ReportsList({
         try {
             const data = await getDailyReports(
                 dateFilter || undefined,
-                teamFilter || undefined
+                teamFilter || undefined,
+                typeFilter
             )
             setReports(data)
         } catch (error) {
@@ -100,7 +102,21 @@ export default function ReportsList({
         <div className="space-y-6">
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                {/* Equipe first - primary filter for managers */}
+                {/* Tipo de relatório */}
+                <div className="flex-1 space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Tipo</label>
+                    <select
+                        value={typeFilter}
+                        onChange={(e) => setTypeFilter(e.target.value as 'ALL' | 'INDIVIDUAL' | 'TEAM')}
+                        className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm"
+                    >
+                        <option value="ALL">Todos</option>
+                        <option value="INDIVIDUAL">Individual</option>
+                        <option value="TEAM">Equipe</option>
+                    </select>
+                </div>
+
+                {/* Equipe */}
                 <div className="flex-1 space-y-2">
                     <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Equipe</label>
                     <select
@@ -117,7 +133,7 @@ export default function ReportsList({
                     </select>
                 </div>
 
-                {/* Data second */}
+                {/* Data */}
                 <div className="flex-1 space-y-2">
                     <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Data</label>
                     <div className="relative">
@@ -176,13 +192,26 @@ export default function ReportsList({
                             key={report.id}
                             className="group p-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm"
                         >
-                            {/* Header: Author, Team, Timestamp */}
+                            {/* Header: Author, Team, Type, Timestamp */}
                             <div className="flex items-start justify-between gap-4">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                                             {report.user_name}
                                         </h3>
+                                        <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                                        {/* Badge de tipo */}
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border ${
+                                            report.report_type === 'INDIVIDUAL'
+                                                ? 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900'
+                                                : 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-950/30 dark:text-purple-400 dark:border-purple-900'
+                                        }`}>
+                                            {report.report_type === 'INDIVIDUAL' ? (
+                                                <><User className="h-3 w-3" /> Individual</>
+                                            ) : (
+                                                <><Users className="h-3 w-3" /> Equipe</>
+                                            )}
+                                        </span>
                                         <span className="text-zinc-300 dark:text-zinc-600">•</span>
                                         <span className={`px-2 py-0.5 text-xs rounded border ${report.team_deleted
                                             ? 'bg-red-50 text-red-600 border-red-100 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900'

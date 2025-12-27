@@ -53,32 +53,35 @@ import { useTranslation } from 'react-i18next'
 // ============================================================================
 
 function SmartReportReminder({
-    onOpenReport
+    onOpenReport,
+    hasTeam
 }: {
     onOpenReport: () => void
+    hasTeam: boolean
 }) {
     const { t } = useTranslation('common')
     const supabase = createClientComponentClient()
-    const [hasReportToday, setHasReportToday] = useState(false)
+    const [hasIndividualReport, setHasIndividualReport] = useState(false)
+    const [hasTeamReport, setHasTeamReport] = useState(false)
     const [loading, setLoading] = useState(true)
     const [currentTime, setCurrentTime] = useState(new Date())
 
-    // Check if user has filled report today
+    // Check if user has filled reports today
     useEffect(() => {
-        const checkReport = async () => {
+        const checkReports = async () => {
             try {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (!user) return
 
                 const today = new Date().toISOString().split('T')[0]
-                const { data } = await supabase
+                const { data: reports } = await supabase
                     .from('field_reports')
-                    .select('id')
+                    .select('id, report_type')
                     .eq('user_id', user.id)
                     .eq('report_date', today)
-                    .maybeSingle()
 
-                setHasReportToday(!!data)
+                setHasIndividualReport(reports?.some(r => r.report_type === 'INDIVIDUAL') || false)
+                setHasTeamReport(reports?.some(r => r.report_type === 'TEAM') || false)
             } catch {
                 // Ignore errors
             } finally {
@@ -86,8 +89,12 @@ function SmartReportReminder({
             }
         }
 
-        checkReport()
+        checkReports()
     }, [supabase])
+
+    // Calculate if all reports are filled (individual required, team optional if has team)
+    const allReportsFilled = hasIndividualReport && (!hasTeam || hasTeamReport)
+    const hasAnyReport = hasIndividualReport || hasTeamReport
 
     // Update time every minute
     useEffect(() => {
@@ -102,11 +109,10 @@ function SmartReportReminder({
 
     const REMINDER_HOUR = 18 // 6 PM
     const currentHour = currentTime.getHours()
-    const currentMinute = currentTime.getMinutes()
 
     // Calculate next reminder time (tomorrow at 6 PM)
     const nextReminder = new Date(currentTime)
-    if (currentHour >= REMINDER_HOUR || hasReportToday) {
+    if (currentHour >= REMINDER_HOUR || allReportsFilled) {
         nextReminder.setDate(nextReminder.getDate() + 1)
     }
     nextReminder.setHours(REMINDER_HOUR, 0, 0, 0)
@@ -116,8 +122,22 @@ function SmartReportReminder({
     const hoursUntil = Math.floor(timeDiff / (1000 * 60 * 60))
     const minutesUntil = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))
 
-    // State A: Already filled today - show success message
-    if (hasReportToday) {
+    // Build status message
+    const getStatusMessage = () => {
+        if (hasIndividualReport && hasTeamReport) {
+            return t('modals.daily_report.both_filled')
+        } else if (hasIndividualReport) {
+            return hasTeam
+                ? `${t('modals.daily_report.individual_filled')} • ${t('modals.daily_report.pending_team')}`
+                : t('modals.daily_report.individual_filled')
+        } else if (hasTeamReport) {
+            return `${t('modals.daily_report.team_filled')} • ${t('modals.daily_report.pending_individual')}`
+        }
+        return ''
+    }
+
+    // State A: All reports filled today - show success message
+    if (allReportsFilled) {
         return (
             <div className="px-4 pt-3">
                 <div className="p-4 bg-green-50 rounded-2xl flex items-center gap-3">
@@ -129,7 +149,7 @@ function SmartReportReminder({
                             {t('report_reminder.already_filled')}
                         </p>
                         <p className="text-[13px] text-green-600 mt-0.5">
-                            {t('report_reminder.next_available')}: {t('report_reminder.tomorrow_at')} 18:00
+                            {getStatusMessage()}
                         </p>
                     </div>
                     <button
@@ -137,6 +157,33 @@ function SmartReportReminder({
                         className="px-3 py-1.5 text-[13px] font-medium text-green-700 hover:bg-green-100 rounded-lg transition-colors"
                     >
                         {t('report_reminder.view')}
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
+    // State B: Has some reports but not all - show partial status
+    if (hasAnyReport && currentHour >= REMINDER_HOUR) {
+        return (
+            <div className="px-4 pt-3">
+                <div className="p-4 bg-amber-50 rounded-2xl flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Clock className="h-5 w-5 text-white" strokeWidth={2} />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-[15px] font-semibold text-amber-900">
+                            {getStatusMessage()}
+                        </p>
+                        <p className="text-[13px] text-amber-600 mt-0.5">
+                            Complete todos os relatórios do dia
+                        </p>
+                    </div>
+                    <button
+                        onClick={onOpenReport}
+                        className="px-3 py-1.5 text-[13px] font-medium text-amber-700 hover:bg-amber-100 rounded-lg transition-colors"
+                    >
+                        Completar
                     </button>
                 </div>
             </div>
@@ -794,11 +841,13 @@ function VehicleStatusModal({
 function DailyReportModal({
     open,
     onClose,
-    onSuccess
+    onSuccess,
+    hasTeam
 }: {
     open: boolean
     onClose: () => void
     onSuccess: () => void
+    hasTeam: boolean
 }) {
     const supabase = createClientComponentClient()
     const { t } = useTranslation('common')
@@ -807,27 +856,43 @@ function DailyReportModal({
     const [notes, setNotes] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [existingReport, setExistingReport] = useState<any>(null)
     const [checking, setChecking] = useState(false)
 
-    const checkTodayReport = useCallback(async () => {
+    // Report type state (INDIVIDUAL or TEAM)
+    const [reportType, setReportType] = useState<'INDIVIDUAL' | 'TEAM'>('INDIVIDUAL')
+    const [existingIndividualReport, setExistingIndividualReport] = useState<any>(null)
+    const [existingTeamReport, setExistingTeamReport] = useState<any>(null)
+
+    // Get current report based on type
+    const existingReport = reportType === 'INDIVIDUAL' ? existingIndividualReport : existingTeamReport
+
+    const checkTodayReports = useCallback(async () => {
         setChecking(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
             const today = new Date().toISOString().split('T')[0]
-            const { data } = await supabase
+
+            // Fetch both report types
+            const { data: reports } = await supabase
                 .from('field_reports')
                 .select('*')
                 .eq('user_id', user.id)
                 .eq('report_date', today)
-                .maybeSingle()
-            if (data) {
-                setExistingReport(data)
-                setSummary(data.summary || '')
-                setNotes(data.notes || '')
+
+            // Separate by type
+            const individual = reports?.find(r => r.report_type === 'INDIVIDUAL') || null
+            const team = reports?.find(r => r.report_type === 'TEAM') || null
+
+            setExistingIndividualReport(individual)
+            setExistingTeamReport(team)
+
+            // Pre-load data based on current type
+            const currentReport = reportType === 'INDIVIDUAL' ? individual : team
+            if (currentReport) {
+                setSummary(currentReport.summary || '')
+                setNotes(currentReport.notes || '')
             } else {
-                setExistingReport(null)
                 setSummary('')
                 setNotes('')
             }
@@ -836,11 +901,23 @@ function DailyReportModal({
         } finally {
             setChecking(false)
         }
-    }, [supabase])
+    }, [supabase, reportType])
 
     useEffect(() => {
-        if (open) checkTodayReport()
-    }, [open, checkTodayReport])
+        if (open) checkTodayReports()
+    }, [open, checkTodayReports])
+
+    // Update form when switching report type
+    useEffect(() => {
+        const currentReport = reportType === 'INDIVIDUAL' ? existingIndividualReport : existingTeamReport
+        if (currentReport) {
+            setSummary(currentReport.summary || '')
+            setNotes(currentReport.notes || '')
+        } else {
+            setSummary('')
+            setNotes('')
+        }
+    }, [reportType, existingIndividualReport, existingTeamReport])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -864,9 +941,10 @@ function DailyReportModal({
             } else {
                 await supabase.from('field_reports').insert({
                     org_id: profile.org_id,
-                    team_id: profile.team_id,
+                    team_id: reportType === 'TEAM' ? profile.team_id : null,
                     user_id: user.id,
                     report_date: today,
+                    report_type: reportType,
                     summary,
                     notes
                 })
@@ -938,6 +1016,37 @@ function DailyReportModal({
                             <p className="text-sm text-red-600">{error}</p>
                         </div>
                     )}
+
+                    {/* Report Type Selector */}
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setReportType('INDIVIDUAL')}
+                            className={`flex-1 py-3 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
+                                reportType === 'INDIVIDUAL'
+                                    ? 'bg-neutral-900 text-white'
+                                    : 'bg-neutral-100 text-neutral-600'
+                            }`}
+                        >
+                            <User className="h-4 w-4" />
+                            {t('modals.daily_report.individual')}
+                            {existingIndividualReport && <Check className="h-4 w-4 text-green-400" />}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => hasTeam && setReportType('TEAM')}
+                            disabled={!hasTeam}
+                            className={`flex-1 py-3 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
+                                reportType === 'TEAM'
+                                    ? 'bg-neutral-900 text-white'
+                                    : 'bg-neutral-100 text-neutral-600'
+                            } ${!hasTeam ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            <Users className="h-4 w-4" />
+                            {t('modals.daily_report.team')}
+                            {existingTeamReport && <Check className="h-4 w-4 text-green-400" />}
+                        </button>
+                    </div>
 
                     {existingReport && (
                         <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3">
@@ -2112,13 +2221,26 @@ export default function AppPage() {
 
     return (
         <div className="min-h-screen bg-[#F2F2F7]">
-            {/* Header - iOS Native Style */}
+            {/* Header - Personalizado com nome do colaborador */}
             <header className="bg-[#F2F2F7] pt-safe">
                 <div className="px-4 pt-2 pb-1">
                     <div className="flex items-center justify-between">
                         <div className="flex-1">
-                            <p className="text-[13px] font-medium text-neutral-500 uppercase tracking-wide">Operium</p>
-                            <h1 className="text-[28px] font-bold text-neutral-900 -mt-0.5">{t('mobile_app.header.title')}</h1>
+                            {/* Nome do colaborador como título principal */}
+                            <h1 className="text-[28px] font-bold text-neutral-900">
+                                {userName || t('mobile_app.header.loading')}
+                            </h1>
+                            {/* Equipe como subtítulo */}
+                            {teamInfo ? (
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                    <Users className="h-3.5 w-3.5 text-neutral-400" />
+                                    <p className="text-[14px] font-medium text-neutral-500">{teamInfo.name}</p>
+                                </div>
+                            ) : (
+                                <p className="text-[14px] text-neutral-400 mt-0.5">
+                                    {t('mobile_app.header.no_team')}
+                                </p>
+                            )}
                         </div>
                         <div className="flex items-center gap-2">
                             <FieldLanguageSwitcher />
@@ -2135,7 +2257,7 @@ export default function AppPage() {
             </header>
 
             {/* Smart Daily Report Reminder - Adapts based on time and completion status */}
-            <SmartReportReminder onOpenReport={() => setShowReportModal(true)} />
+            <SmartReportReminder onOpenReport={() => setShowReportModal(true)} hasTeam={!!teamInfo} />
 
             {/* Equipment Acceptance Banner */}
             <EquipmentAcceptanceBanner
@@ -2145,19 +2267,6 @@ export default function AppPage() {
 
             {/* Main Content */}
             <main className="px-4 pt-4 pb-safe space-y-5">
-                {/* Greeting Card */}
-                <div className="bg-white rounded-2xl px-4 py-5">
-                    <h2 className="text-[22px] font-bold text-neutral-900">
-                        {t('mobile_app.greeting.hello')}{userName ? `, ${userName.split(' ')[0]}` : ''}!
-                    </h2>
-                    <p className="text-[15px] text-neutral-500 mt-0.5">{t('mobile_app.greeting.subtitle')}</p>
-                    {teamInfo && (
-                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-neutral-100">
-                            <Users className="h-4 w-4 text-neutral-400" />
-                            <span className="text-[14px] font-medium text-neutral-700">{teamInfo.name}</span>
-                        </div>
-                    )}
-                </div>
 
                 {/* Team Management Section */}
                 <div>
@@ -2302,6 +2411,7 @@ export default function AppPage() {
                 open={showReportModal}
                 onClose={() => setShowReportModal(false)}
                 onSuccess={handleReportSuccess}
+                hasTeam={!!teamInfo}
             />
             <EquipmentReturnModal
                 open={showReturnModal}

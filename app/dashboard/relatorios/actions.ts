@@ -12,15 +12,17 @@ export type DailyReport = {
     user_name: string
     team_name: string | null
     team_deleted: boolean
+    report_type: 'INDIVIDUAL' | 'TEAM'
 }
 
 export async function getDailyReports(
     date?: string,
-    teamId?: string
+    teamId?: string,
+    reportType?: 'INDIVIDUAL' | 'TEAM' | 'ALL'
 ): Promise<DailyReport[]> {
     const supabase = createServerActionClient({ cookies })
 
-    // Fetch reports - now including user_name from the table
+    // Fetch reports - now including user_name and report_type from the table
     let query = supabase
         .from("field_reports")
         .select(`
@@ -31,7 +33,8 @@ export async function getDailyReports(
             created_at,
             user_id,
             user_name,
-            team_id
+            team_id,
+            report_type
         `)
         .order("report_date", { ascending: false })
         .order("created_at", { ascending: false })
@@ -42,6 +45,11 @@ export async function getDailyReports(
 
     if (teamId) {
         query = query.eq("team_id", teamId)
+    }
+
+    // Filter by report type (INDIVIDUAL, TEAM, or ALL)
+    if (reportType && reportType !== 'ALL') {
+        query = query.eq("report_type", reportType)
     }
 
     const { data: reports, error } = await query
@@ -97,7 +105,8 @@ export async function getDailyReports(
             created_at: item.created_at,
             user_name: userName,
             team_name: teamMap.get(item.team_id)?.name || "Sem equipe",
-            team_deleted: !!teamMap.get(item.team_id)?.deleted_at
+            team_deleted: !!teamMap.get(item.team_id)?.deleted_at,
+            report_type: item.report_type || 'TEAM'
         }
     })
 }

@@ -1770,7 +1770,9 @@
     },
     "mobile_app": {
         "header": {
-            "title": "Equipe de Campo"
+            "title": "Equipe de Campo",
+            "no_team": "Sem equipe vinculada",
+            "loading": "Carregando..."
         },
         "greeting": {
             "hello": "Olá",
@@ -1856,7 +1858,17 @@
             "notes_placeholder": "Problemas, pendências, sugestões...",
             "submit": "Enviar Relatório",
             "update": "Atualizar Relatório",
-            "error": "Erro ao salvar"
+            "error": "Erro ao salvar",
+            "individual": "Meu Relatório",
+            "team": "Equipe",
+            "individual_desc": "Suas atividades pessoais",
+            "team_desc": "Atividades da equipe",
+            "select_type": "Selecione o tipo de relatório",
+            "individual_filled": "Individual preenchido",
+            "team_filled": "Equipe preenchido",
+            "both_filled": "Ambos preenchidos",
+            "pending_individual": "Individual pendente",
+            "pending_team": "Equipe pendente"
         },
         "equipment_return": {
             "title": "Devolver Equipamentos",
@@ -1957,7 +1969,13 @@
     "reports": {
         "title": "Relatórios de Campo",
         "description": "Acompanhe registros operacionais enviados pelas equipes em campo.",
-        "loading": "Carregando relatórios..."
+        "loading": "Carregando relatórios...",
+        "type_filter": "Tipo",
+        "type_all": "Todos",
+        "type_individual": "Individual",
+        "type_team": "Equipe",
+        "badge_individual": "Individual",
+        "badge_team": "Equipe"
     },
     "access": {
         "title": "Controle de Acessos",
