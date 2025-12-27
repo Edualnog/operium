@@ -229,7 +229,7 @@ export async function criarColaborador(formData: FormData) {
   }
 
   // Extract operational profile fields
-  const { role_function, seniority_bucket, ...colaboradorData} = data
+  const { role_function, seniority_bucket, ...colaboradorData } = data
 
   // Validate email uniqueness GLOBALLY (not just in user's account)
   if (colaboradorData.email) {
@@ -348,6 +348,64 @@ export async function criarColaborador(formData: FormData) {
             console.error("Error creating operium_profiles:", opProfileError)
           } else {
             console.log(`[criarColaborador] App access created for ${data.email}`)
+
+            // Send welcome email with app download link
+            try {
+              const appDownloadUrl = 'https://cmgmobhnrjawfdafhqko.supabase.co/storage/v1/object/public/documentos/Operium.apk'
+              const loginUrl = 'https://operium.com.br/app'
+
+              // Try to send email via Supabase Edge Function (if configured)
+              // Otherwise, log the credentials for manual communication
+              const emailBody = `
+Olá ${data.nome}!
+
+Sua conta no Operium foi criada com sucesso.
+
+📱 BAIXE O APP DO COLABORADOR:
+${appDownloadUrl}
+
+🔐 SEUS DADOS DE ACESSO:
+• Email: ${data.email}
+• Senha: ${senhaApp}
+• Link de acesso: ${loginUrl}
+
+INSTRUÇÕES:
+1. Baixe o arquivo APK no seu celular Android
+2. Instale o aplicativo (pode precisar permitir "fontes desconhecidas")
+3. Abra o app e faça login com os dados acima
+4. Na primeira vez, selecione sua equipe
+
+Em caso de dúvidas, entre em contato com seu supervisor.
+
+Atenciosamente,
+Equipe Operium
+              `.trim()
+
+              // Log for now - can be replaced with actual email service
+              console.log(`[criarColaborador] Welcome email content for ${data.email}:`)
+              console.log(emailBody)
+
+              // Attempt to call Edge Function if available
+              const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-welcome-email`
+              await fetch(edgeFunctionUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${serviceRoleKey}`
+                },
+                body: JSON.stringify({
+                  to: data.email,
+                  subject: 'Bem-vindo ao Operium - Dados de Acesso',
+                  body: emailBody
+                })
+              }).catch(() => {
+                // Edge function not configured - that's ok
+                console.log(`[criarColaborador] Edge function not available, email not sent automatically`)
+              })
+            } catch (emailErr) {
+              console.error("Error sending welcome email:", emailErr)
+              // Don't throw - email is optional
+            }
           }
         }
       }
