@@ -223,7 +223,8 @@ export async function updateTeam(id: string, formData: {
 export async function getTeamMembers(teamId: string): Promise<TeamMember[]> {
     const supabase = createServerActionClient({ cookies })
 
-    const { data, error } = await supabase
+    // 1. Get members from team_members table (added via dashboard)
+    const { data: dashboardMembers, error: dashboardError } = await supabase
         .from("team_members")
         .select(`
       *,
@@ -234,20 +235,73 @@ export async function getTeamMembers(teamId: string): Promise<TeamMember[]> {
       )
     `)
         .eq("team_id", teamId)
+        .is("left_at", null)
         .order("joined_at", { ascending: false })
 
-    if (error) {
-        console.error("Error fetching team members:", error)
-        return []
+    if (dashboardError) {
+        console.error("Error fetching team_members:", dashboardError)
     }
 
-    // Flatten the response for easier consumption
-    return data.map((item: any) => ({
-        ...item,
-        colaborador_nome: item.colaboradores?.nome,
-        colaborador_foto: item.colaboradores?.foto_url,
-        colaborador_cargo: item.colaboradores?.cargo
-    })) as TeamMember[]
+    // 2. Get members from operium_profiles (joined via app)
+    const { data: appMembers, error: appError } = await supabase
+        .from("operium_profiles")
+        .select(`
+      user_id,
+      name,
+      photo_url,
+      role,
+      created_at,
+      collaborator_id
+    `)
+        .eq("team_id", teamId)
+        .eq("active", true)
+
+    if (appError) {
+        console.error("Error fetching operium_profiles members:", appError)
+    }
+
+    // Combine both sources
+    const combinedMembers: TeamMember[] = []
+
+    // Add dashboard members
+    if (dashboardMembers) {
+        combinedMembers.push(...dashboardMembers.map((item: any) => ({
+            ...item,
+            colaborador_nome: item.colaboradores?.nome,
+            colaborador_foto: item.colaboradores?.foto_url,
+            colaborador_cargo: item.colaboradores?.cargo,
+            source: 'dashboard' as const
+        })))
+    }
+
+    // Add app members (avoid duplicates by collaborator_id)
+    if (appMembers) {
+        const existingCollaboratorIds = new Set(
+            dashboardMembers?.map((m: any) => m.colaborador_id).filter(Boolean) || []
+        )
+
+        for (const appMember of appMembers) {
+            // Skip if this collaborator is already in dashboard members
+            if (appMember.collaborator_id && existingCollaboratorIds.has(appMember.collaborator_id)) {
+                continue
+            }
+
+            combinedMembers.push({
+                id: `app_${appMember.user_id}`,
+                team_id: teamId,
+                colaborador_id: appMember.collaborator_id,
+                role: 'membro',
+                joined_at: appMember.created_at,
+                left_at: null,
+                colaborador_nome: appMember.name,
+                colaborador_foto: appMember.photo_url,
+                colaborador_cargo: appMember.role === 'FIELD' ? 'Campo' : appMember.role,
+                source: 'app' as const
+            } as TeamMember)
+        }
+    }
+
+    return combinedMembers
 }
 
 export async function addTeamMember(teamId: string, colaboradorId: string, role?: string) {
