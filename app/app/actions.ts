@@ -984,7 +984,7 @@ export async function getFullRanking(): Promise<RankingCollaborator[]> {
         .from("colaboradores")
         .select("id, nome, foto_url, almox_score, user_id")
         .eq("profile_id", profile.org_id)
-        .is("demitido_at", null) // Exclude dismissed collaborators
+    // Temporarily removed demitido_at filter for debugging
 
     console.log("[getFullRanking] Query result:", {
         org_id: profile.org_id,
