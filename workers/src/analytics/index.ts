@@ -184,14 +184,13 @@ async function executeQuery(env: Env, sql: string): Promise<QueryResult> {
 
 /**
  * Overview geral
+ * Nota: Analytics Engine usa sum(_sample_interval) para contagem
  */
 async function handleOverview(env: Env): Promise<Response> {
   const sql = `
     SELECT
-      COUNT(*) as total_events,
-      COUNT(DISTINCT blob3) as unique_orgs,
-      COUNT(DISTINCT blob5) as unique_pages,
-      AVG(double2) as avg_time_on_page_ms
+      sum(_sample_interval) as total_events,
+      avg(double2) as avg_time_on_page_ms
     FROM operium_events
     WHERE timestamp > NOW() - INTERVAL '7' DAY
   `;
@@ -211,8 +210,7 @@ async function handleTopEvents(env: Env, days: number, limit: number): Promise<R
   const sql = `
     SELECT
       blob1 as event_name,
-      SUM(double1) as count,
-      COUNT(DISTINCT blob3) as unique_orgs
+      sum(_sample_interval) as count
     FROM operium_events
     WHERE timestamp > NOW() - INTERVAL '${days}' DAY
     GROUP BY blob1
@@ -236,9 +234,8 @@ async function handleTopPages(env: Env, days: number, limit: number): Promise<Re
   const sql = `
     SELECT
       blob5 as page_path,
-      SUM(double1) as views,
-      AVG(double2) as avg_time_ms,
-      COUNT(DISTINCT blob3) as unique_orgs
+      sum(_sample_interval) as views,
+      avg(double2) as avg_time_ms
     FROM operium_events
     WHERE timestamp > NOW() - INTERVAL '${days}' DAY
       AND blob1 = 'PAGE_VIEWED'
@@ -265,7 +262,7 @@ async function handleByIndustry(env: Env, days: number): Promise<Response> {
     SELECT
       blob4 as industry,
       blob1 as event_name,
-      SUM(double1) as count
+      sum(_sample_interval) as count
     FROM operium_events
     WHERE timestamp > NOW() - INTERVAL '${days}' DAY
       AND blob4 != 'unknown'
@@ -304,9 +301,9 @@ async function handleByIndustry(env: Env, days: number): Promise<Response> {
 async function handleHourlyHeatmap(env: Env, days: number): Promise<Response> {
   const sql = `
     SELECT
-      toHour(timestamp) as hour,
+      intDiv(toUInt32(timestamp - toStartOfDay(timestamp)), 3600) as hour,
       toDayOfWeek(timestamp) as day_of_week,
-      SUM(double1) as count
+      sum(_sample_interval) as count
     FROM operium_events
     WHERE timestamp > NOW() - INTERVAL '${days}' DAY
     GROUP BY hour, day_of_week
