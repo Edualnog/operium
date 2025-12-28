@@ -1,8 +1,9 @@
 # =============================================================================
 # Operium Telemetry Consumer Worker
 # =============================================================================
-# Consome eventos do Queue e escreve no R2 como NDJSON
-# Particionamento: date=YYYY-MM-DD/hour=HH/org=<org_id>/events-<uuid>.ndjson
+# Consome eventos do Queue e escreve no R2 + Analytics Engine
+# R2: Armazenamento raw para backup e queries históricas
+# Analytics Engine: Queries SQL em tempo real para dashboards
 # =============================================================================
 
 name = "operium-telemetry-consumer"
@@ -15,28 +16,39 @@ queue = "telemetry-events"
 max_batch_size = 20
 max_batch_timeout = 5
 
-# R2 bucket para armazenamento
+# R2 bucket para armazenamento raw
 [[r2_buckets]]
 binding = "TELEMETRY_BUCKET"
 bucket_name = "operium-telemetry-raw"
 
+# Analytics Engine para queries em tempo real
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "operium_events"
+
 # Variáveis de ambiente
 [vars]
 ENVIRONMENT = "production"
-WORKER_VERSION = "1.0.0"
+WORKER_VERSION = "1.1.0"
 
 # Ambiente de staging
 [env.staging]
 name = "operium-telemetry-consumer-staging"
+vars = { ENVIRONMENT = "staging", WORKER_VERSION = "1.1.0" }
 [[env.staging.r2_buckets]]
 binding = "TELEMETRY_BUCKET"
 bucket_name = "operium-telemetry-raw-staging"
-vars = { ENVIRONMENT = "staging" }
+[[env.staging.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "operium_events_staging"
 
 # Ambiente de desenvolvimento
 [env.dev]
 name = "operium-telemetry-consumer-dev"
+vars = { ENVIRONMENT = "development", WORKER_VERSION = "1.1.0" }
 [[env.dev.r2_buckets]]
 binding = "TELEMETRY_BUCKET"
 bucket_name = "operium-telemetry-raw-dev"
-vars = { ENVIRONMENT = "development" }
+[[env.dev.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "operium_events_dev"
