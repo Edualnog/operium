@@ -3,6 +3,7 @@
 import { Flame, Trophy, Zap, Star, RotateCcw, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
+import { useAnalytics } from "@/lib/hooks/useAnalytics"
 
 export interface GamificationData {
   colaborador_nome: string
@@ -20,8 +21,37 @@ interface GamificationToastProps {
 export function GamificationToast({ data, onClose }: GamificationToastProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
+  const { trackGamification } = useAnalytics()
+
+  const isNewRecord = data.current_streak > 0 && data.current_streak === data.max_streak
 
   useEffect(() => {
+    // Track gamification event
+    trackGamification({
+      event_type: 'streak',
+      previous_value: data.current_streak - 1,
+      new_value: data.current_streak,
+      trigger: data.tipo_acao,
+    })
+
+    // Track record if achieved
+    if (isNewRecord && data.current_streak > 1) {
+      trackGamification({
+        event_type: 'milestone',
+        new_value: data.current_streak,
+        trigger: 'new_streak_record',
+      })
+    }
+
+    // Track streak milestones
+    if ([7, 14, 30].includes(data.current_streak)) {
+      trackGamification({
+        event_type: 'milestone',
+        new_value: data.current_streak,
+        trigger: 'streak_milestone',
+      })
+    }
+
     // Animate in
     const showTimer = setTimeout(() => setIsVisible(true), 50)
 
@@ -43,7 +73,6 @@ export function GamificationToast({ data, onClose }: GamificationToastProps) {
     setTimeout(onClose, 300)
   }
 
-  const isNewRecord = data.current_streak > 0 && data.current_streak === data.max_streak
   const hasStreak = data.current_streak > 0
 
   // Get streak color based on count

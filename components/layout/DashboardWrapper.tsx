@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { LanguageSwitcher } from "@/components/ui/language-switcher"
 import { useOperiumProfile } from "@/lib/hooks/useOperiumProfile"
+import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider"
 
 export default function DashboardWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -183,14 +184,16 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     : links
 
   return (
-    <Sidebar>
-      <SidebarContent
-        links={displayedLinks}
-        pathname={pathname}
-        onLogout={handleLogout}
-      />
-      <DynamicMainContent userId={userId}>{children}</DynamicMainContent>
-    </Sidebar>
+    <AnalyticsProvider>
+      <Sidebar>
+        <SidebarContent
+          links={displayedLinks}
+          pathname={pathname}
+          onLogout={handleLogout}
+        />
+        <DynamicMainContent userId={userId}>{children}</DynamicMainContent>
+      </Sidebar>
+    </AnalyticsProvider>
   )
 }
 

@@ -3,6 +3,7 @@
 import { Package, Users, Trophy, Zap, Star, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
+import { useAnalytics } from "@/lib/hooks/useAnalytics"
 
 export interface RegistrationCelebrationData {
   type: "ferramenta" | "colaborador"
@@ -21,11 +22,24 @@ const MILESTONES = [5, 10, 25, 50, 100, 250, 500, 1000]
 export function RegistrationCelebration({ data, onClose }: RegistrationCelebrationProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
+  const { trackRegistrationMilestone, trackGamification } = useAnalytics()
 
   const isMilestone = MILESTONES.includes(data.totalCount)
   const nextMilestone = MILESTONES.find(m => m > data.totalCount) || data.totalCount + 10
 
   useEffect(() => {
+    // Track registration event
+    trackRegistrationMilestone(data.type, data.totalCount, isMilestone)
+
+    // Track milestone achievement if applicable
+    if (isMilestone) {
+      trackGamification({
+        event_type: 'milestone',
+        new_value: data.totalCount,
+        trigger: `registration_${data.type}`,
+      })
+    }
+
     const showTimer = setTimeout(() => setIsVisible(true), 50)
 
     // Auto close - mais tempo para milestones
