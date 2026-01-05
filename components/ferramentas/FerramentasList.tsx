@@ -1359,14 +1359,14 @@ function FerramentasList({
         </div>
 
         {/* Mobile-only action bar */}
-        <div className="flex sm:hidden gap-2 overflow-x-auto pb-2">
-          <Button variant="outline" size="sm" onClick={() => setImportInvoiceOpen(true)} className="flex-shrink-0 text-xs">
+        <div className="grid sm:hidden grid-cols-2 gap-2">
+          <Button variant="outline" size="sm" onClick={() => setImportInvoiceOpen(true)} className="w-full text-xs h-9">
             <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            {t("dashboard.ferramentas.add_invoice_ai")}
+            <span className="truncate">{t("dashboard.ferramentas.add_invoice_ai")}</span>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="flex-shrink-0 text-xs">
+              <Button variant="outline" size="sm" className="w-full text-xs h-9">
                 <FileDown className="h-3.5 w-3.5 mr-1.5" />
                 {t("dashboard.ferramentas.export")}
               </Button>
