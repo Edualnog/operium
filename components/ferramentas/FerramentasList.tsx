@@ -1044,13 +1044,13 @@ function FerramentasList({
                   {t("dashboard.ferramentas.new_button")}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-[92vw] sm:max-w-[85vw] md:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+              <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[85vw] md:max-w-2xl h-[85vh] max-h-[85vh] overflow-y-auto p-3 sm:p-6">
                 <form onSubmit={handleSubmit}>
-                  <DialogHeader>
-                    <DialogTitle>
+                  <DialogHeader className="space-y-1">
+                    <DialogTitle className="text-lg sm:text-xl">
                       {editing ? t("dashboard.ferramentas.form.title_edit") : t("dashboard.ferramentas.form.title_new")}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-xs sm:text-sm">
                       {editing
                         ? t("dashboard.ferramentas.form.desc_edit")
                         : t("dashboard.ferramentas.form.desc_new")}
@@ -1311,7 +1311,7 @@ function FerramentasList({
                       </div>
                     </div>
                   </div>
-                  <DialogFooter>
+                  <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
                     <Button
                       type="button"
                       variant="outline"
@@ -1320,10 +1320,11 @@ function FerramentasList({
                         setEditing(null)
                         setCatalogItemId(null) // Reset on close
                       }}
+                      className="w-full sm:w-auto"
                     >
                       {t("dashboard.ferramentas.form.cancel")}
                     </Button>
-                    <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white">
+                    <Button type="submit" disabled={loading} className="bg-[#37352f] hover:bg-zinc-800 text-white w-full sm:w-auto">
                       {loading ? t("dashboard.ferramentas.form.saving") : t("dashboard.ferramentas.form.save")}
                     </Button>
                   </DialogFooter>
