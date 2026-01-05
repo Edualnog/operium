@@ -1,15 +1,16 @@
 "use client"
 
-import { ArrowRight, Check, Shield, Smartphone, Headphones, Zap } from "lucide-react"
+import { ArrowRight, Check, Shield, Smartphone, Headphones, Zap, RefreshCw } from "lucide-react"
 import Link from "next/link"
 
 const KIWIFY_CHECKOUT_URL = "https://pay.kiwify.com.br/jn2fcCX"
 
 const features = [
   { icon: Shield, text: "Licença vitalícia - pague uma vez, use para sempre" },
+  { icon: Headphones, text: "Suporte vitalício incluído por email e WhatsApp" },
   { icon: Smartphone, text: "App mobile incluso para sua equipe de campo" },
-  { icon: Headphones, text: "Suporte prioritário por email e WhatsApp" },
   { icon: Zap, text: "Atualizações gratuitas para sempre" },
+  { icon: RefreshCw, text: "7 dias de garantia - reembolso total se não gostar" },
 ]
 
 export default function SubscribePage() {
@@ -57,7 +58,7 @@ export default function SubscribePage() {
           </a>
 
           <p className="text-center text-xs text-slate-500 mt-4">
-            Pagamento seguro processado pela Kiwify
+            Suporte vitalício • 7 dias de garantia • Pagamento seguro via Kiwify
           </p>
         </div>
 

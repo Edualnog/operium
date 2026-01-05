@@ -25,11 +25,11 @@
             "welcome_back": "Bem-vindo de volta"
         },
         "signup": {
-            "title": "Crie sua conta grátis",
-            "subtitle": "Comece a organizar seu almoxarifado em segundos.",
+            "title": "Crie sua conta",
+            "subtitle": "Acesse o Operium e organize seu almoxarifado.",
             "has_account": "Já tem uma conta?",
             "login_here": "Entre aqui",
-            "submit": "Criar Conta Grátis",
+            "submit": "Criar Conta",
             "submitting": "Criando conta...",
             "terms_agreement": "Ao criar sua conta, você concorda com nossos",
             "terms": "Termos e Condições",
@@ -523,12 +523,12 @@
             "movements_month": "Movimentações do Mês"
         },
         "trial": {
-            "days_remaining": "Faltam {{days}} dias do seu teste grátis",
-            "last_day": "Último dia do seu teste grátis!",
-            "trial_ended": "Seu período de teste grátis acabou",
+            "days_remaining": "Faltam {{days}} dias do seu período de avaliação",
+            "last_day": "Último dia do seu período de avaliação!",
+            "trial_ended": "Seu período de avaliação acabou",
             "use_all_features": "Aproveite para testar todas as funcionalidades do sistema.",
-            "activate_to_continue": "Para continuar usando todas as funcionalidades, ative sua assinatura agora.",
-            "activate_subscription": "Ativar Assinatura Agora"
+            "activate_to_continue": "Para continuar usando, adquira sua licença vitalícia agora.",
+            "activate_subscription": "Adquirir Licença"
         },
         "status": {
             "available": "Disponível",
@@ -818,18 +818,18 @@
             "title": "Minha Conta",
             "subtitle": "Gerencie sua assinatura e dados da empresa",
             "plan": {
-                "professional": "Profissional",
-                "free_trial": "Teste Grátis",
+                "professional": "Licença Vitalícia",
+                "free_trial": "Período de Avaliação",
                 "pending_payment": "Pagamento Pendente",
                 "canceled": "Cancelado",
-                "no_plan": "Sem Plano",
+                "no_plan": "Sem Licença",
                 "active": "Ativo",
                 "full_access": "Acesso completo a todas as funcionalidades",
-                "trial_days": "7 dias de acesso completo para experimentar",
-                "trial_remaining": "Restam {{days}} dias de acesso gratuito",
+                "trial_days": "7 dias de acesso para experimentar",
+                "trial_remaining": "Restam {{days}} dias de avaliação",
                 "update_payment": "Atualize sua forma de pagamento",
-                "subscription_canceled": "Sua assinatura foi cancelada",
-                "subscribe_full": "Assine para acessar todas as funcionalidades"
+                "subscription_canceled": "Sua licença foi cancelada",
+                "subscribe_full": "Adquira a licença para continuar"
             },
             "subscription": {
                 "manage": "Gerenciar assinatura",
@@ -1318,11 +1318,11 @@
             "title_part3": "",
             "description": "Organize ferramentas, máquinas, veículos, EPIs e materiais em um único sistema simples e rápido, com app mobile incluso.",
             "cta_button": "Adquirir licença vitalícia",
-            "cta_subtext": "Pagamento único, acesso para sempre",
-            "no_card": "Licença vitalícia com pagamento único. App mobile incluído. Suporte prioritário.",
+            "cta_subtext": "Suporte vitalício • 7 dias de garantia",
+            "no_card": "Licença vitalícia com pagamento único. Suporte vitalício incluído. 7 dias de garantia para reembolso.",
             "partners": "Empresas parceiras que confiam no Operium",
-            "chip_free": "Para sempre gratuito",
-            "chip_mobile": "App mobile incluído"
+            "chip_free": "Licença vitalícia",
+            "chip_mobile": "7 dias de garantia"
         },
         "pain_points": {
             "title": "Seus ativos são um buraco negro de dinheiro?",
@@ -1366,16 +1366,16 @@
             "autofill_mobile": "• Organiza por valor/criticidade\n• Foco no que importa"
         },
         "features": {
-            "support_title": "Suporte com 95% de satisfação",
-            "support_desc": "Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.",
+            "support_title": "Suporte vitalício incluído",
+            "support_desc": "Atendimento ágil e humanizado para sempre. Fale com quem entende do assunto via WhatsApp, email ou chat.",
             "online_title": "Sistema 100% online",
             "online_desc": "Acesse o Operium a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.",
-            "price_title": "Sem cobranças surpresa. Nunca.",
-            "price_desc": "Use o Operium gratuitamente, sem limite de tempo. Não pedimos cartão de crédito e não ativamos cobranças automáticas. Se no futuro lançarmos planos pagos com recursos avançados, você só contrata se quiser. O acesso gratuito continua disponível para pequenas empresas."
+            "price_title": "Pagamento único, acesso vitalício",
+            "price_desc": "Pague uma vez e use para sempre. Sem mensalidades, sem surpresas. Inclui suporte vitalício, atualizações e app mobile. Garantia de 7 dias para reembolso total."
         },
         "how_it_works": {
             "title": "Simples como deve ser",
-            "subtitle": "Comece a usar em menos de 5 minutos, totalmente grátis.",
+            "subtitle": "Comece a usar em menos de 5 minutos após a compra.",
             "step1_title": "Cadastre",
             "step1_desc": "Importe seus produtos ou cadastre em segundos.",
             "step2_title": "Movimente",
@@ -1412,21 +1412,21 @@
             "annual_equiv": "≈ R$49,75/mês",
             "per_month": "/mês",
             "billed_annually": "Cobrado anualmente (R$ 478,80)",
-            "billed_monthly": "Cobrado mensalmente",
+            "billed_monthly": "Pagamento único",
             "feat_stock": "Estoque ilimitado",
             "feat_users": "Usuários ilimitados",
             "feat_tools": "Gestão de ferramentas",
             "feat_epi": "Controle de EPIs",
-            "feat_support": "Suporte prioritário via WhatsApp",
-            "cta": "Começar teste grátis de 7 dias",
-            "cancel_anytime": "Cancele quando quiser. Sem fidelidade."
+            "feat_support": "Suporte vitalício via WhatsApp",
+            "cta": "Adquirir licença vitalícia",
+            "cancel_anytime": "7 dias de garantia para reembolso total."
         },
         "cta_final": {
-            "title": "Gestão de ativos organizada sem pagar mensalidade.",
-            "subtitle": "Todos os recursos principais já estão na versão grátis: controle de ativos, QR Code, app mobile, alertas.",
-            "button": "Criar conta grátis agora",
-            "button_subtext": "Leva menos de 2 minutos, sem cartão",
-            "join": "Grátis para sempre para pequenas empresas. Comece agora."
+            "title": "Gestão de ativos completa com pagamento único.",
+            "subtitle": "Todos os recursos inclusos: controle de ativos, QR Code, app mobile, alertas e suporte vitalício.",
+            "button": "Adquirir licença vitalícia",
+            "button_subtext": "Suporte vitalício • 7 dias de garantia",
+            "join": "Licença vitalícia com suporte incluído. Garantia de 7 dias."
         },
         "footer": {
             "terms": "Termos de Uso",

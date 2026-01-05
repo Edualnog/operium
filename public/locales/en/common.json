@@ -30,11 +30,11 @@
             "welcome_back": "Welcome Back"
         },
         "signup": {
-            "title": "Create your free account",
-            "subtitle": "Start organizing your warehouse in seconds.",
+            "title": "Create your account",
+            "subtitle": "Access Operium and organize your warehouse.",
             "has_account": "Already have an account?",
             "login_here": "Login here",
-            "submit": "Create Free Account",
+            "submit": "Create Account",
             "submitting": "Creating account...",
             "terms_agreement": "By creating your account, you agree to our",
             "terms": "Terms and Conditions",
@@ -475,12 +475,12 @@
             "movements_month": "Movements this Month"
         },
         "trial": {
-            "days_remaining": "{{days}} days left in your free trial",
-            "last_day": "Last day of your free trial!",
-            "trial_ended": "Your free trial has ended",
+            "days_remaining": "{{days}} days left in your evaluation period",
+            "last_day": "Last day of your evaluation period!",
+            "trial_ended": "Your evaluation period has ended",
             "use_all_features": "Take advantage to test all system features.",
-            "activate_to_continue": "To continue using all features, activate your subscription now.",
-            "activate_subscription": "Activate Subscription Now"
+            "activate_to_continue": "To continue using, get your lifetime license now.",
+            "activate_subscription": "Get License"
         },
         "status": {
             "available": "Available",
@@ -775,18 +775,18 @@
             "title": "My Account",
             "subtitle": "Manage your subscription and company data",
             "plan": {
-                "professional": "Professional",
-                "free_trial": "Free Trial",
+                "professional": "Lifetime License",
+                "free_trial": "Evaluation Period",
                 "pending_payment": "Pending Payment",
                 "canceled": "Canceled",
-                "no_plan": "No Plan",
+                "no_plan": "No License",
                 "active": "Active",
                 "full_access": "Full access to all features",
-                "trial_days": "7 days of full access to try",
-                "trial_remaining": "{{days}} days of free access remaining",
+                "trial_days": "7 days of access to try",
+                "trial_remaining": "{{days}} days of evaluation remaining",
                 "update_payment": "Update your payment method",
-                "subscription_canceled": "Your subscription was canceled",
-                "subscribe_full": "Subscribe to access all features"
+                "subscription_canceled": "Your license was canceled",
+                "subscribe_full": "Get license to continue"
             },
             "subscription": {
                 "manage": "Manage subscription",
@@ -1243,11 +1243,11 @@
             "title_part3": "",
             "description": "Organize tools, machines, vehicles, PPE and materials in a single simple and fast system, with mobile app included.",
             "cta_button": "Get lifetime license",
-            "cta_subtext": "One-time payment, access forever",
-            "no_card": "Lifetime license with one-time payment. Mobile app included. Priority support.",
+            "cta_subtext": "Lifetime support • 7-day guarantee",
+            "no_card": "Lifetime license with one-time payment. Lifetime support included. 7-day money-back guarantee.",
             "partners": "Partner companies that trust Operium",
-            "chip_free": "Free forever",
-            "chip_mobile": "Mobile app included"
+            "chip_free": "Lifetime license",
+            "chip_mobile": "7-day guarantee"
         },
         "pain_points": {
             "title": "Are your assets a money black hole?",
@@ -1291,16 +1291,16 @@
             "autofill_mobile": "• Organize by value/criticality\n• Focus on what matters"
         },
         "features": {
-            "support_title": "Support with 95% satisfaction",
-            "support_desc": "Agile and humanized service. Talk to those who understand the subject via WhatsApp, email or chat.",
+            "support_title": "Lifetime support included",
+            "support_desc": "Agile and humanized service forever. Talk to those who understand the subject via WhatsApp, email or chat.",
             "online_title": "100% online system",
             "online_desc": "Access Operium anytime, anywhere. From the office, home or directly from the work.",
-            "price_title": "No surprise charges. Ever.",
-            "price_desc": "Use Operium for free, with no time limit. We don't ask for a credit card and we don't enable automatic charges. If we launch paid plans with advanced features in the future, you only upgrade if you want to. Free access remains available for small businesses."
+            "price_title": "One-time payment, lifetime access",
+            "price_desc": "Pay once and use forever. No monthly fees, no surprises. Includes lifetime support, updates and mobile app. 7-day money-back guarantee."
         },
         "how_it_works": {
             "title": "Simple as it should be",
-            "subtitle": "Start using in less than 5 minutes, completely free.",
+            "subtitle": "Start using in less than 5 minutes after purchase.",
             "step1_title": "Register",
             "step1_desc": "Import your products or register in seconds.",
             "step2_title": "Move",
@@ -1337,21 +1337,21 @@
             "annual_equiv": "≈ $11.58/mo",
             "per_month": "/month",
             "billed_annually": "Billed annually (R$ 478,80)",
-            "billed_monthly": "Billed monthly",
+            "billed_monthly": "One-time payment",
             "feat_stock": "Unlimited stock",
             "feat_users": "Unlimited users",
             "feat_tools": "Tool management",
             "feat_epi": "PPE control",
-            "feat_support": "Priority support via WhatsApp",
-            "cta": "Start 7-day free trial",
-            "cancel_anytime": "Cancel anytime. No loyalty."
+            "feat_support": "Lifetime support via WhatsApp",
+            "cta": "Get lifetime license",
+            "cancel_anytime": "7-day money-back guarantee."
         },
         "cta_final": {
-            "title": "Organized asset management without paying monthly fees.",
-            "subtitle": "All main features are already in the free version: asset control, QR Code, mobile app, alerts.",
-            "button": "Create free account now",
-            "button_subtext": "Takes less than 2 minutes, no card",
-            "join": "Free forever for small businesses. Start now."
+            "title": "Complete asset management with one-time payment.",
+            "subtitle": "All features included: asset control, QR Code, mobile app, alerts and lifetime support.",
+            "button": "Get lifetime license",
+            "button_subtext": "Lifetime support • 7-day guarantee",
+            "join": "Lifetime license with support included. 7-day guarantee."
         },
         "footer": {
             "terms": "Terms of Use",
