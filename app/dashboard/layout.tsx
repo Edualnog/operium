@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { getSupabaseUser } from "@/lib/supabase-server"
+import { isAdminEmail } from "@/lib/admin-emails"
 import dynamic from "next/dynamic"
 import { LegalAgreementModal } from "@/components/legal/LegalAgreementModal"
 
@@ -93,8 +94,11 @@ export default async function DashboardLayout({
     }
   }
 
-  // Só redirecionar para subscribe se não tiver assinatura, não tiver passado pelo checkout E não estiver no trial
-  if (!hasActiveSubscription && !hasStripeCustomer && !isInTrial) {
+  // Check if user is admin (free access)
+  const isAdmin = isAdminEmail(user.email || '')
+
+  // Only redirect to subscribe if not admin, no subscription, no checkout, AND not in trial
+  if (!isAdmin && !hasActiveSubscription && !hasStripeCustomer && !isInTrial) {
     redirect("/subscribe")
   }
 
