@@ -1234,17 +1234,17 @@
             "testimonials": "Testimonials",
             "dashboard": "Go to Dashboard",
             "login": "Login",
-            "start_free": "Start Free"
+            "start_free": "Get License"
         },
         "hero": {
             "badge": "More than 200 companies have already organized their house",
-            "title_part1": "Operium – Free ERP for asset management",
+            "title_part1": "Operium – Complete ERP for asset management",
             "title_part2": "and warehouse control",
             "title_part3": "",
-            "description": "Organize tools, machines, vehicles, PPE and materials in a single simple, fast and 100% free system, with mobile app.",
-            "cta_button": "Create free account now",
-            "cta_subtext": "Takes less than 2 minutes, no card",
-            "no_card": "Free forever for small businesses. No card. No catches. Mobile app included.",
+            "description": "Organize tools, machines, vehicles, PPE and materials in a single simple and fast system, with mobile app included.",
+            "cta_button": "Get lifetime license",
+            "cta_subtext": "One-time payment, access forever",
+            "no_card": "Lifetime license with one-time payment. Mobile app included. Priority support.",
             "partners": "Partner companies that trust Operium",
             "chip_free": "Free forever",
             "chip_mobile": "Mobile app included"

@@ -88,12 +88,15 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
     { src: "/images/logos/figma.png", alt: "Figma" },
   ]
 
+  const KIWIFY_CHECKOUT_URL = "https://pay.kiwify.com.br/jn2fcCX"
+
   const handleStart = () => {
     setCheckoutLoading(true)
-    if (isLoggedIn) {
+    if (isLoggedIn && hasSubscription) {
       router.push("/dashboard")
     } else {
-      router.push("/signup")
+      // Redirect to Kiwify checkout
+      window.location.href = KIWIFY_CHECKOUT_URL
     }
   }
 
@@ -340,7 +343,6 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
                   {checkoutLoading ? <Loader2 className="animate-spin h-5 w-5 sm:h-5 sm:w-5" /> : (
                     <>
                       {t('landing.hero.cta_button')}
-                      <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-black tracking-wide">GRÁTIS</span>
                     </>
                   )}
                   {!checkoutLoading && <ArrowRight className="h-4 w-4 sm:h-4 sm:w-4 group-hover:translate-x-1 transition-transform" />}
