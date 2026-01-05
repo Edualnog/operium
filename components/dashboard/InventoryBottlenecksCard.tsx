@@ -350,7 +350,7 @@ export function InventoryBottlenecksCard({ userId }: { userId: string }) {
                     })
                 })
 
-                setItems(bottlenecks.slice(0, 8)) // Show top 8
+                setItems(bottlenecks.slice(0, 5)) // Show top 5
             } catch (error) {
                 console.error("Error fetching bottlenecks:", error)
             } finally {
