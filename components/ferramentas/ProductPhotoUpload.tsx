@@ -263,13 +263,14 @@ export function ProductPhotoUpload({
           )}
         </div>
         <div className="flex-1 space-y-2">
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading || bucketExists === false || verifying}
+              className="w-full sm:w-auto text-xs"
             >
               <Upload className="h-4 w-4 mr-2" />
               {uploading ? t("dashboard.ferramentas.photo_upload.uploading") : preview ? t("dashboard.ferramentas.photo_upload.change") : t("dashboard.ferramentas.photo_upload.upload")}
@@ -281,13 +282,14 @@ export function ProductPhotoUpload({
               size="sm"
               onClick={() => setShowCamera(true)}
               disabled={uploading || bucketExists === false || verifying}
+              className="w-full sm:w-auto text-xs"
             >
               <Camera className="h-4 w-4 mr-2" />
               {t("dashboard.ferramentas.photo_upload.camera")}
             </Button>
 
             {preview && (
-              <Button type="button" variant="outline" size="sm" onClick={handleRemove} disabled={uploading}>
+              <Button type="button" variant="outline" size="sm" onClick={handleRemove} disabled={uploading} className="w-full sm:w-auto text-xs">
                 <X className="h-4 w-4 mr-2" />
                 {t("dashboard.ferramentas.photo_upload.remove")}
               </Button>

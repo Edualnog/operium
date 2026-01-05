@@ -1044,7 +1044,7 @@ function FerramentasList({
                   {t("dashboard.ferramentas.new_button")}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[85vw] md:max-w-2xl h-[85vh] max-h-[85vh] overflow-y-auto p-3 sm:p-6">
+              <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[85vw] md:max-w-2xl h-[85vh] max-h-[85vh] overflow-y-auto overflow-x-hidden p-3 sm:p-6">
                 <form onSubmit={handleSubmit}>
                   <DialogHeader className="space-y-1">
                     <DialogTitle className="text-lg sm:text-xl">

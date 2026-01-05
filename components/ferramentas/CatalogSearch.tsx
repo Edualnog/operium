@@ -72,7 +72,7 @@ export function CatalogSearch({ onSelect }: CatalogSearchProps) {
                 >
                     <div className="flex items-center gap-2 text-muted-foreground truncate">
                         <Search className="h-4 w-4 shrink-0" />
-                        <span className="truncate">{query ? query : "Buscar no Catálogo Global (Ex: Makita, Furadeira...)"}</span>
+                        <span className="truncate">{query ? query : "Buscar no Catálogo Global"}</span>
                     </div>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
