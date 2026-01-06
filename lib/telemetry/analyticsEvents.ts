@@ -79,7 +79,6 @@ export const FEATURES = {
   COLABORADORES: 'colaboradores',
   MOVIMENTACOES: 'movimentacoes',
   EQUIPES: 'equipes',
-  RELATORIOS: 'relatorios',
   RANKING: 'ranking',
 
   // Actions

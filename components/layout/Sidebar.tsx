@@ -13,8 +13,6 @@ import {
   ClipboardList,
   Truck,
   Users2,
-  Briefcase,
-  FileText,
   Volume2,
   VolumeX,
 } from "lucide-react"
@@ -96,15 +94,6 @@ export default function AppSidebar() {
       href: "/dashboard/inventario",
       icon: (
         <ClipboardList className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    // NOTA: "Operacional" foi removido do sidebar admin
-    // Este painel é destinado apenas a colaboradores de campo via app mobile
-    {
-      label: "Relatórios",
-      href: "/dashboard/relatorios",
-      icon: (
-        <FileText className="h-5 w-5 flex-shrink-0" />
       ),
     },
   ]
