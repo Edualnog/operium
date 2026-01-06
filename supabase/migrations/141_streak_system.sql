@@ -161,17 +161,13 @@ BEGIN
   -- Determinar colaborador_id baseado na tabela
   IF TG_TABLE_NAME = 'movimentacoes' THEN
     v_colaborador_id := NEW.colaborador_id;
-  ELSIF TG_TABLE_NAME = 'team_equipment' THEN
-    -- Para team_equipment, buscar via assigned_to
-    SELECT po.collaborator_id INTO v_colaborador_id
-    FROM public.operium_profiles po
-    WHERE po.user_id = NEW.assigned_to;
   ELSIF TG_TABLE_NAME = 'field_reports' THEN
     -- Para relatórios, buscar via user_id
     SELECT po.collaborator_id INTO v_colaborador_id
     FROM public.operium_profiles po
     WHERE po.user_id = NEW.user_id;
   END IF;
+  -- Note: team_equipment não atualiza streak pois é ação do admin, não do colaborador
 
   -- Atualizar streak se encontrou colaborador
   IF v_colaborador_id IS NOT NULL THEN
@@ -189,11 +185,7 @@ CREATE TRIGGER trg_streak_movimentacoes
   FOR EACH ROW
   EXECUTE FUNCTION public.trigger_update_streak_on_activity();
 
-DROP TRIGGER IF EXISTS trg_streak_team_equipment ON public.team_equipment;
-CREATE TRIGGER trg_streak_team_equipment
-  AFTER INSERT OR UPDATE OF status ON public.team_equipment
-  FOR EACH ROW
-  EXECUTE FUNCTION public.trigger_update_streak_on_activity();
+-- Note: Removido trigger de team_equipment pois atribuição é ação do admin, não do colaborador
 
 DROP TRIGGER IF EXISTS trg_streak_field_reports ON public.field_reports;
 CREATE TRIGGER trg_streak_field_reports
