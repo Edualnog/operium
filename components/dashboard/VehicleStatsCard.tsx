@@ -69,9 +69,28 @@ export function VehicleStats() {
 
                 if (cError) throw cError
 
+                // 3. Count vehicles assigned to teams
+                const { data: teamsData, error: tError } = await supabase
+                    .from('teams')
+                    .select('vehicle_id')
+                    .eq('profile_id', user.id)
+                    .not('vehicle_id', 'is', null)
+
+                if (tError) throw tError
+
                 // Aggregate
                 const total = vehicles?.length || 0
-                const assigned = vehicles?.filter(v => !!v.current_driver_id).length || 0
+
+                // Count assigned vehicles:
+                // 1. Vehicles assigned to teams (via teams.vehicle_id)
+                // 2. Vehicles assigned directly to collaborators (via vehicles.current_driver_id)
+                // Use Set to avoid double-counting if a vehicle is in both
+                const assignedVehicleIds = new Set([
+                    ...(teamsData?.map(t => t.vehicle_id) || []),
+                    ...(vehicles?.filter(v => !!v.current_driver_id).map(v => v.id) || [])
+                ])
+                const assigned = assignedVehicleIds.size
+
                 const maintenance = vehicles?.filter(v => v.status === 'maintenance').length || 0
 
                 const totalMaintCost = maintenanceData?.reduce((sum, item) => sum + (item.cost || 0), 0) || 0
