@@ -1128,12 +1128,44 @@ export async function atualizarFerramenta(id: string, formData: FormData) {
       cor: getValue("cor"),
     })
 
+    // Buscar ferramenta atual para calcular quantidade_disponivel corretamente
+    const { data: ferramentaAtual, error: fetchError } = await supabase
+      .from("ferramentas")
+      .select("quantidade_total, quantidade_disponivel, estado")
+      .eq("id", id)
+      .eq("profile_id", user.id)
+      .single()
+
+    if (fetchError || !ferramentaAtual) {
+      throw new Error("Ferramenta não encontrada")
+    }
+
+    // Calcular nova quantidade_disponivel
+    let novaQuantidadeDisponivel: number
+
+    if (data.estado !== "ok") {
+      // Se estado não é "ok", disponível = 0
+      novaQuantidadeDisponivel = 0
+    } else if (ferramentaAtual.estado !== "ok" && data.estado === "ok") {
+      // Se mudou de danificada/em_conserto para ok, restaurar disponível = total
+      novaQuantidadeDisponivel = data.quantidade_total
+    } else if (ferramentaAtual.quantidade_disponivel === 0 && ferramentaAtual.quantidade_total > 0 && data.estado === "ok") {
+      // Caso especial: corrigir itens quebrados pelo bug anterior
+      // Se disponível=0, total>0 e estado=ok, assume que é bug e restaura
+      console.log("🔧 Corrigindo item com quantidade_disponivel=0 incorreto")
+      novaQuantidadeDisponivel = data.quantidade_total
+    } else {
+      // Estado continua "ok" - ajustar disponível pelo delta do total
+      const delta = data.quantidade_total - ferramentaAtual.quantidade_total
+      novaQuantidadeDisponivel = Math.max(0, ferramentaAtual.quantidade_disponivel + delta)
+    }
+
     // Preparar dados para atualização - começar com campos básicos obrigatórios
     const updateData: any = {
       nome: data.nome,
       categoria: data.categoria || null,
       quantidade_total: data.quantidade_total,
-      quantidade_disponivel: data.estado === "ok" ? data.quantidade_total : 0,
+      quantidade_disponivel: novaQuantidadeDisponivel,
       estado: data.estado,
     }
 
