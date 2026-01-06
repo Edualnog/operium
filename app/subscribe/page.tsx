@@ -3,7 +3,7 @@
 import { ArrowRight, Check, Shield, Smartphone, Headphones, Zap, RefreshCw } from "lucide-react"
 import Link from "next/link"
 
-const KIWIFY_CHECKOUT_URL = "https://pay.kiwify.com.br/jn2fcCX"
+const KIWIFY_CHECKOUT_URL = "https://pay.kiwify.com.br/5vMhx4B"
 
 const features = [
   { icon: Shield, text: "Licença vitalícia - pague uma vez, use para sempre" },

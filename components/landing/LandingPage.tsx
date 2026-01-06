@@ -88,7 +88,7 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
     { src: "/images/logos/figma.png", alt: "Figma" },
   ]
 
-  const KIWIFY_CHECKOUT_URL = "https://pay.kiwify.com.br/jn2fcCX"
+  const KIWIFY_CHECKOUT_URL = "https://pay.kiwify.com.br/5vMhx4B"
 
   const handleStart = () => {
     setCheckoutLoading(true)
