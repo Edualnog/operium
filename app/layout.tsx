@@ -22,7 +22,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
-  description: "A plataforma #1 para controle de ferramentas, EPIs e veículos. Elimine planilhas e perdas agora mesmo. Software 100% Gratuito para sua empresa.",
+  description: "Plataforma completa para gestão de ativos, ferramentas, EPIs e veículos. Controle total do seu almoxarifado e equipes de campo em tempo real.",
   keywords: ["gestão de ativos", "controle de ferramentas", "equipes de campo", "almoxarifado digital", "prevenção de perdas", "sistema grátis", "software gratuito", "construção civil"],
   authors: [{ name: "Operium" }],
   creator: "Operium",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: "https://operium.com.br",
     title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
-    description: "Software 100% Gratuito. Controle ferramentas, EPIs, frota e equipes externas sem custos. Elimine planilhas hoje!",
+    description: "Plataforma completa para gestão de ativos, ferramentas, EPIs e veículos. Controle total do seu almoxarifado e equipes de campo em tempo real.",
     siteName: "Operium",
     images: [
       {
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Operium - Gestão Inteligente de Ativos e Equipes",
-    description: "Sistema 100% Gratuito para controle de almoxarifado e equipes de campo.",
+    description: "Plataforma completa para gestão de ativos, ferramentas, EPIs e veículos. Controle total do seu almoxarifado e equipes de campo.",
     images: ["/images/og-image-operium.png"],
   },
 }
