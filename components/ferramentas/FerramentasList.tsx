@@ -184,6 +184,7 @@ function FerramentasList({
   const [productCode, setProductCode] = useState("")
   const [productPhoto, setProductPhoto] = useState("")
   const [tipoItem, setTipoItem] = useState<"ferramenta" | "epi" | "consumivel">("ferramenta")
+  const [estadoItem, setEstadoItem] = useState<"ok" | "danificada" | "em_conserto">("ok")
   const [exportingCsv, setExportingCsv] = useState(false)
 
   // Voice data removed
@@ -211,10 +212,12 @@ function FerramentasList({
       setProductCode(editing.codigo || "")
       setProductPhoto(editing.foto_url || "")
       setTipoItem(editing.tipo_item || "ferramenta")
+      setEstadoItem(editing.estado || "ok")
     } else {
       setProductCode("")
       setProductPhoto("")
       setTipoItem("ferramenta")
+      setEstadoItem("ok")
     }
   }, [editing])
 
@@ -1067,7 +1070,7 @@ function FerramentasList({
                   <div className="grid gap-3 sm:gap-4 py-3 sm:py-4 w-full max-w-full">
                     {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
                     <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
-                    <input type="hidden" name="estado" value={editing?.estado || "ok"} />
+                    <input type="hidden" name="estado" value={estadoItem} />
 
                     {/* Catalog ID Hidden Field - Controlled by React State now */}
                     <input type="hidden" name="catalog_item_id" value={catalogItemId || ""} />
@@ -1269,12 +1272,8 @@ function FerramentasList({
                       <div className="grid gap-2">
                         <Label htmlFor="estado">{t("dashboard.ferramentas.form.status")} *</Label>
                         <Select
-                          name="estado"
-                          defaultValue={editing?.estado || "ok"}
-                          onValueChange={(value) => {
-                            const hiddenInput = document.querySelector('input[name="estado"]') as HTMLInputElement
-                            if (hiddenInput) hiddenInput.value = value
-                          }}
+                          value={estadoItem}
+                          onValueChange={(value: "ok" | "danificada" | "em_conserto") => setEstadoItem(value)}
                           required
                         >
                           <SelectTrigger>
