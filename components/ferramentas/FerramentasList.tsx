@@ -1045,7 +1045,7 @@ function FerramentasList({
                 </Button>
               </DialogTrigger>
               <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[85vw] md:max-w-2xl h-[85vh] max-h-[85vh] overflow-y-auto overflow-x-hidden p-3 sm:p-6">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="w-full max-w-full">
                   <DialogHeader className="space-y-1">
                     <DialogTitle className="text-lg sm:text-xl">
                       {editing ? t("dashboard.ferramentas.form.title_edit") : t("dashboard.ferramentas.form.title_new")}
@@ -1064,7 +1064,7 @@ function FerramentasList({
                     </div>
                   )}
 
-                  <div className="grid gap-3 sm:gap-4 py-3 sm:py-4">
+                  <div className="grid gap-3 sm:gap-4 py-3 sm:py-4 w-full max-w-full">
                     {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
                     <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
                     <input type="hidden" name="estado" value={editing?.estado || "ok"} />
