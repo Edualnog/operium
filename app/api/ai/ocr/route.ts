@@ -42,26 +42,75 @@ export async function POST(req: Request) {
         }
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "gpt-4o",  // Modelo mais potente para melhor precisão
             messages: [
                 {
                     role: "system",
-                    content: "Você é um assistente especializado em digitalizar Notas Fiscais e Invoices. Seu objetivo é extrair os itens listados na imagem."
+                    content: `Você é um assistente especializado em OCR de Notas Fiscais brasileiras. 
+Seu objetivo é extrair TODOS os itens com MÁXIMA PRECISÃO, mesmo em fotos de baixa qualidade.
+
+REGRAS CRÍTICAS:
+1. Leia CADA linha da nota fiscal com atenção
+2. Se um número estiver borrado, use contexto para inferir (ex: preços similares, padrões)
+3. NUNCA invente dados - se não conseguir ler, deixe o campo vazio
+4. Priorize QUANTIDADE e NOME - são os campos mais importantes
+5. Para fotos: ajuste mentalmente rotação, perspectiva e iluminação antes de ler`
                 },
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "Analise esta imagem de nota fiscal e extraia os itens. Retorne APENAS um JSON com uma lista de objetos contendo: 'nome' (descrição do produto), 'quantidade' (número), 'valor_unitario' (número), 'codigo' (se não houver, GERE um código sugerido baseado no nome, ex: PAR-001), 'categoria' (sugira uma categoria baseada no nome, ex: Ferramentas Elétricas, Hidráulica, etc), 'unidade' (sugira a unidade: UN, KG, M, CX, etc). Exemplo: { \"items\": [{ \"nome\": \"Martelo\", \"quantidade\": 2, \"valor_unitario\": 15.50, \"codigo\": \"MAR-001\", \"categoria\": \"Ferramentas Manuais\", \"unidade\": \"UN\" }] }" },
+                        {
+                            type: "text",
+                            text: `Analise esta imagem de nota fiscal brasileira e extraia TODOS os itens com MÁXIMA PRECISÃO.
+
+INSTRUÇÕES ESPECÍFICAS:
+- Se a imagem estiver inclinada ou com má iluminação, compense mentalmente
+- Leia números com cuidado: 0 vs O, 1 vs l, 5 vs S, 8 vs B
+- Valores monetários: sempre com 2 casas decimais (ex: 15.50, não 15.5)
+- Quantidades: números inteiros (ex: 2, não 2.0)
+
+FORMATO DE SAÍDA (JSON puro, sem markdown):
+{
+  "items": [
+    {
+      "nome": "DESCRIÇÃO EXATA do produto (copie da nota)",
+      "quantidade": número_inteiro,
+      "valor_unitario": número_decimal,
+      "codigo": "código se houver, senão gere baseado no nome (ex: MART-001)",
+      "categoria": "categoria sugerida (ex: Ferramentas Manuais, Hidráulica)",
+      "unidade": "UN, KG, M, CX, etc"
+    }
+  ]
+}
+
+EXEMPLO:
+{
+  "items": [
+    {
+      "nome": "MARTELO UNHA 25MM CABO MADEIRA",
+      "quantidade": 2,
+      "valor_unitario": 15.50,
+      "codigo": "MART-001",
+      "categoria": "Ferramentas Manuais",
+      "unidade": "UN"
+    }
+  ]
+}
+
+IMPORTANTE: Retorne APENAS o JSON, sem explicações ou markdown.`
+                        },
                         {
                             type: "image_url",
                             image_url: {
                                 "url": image,
+                                "detail": "high"  // Análise de alta qualidade
                             },
                         },
                     ],
                 },
             ],
-            max_tokens: 1000,
+            max_tokens: 2000,  // Mais tokens para notas grandes
+            temperature: 0.1,  // Baixa temperatura para mais precisão
         });
 
         const content = response.choices[0].message.content;
