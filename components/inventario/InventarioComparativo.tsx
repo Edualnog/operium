@@ -134,7 +134,10 @@ export default function InventarioComparativo({ inventario, onBack }: Inventario
     try {
       setSaving(true)
 
-      // Registrar ajuste
+      // Registrar ajuste já com aplicado: true
+      // O trigger fn_inventario_ajuste_create_movimentacao irá:
+      // 1. Criar a movimentação automaticamente
+      // 2. Atualizar ferramentas.quantidade_disponivel e quantidade_total
       await supabase.from("inventario_ajustes").insert({
         inventario_item_id: selectedItem.id,
         quantidade_anterior: selectedItem.quantidade_sistema,
@@ -143,20 +146,8 @@ export default function InventarioComparativo({ inventario, onBack }: Inventario
         motivo: ajusteMotivo,
         observacao: ajusteObservacao || null,
         aprovado_por: null,
-        aplicado: false
+        aplicado: true  // Trigger automático cuida do resto
       })
-
-      // Atualizar estoque real
-      await supabase
-        .from("ferramentas")
-        .update({ quantidade_disponivel: selectedItem.quantidade_fisica })
-        .eq("id", selectedItem.ferramenta_id)
-
-      // Marcar ajuste como aplicado
-      await supabase
-        .from("inventario_ajustes")
-        .update({ aplicado: true })
-        .eq("inventario_item_id", selectedItem.id)
 
       setShowAjusteModal(false)
       setSelectedItem(null)
