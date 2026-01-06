@@ -55,8 +55,8 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                     let width = img.width
                     let height = img.height
 
-                    // Redimensionar se maior que 1024px
-                    const MAX_SIZE = 1024
+                    // Aumentar tamanho máximo para manter mais detalhes
+                    const MAX_SIZE = 2048  // Aumentado de 1024 para 2048
                     if (width > MAX_SIZE || height > MAX_SIZE) {
                         if (width > height) {
                             height *= MAX_SIZE / width
@@ -70,10 +70,16 @@ export default function ImportInvoice({ onImport, onClose }: ImportInvoiceProps)
                     canvas.width = width
                     canvas.height = height
                     const ctx = canvas.getContext("2d")
-                    ctx?.drawImage(img, 0, 0, width, height)
 
-                    // Comprimir para JPEG com qualidade 0.7
-                    const base64 = canvas.toDataURL("image/jpeg", 0.7)
+                    // Melhorar qualidade da renderização
+                    if (ctx) {
+                        ctx.imageSmoothingEnabled = true
+                        ctx.imageSmoothingQuality = 'high'
+                        ctx.drawImage(img, 0, 0, width, height)
+                    }
+
+                    // Aumentar qualidade de compressão de 0.7 para 0.92
+                    const base64 = canvas.toDataURL("image/jpeg", 0.92)
                     resolve(base64)
                 }
                 img.onerror = (err) => reject(err)
