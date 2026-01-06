@@ -372,14 +372,14 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
     return (
         <Card className="relative overflow-hidden border border-slate-200 shadow-sm bg-white dark:bg-zinc-900 dark:border-zinc-800">
             <CardHeader className="pb-4 border-b border-slate-100 dark:border-zinc-800">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <CardTitle className="text-xl sm:text-2xl font-bold flex items-center gap-3 font-serif text-[#37352f] dark:text-zinc-100">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <CardTitle className="text-xl sm:text-2xl font-bold flex items-center gap-3 font-serif text-[#37352f] dark:text-zinc-100 flex-shrink-0">
                         <Sparkles className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />
                         {t("dashboard.ai.insights.title")}
                     </CardTitle>
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                         <Select value={period} onValueChange={setPeriod}>
-                            <SelectTrigger className="w-[160px] bg-transparent h-9 border-slate-200 focus:ring-zinc-500">
+                            <SelectTrigger className="w-[140px] bg-transparent h-9 border-slate-200 focus:ring-zinc-500">
                                 <SelectValue placeholder={t("dashboard.ai.insights.select_period")} />
                             </SelectTrigger>
                             <SelectContent>
@@ -393,7 +393,7 @@ export function AIInsightsCard({ kpis, recentMovements: initialMovements }: AIIn
                         <Button
                             onClick={() => generateInsights(true)}
                             disabled={loading}
-                            className="bg-[#1C1C1C] hover:bg-[#37352f] text-white h-9 px-4 font-medium transition-all w-full sm:w-auto flex items-center gap-2"
+                            className="bg-[#1C1C1C] hover:bg-[#37352f] text-white h-9 px-3 font-medium transition-all flex items-center gap-2 whitespace-nowrap"
                         >
                             {loading ? (
                                 <RefreshCw className="h-4 w-4 animate-spin" />
