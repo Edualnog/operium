@@ -1069,7 +1069,7 @@ function FerramentasList({
 
                   <div className="grid gap-3 sm:gap-4 py-3 sm:py-4 w-full max-w-full">
                     {/* Campos hidden para garantir que valores dos Selects sejam enviados */}
-                    <input type="hidden" name="tipo_item" value={tipoItem || editing?.tipo_item || "ferramenta"} />
+                    <input type="hidden" name="tipo_item" value={tipoItem} />
                     <input type="hidden" name="estado" value={estadoItem} />
 
                     {/* Catalog ID Hidden Field - Controlled by React State now */}
@@ -1139,12 +1139,9 @@ function FerramentasList({
                     <div className="grid gap-2">
                       <Label htmlFor="tipo_item">{t("dashboard.ferramentas.form.type")}</Label>
                       <Select
-                        name="tipo_item"
-                        defaultValue={editing?.tipo_item || tipoItem}
-                        onValueChange={(val: any) => {
+                        value={tipoItem}
+                        onValueChange={(val: "ferramenta" | "epi" | "consumivel") => {
                           setTipoItem(val)
-                          const hiddenInput = document.querySelector('input[name="tipo_item"]') as HTMLInputElement
-                          if (hiddenInput) hiddenInput.value = val
                           setProductCode(
                             gerarCodigoLocal(
                               (document.getElementById("nome") as HTMLInputElement)?.value || "",
