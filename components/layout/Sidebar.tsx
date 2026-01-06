@@ -14,7 +14,6 @@ import {
   Truck,
   Users2,
   Briefcase,
-  UserPlus,
   FileText,
   Volume2,
   VolumeX,
@@ -101,13 +100,6 @@ export default function AppSidebar() {
     },
     // NOTA: "Operacional" foi removido do sidebar admin
     // Este painel é destinado apenas a colaboradores de campo via app mobile
-    {
-      label: "Acessos",
-      href: "/dashboard/acessos",
-      icon: (
-        <UserPlus className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
     {
       label: "Relatórios",
       href: "/dashboard/relatorios",

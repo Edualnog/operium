@@ -17,7 +17,6 @@ import {
   ClipboardList,
   Truck,
   Users2,
-  UserPlus,
   FileText,
   Smartphone,
 } from "lucide-react"
@@ -160,14 +159,6 @@ export default function DashboardWrapper({ children }: { children: React.ReactNo
     },
     // NOTA: "Operacional" removido do sidebar admin
     // Este painel é destinado apenas a colaboradores de campo via app mobile
-    {
-      label: t('dashboard.sidebar.access'),
-      href: "/dashboard/acessos",
-      id: "sidebar-acessos",
-      icon: (
-        <UserPlus className="h-5 w-5 flex-shrink-0" />
-      ),
-    },
   ]
 
   // Filter links for Operium Collaborators (FIELD / WAREHOUSE)
