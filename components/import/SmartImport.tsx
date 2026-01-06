@@ -234,13 +234,13 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
 
     return (
         <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
+            <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[85vw] md:max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-3 sm:p-6">
+                <DialogHeader className="space-y-1">
+                    <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
                         <Sparkles className="h-5 w-5 text-amber-500" />
                         {title || "Importação Inteligente"}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-xs sm:text-sm">
                         {step === "upload" && "Faça upload de qualquer planilha. A IA irá identificar as colunas automaticamente."}
                         {step === "mapping" && "Verifique o mapeamento das colunas detectado pela IA."}
                         {step === "importing" && "Processando a importação..."}
@@ -263,7 +263,7 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                                     onDrop={handleDrop}
                                     onClick={() => fileInputRef.current?.click()}
                                     className={cn(
-                                        "border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all",
+                                        "border-2 border-dashed rounded-xl p-6 sm:p-12 text-center cursor-pointer transition-all",
                                         "hover:border-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50",
                                         loading ? "pointer-events-none opacity-50" : "border-zinc-300 dark:border-zinc-700"
                                     )}
@@ -271,7 +271,7 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                                     {loading ? (
                                         <div className="flex flex-col items-center gap-3">
                                             <Loader2 className="h-12 w-12 text-zinc-400 animate-spin" />
-                                            <p className="text-zinc-500">Analisando planilha com IA...</p>
+                                            <p className="text-zinc-500 text-sm sm:text-base">Analisando planilha com IA...</p>
                                         </div>
                                     ) : (
                                         <div className="flex flex-col items-center gap-3">
@@ -279,10 +279,10 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                                                 <Upload className="h-8 w-8 text-zinc-500" />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-zinc-700 dark:text-zinc-300">
+                                                <p className="font-medium text-zinc-700 dark:text-zinc-300 text-sm sm:text-base">
                                                     Arraste sua planilha aqui
                                                 </p>
-                                                <p className="text-sm text-zinc-500 mt-1">
+                                                <p className="text-xs sm:text-sm text-zinc-500 mt-1">
                                                     ou clique para selecionar • .xlsx, .xls, .csv
                                                 </p>
                                             </div>
@@ -312,13 +312,13 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                                 className="space-y-4"
                             >
                                 {/* File info */}
-                                <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                                    <FileSpreadsheet className="h-5 w-5 text-green-600" />
-                                    <div className="flex-1">
-                                        <p className="font-medium text-sm">{file?.name}</p>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+                                    <FileSpreadsheet className="h-5 w-5 text-green-600 shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-sm truncate">{file?.name}</p>
                                         <p className="text-xs text-zinc-500">{allRows.length} linhas detectadas</p>
                                     </div>
-                                    <Button variant="ghost" size="sm" onClick={() => setStep("upload")}>
+                                    <Button variant="ghost" size="sm" onClick={() => setStep("upload")} className="w-full sm:w-auto text-xs">
                                         Trocar arquivo
                                     </Button>
                                 </div>
@@ -327,8 +327,8 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                                 {warnings.length > 0 && (
                                     <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                                         <div className="flex items-start gap-2">
-                                            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
-                                            <div className="text-sm text-amber-700 dark:text-amber-400">
+                                            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                                            <div className="text-xs sm:text-sm text-amber-700 dark:text-amber-400">
                                                 {warnings.map((w, i) => <p key={i}>{w}</p>)}
                                             </div>
                                         </div>
@@ -337,52 +337,54 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
 
                                 {/* Mapping table */}
                                 <div className="border rounded-lg overflow-hidden">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow className="bg-zinc-50 dark:bg-zinc-800">
-                                                <TableHead className="w-[200px]">Coluna da Planilha</TableHead>
-                                                <TableHead className="w-[80px]">Confiança</TableHead>
-                                                <TableHead className="w-[50px]"></TableHead>
-                                                <TableHead>Mapeia para</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {mappings.map((mapping, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell className="font-medium">{mapping.excelColumn}</TableCell>
-                                                    <TableCell>{getConfidenceBadge(mapping.confidence)}</TableCell>
-                                                    <TableCell>
-                                                        <ArrowRight className="h-4 w-4 text-zinc-400" />
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Select
-                                                            value={mapping.dbColumn}
-                                                            onValueChange={(v) => handleMappingChange(mapping.excelColumn, v)}
-                                                        >
-                                                            <SelectTrigger className="w-[250px]">
-                                                                <SelectValue />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="ignore">
-                                                                    <span className="text-zinc-400">— Ignorar esta coluna —</span>
-                                                                </SelectItem>
-                                                                {targetColumns.map(col => (
-                                                                    <SelectItem key={col.dbColumn} value={col.dbColumn}>
-                                                                        {col.label} {col.required && <span className="text-red-500">*</span>}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </TableCell>
+                                    <div className="overflow-x-auto">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow className="bg-zinc-50 dark:bg-zinc-800">
+                                                    <TableHead className="min-w-[150px] text-xs sm:text-sm">Coluna da Planilha</TableHead>
+                                                    <TableHead className="min-w-[80px] text-xs sm:text-sm">Confiança</TableHead>
+                                                    <TableHead className="w-[30px]"></TableHead>
+                                                    <TableHead className="min-w-[200px] text-xs sm:text-sm">Mapeia para</TableHead>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {mappings.map((mapping, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="font-medium text-xs sm:text-sm">{mapping.excelColumn}</TableCell>
+                                                        <TableCell>{getConfidenceBadge(mapping.confidence)}</TableCell>
+                                                        <TableCell>
+                                                            <ArrowRight className="h-4 w-4 text-zinc-400" />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Select
+                                                                value={mapping.dbColumn}
+                                                                onValueChange={(v) => handleMappingChange(mapping.excelColumn, v)}
+                                                            >
+                                                                <SelectTrigger className="w-full min-w-[150px] sm:w-[250px] text-xs sm:text-sm">
+                                                                    <SelectValue />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="ignore">
+                                                                        <span className="text-zinc-400">— Ignorar esta coluna —</span>
+                                                                    </SelectItem>
+                                                                    {targetColumns.map(col => (
+                                                                        <SelectItem key={col.dbColumn} value={col.dbColumn}>
+                                                                            {col.label} {col.required && <span className="text-red-500">*</span>}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
                                 </div>
 
                                 {/* Preview */}
                                 <div className="space-y-2">
-                                    <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Preview (primeiras 5 linhas)</p>
+                                    <p className="text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">Preview (primeiras 5 linhas)</p>
                                     <div className="border rounded-lg overflow-x-auto max-h-[200px]">
                                         <Table>
                                             <TableHeader>
@@ -421,20 +423,20 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                                 {loading ? (
                                     <>
                                         <Loader2 className="h-12 w-12 text-zinc-400 animate-spin" />
-                                        <p className="text-zinc-500">Importando {allRows.length} itens...</p>
+                                        <p className="text-zinc-500 text-sm sm:text-base">Importando {allRows.length} itens...</p>
                                     </>
                                 ) : importResult ? (
-                                    <div className="text-center space-y-4">
+                                    <div className="text-center space-y-4 w-full">
                                         {importResult.success > 0 && (
                                             <div className="flex items-center justify-center gap-2 text-green-600">
                                                 <Check className="h-6 w-6" />
-                                                <span className="text-lg font-medium">{importResult.success} itens importados</span>
+                                                <span className="text-base sm:text-lg font-medium">{importResult.success} itens importados</span>
                                             </div>
                                         )}
                                         {importResult.errors.length > 0 && (
                                             <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg max-h-[200px] overflow-y-auto">
-                                                <p className="font-medium text-red-600 mb-2">{importResult.errors.length} erros:</p>
-                                                <ul className="text-sm text-red-600 space-y-1">
+                                                <p className="font-medium text-red-600 mb-2 text-sm sm:text-base">{importResult.errors.length} erros:</p>
+                                                <ul className="text-xs sm:text-sm text-red-600 space-y-1 text-left">
                                                     {importResult.errors.slice(0, 10).map((e, i) => (
                                                         <li key={i}>{e}</li>
                                                     ))}
@@ -444,7 +446,7 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                                                 </ul>
                                             </div>
                                         )}
-                                        <Button onClick={handleClose} className="mt-4">
+                                        <Button onClick={handleClose} className="mt-4 w-full sm:w-auto">
                                             Fechar
                                         </Button>
                                     </div>
@@ -456,13 +458,13 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
 
                 {/* Footer actions */}
                 {step === "mapping" && (
-                    <div className="flex items-center justify-between pt-4 border-t">
-                        <Button variant="outline" onClick={handleClose}>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t">
+                        <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto order-2 sm:order-1">
                             Cancelar
                         </Button>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 order-1 sm:order-2">
                             {!hasRequiredMappings() && (
-                                <p className="text-sm text-amber-600">
+                                <p className="text-xs sm:text-sm text-amber-600 text-center sm:text-left">
                                     <AlertCircle className="h-4 w-4 inline mr-1" />
                                     Campos obrigatórios: {getRequiredFieldsLabel()}
                                 </p>
@@ -470,10 +472,10 @@ export default function SmartImport({ open, onClose, onImport, entityType = "pro
                             <Button
                                 onClick={handleImport}
                                 disabled={!hasRequiredMappings() || loading}
-                                className="gap-2"
+                                className="gap-2 w-full sm:w-auto"
                             >
                                 <Check className="h-4 w-4" />
-                                Confirmar e Importar ({allRows.length} itens)
+                                <span className="text-xs sm:text-sm">Confirmar e Importar ({allRows.length} itens)</span>
                             </Button>
                         </div>
                     </div>
