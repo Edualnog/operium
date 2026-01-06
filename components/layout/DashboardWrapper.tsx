@@ -18,7 +18,6 @@ import {
   Truck,
   Users2,
   FileText,
-  Smartphone,
 } from "lucide-react"
 import NotificationBell from "@/components/notifications/NotificationBell"
 import Image from "next/image"
@@ -340,16 +339,6 @@ function DynamicMainContent({ children, userId }: { children: React.ReactNode; u
       {/* Header com notificações */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-zinc-200 px-3 py-2 sm:px-4 md:px-5 lg:px-6 xl:px-7 2xl:px-8 dark:bg-zinc-950/95 dark:border-zinc-800">
         <div className="max-w-[1920px] mx-auto flex items-center justify-end gap-3">
-          {/* Download App Button */}
-          <a
-            href="https://cmgmobhnrjawfdafhqko.supabase.co/storage/v1/object/public/documentos/Operium.apk"
-            download="Operium.apk"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 active:bg-emerald-200 transition-all text-xs font-medium dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
-            title="Baixar App do Colaborador"
-          >
-            <Smartphone className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Baixar App</span>
-          </a>
           <LanguageSwitcher />
           <ThemeToggle />
           {userId && <NotificationBell userId={userId} />}
