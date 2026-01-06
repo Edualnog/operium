@@ -5,7 +5,7 @@ import { TeamEquipment, EquipmentStatus } from "@/app/dashboard/equipes/types"
 import { getTeamEquipment, assignEquipment, returnEquipment, returnEquipmentWithDiscrepancy, endTeamOperation, DiscrepancyType, adminValidateReturn } from "@/app/dashboard/equipes/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, ArchiveRestore, PackageSearch, Loader2, AlertTriangle, CheckCircle2, XCircle, Power, Clock, CheckCheck } from "lucide-react"
+import { Plus, ArchiveRestore, PackageSearch, Loader2, AlertTriangle, CheckCircle2, XCircle, Power, CheckCheck } from "lucide-react"
 import { createClientComponentClient } from "@/lib/supabase-client"
 import { toast } from "sonner"
 import { Card, CardContent } from "@/components/ui/card"
@@ -304,8 +304,6 @@ export default function TeamEquipmentManager({ teamId }: TeamEquipmentManagerPro
                             // Status badge helper
                             const getStatusBadge = (status: EquipmentStatus | undefined) => {
                                 switch (status) {
-                                    case 'pending_acceptance':
-                                        return <Badge variant="outline" className="text-[10px] h-5 border-zinc-400 bg-zinc-100 text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"><Clock className="h-2.5 w-2.5 mr-1" />Pendente</Badge>
                                     case 'pending_return':
                                         return <Badge variant="outline" className="text-[10px] h-5 border-zinc-400 bg-zinc-100 text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"><ArchiveRestore className="h-2.5 w-2.5 mr-1" />Devolução</Badge>
                                     case 'accepted':

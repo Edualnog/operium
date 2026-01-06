@@ -535,7 +535,8 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
             team_id: teamId,
             ferramenta_id: ferramentaId,
             quantity: quantity,
-            status: 'pending_acceptance'  // Explicitly set status
+            status: 'in_use',  // Equipment is immediately in use (no acceptance flow)
+            accepted_at: new Date().toISOString(),  // Auto-accepted
         })
         .select()
         .single()
@@ -604,7 +605,7 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
                 ferramenta_nome: ferramenta.nome,
                 quantity,
                 team_name: team.name,
-                status: 'pending_acceptance',
+                status: 'in_use',  // Immediately in use
             },
             context: {
                 flow: 'atribuicao_equipamento_equipe',
