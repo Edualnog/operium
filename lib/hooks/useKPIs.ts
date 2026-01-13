@@ -128,8 +128,24 @@ export function useKPIs(userId: string) {
           }
         }
 
-        // Ferramentas em uso (retiradas sem devolução posterior) - APENAS tipo_item = "ferramenta"
+        // Ferramentas em uso - calcular baseado em quantidade_disponivel vs quantidade_total
+        // Isso é mais preciso pois considera todas as movimentações (incluindo equipes)
         let totalFerramentasEmUso = 0
+
+        // Calcular total em uso baseado no estoque (quantidade_total - quantidade_disponivel)
+        const ferramentasComUso = ferramentas
+          .filter((f: any) => f.tipo_item === "ferramenta")
+          .map((f: any) => {
+            const emUso = Math.max(0, (f.quantidade_total || 0) - (f.quantidade_disponivel || 0))
+            return { ...f, quantidade_em_uso: emUso }
+          })
+          .filter((f: any) => f.quantidade_em_uso > 0)
+
+        // Somar total em uso
+        totalFerramentasEmUso = ferramentasComUso.reduce((acc: number, f: any) => acc + f.quantidade_em_uso, 0)
+
+        // Para mostrar detalhes de quem está com as ferramentas, usar retiradas recentes
+        // que não têm devolução correspondente (do mesmo colaborador OU qualquer devolução)
         const ferramentasEmUso = retiradas
           .map((ret) => {
             // Filtrar apenas ferramentas (não consumíveis, não EPIs)
@@ -138,11 +154,12 @@ export function useKPIs(userId: string) {
               return null
             }
 
-            // Verificar se foi devolvida
+            // Verificar se foi devolvida (por qualquer um, não apenas o mesmo colaborador)
             const quantidadeRetirada = ret.quantidade || 1
 
-            // Somar devoluções para a mesma ferramenta/colaborador após a retirada
-            const quantidadeDevolvida = devolucoes.reduce((acc, dev) => {
+            // Somar devoluções para a mesma ferramenta após a retirada
+            // Primeiro, tentar encontrar devolução do mesmo colaborador
+            let quantidadeDevolvida = devolucoes.reduce((acc, dev) => {
               const devFerramenta = dev.ferramentas as any
               if (
                 dev.ferramenta_id === ret.ferramenta_id &&
@@ -157,6 +174,20 @@ export function useKPIs(userId: string) {
               return acc
             }, 0)
 
+            // Se não encontrou devolução do colaborador, verificar devoluções gerais da ferramenta
+            // (pode ter sido devolvida por equipe ou outro processo)
+            if (quantidadeDevolvida === 0) {
+              // Verificar se a ferramenta está disponível no estoque
+              const ferramentaInfo = ferramentas.find((f: any) => f.id === ret.ferramenta_id)
+              if (ferramentaInfo) {
+                const totalEmUso = (ferramentaInfo.quantidade_total || 0) - (ferramentaInfo.quantidade_disponivel || 0)
+                // Se não há nada em uso desta ferramenta, considerar devolvida
+                if (totalEmUso <= 0) {
+                  quantidadeDevolvida = quantidadeRetirada
+                }
+              }
+            }
+
             const quantidadeEmUso = Math.max(0, quantidadeRetirada - quantidadeDevolvida)
             if (quantidadeEmUso <= 0) return null
 
@@ -167,8 +198,6 @@ export function useKPIs(userId: string) {
             const saida = ret.data ? new Date(ret.data) : new Date()
             const agora = new Date()
             const diasEmUso = Math.floor((agora.getTime() - saida.getTime()) / (1000 * 60 * 60 * 24))
-
-            totalFerramentasEmUso += quantidadeEmUso
 
             return {
               id: ret.id,
