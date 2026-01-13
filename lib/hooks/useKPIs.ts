@@ -50,7 +50,7 @@ export function useKPIs(userId: string) {
             .from("movimentacoes")
             .select("ferramenta_id, colaborador_id, data, tipo, quantidade, ferramentas(tipo_item)")
             .eq("profile_id", userId)
-            .in("tipo", ["devolucao", "entrada"]),
+            .eq("tipo", "devolucao"),
           supabase.rpc("calcular_tmr", { p_profile_id: userId }),
           supabase.rpc("calcular_indice_atraso", { p_profile_id: userId }),
           supabase
