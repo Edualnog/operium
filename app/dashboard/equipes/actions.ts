@@ -553,9 +553,9 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
         throw new Error(`Falha ao iniciar custódia: ${error.message}`)
     }
 
-    // --- SYNC WITH MOVIMENTACOES (RETIRADA) ---
+    // --- UPDATE STOCK AND SYNC WITH MOVIMENTACOES (RETIRADA) ---
     try {
-        console.log("[assignEquipment] Syncing movimentacoes...", {
+        console.log("[assignEquipment] Updating stock and syncing movimentacoes...", {
             profile_id: ferramenta.profile_id,
             ferramenta_id: ferramentaId,
             tipo: 'retirada',
@@ -563,6 +563,19 @@ export async function assignEquipment(teamId: string, ferramentaId: string, quan
             team_name: team.name
         })
 
+        // Update quantidade_disponivel (decrement stock)
+        const { error: updateError } = await supabase
+            .from("ferramentas")
+            .update({
+                quantidade_disponivel: ferramenta.quantidade_disponivel - quantity
+            })
+            .eq("id", ferramentaId)
+
+        if (updateError) {
+            console.error("[assignEquipment] ERROR: Failed to update quantidade_disponivel", updateError)
+        }
+
+        // Register movimentacao
         const { data: movData, error: movError } = await supabase.from("movimentacoes").insert({
             profile_id: ferramenta.profile_id,
             ferramenta_id: ferramentaId,
@@ -651,24 +664,36 @@ export async function returnEquipment(assignmentId: string) {
         throw new Error(`Falha ao encerrar custódia: ${error.message}`)
     }
 
-    // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) ---
+    // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) AND UPDATE STOCK ---
     try {
-        // Need profile_id from existing assignment or fetch it.
-        // Since we have existing record, let's fetch profile_id from tools if needed, 
-        // but 'team_equipment' doesn't usually store profile_id directly unless added.
-        // Let's fetch the tool's profile_id to be safe.
+        // Fetch tool data including current stock
         const { data: toolData } = await supabase
             .from("ferramentas")
-            .select("profile_id")
+            .select("profile_id, quantidade_disponivel")
             .eq("id", existing.ferramenta_id)
             .single()
 
         if (toolData) {
+            const quantityToReturn = (existing as any).quantity || 1
+
+            // Update quantidade_disponivel (increment stock)
+            const { error: updateError } = await supabase
+                .from("ferramentas")
+                .update({
+                    quantidade_disponivel: toolData.quantidade_disponivel + quantityToReturn
+                })
+                .eq("id", existing.ferramenta_id)
+
+            if (updateError) {
+                console.error("[returnEquipment] ERROR: Failed to update quantidade_disponivel", updateError)
+            }
+
+            // Register movimentacao
             await supabase.from("movimentacoes").insert({
                 profile_id: toolData.profile_id,
                 ferramenta_id: existing.ferramenta_id,
                 tipo: 'devolucao',
-                quantidade: (existing as any).quantity || 1, // Cast safely
+                quantidade: quantityToReturn,
                 data: new Date().toISOString(),
                 observacoes: `Devolução de equipe: ${(existing.teams as any)?.name || 'Equipe'}`
             })
@@ -762,20 +787,35 @@ export async function returnEquipmentWithDiscrepancy(
         throw new Error(`Falha ao registrar divergência: ${error.message}`)
     }
 
-    // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO COM DIVERGENCIA) ---
+    // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO COM DIVERGENCIA) AND UPDATE STOCK ---
     try {
         const { data: toolData } = await supabase
             .from("ferramentas")
-            .select("profile_id")
+            .select("profile_id, quantidade_disponivel")
             .eq("id", existing.ferramenta_id)
             .single()
 
         if (toolData) {
+            const quantityToReturn = discrepancy.quantityReturned !== undefined ? discrepancy.quantityReturned : existing.quantity
+
+            // Update quantidade_disponivel (increment stock with actual returned quantity)
+            const { error: updateError } = await supabase
+                .from("ferramentas")
+                .update({
+                    quantidade_disponivel: toolData.quantidade_disponivel + quantityToReturn
+                })
+                .eq("id", existing.ferramenta_id)
+
+            if (updateError) {
+                console.error("[returnEquipmentWithDiscrepancy] ERROR: Failed to update quantidade_disponivel", updateError)
+            }
+
+            // Register movimentacao
             await supabase.from("movimentacoes").insert({
                 profile_id: toolData.profile_id,
                 ferramenta_id: existing.ferramenta_id,
                 tipo: 'devolucao',
-                quantidade: discrepancy.quantityReturned !== undefined ? discrepancy.quantityReturned : existing.quantity,
+                quantidade: quantityToReturn,
                 data: new Date().toISOString(),
                 observacoes: `Devolução de equipe: ${(existing.teams as any)?.name} | [DIVERGÊNCIA: ${discrepancy.type.toUpperCase()}] ${discrepancy.notes}`
             })
@@ -926,20 +966,35 @@ export async function adminValidateReturn(equipmentIds: string[]) {
 
             results.push({ id: equipmentId, success: true })
 
-            // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) ---
+            // --- SYNC WITH MOVIMENTACOES (DEVOLUCAO) AND UPDATE STOCK ---
             try {
                 const { data: toolData } = await supabase
                     .from("ferramentas")
-                    .select("profile_id")
+                    .select("profile_id, quantidade_disponivel")
                     .eq("id", equipment.ferramenta_id)
                     .single()
 
                 if (toolData) {
+                    const quantityToReturn = equipment.quantity || 1
+
+                    // Update quantidade_disponivel (increment stock)
+                    const { error: updateError } = await supabase
+                        .from("ferramentas")
+                        .update({
+                            quantidade_disponivel: toolData.quantidade_disponivel + quantityToReturn
+                        })
+                        .eq("id", equipment.ferramenta_id)
+
+                    if (updateError) {
+                        console.error("[adminValidateReturn] ERROR: Failed to update quantidade_disponivel", updateError)
+                    }
+
+                    // Register movimentacao
                     await supabase.from("movimentacoes").insert({
                         profile_id: toolData.profile_id,
                         ferramenta_id: equipment.ferramenta_id,
                         tipo: 'devolucao',
-                        quantidade: equipment.quantity || 1,
+                        quantidade: quantityToReturn,
                         data: now,
                         observacoes: `Devolução de equipe: ${(equipment.teams as any)?.name || 'Equipe'}`
                     })

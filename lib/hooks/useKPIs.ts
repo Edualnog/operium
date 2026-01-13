@@ -311,7 +311,8 @@ export function useKPIs(userId: string) {
             current_streak: colab.current_streak || 0, // Streak atual
             max_streak: colab.max_streak || 0, // Recorde de streak
             total_retiradas: totalRetiradas,
-            devolucoes_no_prazo: totalDevolucoes,
+            total_devolucoes: totalDevolucoes, // Total de devoluções (todas)
+            devolucoes_no_prazo: totalDevolucoes, // Mantém para compatibilidade
           }
         })
 

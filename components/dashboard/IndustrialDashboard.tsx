@@ -452,6 +452,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             .from("team_equipment")
             .select("ferramenta_id, quantity, status, ferramentas(tipo_item)")
             .in("status", ["pending_acceptance", "accepted", "in_use"])
+            .is("returned_at", null)
         ])
 
         if (ferramentasRes.error) {
@@ -462,7 +463,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
         const ferramentas = ferramentasRes.data || []
         const teamEquipment = teamEquipmentRes.data || []
 
-        // Calcular quantidade em equipes por ferramenta
+        // Calcular quantidade em equipes por ferramenta (apenas ferramentas ativas com equipes)
         const qtdEmEquipes: Record<string, number> = {}
         teamEquipment.forEach((te: any) => {
           const ferramenta = te.ferramentas as any
@@ -472,9 +473,18 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           }
         })
 
+        // Calcular quantidade em uso por colaboradores individuais (do useKPIs)
+        const qtdEmUsoIndividual: Record<string, number> = {}
+        if (Array.isArray(data.ferramentasEmUso)) {
+          data.ferramentasEmUso.forEach((f: any) => {
+            if (f.ferramenta_id && f.quantidade_em_uso > 0) {
+              qtdEmUsoIndividual[f.ferramenta_id] = (qtdEmUsoIndividual[f.ferramenta_id] || 0) + f.quantidade_em_uso
+            }
+          })
+        }
+
         // Usar dados de ferramentas estragadas já calculados pelo useKPIs
         const unidadesEmConserto: Record<string, number> = {}
-
         if (Array.isArray(data.ferramentasEstragadas)) {
           data.ferramentasEstragadas.forEach((f: any) => {
             if (f.estado === "em_conserto" && f.quantidade_unidades > 0) {
@@ -491,12 +501,9 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
 
         ferramentas?.forEach((f: any) => {
           const qtdTotal = f.quantidade_total || 0
-          const qtdDisponivelRaw = f.quantidade_disponivel || 0
           const qtdEmConserto = unidadesEmConserto[f.id] || 0
           const qtdComEquipes = qtdEmEquipes[f.id] || 0
-
-          // VALIDAÇÃO: quantidade_disponivel não pode ser maior que quantidade_total
-          const qtdDisponivel = Math.min(qtdDisponivelRaw, qtdTotal)
+          const qtdComColaboradores = qtdEmUsoIndividual[f.id] || 0
 
           totalUnidades += qtdTotal
 
@@ -507,19 +514,26 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             // Unidades em conserto
             totalManutencao += qtdEmConserto
 
-            // O restante: quantidade_total - quantidade_disponivel - qtdEmConserto - qtdComEquipes = em uso individual
-            const qtdRealEmUso = qtdTotal - qtdDisponivel - qtdEmConserto
+            // Em uso = com colaboradores individuais + com equipes
+            const emUsoTotal = qtdComColaboradores + qtdComEquipes
+            totalEmUso += emUsoTotal
 
-            totalDisponiveis += qtdDisponivel - qtdComEquipes // Descontar ferramentas com equipes do disponível
-            totalEmUso += Math.max(0, qtdRealEmUso) + qtdComEquipes // Somar ferramentas com equipes ao em uso
+            // Disponível = total - em uso - em conserto
+            const disponivel = Math.max(0, qtdTotal - emUsoTotal - qtdEmConserto)
+            totalDisponiveis += disponivel
           }
         })
 
         if (totalUnidades > 0) {
+          // Garantir que os percentuais somem 100%
+          const pctEmUso = Math.round((totalEmUso / totalUnidades) * 100)
+          const pctManutencao = Math.round((totalManutencao / totalUnidades) * 100)
+          const pctDisponiveis = 100 - pctEmUso - pctManutencao
+
           setStatusFerramentas({
-            disponiveis: Math.round((totalDisponiveis / totalUnidades) * 100),
-            emUso: Math.round((totalEmUso / totalUnidades) * 100),
-            manutencao: Math.round((totalManutencao / totalUnidades) * 100),
+            disponiveis: Math.max(0, pctDisponiveis),
+            emUso: pctEmUso,
+            manutencao: pctManutencao,
           })
         } else {
           setStatusFerramentas({
@@ -1229,7 +1243,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                             )}
                             {/* Devoluções */}
                             <span className="text-[10px] text-zinc-400">
-                              {item.devolucoes_no_prazo || 0}/{item.total_retiradas || 0} devoluções
+                              {item.total_devolucoes || item.devolucoes_no_prazo || 0}/{item.total_retiradas || 0} devolvidas
                             </span>
                           </div>
                         </div>
