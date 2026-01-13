@@ -1582,45 +1582,46 @@ export async function registrarDevolucao(
     throw new Error(`Ferramenta não encontrada (ID: ${ferramentaId})`)
   }
 
-  // 🔄 SYNC: Verificar se existe team_equipment para este colaborador/ferramenta
-  // Se existir, o trigger cuidará do estoque. Se não, atualizamos manualmente.
+  // 🔄 SYNC: Verificar se existe team_equipment ativo para esta ferramenta
+  // Se existir, marcar como devolvido e o trigger cuidará do estoque
   let teamEquipmentHandled = false
 
-  // Buscar equipe atual do colaborador
-  const { data: teamMember } = await supabase
-    .from("team_members")
-    .select("team_id")
-    .eq("colaborador_id", colaboradorId)
-    .is("left_at", null)
-    .single()
+  // Buscar team_equipment ativo para esta ferramenta (independente de equipe/colaborador)
+  const { data: teamEquipments } = await supabase
+    .from("team_equipment")
+    .select("id, quantity, team_id")
+    .eq("ferramenta_id", ferramentaId)
+    .is("returned_at", null)
+    .in("status", ["pending_acceptance", "accepted", "in_use"])
+    .order("assigned_at", { ascending: false })
 
-  if (teamMember?.team_id) {
-    // Buscar team_equipment pendente para esta ferramenta/equipe
-    const { data: teamEquipment } = await supabase
-      .from("team_equipment")
-      .select("id, quantity")
-      .eq("team_id", teamMember.team_id)
-      .eq("ferramenta_id", ferramentaId)
-      .is("returned_at", null)
-      .order("assigned_at", { ascending: false })
-      .limit(1)
-      .single()
+  console.log("🔍 [registrarDevolucao] Team equipment encontrado:", teamEquipments)
 
-    if (teamEquipment && quantidade >= teamEquipment.quantity) {
+  // Se encontrou atribuições ativas, marcar como devolvidas
+  if (teamEquipments && teamEquipments.length > 0) {
+    let quantidadeRestante = quantidade
+
+    for (const teamEquipment of teamEquipments) {
+      if (quantidadeRestante <= 0) break
+
+      const qtdDevolver = Math.min(quantidadeRestante, teamEquipment.quantity)
+
       // Marcar team_equipment como devolvido
-      // O trigger fn_team_equipment_increment_stock cuidará do estoque
       const { error: teUpdateError } = await supabase
         .from("team_equipment")
         .update({
           returned_at: new Date().toISOString(),
           status: 'returned',
-          notes: observacoes ? `Devolução via QuickReturn: ${observacoes}` : 'Devolução via QuickReturn'
+          notes: observacoes ? `Devolução: ${observacoes}` : 'Devolução'
         })
         .eq("id", teamEquipment.id)
 
       if (!teUpdateError) {
         teamEquipmentHandled = true
-        console.log("🔄 team_equipment sincronizado (trigger cuidará do estoque):", teamEquipment.id)
+        quantidadeRestante -= qtdDevolver
+        console.log(`✅ team_equipment ${teamEquipment.id} marcado como devolvido (qtd: ${qtdDevolver})`)
+      } else {
+        console.error(`❌ Erro ao atualizar team_equipment ${teamEquipment.id}:`, teUpdateError)
       }
     }
   }
