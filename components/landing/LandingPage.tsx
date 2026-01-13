@@ -92,11 +92,10 @@ export default function LandingPage({ isLoggedIn, hasSubscription, userEmail }: 
 
   const handleStart = () => {
     setCheckoutLoading(true)
-    if (isLoggedIn && hasSubscription) {
+    if (isLoggedIn) {
       router.push("/dashboard")
     } else {
-      // Redirect to Kiwify checkout
-      window.location.href = KIWIFY_CHECKOUT_URL
+      router.push("/login")
     }
   }
 

@@ -37,12 +37,12 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
-  // Verificar status da assinatura e trial
+  // Fetch profile for onboarding check
   let profile = null
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('subscription_status, stripe_customer_id, trial_start_date, company_name, industry_segment, company_size, password_set')
+      .select('company_name, industry_segment')
       .eq('id', user.id)
       .single()
 
@@ -50,13 +50,8 @@ export default async function DashboardLayout({
       profile = data
     }
   } catch (error) {
-    // Se houver erro ao buscar profile, continuar sem bloquear
     console.error('Erro ao buscar profile:', error)
   }
-
-  // NOTE: Removed password_set check redirect to /criar-senha (page deleted)
-  // Users now set password during signup, no separate password creation flow needed
-
 
   // Verificar se onboarding foi completado (apenas company_name e industry_segment são obrigatórios)
   const hasCompletedOnboarding = profile?.company_name && profile?.industry_segment
@@ -64,43 +59,11 @@ export default async function DashboardLayout({
     redirect("/onboarding")
   }
 
-  // Permitir acesso se:
-  // 1. Tem assinatura ativa ou em trial
-  // 2. Ou tem stripe_customer_id (já passou pelo checkout)
-  // 3. Ou está no período de trial grátis (7 dias)
-  const activeStatuses = ['active', 'trialing']
-  const hasActiveSubscription = profile?.subscription_status && activeStatuses.includes(profile.subscription_status)
-  const hasStripeCustomer = !!profile?.stripe_customer_id
-
-  // Verificar se está no período de trial
-  let isInTrial = false
-  if (profile?.trial_start_date) {
-    const startDate = new Date(profile.trial_start_date)
-    const now = new Date()
-    const endDate = new Date(startDate)
-    endDate.setDate(endDate.getDate() + 7) // 7 dias de trial
-    isInTrial = now < endDate
-  } else if (!hasActiveSubscription && !hasStripeCustomer) {
-    // SELF-HEALING: Se não tem data de trial e não tem assinatura, iniciar agora
-    // Isso garante que usuários antigos ou com erro na criação tenham o trial ativado ao acessar o dashboard
-    try {
-      const now = new Date().toISOString()
-      await supabase.from('profiles').update({ trial_start_date: now }).eq('id', user.id)
-      isInTrial = true
-    } catch (error) {
-      // Se falhar ao atualizar, permitir acesso mesmo assim
-      console.error('Erro ao atualizar trial_start_date:', error)
-      isInTrial = true
-    }
-  }
-
-  // Check if user is admin (free access)
-  const isAdmin = isAdminEmail(user.email || '')
-
-  // Only redirect to subscribe if not admin, no subscription, no checkout, AND not in trial
-  if (!isAdmin && !hasActiveSubscription && !hasStripeCustomer && !isInTrial) {
-    redirect("/subscribe")
-  }
+  // ============================================================================
+  // FREE ACCESS FOR ALL USERS
+  // ============================================================================
+  // Platform is now 100% free - no subscription or trial checks needed
+  // All authenticated users with completed onboarding have full access
 
   // ============================================================================
   // ROLE-BASED ACCESS CONTROL: Restrict operational users to /dashboard/operium
