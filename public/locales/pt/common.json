@@ -437,8 +437,8 @@
             "last_30_days": "Últimos 30 dias",
             "last_days": "Últimos {{days}} dias",
             "tools_in_use": {
-                "title": "Ferramentas em Uso",
-                "desc": "Atualmente retiradas por colaboradores"
+                "title": "Pendentes de Devolução",
+                "desc": "Retiradas e ainda não devolvidas"
             },
             "tools_damaged": {
                 "title": "Ferramentas Danificadas",
