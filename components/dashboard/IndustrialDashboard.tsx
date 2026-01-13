@@ -441,20 +441,38 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
       try {
         const supabase = createClientComponentClient()
 
-        // Buscar ferramentas apenas (sem queries em loop)
-        const { data: ferramentas, error: ferrError } = await supabase
-          .from("ferramentas")
-          .select("id, quantidade_disponivel, quantidade_total, estado")
-          .eq("profile_id", userId)
-          .eq("tipo_item", "ferramenta")
+        // Buscar ferramentas e atribuições de equipe
+        const [ferramentasRes, teamEquipmentRes] = await Promise.all([
+          supabase
+            .from("ferramentas")
+            .select("id, quantidade_disponivel, quantidade_total, estado")
+            .eq("profile_id", userId)
+            .eq("tipo_item", "ferramenta"),
+          supabase
+            .from("team_equipment")
+            .select("ferramenta_id, quantity, status, ferramentas(tipo_item)")
+            .in("status", ["pending_acceptance", "accepted", "in_use"])
+        ])
 
-        if (ferrError) {
-          console.error("Erro ao buscar ferramentas:", ferrError)
+        if (ferramentasRes.error) {
+          console.error("Erro ao buscar ferramentas:", ferramentasRes.error)
           return
         }
 
+        const ferramentas = ferramentasRes.data || []
+        const teamEquipment = teamEquipmentRes.data || []
+
+        // Calcular quantidade em equipes por ferramenta
+        const qtdEmEquipes: Record<string, number> = {}
+        teamEquipment.forEach((te: any) => {
+          const ferramenta = te.ferramentas as any
+          // Apenas ferramentas (não EPIs/consumíveis)
+          if (ferramenta?.tipo_item === "ferramenta") {
+            qtdEmEquipes[te.ferramenta_id] = (qtdEmEquipes[te.ferramenta_id] || 0) + (te.quantity || 0)
+          }
+        })
+
         // Usar dados de ferramentas estragadas já calculados pelo useKPIs
-        // Isso evita queries duplicadas e mantém consistência
         const unidadesEmConserto: Record<string, number> = {}
 
         if (Array.isArray(data.ferramentasEstragadas)) {
@@ -475,6 +493,7 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
           const qtdTotal = f.quantidade_total || 0
           const qtdDisponivelRaw = f.quantidade_disponivel || 0
           const qtdEmConserto = unidadesEmConserto[f.id] || 0
+          const qtdComEquipes = qtdEmEquipes[f.id] || 0
 
           // VALIDAÇÃO: quantidade_disponivel não pode ser maior que quantidade_total
           const qtdDisponivel = Math.min(qtdDisponivelRaw, qtdTotal)
@@ -488,11 +507,11 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
             // Unidades em conserto
             totalManutencao += qtdEmConserto
 
-            // O restante: quantidade_total - quantidade_disponivel - qtdEmConserto = em uso
+            // O restante: quantidade_total - quantidade_disponivel - qtdEmConserto - qtdComEquipes = em uso individual
             const qtdRealEmUso = qtdTotal - qtdDisponivel - qtdEmConserto
 
-            totalDisponiveis += qtdDisponivel
-            totalEmUso += Math.max(0, qtdRealEmUso)
+            totalDisponiveis += qtdDisponivel - qtdComEquipes // Descontar ferramentas com equipes do disponível
+            totalEmUso += Math.max(0, qtdRealEmUso) + qtdComEquipes // Somar ferramentas com equipes ao em uso
           }
         })
 
@@ -1177,11 +1196,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                   return (
                     <div
                       key={item.colaborador_id || item.nome}
-                      className={`flex items-center justify-between gap-4 p-4 rounded-xl border transition-all ${
-                        index < 3
+                      className={`flex items-center justify-between gap-4 p-4 rounded-xl border transition-all ${index < 3
                           ? 'border-zinc-100 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50'
                           : 'border-zinc-50 bg-zinc-50/50 hover:bg-zinc-100/50 dark:border-zinc-800/50 dark:bg-zinc-800/30 dark:hover:bg-zinc-800/50'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         {/* Posição / Troféu */}
@@ -1238,11 +1256,10 @@ export default function IndustrialDashboard({ userId }: IndustrialDashboardProps
                     {/* Lista expandida - com animação */}
                     {hasMoreItems && (
                       <div
-                        className={`grid transition-all duration-300 ease-in-out ${
-                          rankingExpanded
+                        className={`grid transition-all duration-300 ease-in-out ${rankingExpanded
                             ? 'grid-rows-[1fr] opacity-100'
                             : 'grid-rows-[0fr] opacity-0'
-                        }`}
+                          }`}
                       >
                         <div className="overflow-hidden">
                           <div className="space-y-3 pt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700 mt-2">
