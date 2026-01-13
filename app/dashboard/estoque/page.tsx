@@ -12,14 +12,22 @@ async function getFerramentas(userId: string) {
   try {
     const supabase = await createServerComponentClient()
 
-    // Primeiro, tentar buscar com todos os campos (se a migration foi executada)
-    let query = supabase
-      .from("ferramentas")
-      .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at, tipo_item, codigo, foto_url, tamanho, cor, ponto_ressuprimento")
-      .eq("profile_id", userId)
-      .order("nome", { ascending: true })
+    // Buscar ferramentas e atribuições de equipe em paralelo
+    const [ferramentasRes, teamEquipmentRes] = await Promise.all([
+      // Primeiro, tentar buscar com todos os campos (se a migration foi executada)
+      supabase
+        .from("ferramentas")
+        .select("id, nome, categoria, quantidade_total, quantidade_disponivel, estado, created_at, tipo_item, codigo, foto_url, tamanho, cor, ponto_ressuprimento")
+        .eq("profile_id", userId)
+        .order("nome", { ascending: true }),
+      // Buscar ferramentas atribuídas a equipes
+      supabase
+        .from("team_equipment")
+        .select("ferramenta_id, quantity, status, ferramentas(tipo_item)")
+        .in("status", ["pending_acceptance", "accepted", "in_use"])
+    ])
 
-    const { data, error } = await query
+    const { data, error } = ferramentasRes
 
     if (error) {
       // Se erro for sobre coluna não encontrada, tentar buscar apenas campos básicos
@@ -57,17 +65,35 @@ async function getFerramentas(userId: string) {
       return []
     }
 
+    // Calcular quantidade em equipes por ferramenta
+    const qtdEmEquipes: Record<string, number> = {}
+    const teamEquipment = teamEquipmentRes.data || []
+
+    teamEquipment.forEach((te: any) => {
+      const ferramenta = te.ferramentas as any
+      // Apenas ferramentas (não EPIs/consumíveis)
+      if (ferramenta?.tipo_item === "ferramenta") {
+        qtdEmEquipes[te.ferramenta_id] = (qtdEmEquipes[te.ferramenta_id] || 0) + (te.quantity || 0)
+      }
+    })
+
     // Se chegou aqui, os dados foram retornados (pode ter campos opcionais ou não)
-    // Garantir que todos os campos esperados existam
-    const mappedData = (data || []).map(item => ({
-      ...item,
-      tipo_item: (item as any).tipo_item || "ferramenta" as const,
-      codigo: (item as any).codigo || null,
-      foto_url: (item as any).foto_url || null,
-      tamanho: (item as any).tamanho || null,
-      cor: (item as any).cor || null,
-      ponto_ressuprimento: (item as any).ponto_ressuprimento || null,
-    }))
+    // Garantir que todos os campos esperados existam e ajustar quantidade_disponivel
+    const mappedData = (data || []).map(item => {
+      const qtdComEquipes = qtdEmEquipes[item.id] || 0
+      const qtdDisponivelReal = Math.max(0, (item.quantidade_disponivel || 0) - qtdComEquipes)
+
+      return {
+        ...item,
+        tipo_item: (item as any).tipo_item || "ferramenta" as const,
+        codigo: (item as any).codigo || null,
+        foto_url: (item as any).foto_url || null,
+        tamanho: (item as any).tamanho || null,
+        cor: (item as any).cor || null,
+        ponto_ressuprimento: (item as any).ponto_ressuprimento || null,
+        quantidade_disponivel: qtdDisponivelReal, // Atualizar com valor real
+      }
+    })
 
     // Log para diagnóstico
     console.log("Ferramentas carregadas:", mappedData.length, "itens")
