@@ -21,9 +21,9 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
-  description: "Plataforma completa para gestão de ativos, ferramentas, EPIs e veículos. Controle total do seu almoxarifado e equipes de campo em tempo real.",
-  keywords: ["gestão de ativos", "controle de ferramentas", "equipes de campo", "almoxarifado digital", "prevenção de perdas", "sistema grátis", "software gratuito", "construção civil"],
+  title: "Operium - Gestão de Ativos 100% Gratuita | Sem Cartão de Crédito",
+  description: "Plataforma 100% GRATUITA para gestão de ativos, ferramentas, EPIs e veículos. Controle total do seu almoxarifado e equipes de campo. Sem cartão de crédito, sem trial, sem pegadinhas.",
+  keywords: ["gestão de ativos grátis", "controle de ferramentas gratuito", "equipes de campo", "almoxarifado digital grátis", "sistema gratuito", "software grátis", "sem custo", "free", "construção civil", "100% gratuito"],
   authors: [{ name: "Operium" }],
   creator: "Operium",
   metadataBase: new URL("https://operium.com.br"),
@@ -61,8 +61,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     url: "https://operium.com.br",
-    title: "Operium - Gestão Inteligente de Ativos e Equipes de Campo",
-    description: "Plataforma completa para gestão de ativos, ferramentas, EPIs e veículos. Controle total do seu almoxarifado e equipes de campo em tempo real.",
+    title: "Operium - Gestão de Ativos 100% Gratuita | Sem Cartão",
+    description: "Plataforma 100% GRATUITA para gestão de ativos, ferramentas, EPIs e veículos. Sem cartão de crédito, sem trial, sem pegadinhas. Use grátis para sempre!",
     siteName: "Operium",
     images: [
       {
@@ -75,8 +75,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Operium - Gestão Inteligente de Ativos e Equipes",
-    description: "Plataforma completa para gestão de ativos, ferramentas, EPIs e veículos. Controle total do seu almoxarifado e equipes de campo.",
+    title: "Operium - Gestão de Ativos 100% Gratuita",
+    description: "Plataforma 100% GRATUITA para gestão de ativos. Sem cartão de crédito, sem trial, sem pegadinhas. Use grátis para sempre!",
     images: ["/images/og-image-operium.png"],
   },
 }

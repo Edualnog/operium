@@ -1309,20 +1309,20 @@
             "testimonials": "Depoimentos",
             "dashboard": "Ir para Dashboard",
             "login": "Entrar",
-            "start_free": "Adquirir Licença"
+            "start_free": "Usar Grátis"
         },
         "hero": {
             "badge": "Mais de 200 empresas já organizaram a casa",
             "title_part1": "Operium – ERP completo para gestão de ativos",
             "title_part2": "e almoxarifado",
             "title_part3": "",
-            "description": "Organize ferramentas, máquinas, veículos, EPIs e materiais em um único sistema simples e rápido, com app mobile incluso.",
-            "cta_button": "Adquirir licença vitalícia",
-            "cta_subtext": "Suporte vitalício • 7 dias de garantia",
-            "no_card": "Licença vitalícia com pagamento único. Suporte vitalício incluído. 7 dias de garantia para reembolso.",
+            "description": "Organize ferramentas, máquinas, veículos, EPIs e materiais em um único sistema simples e rápido, com app mobile incluso. 100% GRATUITO.",
+            "cta_button": "Começar Grátis Agora",
+            "cta_subtext": "100% Gratuito • Sem cartão de crédito",
+            "no_card": "Totalmente gratuito. Sem cartão de crédito. Sem trial. Sem pegadinhas. Use para sempre sem pagar nada.",
             "partners": "Empresas parceiras que confiam no Operium",
-            "chip_free": "Licença vitalícia",
-            "chip_mobile": "7 dias de garantia"
+            "chip_free": "100% Gratuito",
+            "chip_mobile": "App Mobile Incluso"
         },
         "pain_points": {
             "title": "Seus ativos são um buraco negro de dinheiro?",
@@ -1366,12 +1366,12 @@
             "autofill_mobile": "• Organiza por valor/criticidade\n• Foco no que importa"
         },
         "features": {
-            "support_title": "Suporte vitalício incluído",
-            "support_desc": "Atendimento ágil e humanizado para sempre. Fale com quem entende do assunto via WhatsApp, email ou chat.",
+            "support_title": "Suporte gratuito incluído",
+            "support_desc": "Atendimento ágil e humanizado. Fale com quem entende do assunto via WhatsApp, email ou chat.",
             "online_title": "Sistema 100% online",
             "online_desc": "Acesse o Operium a qualquer hora, de qualquer lugar. Do escritório, de casa ou direto da obra.",
-            "price_title": "Pagamento único, acesso vitalício",
-            "price_desc": "Pague uma vez e use para sempre. Sem mensalidades, sem surpresas. Inclui suporte vitalício, atualizações e app mobile. Garantia de 7 dias para reembolso total."
+            "price_title": "100% Gratuito para sempre",
+            "price_desc": "Use grátis para sempre. Sem mensalidades, sem surpresas, sem cartão de crédito. Inclui suporte, atualizações e app mobile."
         },
         "how_it_works": {
             "title": "Simples como deve ser",
