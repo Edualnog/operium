@@ -1422,11 +1422,11 @@
             "cancel_anytime": "7 dias de garantia para reembolso total."
         },
         "cta_final": {
-            "title": "Gestão de ativos completa com pagamento único.",
-            "subtitle": "Todos os recursos inclusos: controle de ativos, QR Code, app mobile, alertas e suporte vitalício.",
-            "button": "Adquirir licença vitalícia",
-            "button_subtext": "Suporte vitalício • 7 dias de garantia",
-            "join": "Licença vitalícia com suporte incluído. Garantia de 7 dias."
+            "title": "Gestão de ativos 100% gratuita para sempre.",
+            "subtitle": "Todos os recursos inclusos: controle de ativos, QR Code, app mobile, alertas e suporte gratuito.",
+            "button": "Começar Grátis Agora",
+            "button_subtext": "100% Gratuito • Sem cartão de crédito",
+            "join": "Plataforma 100% gratuita. Sem cartão, sem trial, sem pegadinhas."
         },
         "footer": {
             "terms": "Termos de Uso",
